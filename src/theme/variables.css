@@ -1,6 +1,7 @@
 /* Ionic Variables and Theming. For more info, please see:
 http://ionicframework.com/docs/theming/ */
 
+
 /** Ionic CSS Variables **/
 :root {
   /** primary **/
@@ -380,15 +381,12 @@ body.dark {
   --ion-card-background: #1e1e1e;
 }
 
-@font-face {
-  font-family: "Readex Pro";
-  font-weight: 500;
-  src: url("/fonts/ReadexPro/ReadexPro-SemiBold.ttf") format("ttf");
-}
+ion-button {
+   text-transform: none;
+ }
 
-@font-face {
-  font-family: "Roboto";
-  src: url("/fonts/Roboto/Roboto-Regular.ttf") format("ttf");
+[dir=rtl] .icon-arrow-back {
+  transform: rotate(180deg);
 }
 
 html {
