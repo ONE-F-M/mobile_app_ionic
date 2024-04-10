@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite --host",
     "build": "vite build",
+    "sync": "yarn build && npx cap sync",
     "preview": "vite preview",
     "test:e2e": "cypress run",
     "test:unit": "vitest",
@@ -33,6 +34,7 @@
     "@eslint/js": "^9.0.0",
     "@vitejs/plugin-legacy": "^5.0.0",
     "@vitejs/plugin-vue": "^4.0.0",
+    "@vue/cli-service": "^5.0.8",
     "@vue/test-utils": "^2.3.0",
     "cypress": "^13.5.0",
     "eslint": "^9.0.0",
