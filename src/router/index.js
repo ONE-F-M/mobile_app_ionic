@@ -1,27 +1,55 @@
-import { createRouter, createWebHistory } from '@ionic/vue-router';
-import HomePage from '../views/HomePage.vue'
-import LoginPage from "../views/authentication/LoginPage.vue"
+import { createRouter, createWebHistory } from "@ionic/vue-router";
 
 const routes = [
   {
-    path: '/',
-    redirect: '/home'
+    path: "/",
+    redirect: "/home",
   },
   {
-    path: '/home',
-    name: 'Home',
-    component: HomePage
+    path: "/",
+    component: () => import("@/layouts/AppLayoutDefault.vue"),
+    children: [
+      {
+        path: "home",
+        component: () => import("@/views/HomePage.vue"),
+      },
+    ],
   },
   {
-    path: "/login",
-    name: "Login",
-    component: LoginPage
-  }
-]
+    path: "/",
+    component: () => import("@/layouts/AppLoginLayout.vue"),
+    children: [
+      {
+        path: "login",
+        component: () => import("@/views/authentication/LoginPage.vue"),
+      },
+    ],
+  },
+  {
+    path: "/",
+    component: () => import("@/layouts/AppLoginLayout.vue"),
+    children: [
+      {
+        path: "forgot-password",
+        component: () => import("@/views/authentication/ForgotPassword.vue"),
+      },
+    ],
+  },
+  {
+    path: "/",
+    component: () => import("@/layouts/AppLayoutDefault.vue"),
+    children: [
+      {
+        path: "user",
+        component: () => import("@/views/user/HomePage.vue"),
+      },
+    ],
+  },
+];
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.VITE_BASE_URL),
-  routes
-})
+  routes,
+});
 
-export default router
+export default router;
