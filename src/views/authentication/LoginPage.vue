@@ -2,5 +2,7 @@
 </script>
 
 <template>
-  Login page
+  <div style="color: white;">
+    Login page
+  </div>
 </template>
