@@ -1,9 +1,8 @@
 import axios from "axios";
 import router from "@/router";
-//import store from "@/store";
-//import token from "@/utils/storage/token"
 
 const url = import.meta.env.VITE_BASE_API_URL ?? "";
+export const api_prefix = import.meta.env.VITE_API_PREFIX ?? "/api/method/one_fm.api.v1";
 
 const instance = axios.create({ baseURL: url });
 
@@ -14,8 +13,6 @@ instance.interceptors.response.use(
   (error) => {
     if (error.response.status === 401) {
       if (error.response.data.message == "Unauthenticated") {
-        // token.remove()
-        // store.commit("setUser", false)
         router.push({path: "/login"})
       }
     }
@@ -23,13 +20,6 @@ instance.interceptors.response.use(
     return Promise.reject(error.response.data)
   }
 );
-
-/*
-const auth = token.get()
-if (auth) {
-  instance.defaults.header.common["Authorization"] = `Bearer ${auth}`;
-}
-*/
 
 export default instance;
 
