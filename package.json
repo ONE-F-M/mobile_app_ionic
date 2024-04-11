@@ -26,7 +26,9 @@
     "axios": "^1.6.8",
     "ionicons": "^7.0.0",
     "pinia": "^2.1.7",
+    "pinia-plugin-persistedstate": "^3.2.1",
     "vue": "^3.3.0",
+    "vue-i18n": "9",
     "vue-router": "^4.2.0"
   },
   "devDependencies": {

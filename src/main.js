@@ -1,7 +1,11 @@
 import { createApp } from "vue";
-import { createPinia } from "pinia";
 import App from "./App.vue";
 import router from "./router";
+
+import { useLangStore } from "@/store/lang.js";
+
+import pinia from "@/plugins/pinia.js";
+import initI18n from "@/plugins/i18n.js";
 
 import { IonicVue } from "@ionic/vue";
 
@@ -25,9 +29,18 @@ import "@ionic/vue/css/display.css";
 import "./theme/variables.css";
 import "./theme/fonts.scss";
 
-const pinia = createPinia();
+const app = createApp(App);
 
-const app = createApp(App).use(IonicVue).use(router).use(pinia);
+app.use(pinia);
+app.use(IonicVue).use(router);
+
+const langStore = useLangStore();
+
+const lang = langStore.lang || "en";
+
+const i18n = initI18n(lang);
+
+app.use(i18n);
 
 router.isReady().then(() => {
   app.mount("#app");
