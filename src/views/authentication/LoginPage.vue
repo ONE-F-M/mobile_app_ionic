@@ -125,6 +125,7 @@ const login = async () => {
         <ion-input
           v-model="form.password"
           fill="outline"
+          type="password"
           placeholder="Password"
         />
         <ion-button
@@ -138,8 +139,9 @@ const login = async () => {
       </div>
       <p class="login-description ion-text-center">
         If you have forgotten your password
-        <router-link to="/forgot-password">click here</router-link>
-        .
+        <router-link class="login-description-link" to="/forgot-password">
+          click here </router-link
+        >.
       </p>
     </div>
   </Transition>
@@ -202,8 +204,14 @@ const login = async () => {
     font-size: 0.875rem;
     line-height: 1rem;
     font-weight: 300;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 
-    a {
+    &-link {
+      margin-bottom: 2px;
+      font-size: 0.875rem;
+      line-height: 1rem;
       text-decoration: none;
       font-weight: 500;
     }
