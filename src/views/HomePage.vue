@@ -1,34 +1,37 @@
 <template>
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
-
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>
-      Start with Ionic
-      <a
-        target="_blank"
-        rel="noopener noreferrer"
-        href="https://ionicframework.com/docs/components"
-      >
-        UI Components
-      </a>
-    </p>
-    <p>Navigate to <router-link to="/login">Login</router-link></p>
-    <img :src="imageSrc" />
-    <ion-button @click="takePhoto()">Take Photo</ion-button>
-  </div>
+  <ion-page>
+    <ion-content :fullscreen="false">
+      <div id="container">
+        <strong>{{ $t("home.description") }}</strong>
+        <p>
+          langStore.lang = {{ langStore.lang }}
+          {{ $t("home.title") }}
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            href="https://ionicframework.com/docs/components"
+          >
+            UI Components
+          </a>
+        </p>
+        <p>Navigate to <router-link to="/login">Login</router-link></p>
+        <p>Navigate to <router-link to="/welcome">Welcome</router-link></p>
+        <img :src="imageSrc" />
+        <ion-button @click="takePhoto()">Take Photo</ion-button>
+      </div>
+    </ion-content>
+  </ion-page>
 </template>
 
 <script setup>
-import { IonHeader, IonTitle, IonToolbar } from "@ionic/vue";
+import { IonPage, IonContent, IonButton } from "@ionic/vue";
 import { ref } from "vue";
 import { Camera, CameraResultType } from "@capacitor/camera";
+import { useLangStore } from "@/store/lang.js";
 
 const imageSrc = ref("");
+const langStore = useLangStore();
+
 const takePhoto = async () => {
   const image = await Camera.getPhoto({
     quality: 90,

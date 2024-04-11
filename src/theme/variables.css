@@ -389,6 +389,10 @@ ion-button {
   transform: rotate(180deg);
 }
 
+[dir=rtl] .icon-locale-rotate {
+  transform: rotate(180deg);
+}
+
 html {
   /* For more information on dynamic font scaling, visit the documentation: 
   https://ionicframework.com/docs/layout/dynamic-font-scaling */
