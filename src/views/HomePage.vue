@@ -16,6 +16,7 @@
         </p>
         <p>Navigate to <router-link to="/login">Login</router-link></p>
         <p>Navigate to <router-link to="/welcome">Welcome</router-link></p>
+        <p>Navigate to <router-link to="/enroll">Enrollment</router-link></p>
         <img :src="imageSrc" />
         <ion-button @click="takePhoto()">Take Photo</ion-button>
       </div>
