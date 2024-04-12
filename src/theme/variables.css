@@ -393,6 +393,68 @@ ion-button {
   transform: rotate(180deg);
 }
 
+.toast-success {
+  --ion-safe-area-top: 80px;
+  --border-radius: 12px;
+  --ion-color-base: #25353d !important;
+}
+
+ion-toast.toast-success::part(message) {
+  color: #C0C7CD;
+}
+
+ion-toast.toast-success::part(container) {
+  padding: 12px 0;
+  border-radius: 12px;
+}
+
+ion-toast.toast-success::part(header) {
+  color: #E0E3E3;
+}
+
+ion-toast.toast-success::part(icon) {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #52E169;
+  color: #00390C;
+  padding: 6px;
+  border-radius: 100%;
+}
+
+.toast-error {
+  --ion-safe-area-top: 80px;
+  --border-radius: 12px;
+  --ion-color-base: #25353d !important;
+}
+
+ion-toast.toast-error::part(message) {
+  color: #C0C7CD;
+}
+
+ion-toast.toast-error::part(container) {
+  padding: 12px 0;
+  border-radius: 12px;
+}
+
+ion-toast.toast-error::part(header) {
+  color: #E0E3E3;
+}
+
+ion-toast.toast-error::part(icon) {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #FFB3AC;
+  color: #68000A;
+  padding: 6px;
+  border-radius: 100%;
+}
+
 html {
   /* For more information on dynamic font scaling, visit the documentation: 
   https://ionicframework.com/docs/layout/dynamic-font-scaling */

@@ -5,14 +5,19 @@ import {
   IonRow,
   IonCol,
   IonButton,
+  toastController,
   IonPage,
   IonContent,
   useIonRouter,
 } from "@ionic/vue";
-import { reactive, ref } from "vue";
-import { arrowBackOutline } from "ionicons/icons";
-import { auth } from "../../api/index.ts";
-import { useUserStore } from "@/store/user.js";
+import { reactive, ref, computed } from "vue";
+import {
+  arrowBackOutline,
+  closeOutline,
+  checkmarkOutline,
+} from "ionicons/icons";
+import auth from "@/api/authentication";
+import { useUserStore } from "@/store/user";
 
 const userStore = useUserStore();
 const router = useIonRouter();
@@ -24,15 +29,23 @@ const form = reactive({
   password: "",
 });
 
-const nextStep = () => {
+const validId = computed(() => {
+  return form.id.length <= 12 && form.id.length > 0;
+});
+
+const nextStep = async () => {
   step.value += 1;
+
+  try {
+    // TODO implement get user name by id
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 const prevStep = () => {
   step.value -= 1;
 };
-
-const testError = ref(null);
 
 const login = async () => {
   try {
@@ -41,12 +54,43 @@ const login = async () => {
       password: form.password,
     });
 
+    if (data.error) {
+      const errorToast = await toastController.create({
+        cssClass: "toast-error",
+        header: "Error!",
+        message: data.error,
+        position: "top",
+        duration: 5000,
+        color: "medium",
+        buttons: [{ icon: closeOutline, role: "cancel" }],
+        icon: closeOutline,
+      });
+
+      await errorToast.present();
+      return;
+    }
+
+    const successToast = await toastController.create({
+      cssClass: "toast-success",
+      header: "Success!",
+      message: data.message,
+      position: "top",
+      duration: 5000,
+      color: "medium",
+      buttons: [{ icon: closeOutline, role: "cancel" }],
+      icon: checkmarkOutline,
+    });
+
+    await successToast.present();
+
     userStore.setUser(data.data);
-    auth.setHeaders(data.data.token);
+    userStore.setToken(data.data.token);
+
+    form.id = "";
+    form.password = "";
 
     router.push("/user/");
   } catch (error) {
-    testError.value = error;
     console.error(error);
   }
 };
@@ -88,7 +132,7 @@ const login = async () => {
             <ion-button
               fill="clear"
               strong
-              :disabled="!form.id"
+              :disabled="!validId"
               @click="nextStep"
               router-direction="back"
             >
@@ -107,10 +151,7 @@ const login = async () => {
           v-if="step === 1"
           class="ion-justify-content-between ion-padding login-wrapper"
         >
-          <template v-if="testError">
-            <pre>{{ testError }}</pre>
-          </template>
-          <template v-else>
+          <div>
             <ion-row class="login-header-wrapper">
               <ion-col class="login-wrapper-back-button" size="3">
                 <ion-button
@@ -132,42 +173,49 @@ const login = async () => {
                   </h3>
                 </ion-text>
               </ion-col>
-              <p class="login-wrapper-hello">
-                {{ $t("login.hello") }}
-              </p>
             </ion-row>
-
-            <div>
-              <p class="login-wrapper-subtitle ion-no-margin">
-                {{ $t("login.enterYour") }}
-              </p>
-              <h1 class="login-wrapper-title ion-no-margin">
-                {{ $t("login.password") }}
-              </h1>
-              <ion-input
-                v-model="form.password"
-                fill="outline"
-                type="password"
-                :placeholder="$t('login.password')"
-              />
-              <ion-button
-                @click="login"
-                class="login-button"
-                expand="block"
-                shape="round"
-              >
-                {{ $t("login.login") }}
-              </ion-button>
-            </div>
-            <p class="login-description ion-text-center">
-              {{ $t("login.forgotPassword") }}
-              <router-link class="login-description-link" to="/forgot-password">
-                {{ $t("login.clickHere") }} </router-link
-              >.
+            <p class="login-wrapper-hello">
+              {{ $t("login.hello") }}
             </p>
-          </template>
+          </div>
+
+          <div>
+            <p class="login-wrapper-subtitle ion-no-margin">
+              {{ $t("login.enterYour") }}
+            </p>
+            <h1 class="login-wrapper-title ion-no-margin">
+              {{ $t("login.password") }}
+            </h1>
+            <ion-input
+              v-model="form.password"
+              fill="outline"
+              type="password"
+              :placeholder="$t('login.password')"
+            />
+            <ion-button
+              @click="login"
+              class="login-button"
+              expand="block"
+              :disabled="!form.password"
+              shape="round"
+            >
+              {{ $t("login.login") }}
+            </ion-button>
+          </div>
+          <p class="login-description ion-text-center">
+            {{ $t("login.forgotPassword") }}
+            <router-link class="login-description-link" to="/forgot-password">
+              {{ $t("login.clickHere") }} </router-link
+            >.
+          </p>
         </div>
       </Transition>
+
+      <ion-toast
+        trigger="open-inline-toast"
+        :duration="3000"
+        message="This is a toast with a long message and a button that appears on the same line."
+      ></ion-toast>
     </ion-content>
   </ion-page>
 </template>
@@ -185,8 +233,6 @@ const login = async () => {
     }
 
     &-hello {
-      position: absolute;
-      top: 100%;
       font-size: 1rem;
       font-weight: 400;
       color: var(--ion-color-medium-shade);

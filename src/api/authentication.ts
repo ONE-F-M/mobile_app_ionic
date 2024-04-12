@@ -1,18 +1,23 @@
-import axios, { api_prefix } from "./axios";
+import { httpService } from "./http.service";
 
 type UserLoginParams = {
   employee_id: string;
   password: string;
 };
 
-export const userLogin = async (payload: UserLoginParams) =>
-  await axios.post(`${api_prefix}.authentication.user_login`, payload);
+type UserNameParams = Omit<UserLoginParams, "password">;
 
-export const setHeaders = (token: string) => {
-  axios.defaults.headers.common["Authorization"] = `${token}`;
-};
+const userLogin = async (payload: UserLoginParams) =>
+  await httpService.post(`authentication.user_login`, {
+    data: payload,
+  });
+
+const getUserEnrollment = async (payload: UserNameParams) =>
+  await httpService.post(`authentication.enrollment_status`, {
+    data: payload,
+  });
 
 export default {
   userLogin,
-  setHeaders,
+  getUserEnrollment,
 };
