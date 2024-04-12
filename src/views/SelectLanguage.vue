@@ -1,10 +1,11 @@
 <script setup>
 import IconDoubleArrowRight from "@/components/icon/DoubleArrowRight.vue";
-import { IonPage, IonContent } from "@ionic/vue";
+import { IonPage, IonContent, createGesture } from "@ionic/vue";
 import { useUserStore } from "@/store/user";
 import { useLangStore } from "@/store/lang";
 import { useIonRouter } from "@ionic/vue";
 import { useI18n } from "vue-i18n";
+import { onMounted, ref } from "vue";
 
 const router = useIonRouter();
 
@@ -12,28 +13,63 @@ const userStore = useUserStore();
 const langStore = useLangStore();
 const i18n = useI18n();
 
+let deltaX = ref(0);
+const content = ref();
+let gesture;
+
 if (userStore.user && langStore.lang) {
-  console.log("going home");
-  router.push("/home");
+  router.push("/user/");
 }
 
 const selectArabic = () => {
   langStore.setLang("ar");
 
   i18n.locale.value = "ar";
-  router.push("/home");
+  router.push("/login");
 };
 
 const selectEnglish = () => {
   langStore.setLang("en");
   i18n.locale.value = "en";
-  router.push("/home");
+  router.push("/login");
 };
+
+function checkDirection() {
+  if (deltaX.value < -30) {
+    selectArabic();
+  }
+  if (deltaX.value > 30) {
+    selectEnglish();
+  }
+}
+
+const onMove = (detail) => {
+  deltaX.value = detail.deltaX;
+};
+
+const onEnd = () => {
+  checkDirection();
+
+  setTimeout(() => {
+    deltaX.value = 0;
+  }, 400);
+};
+
+onMounted(() => {
+  gesture = createGesture({
+    el: content.value.$el,
+    onMove: (detail) => onMove(detail),
+    onEnd: () => onEnd(),
+    gestureName: "selectLang",
+  });
+
+  gesture.enable();
+});
 </script>
 
 <template>
   <ion-page>
-    <ion-content>
+    <ion-content ref="content">
       <div class="lang-wrapper ion-padding">
         <ion-row
           class="ion-align-items-center ion-justify-content-center ion-padding"
@@ -41,7 +77,10 @@ const selectEnglish = () => {
           <img src="/image/logo.svg" alt="logo" />
         </ion-row>
 
-        <div class="lang-selector-wrapper">
+        <div
+          class="lang-selector-wrapper"
+          :style="`--translate-x-lang-wrapper:${deltaX * 0.3}px;`"
+        >
           <ion-button
             @click="selectArabic"
             fill="clear"
@@ -68,7 +107,11 @@ const selectEnglish = () => {
                 class="ion-align-items-center lang-selector-icon-wrapper"
               >
                 <IconDoubleArrowRight class="icon-locale-rotate" />
-                <p class="lang-selector-lang-name ion-no-margin">عربى</p>
+                <p
+                  class="lang-selector-lang-name ion-no-margin ion-margin-start"
+                >
+                  عربى
+                </p>
               </ion-row>
             </ion-row>
           </ion-button>
@@ -96,7 +139,11 @@ const selectEnglish = () => {
                 class="ion-align-items-center lang-selector-icon-wrapper"
               >
                 <IconDoubleArrowRight />
-                <p class="lang-selector-lang-name ion-no-margin">English</p>
+                <p
+                  class="lang-selector-lang-name ion-no-margin ion-margin-start"
+                >
+                  English
+                </p>
               </ion-row>
             </ion-row>
           </ion-button>
@@ -116,6 +163,11 @@ const selectEnglish = () => {
 }
 
 .lang-selector {
+  &-wrapper {
+    transition: transform 0.3s ease;
+    transform: translateX(var(--translate-x-lang-wrapper));
+  }
+
   &-lang-name {
     font-size: 1.125rem;
     line-height: 1.5rem;
@@ -154,7 +206,6 @@ const selectEnglish = () => {
 
   &-icon-wrapper {
     flex-wrap: nowrap;
-    gap: 18px;
     flex-shrink: 0;
   }
 }

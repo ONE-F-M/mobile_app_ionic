@@ -3,15 +3,7 @@ import { createRouter, createWebHistory } from "@ionic/vue-router";
 const routes = [
   {
     path: "/",
-    redirect: "/welcome",
-  },
-  {
-    path: "/welcome",
-    component: () => import("@/views/Welcome.vue"),
-  },
-  {
-    path: "/home",
-    component: () => import("@/views/HomePage.vue"),
+    component: () => import("@/views/SelectLanguage.vue"),
   },
   {
     path: "/login",
