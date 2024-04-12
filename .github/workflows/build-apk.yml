@@ -1,9 +1,6 @@
 name: Build Apk
 
-on:
-  push:
-    branches:
-      - pipeline
+on: [pull_request]
 
 jobs:
   build:
