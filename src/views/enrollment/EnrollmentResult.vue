@@ -14,7 +14,7 @@
     <ion-content>
       <Transition>
         <div class="centered">
-          <template v-if="type == 'success'">
+          <template v-if="type === 'success'">
             <GreenCheck />
           </template>
           <template v-else>

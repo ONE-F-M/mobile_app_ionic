@@ -1,4 +1,11 @@
 export default {
+  start_screen: {
+    title: "Enrollment",
+    welcome_text: "Follow the instructions after clicking Enroll Now",
+    description_title: "To Begin Enrollment Process",
+    description_text: "Please remove your spectacles to start",
+    button: "Enroll Now",
+  },
   instructions: {
     look_straight: "Look straight in the camera",
     face_left: "Turn your face to the left",

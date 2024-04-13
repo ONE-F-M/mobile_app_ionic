@@ -1,9 +1,17 @@
 <script setup>
-  import { IonPage, IonContent, IonProgressBar, IonButton } from "@ionic/vue";
-  import { useUserStore } from "@/store/user";
+  import {
+    IonPage,
+    IonContent,
+    IonProgressBar,
+    IonButton,
+    IonIcon,
+    IonSpinner
+  } from "@ionic/vue";
   import { ref, onMounted } from "vue";
-
-  const user = useUserStore();
+  import {
+    arrowBackOutline,
+    arrowForwardOutline
+  } from "ionicons/icons";
 
   const progress = ref(0);
   const step = 0.01;
@@ -16,15 +24,15 @@
     "enrollment.instructions.face_right",
   ];
   const instruction = ref("");
-  const percent = duration/100*1000;
-  const interval = 1/instructions.length
+  const percent = duration / 100 * 1000;
+  const interval = 1 / instructions.length
   const curr_step = ref(1);
 
   const updateProgress = () => {
     progress.value += step;
 
-    if (progress.value > curr_step.value*interval
-     && instructions[curr_step.value]) {
+    if (progress.value > curr_step.value * interval
+        && instructions[curr_step.value]) {
       instruction.value = instructions[curr_step.value];
       curr_step.value += 1;
     }
@@ -52,7 +60,7 @@
 
   onMounted(async () => {
     const stream = await navigator.mediaDevices.getUserMedia({video: true})
-      .catch(err => console.log("media stream err:", err))
+        .catch(err => console.log("media stream err:", err))
 
     video.value.srcObject = stream;
     video.value.play();
@@ -71,17 +79,36 @@
             <video class="video" autoplay ref="video"></video>
           </div>
 
-          <ion-text class="command">
-            {{ $t(instruction) }}
+          <ion-text class="command ion-align-items-center ion-d-flex">
+            <ion-icon
+              v-if="instruction === 'enrollment.instructions.face_left'"
+              class="icon-arrow-back"
+              color="light"
+              size="large"
+              :icon="arrowBackOutline"
+            />
+            <span>{{ $t(instruction) }}</span>
+            <ion-icon
+              v-if="instruction === 'enrollment.instructions.face_right'"
+              class="icon-arrow-back"
+              color="light"
+              size="large"
+              :icon="arrowForwardOutline"
+            />
           </ion-text>
 
-          <template v-if="progress<1">
+          <template v-if="progress < 1">
             <ion-text class="scan">
               {{ $t("enrollment.scan_in_progress") }}
             </ion-text>
 
             <ion-progress-bar class="bar" :value="progress" />
           </template>
+
+
+          <div v-if="instruction === 'enrollment.almost_done'" class="loader">
+            <ion-spinner name="crescent"></ion-spinner>
+          </div>
         </div>
       </Transition>
 
@@ -108,6 +135,7 @@
   align-items: center;
   justify-content: center;
 }
+
 .video-wrapper {
   width: 230px;
   height: 280px;
@@ -118,23 +146,44 @@
     height: 100%;
   }
 }
+
 .command {
   margin-top: 44px;
+  display: flex;
+  align-items: center;
+
+  & > span {
+    margin: 0 10px;
+  }
 }
+
 .scan {
   margin-top: 78px;
 }
+
 .bar {
-  margin-top:24px;
+  margin-top: 24px;
   width: 80%;
+}
+
+ion-progress-bar {
+  --background: var(--ion-color-medium);
+  --progress-background: var(--ion-color-primary);
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }
 .test-buttons {
   position: absolute;
   bottom: 60px;
+  width: 100%;
   display: flex;
   justify-content: space-around;
-  width: 100%;
 }
+
 .relative {
   position: relative;
 }
