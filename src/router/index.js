@@ -14,21 +14,25 @@ const routes = [
     component: () => import("@/views/authentication/ForgotPassword.vue"),
   },
   {
-    path: "/enroll",
-    component: () => import("@/views/authentication/EnrollPage.vue"),
+    path: "/enrollment-start",
+    component: () => import("@/views/enrollment/EnrollmentStartPage.vue"),
+  },
+  {
+    path: "/enrollment",
+    component: () => import("@/views/enrollment/EnrollmentPage.vue"),
   },
   {
     path: "/enroll-success",
-    component: () => import("@/views/authentication/EnrollResult.vue"),
-    props: { type: "success", action: "/user" }
+    component: () => import("@/views/enrollment/EnrollmentResult.vue"),
+    props: { type: "success", action: "/home" }
   },
   {
     path: "/enroll-failure",
-    component: () => import("@/views/authentication/EnrollResult.vue"),
-    props: { type: "failure", action: "/enroll" }
+    component: () => import("@/views/enrollment/EnrollmentResult.vue"),
+    props: { type: "failure", action: "/enrollment-start" }
   },
   {
-    path: "/user",
+    path: "/home",
     component: () => import("@/views/user/HomePage.vue"),
   },
 ];

@@ -8,6 +8,7 @@ import {
   toastController,
   IonPage,
   IonContent,
+  IonSpinner,
   useIonRouter,
 } from "@ionic/vue";
 import { reactive, ref, computed } from "vue";
@@ -23,6 +24,8 @@ const userStore = useUserStore();
 const router = useIonRouter();
 
 const step = ref(0);
+const isLoading = ref(false);
+const employeeName = ref('');
 
 const form = reactive({
   id: "",
@@ -37,7 +40,10 @@ const nextStep = async () => {
   step.value += 1;
 
   try {
-    // TODO implement get user name by id
+    const { data } = await auth.getUserEnrollment({
+      employee_id: form.id
+    });
+    employeeName.value = data.data.employee_name
   } catch (error) {
     console.error(error);
   }
@@ -49,6 +55,7 @@ const prevStep = () => {
 
 const login = async () => {
   try {
+    isLoading.value = true
     const { data } = await auth.userLogin({
       employee_id: form.id,
       password: form.password,
@@ -60,13 +67,14 @@ const login = async () => {
         header: "Error!",
         message: data.error,
         position: "top",
-        duration: 5000,
+        duration: 2000,
         color: "medium",
         buttons: [{ icon: closeOutline, role: "cancel" }],
         icon: closeOutline,
       });
 
       await errorToast.present();
+      isLoading.value = false
       return;
     }
 
@@ -75,7 +83,7 @@ const login = async () => {
       header: "Success!",
       message: data.message,
       position: "top",
-      duration: 5000,
+      duration: 2000,
       color: "medium",
       buttons: [{ icon: closeOutline, role: "cancel" }],
       icon: checkmarkOutline,
@@ -89,8 +97,15 @@ const login = async () => {
     form.id = "";
     form.password = "";
 
-    router.push("/user/");
+    isLoading.value = false
+
+    if(data.data.enrolled) {
+      router.push("/home/");
+    } else {
+      router.push("/enrollment-start/");
+    }
   } catch (error) {
+    isLoading.value = false
     console.error(error);
   }
 };
@@ -174,9 +189,10 @@ const login = async () => {
                 </ion-text>
               </ion-col>
             </ion-row>
-            <p class="login-wrapper-hello">
+            <div class="login-wrapper-hello">
               {{ $t("login.hello") }}
-            </p>
+              <h5 v-if="employeeName">{{ employeeName }}</h5>
+            </div>
           </div>
 
           <div>
@@ -199,7 +215,8 @@ const login = async () => {
               :disabled="!form.password"
               shape="round"
             >
-              {{ $t("login.login") }}
+              <ion-spinner v-if="isLoading" name="crescent"></ion-spinner>
+              <span v-else>{{ $t("login.login") }}</span>
             </ion-button>
           </div>
           <p class="login-description ion-text-center">
@@ -221,6 +238,12 @@ const login = async () => {
 </template>
 
 <style lang="scss" scoped>
+.login-header-wrapper {
+  ion-button {
+    --padding-start: 0;
+  }
+}
+
 .login {
   &-wrapper {
     height: 100%;
@@ -236,6 +259,14 @@ const login = async () => {
       font-size: 1rem;
       font-weight: 400;
       color: var(--ion-color-medium-shade);
+
+      h5 {
+        font-size: 1.5rem;
+        line-height: 1.7rem;
+        font-weight: 400;
+        margin-top: 5px;
+        color: var(--ion-color-primary);
+      }
     }
 
     &-subtitle {
@@ -275,8 +306,7 @@ const login = async () => {
     font-size: 0.875rem;
     line-height: 1rem;
     font-weight: 300;
-    display: flex;
-    align-items: center;
+    text-align: center;
     gap: 4px;
 
     &-link {
@@ -302,5 +332,11 @@ const login = async () => {
 .v-enter-from,
 .v-leave-to {
   opacity: 0;
+}
+
+.login-header-wrapper {
+  ion-button {
+    --padding-start: 0;
+  }
 }
 </style>
