@@ -14,6 +14,20 @@ const routes = [
     component: () => import("@/views/authentication/ForgotPassword.vue"),
   },
   {
+    path: "/enroll",
+    component: () => import("@/views/authentication/EnrollPage.vue"),
+  },
+  {
+    path: "/enroll-success",
+    component: () => import("@/views/authentication/EnrollResult.vue"),
+    props: { type: "success", action: "/user" }
+  },
+  {
+    path: "/enroll-failure",
+    component: () => import("@/views/authentication/EnrollResult.vue"),
+    props: { type: "failure", action: "/enroll" }
+  },
+  {
     path: "/user",
     component: () => import("@/views/user/HomePage.vue"),
   },
