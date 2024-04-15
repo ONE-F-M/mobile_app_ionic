@@ -1,0 +1,53 @@
+name: Build IPA
+
+on:
+  push:
+    branches:
+      - pipeline-updates
+
+jobs:
+  build:
+    env:
+      VITE_BASE_API_URL: ${{vars.VITE_BASE_API_URL}}
+      VITE_API_PREFIX: ${{vars.VITE_API_PREFIX}}
+      VITE_BASE_URL: ${{vars.VITE_BASE_URL}}    
+    name: Build IPA
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '21'
+
+      - name: Install Ionic
+        run: npm install -g @ionic/cli
+
+      - name: Install app dependencies
+        run: npm install
+
+      - name: Build Ionic App
+        run: npm run build
+
+      - name: Copy IOS
+        run: ionic capacitor sync
+
+      - uses: sparkfabrik/ios-build-action@v2.3.0
+        name: Build and Upload IPA artifact
+        with:
+          configuration: Debug
+          export-method: package
+          project-path: ios
+          scheme: MyScheme
+          output-path: build-${{ github.sha }}.ipa
+          team-id: ${{ vars.APPLE_TEAM_ID }}
+          team-name: ${{ vars.APPLE_TEAM_NAME }}
+          ios-app-id: ${{ vars.APPLE_APP_ID }}
+
+      - name: Upload dev IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-dev
+          path: build-${{ github.sha }}.ipa
