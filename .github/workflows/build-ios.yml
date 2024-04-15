@@ -41,6 +41,7 @@ jobs:
           team-id: ${{ vars.APPLE_TEAM_ID }}
           team-name: ${{ vars.APPLE_TEAM_NAME }}
           ios-app-id: ${{ vars.APPLE_APP_ID }}
+          fastlane-version: "2.220.0"
 
       - name: Upload dev IPA
         uses: actions/upload-artifact@v4
