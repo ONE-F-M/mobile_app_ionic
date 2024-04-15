@@ -8,9 +8,7 @@ import {
   IonContent,
   useIonRouter,
 } from "@ionic/vue";
-import {
-  arrowBackOutline,
-} from "ionicons/icons";
+import { arrowBackOutline } from "ionicons/icons";
 import { useUserStore } from "@/store/user";
 
 const userStore = useUserStore();
@@ -22,15 +20,14 @@ const logout = () => {
 };
 const startEnrollment = () => {
   router.push("/enrollment");
-}
+};
 </script>
 
 <template>
   <ion-page>
     <ion-content>
-
       <Transition>
-        <div class="ion-justify-content-between ion-padding login-wrapper">
+        <div class="ion-justify-content-between login-wrapper">
           <div>
             <ion-row class="login-header-wrapper">
               <ion-col class="login-wrapper-back-button" size="3">
@@ -90,6 +87,7 @@ const startEnrollment = () => {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    padding: 0 14px 32px;
 
     &-header {
       margin: 0;
@@ -125,7 +123,8 @@ const startEnrollment = () => {
       position: absolute;
 
       z-index: 1;
-      top: 50%;
+      left: -3px;
+      top: calc(50% - 2px);
       transform: translateY(-50%);
     }
   }
@@ -154,30 +153,41 @@ const startEnrollment = () => {
   &-button {
     margin-top: 24px;
     height: 46px;
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    letter-spacing: 0.5px;
   }
 }
 
 .enrollment {
   &-wrapper {
     &-hello {
+      margin-top: 22px;
       font-size: 1.5rem;
-      line-height: 1.7rem;
+      line-height: 2rem;
+      letter-spacing: 0.85px;
       font-weight: 400;
       color: var(--ion-color-dark-contrast);
     }
 
     &-description {
       h5 {
-        font-size: 1.4rem;
-        line-height: 1.6rem;
+        font-size: 1.375rem;
+        line-height: 1.75rem;
         font-weight: 400;
+        margin-bottom: 12px;
         color: var(--ion-color-secondary);
       }
 
-      font-size: 1rem;
-      line-height: 1.5rem;
-      font-weight: 400;
-      color: var(--ion-color-dark-contrast);
+      p {
+        margin-top: 12px;
+        font-size: 1rem;
+        line-height: 1.5rem;
+        font-weight: 400;
+        letter-spacing: 0.5px;
+        color: var(--ion-color-dark-contrast);
+      }
     }
 
     ion-button {

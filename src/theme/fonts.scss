@@ -11,3 +11,13 @@ h1,h2,h3,h4,h5,h6 {
 label, p, span {
     font-family: 'Roboto', sans-serif;
 }
+
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&family=Noto+Naskh+Arabic:wght@400..700&display=swap');
+
+[dir='rtl'] * {
+  font-family: 'Cairo', sans-serif;
+}
+
+[dir='rtl'] label, [dir='rtl'] p, [dir='rtl'] span {
+  font-family: "Noto Naskh Arabic", serif;
+}
