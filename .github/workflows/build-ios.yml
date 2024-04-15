@@ -28,9 +28,6 @@ jobs:
       - name: Install app dependencies
         run: npm install
 
-      - name: Build Ionic App
-        run: npm run build
-
       - name: Copy IOS
         run: ionic capacitor sync
 
@@ -39,8 +36,7 @@ jobs:
         with:
           configuration: Debug
           export-method: package
-          project-path: ios
-          scheme: MyScheme
+          project-path: ios/App/App.xcodeproj
           output-path: build-${{ github.sha }}.ipa
           team-id: ${{ vars.APPLE_TEAM_ID }}
           team-name: ${{ vars.APPLE_TEAM_NAME }}
