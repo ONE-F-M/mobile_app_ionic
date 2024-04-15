@@ -1,6 +1,9 @@
 name: Build Apk
 
-on: [pull_request]
+on:
+  push:
+    branches:
+      - pipeline-updates
 
 jobs:
   build:
@@ -29,6 +32,12 @@ jobs:
 
       - name: Install app dependencies
         run: npm install
+
+      - name: Add env variables
+        with:
+          VITE_BASE_API_URL: ${{vars.VITE_BASE_API_URL}}
+          VITE_API_PREFIX: ${{vars.VITE_API_PREFIX}}
+          VITE_BASE_URL: ${{vars.VITE_BASE_URL}}     
 
       - name: Build Ionic App
         run: npm run build
