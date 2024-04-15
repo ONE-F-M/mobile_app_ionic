@@ -394,7 +394,8 @@ ion-button {
 }
 
 .toast-success {
-  --ion-safe-area-top: 80px;
+  --ion-safe-area-top: 60px;
+  --max-width: 92%;
   --border-radius: 12px;
   --ion-color-base: #25353d !important;
 }
@@ -404,8 +405,13 @@ ion-toast.toast-success::part(message) {
 }
 
 ion-toast.toast-success::part(container) {
-  padding: 12px 0;
+  padding: 0;
   border-radius: 12px;
+}
+
+ion-toast.toast-success::part(container) .toast-content {
+  padding: 0;
+  background: red;
 }
 
 ion-toast.toast-success::part(header) {
@@ -425,7 +431,8 @@ ion-toast.toast-success::part(icon) {
 }
 
 .toast-error {
-  --ion-safe-area-top: 80px;
+  --ion-safe-area-top: 60px;
+  --max-width: 92%;
   --border-radius: 12px;
   --ion-color-base: #25353d !important;
 }
@@ -435,7 +442,7 @@ ion-toast.toast-error::part(message) {
 }
 
 ion-toast.toast-error::part(container) {
-  padding: 12px 0;
+  padding: 0;
   border-radius: 12px;
 }
 
@@ -452,6 +459,7 @@ ion-toast.toast-error::part(icon) {
   background: #FFB3AC;
   color: #68000A;
   padding: 6px;
+  margin-left: 10px;
   border-radius: 100%;
 }
 

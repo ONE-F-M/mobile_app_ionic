@@ -25,7 +25,7 @@ const router = useIonRouter();
 
 const step = ref(0);
 const isLoading = ref(false);
-const employeeName = ref('');
+const employeeName = ref("");
 
 const form = reactive({
   id: "",
@@ -41,9 +41,9 @@ const nextStep = async () => {
 
   try {
     const { data } = await auth.getUserEnrollment({
-      employee_id: form.id
+      employee_id: form.id,
     });
-    employeeName.value = data.data.employee_name
+    employeeName.value = data.data.employee_name;
   } catch (error) {
     console.error(error);
   }
@@ -55,7 +55,7 @@ const prevStep = () => {
 
 const login = async () => {
   try {
-    isLoading.value = true
+    isLoading.value = true;
     const { data } = await auth.userLogin({
       employee_id: form.id,
       password: form.password,
@@ -74,7 +74,7 @@ const login = async () => {
       });
 
       await errorToast.present();
-      isLoading.value = false
+      isLoading.value = false;
       return;
     }
 
@@ -97,15 +97,15 @@ const login = async () => {
     form.id = "";
     form.password = "";
 
-    isLoading.value = false
+    isLoading.value = false;
 
-    if(data.data.enrolled) {
+    if (data.data.enrolled) {
       router.push("/home/");
     } else {
       router.push("/enrollment-start/");
     }
   } catch (error) {
-    isLoading.value = false
+    isLoading.value = false;
     console.error(error);
   }
 };
@@ -117,7 +117,7 @@ const login = async () => {
       <Transition>
         <div
           v-if="step === 0"
-          class="ion-justify-content-between ion-padding login-wrapper"
+          class="ion-justify-content-between login-wrapper"
         >
           <ion-row class="login-header-wrapper">
             <ion-col class="ion-align-self-center ion-text-center">
@@ -195,7 +195,7 @@ const login = async () => {
             </div>
           </div>
 
-          <div>
+          <div class="login-password-wrapper">
             <p class="login-wrapper-subtitle ion-no-margin">
               {{ $t("login.enterYour") }}
             </p>
@@ -251,18 +251,22 @@ const login = async () => {
     flex-direction: column;
     justify-content: space-between;
 
+    padding: 0 15px 24px;
+
     &-header {
       margin: 0;
     }
 
     &-hello {
+      margin-top: 13px;
       font-size: 1rem;
-      font-weight: 400;
+      line-height: 1.5rem;
+      font-weight: 500;
       color: var(--ion-color-medium-shade);
 
       h5 {
-        font-size: 1.5rem;
-        line-height: 1.7rem;
+        font-size: 1.75rem;
+        line-height: 2rem;
         font-weight: 400;
         margin-top: 5px;
         color: var(--ion-color-primary);
@@ -271,7 +275,7 @@ const login = async () => {
 
     &-subtitle {
       font-size: 1rem;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
       font-weight: 400;
       color: var(--ion-color-medium-shade);
     }
@@ -280,7 +284,7 @@ const login = async () => {
       font-size: 1.5rem;
       line-height: 2rem;
       font-weight: 400;
-      margin-bottom: 12px;
+      margin-bottom: 17px;
       color: var(--ion-color-dark-contrast);
     }
 
@@ -293,7 +297,8 @@ const login = async () => {
       position: absolute;
 
       z-index: 1;
-      top: 50%;
+      top: calc(50% - 2px);
+      left: -3px;
       transform: translateY(-50%);
     }
   }
@@ -302,12 +307,18 @@ const login = async () => {
     position: relative;
   }
 
+  &-password-wrapper {
+    margin-top: 12px;
+  }
+
   &-description {
     font-size: 0.875rem;
     line-height: 1rem;
     font-weight: 300;
     text-align: center;
     gap: 4px;
+    padding-bottom: 22px;
+    letter-spacing: 0.25px;
 
     &-link {
       margin-bottom: 2px;

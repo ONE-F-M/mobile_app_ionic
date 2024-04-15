@@ -70,10 +70,8 @@ onMounted(() => {
 <template>
   <ion-page>
     <ion-content ref="content">
-      <div class="lang-wrapper ion-padding">
-        <ion-row
-          class="ion-align-items-center ion-justify-content-center ion-padding"
-        >
+      <div class="lang-wrapper">
+        <ion-row class="ion-align-items-center ion-justify-content-center">
           <img src="/image/logo.svg" alt="logo" />
         </ion-row>
 
@@ -85,15 +83,17 @@ onMounted(() => {
             @click="selectArabic"
             fill="clear"
             color="light"
-            class="lang-selector-button-wrapper"
+            class="lang-selector-button-wrapper lang-selector-button-wrapper__ar"
             dir="rtl"
           >
             <ion-row
               class="ion-justify-content-between lang-selector-button-wrapper"
             >
-              <ion-col class="ion-text-start">
+              <ion-col class="ion-text-start ion-no-padding">
                 <ion-text>
-                  <p class="ion-no-margin lang-selector-subtitle">
+                  <p
+                    class="ion-no-margin lang-selector-subtitle lang-selector-subtitle__ar"
+                  >
                     مرحبا بك في
                   </p>
                   <p
@@ -108,7 +108,7 @@ onMounted(() => {
               >
                 <IconDoubleArrowRight class="icon-locale-rotate" />
                 <p
-                  class="lang-selector-lang-name ion-no-margin ion-margin-start"
+                  class="lang-selector-lang-name lang-selector-lang-name__ar ion-no-margin ion-margin-start"
                 >
                   عربى
                 </p>
@@ -119,7 +119,7 @@ onMounted(() => {
             @click="selectEnglish"
             fill="clear"
             color="light"
-            class="lang-selector-button-wrapper"
+            class="lang-selector-button-wrapper lang-selector-button-wrapper__en"
             dir="ltr"
           >
             <ion-row
@@ -138,9 +138,13 @@ onMounted(() => {
               <ion-row
                 class="ion-align-items-center lang-selector-icon-wrapper"
               >
-                <IconDoubleArrowRight />
+                <span>
+                  <IconDoubleArrowRight
+                    class="lang-selector-lang-name__en-icon"
+                  />
+                </span>
                 <p
-                  class="lang-selector-lang-name ion-no-margin ion-margin-start"
+                  class="lang-selector-lang-name lang-selector-lang-name__en ion-no-margin"
                 >
                   English
                 </p>
@@ -148,7 +152,6 @@ onMounted(() => {
             </ion-row>
           </ion-button>
         </div>
-        <div />
       </div>
     </ion-content>
   </ion-page>
@@ -156,19 +159,34 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 .lang-wrapper {
+  padding: 24px 14px 16px;
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
 }
 
 .lang-selector {
   &-wrapper {
+    margin-top: 98px;
     transition: transform 0.3s ease;
     transform: translateX(var(--translate-x-lang-wrapper));
   }
 
   &-lang-name {
+    &__ar {
+      font-size: 1.125rem;
+      margin-right: 20px;
+    }
+
+    &__en {
+      margin-left: 25px;
+      margin-bottom: 8px;
+    }
+
+    &__en-icon {
+      margin-bottom: 8px;
+    }
+
     font-size: 1.125rem;
     line-height: 1.5rem;
     color: var(--ion-color-secondary-tint);
@@ -181,12 +199,20 @@ onMounted(() => {
     font-family: "Readex Pro", sans-serif;
 
     &__en {
-      font-size: 1.8rem;
+      max-width: max(200px, 60%);
+      font-size: 1.85rem;
       word-wrap: break-word;
     }
 
     &__ar {
-      max-width: max(120px, 50%);
+      font-weight: 700;
+      padding-right: 4px;
+      padding-bottom: 1px;
+      font-family: "Cairo", "sans-serif";
+      font-size: 2rem;
+      line-height: 2.5rem;
+      overflow: inherit;
+      max-width: max(130px, 50%);
     }
   }
 
@@ -197,11 +223,30 @@ onMounted(() => {
     color: var(--ion-color-medium-shade);
     text-wrap: initial;
     font-family: "Readex Pro", sans-serif;
+
+    &__ar {
+      font-family: "Cairo", "sans-serif";
+      line-height: 1.85rem;
+    }
   }
 
   &-button-wrapper {
     width: 100%;
     flex-wrap: nowrap;
+
+    &__ar {
+      &::part(native) {
+        padding: 0 0 0 14px;
+      }
+    }
+
+    &__en {
+      margin-top: 36px;
+
+      &::part(native) {
+        padding: 0 16px 0 0;
+      }
+    }
   }
 
   &-icon-wrapper {

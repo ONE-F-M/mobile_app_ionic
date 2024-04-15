@@ -1,34 +1,38 @@
 <script setup>
-  import { IonPage, IonContent } from "@ionic/vue";
-  import GreenCheck from "@/components/icon/GreenCheck.vue";
-  import RedTimes from "@/components/icon/RedTimes.vue";
+import { IonPage, IonContent } from "@ionic/vue";
+import GreenCheck from "@/components/icon/GreenCheck.vue";
+import RedTimes from "@/components/icon/RedTimes.vue";
 
-  defineProps({
-    type: String,
-    action: String,
-  });
+defineProps({
+  type: String,
+  action: String,
+});
 </script>
 
 <template>
   <ion-page>
     <ion-content>
       <Transition>
-        <div class="centered">
-          <template v-if="type === 'success'">
-            <GreenCheck />
-          </template>
-          <template v-else>
-            <RedTimes />
-          </template>
-          <h3>{{ $t(`enrollment.${type}_title`) }}</h3>
-          <p>{{ $t(`enrollment.${type}_description`) }}</p>
+        <div class="enrollment-result">
+          <div class="enrollment-result-status-icon">
+            <template v-if="type === 'success'">
+              <GreenCheck />
+            </template>
+            <template v-else>
+              <RedTimes />
+            </template>
+          </div>
+          <h3 class="enrollment-result-status-title">
+            {{ $t(`enrollment.${type}_title`) }}
+          </h3>
+          <p class="enrollment-result-status-description">
+            {{ $t(`enrollment.${type}_description`) }}
+          </p>
 
-          <router-link class="router" :to="action">
-            <div class="btn-container">
-              <ion-button class="ion-button">
-                  {{ $t(`enrollment.${type}_action`) }}
-              </ion-button>
-            </div>
+          <router-link class="enrollment-result-link" :to="action">
+            <ion-button class="ion-button" shape="round" expand="block">
+              {{ $t(`enrollment.${type}_action`) }}
+            </ion-button>
           </router-link>
         </div>
       </Transition>
@@ -37,32 +41,60 @@
 </template>
 
 <style lang="scss" scoped>
-.centered {
+.enrollment-result {
+  margin-top: -12px;
+
   width: 100%;
   height: 100%;
   display: flex;
   flex-flow: column;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 20px 16px;
 
-  p {
-    text-align: center;
+  &-status-icon {
+    width: 80px;
+    height: 80px;
   }
 
-  .btn-container {
-    display: flex;
-    width: 100%;
-    justify-content: stretch;
+  &-status-title {
+    margin-top: 24px;
+    margin-bottom: 0;
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 400;
   }
 
-  .ion-button {
-    width: 100%;
+  &-status-description {
+    margin: 16px 12px 0;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    letter-spacing: 0.5px;
+    font-weight: 400;
+    color: var(--ion-color-medium-contrast);
   }
 
-  .router {
+  .enrollment-result-link {
+    margin-top: 58px;
     display: block;
     width: 100%;
+
+    .ion-button {
+      height: 46px;
+      margin: 0;
+
+      font-size: 1rem;
+      line-height: 1.5rem;
+      font-weight: 500;
+      font-family: "Readex Pro", sans-serif;
+
+      letter-spacing: 0.5px;
+    }
+
+    &::part(native) {
+      --padding-top: 11px;
+      --padding-bottom: 11px;
+    }
   }
 }
 </style>
