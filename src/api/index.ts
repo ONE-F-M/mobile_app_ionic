@@ -1,4 +1,6 @@
 import auth from "./authentication";
+import face_recognition from "./face_recognition";
 
-export { auth };
-export default { auth };
+export { auth, face_recognition };
+export default { auth, face_recognition };
+

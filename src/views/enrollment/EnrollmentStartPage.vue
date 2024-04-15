@@ -10,20 +10,40 @@ import {
 } from "@ionic/vue";
 import { arrowBackOutline } from "ionicons/icons";
 import { useUserStore } from "@/store/user";
+import { ref } from "vue";
+import { enroll } from "@/api/face_recognition";
+
+import EnrollmentPage from "@/views/enrollment/EnrollmentPage.vue";
 
 const userStore = useUserStore();
 const router = useIonRouter();
+
+const inProgress = ref(false);
 
 const logout = () => {
   userStore.logout();
   router.push("/");
 };
 const startEnrollment = () => {
-  router.push("/enrollment");
-};
+  inProgress.value = true;
+}
+
+const handleVideo = async (video) => {
+  const employeeId = userStore.user.employeeId
+
+  await enroll({ employeeId, video })
+    .then(() => router.push("/enroll-success"))
+    .catch(() => router.push("/enroll-failure"))
+    .finally(() => inProgress.value = false);
+}
+
 </script>
 
 <template>
+  <template v-if="inProgress">
+    <EnrollmentPage @completed="handleVideo" />
+  </template>
+  <template v-else>
   <ion-page>
     <ion-content>
       <Transition>
@@ -72,6 +92,7 @@ const startEnrollment = () => {
       </Transition>
     </ion-content>
   </ion-page>
+  </template>
 </template>
 
 <style lang="scss" scoped>

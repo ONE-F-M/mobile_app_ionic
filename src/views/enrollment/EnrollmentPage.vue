@@ -1,72 +1,115 @@
 <script setup>
-import {
-  IonPage,
-  IonContent,
-  IonProgressBar,
-  IonButton,
-  IonIcon,
-  IonSpinner,
-} from "@ionic/vue";
-import { ref, onMounted } from "vue";
-import { arrowBackOutline, arrowForwardOutline } from "ionicons/icons";
+  import {
+    IonPage,
+    IonContent,
+    IonProgressBar,
+    IonButton,
+    IonIcon,
+    IonSpinner
+  } from "@ionic/vue";
+  import {
+    arrowBackOutline,
+    arrowForwardOutline
+  } from "ionicons/icons";
+  import { ref, onMounted, onUnmounted,
+    onActivated, onDeactivated
+  } from "vue";
 
-const progress = ref(0);
-const step = 0.01;
+  const emit =
+    defineEmits([
+      'completed'
+    ]);
 
-//in seconds
-const duration = 10;
-const instructions = [
-  "enrollment.instructions.look_straight",
-  "enrollment.instructions.face_left",
-  "enrollment.instructions.face_right",
-];
-const instruction = ref("");
-const percent = (duration / 100) * 1000;
-const interval = 1 / instructions.length;
-const curr_step = ref(1);
+  const progress = ref(0);
+  const step = 0.01;
 
-const updateProgress = () => {
-  progress.value += step;
+  //in seconds
+  const duration = 10;
+  const instructions = [
+    "enrollment.instructions.look_straight",
+    "enrollment.instructions.face_left",
+    "enrollment.instructions.face_right",
+  ];
+  const instruction = ref("");
+  const percent = duration/100*1000;
+  const interval = 1/instructions.length
+  const curr_step = ref(1);
 
-  if (
-    progress.value > curr_step.value * interval &&
-    instructions[curr_step.value]
-  ) {
-    instruction.value = instructions[curr_step.value];
-    curr_step.value += 1;
-  }
-};
+  const updateProgress = () => {
+    progress.value += step;
 
-const saveVideo = async () => {
-  instruction.value = "enrollment.almost_done";
-  const promise = new Promise((resolve) => setTimeout(resolve, 1500));
-
-  await promise;
-};
-
-const progressWrapper = () => {
-  if (progress.value >= 1) {
-    saveVideo();
-    return;
+    if (progress.value > curr_step.value*interval
+     && instructions[curr_step.value]) {
+      instruction.value = instructions[curr_step.value];
+      curr_step.value += 1;
+    }
   }
 
-  updateProgress();
-  setTimeout(progressWrapper, percent);
-};
+  const progressWrapper = () => {
+    if (progress.value >= 1) {
+      saveVideo();
+      return;
+    }
 
-const video = ref(null);
+    updateProgress();
+    setTimeout(progressWrapper, percent);
+  }
 
-onMounted(async () => {
-  const stream = await navigator.mediaDevices
-    .getUserMedia({ video: true })
-    .catch((err) => console.log("media stream err:", err));
+  const video = ref(null);
 
-  video.value.srcObject = stream;
-  video.value.play();
+  let stream = null;
+  let dataPromise = null;
+  let recorder = null;
+  const initializeStream = async () => {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio:false
+    })
+      .catch(err => console.log("media stream err:", err.name))
 
-  instruction.value = "enrollment.instructions.look_straight";
-  setTimeout(progressWrapper, percent);
-});
+    if (!stream) return;
+
+    video.value.srcObject = stream;
+    video.value.play();
+
+    let dataResolver;
+    dataPromise = new Promise((resolve) => dataResolver = resolve);
+
+    recorder = new MediaRecorder(stream);
+    recorder.ondataavailable = (event) => dataResolver(event.data);
+    recorder.start();
+
+    instruction.value = "enrollment.instructions.look_straight";
+    setTimeout(progressWrapper, percent);
+  };
+
+  const cleanup = async () => {
+    recorder.stop(); //just in case
+    stream && stream.getTracks().forEach(track => track.stop());
+    stream = null;
+  };
+
+  const saveVideo = async () => {
+    instruction.value = "enrollment.almost_done";
+    recorder.stop();
+
+    const chunks = await dataPromise;
+
+    const readerPromise = new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(chunks);
+    });
+
+    const converted = await readerPromise;
+    emit("completed", converted);
+  };
+
+  onMounted(initializeStream);
+  onActivated(initializeStream);
+
+  onUnmounted(cleanup)
+  onDeactivated(cleanup);
 </script>
 
 <template>
@@ -123,17 +166,6 @@ onMounted(async () => {
           </div>
         </div>
       </Transition>
-
-      <template v-if="progress >= 1">
-        <div class="test-buttons">
-          <router-link to="/enroll-success">
-            <ion-button>Success</ion-button>
-          </router-link>
-          <router-link to="/enroll-failure">
-            <ion-button>Failure</ion-button>
-          </router-link>
-        </div>
-      </template>
     </ion-content>
   </ion-page>
 </template>
