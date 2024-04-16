@@ -5,7 +5,9 @@ const config: CapacitorConfig = {
   appName: "one_facilities",
   webDir: "dist",
   server: {
+    hostname: "localhost",
     androidScheme: "https",
+    iosScheme: "https",
     allowNavigation: ["https://staging.one-fm.com/*"],
   },
   plugins: {

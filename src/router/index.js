@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from "@ionic/vue-router";
+import EnrollmentStartPage from "@/views/enrollment/EnrollmentStartPage.vue"
 
 const routes = [
   {
@@ -14,12 +15,8 @@ const routes = [
     component: () => import("@/views/authentication/ForgotPassword.vue"),
   },
   {
-    path: "/enrollment-start",
-    component: () => import("@/views/enrollment/EnrollmentStartPage.vue"),
-  },
-  {
     path: "/enrollment",
-    component: () => import("@/views/enrollment/EnrollmentPage.vue"),
+    component: EnrollmentStartPage,
   },
   {
     path: "/enroll-success",

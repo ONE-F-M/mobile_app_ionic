@@ -102,7 +102,7 @@ const login = async () => {
     if (data.data.enrolled) {
       router.push("/home/");
     } else {
-      router.push("/enrollment-start/");
+      router.push("/enrollment");
     }
   } catch (error) {
     isLoading.value = false;
