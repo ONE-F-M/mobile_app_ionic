@@ -3,7 +3,7 @@ name: Build Apk
 on:
   push:
     branches:
-      - pipeline-updates
+      - dev
 
 jobs:
   build:
