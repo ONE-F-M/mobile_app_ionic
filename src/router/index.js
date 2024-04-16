@@ -30,7 +30,25 @@ const routes = [
   },
   {
     path: "/home",
-    component: () => import("@/views/user/HomePage.vue"),
+    component: () => import("@/views/user/Tabs.vue"),
+    children: [
+      {
+        path: '/home',
+        component: () => import("@/views/user/HomePage.vue"),
+      },
+      {
+        path: '/service',
+        component: () => import('@/views/user/ServicePage.vue'),
+      },
+      {
+        path: '/notification',
+        component: () => import('@/views/user/NotificationPage.vue'),
+      },
+      {
+        path: '/profile',
+        component: () => import('@/views/user/ProfilePage.vue'),
+      },
+    ]
   },
 ];
 
