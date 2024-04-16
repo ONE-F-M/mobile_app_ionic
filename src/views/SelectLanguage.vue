@@ -168,7 +168,6 @@ onMounted(() => {
 .lang-selector {
   &-wrapper {
     margin: auto 0;
-    padding-top: 24px;
     padding-bottom: 80px;
     transition: transform 0.3s ease;
     transform: translateX(var(--translate-x-lang-wrapper));

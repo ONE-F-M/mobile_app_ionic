@@ -50,7 +50,11 @@ const nextStep = async () => {
 };
 
 const prevStep = () => {
-  step.value -= 1;
+  if (step.value === 0) {
+    router.push('/')
+  } else {
+    step.value -= 1;
+  }
 };
 
 const login = async () => {
@@ -120,6 +124,19 @@ const login = async () => {
           class="ion-justify-content-between login-wrapper"
         >
           <ion-row class="login-header-wrapper">
+            <ion-col class="login-wrapper-back-button" size="3">
+              <ion-button
+                @click="prevStep"
+                router-direction="back"
+                fill="clear"
+              >
+                <ion-icon
+                  class="icon-arrow-back"
+                  color="light"
+                  :icon="arrowBackOutline"
+                />
+              </ion-button>
+            </ion-col>
             <ion-col class="ion-align-self-center ion-text-center">
               <ion-text>
                 <h3 class="login-wrapper-header ion-padding">
