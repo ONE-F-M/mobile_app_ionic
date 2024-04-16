@@ -16,25 +16,55 @@ import {gridOutline, homeOutline, notificationsOutline, personOutline} from "ion
     <ion-content class="ion-padding">
       <ion-tabs>
         <ion-router-outlet />
-        <ion-tab-bar slot="bottom">
+        <ion-tab-bar class="navigation-tabs" slot="bottom">
           <ion-tab-button tab="home" href="/home">
             <ion-icon :icon="homeOutline" />
-            Home
+            {{ $t("user.home.title") }}
           </ion-tab-button>
           <ion-tab-button tab="service" href="/service">
             <ion-icon :icon="gridOutline" />
-            Service
+            {{ $t("user.service.title") }}
           </ion-tab-button>
           <ion-tab-button tab="notification" href="/notification">
             <ion-icon :icon="notificationsOutline" />
-            Notification
+            {{ $t("user.notification.title") }}
           </ion-tab-button>
           <ion-tab-button tab="profile" href="/profile">
             <ion-icon :icon="personOutline" />
-            Profile
+            {{ $t("user.profile.title") }}
           </ion-tab-button>
         </ion-tab-bar>
       </ion-tabs>
     </ion-content>
   </ion-page>
 </template>
+
+<style lang="scss" scoped>
+ion-tab-bar {
+  height: 80px;
+
+  ion-tab-button {
+    background: var(--ion-color-secondary-container);
+    color: var(--ion-color-medium-contrast);
+    padding-bottom: 5px;
+    --ripple-color: transparent;
+
+    &.tab-selected, &.ion-activated {
+      ion-icon {
+        background: var(--ion-color-secondary-shade);
+      }
+    }
+  }
+
+  ion-icon {
+    font-size: 20px;
+    margin-bottom: 4px;
+    height: 20px;
+    padding: 6px 0;
+    width: 64px;
+    border-radius: 20px;
+    color: var(--ion-color-secondary-tint);
+    transition: background .3s ease;
+  }
+}
+</style>

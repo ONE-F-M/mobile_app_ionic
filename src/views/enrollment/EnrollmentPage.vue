@@ -1,12 +1,12 @@
 <script setup>
-  import {
-    IonPage,
-    IonContent,
-    IonProgressBar,
-    IonButton,
-    IonIcon,
-    IonSpinner
-  } from "@ionic/vue";
+import {
+  IonPage,
+  IonContent,
+  IonProgressBar,
+  IonButton,
+  IonIcon,
+  IonSpinner, onIonViewDidLeave
+} from "@ionic/vue";
   import {
     arrowBackOutline,
     arrowForwardOutline
@@ -110,6 +110,16 @@
 
   onUnmounted(cleanup)
   onDeactivated(cleanup);
+
+  onIonViewDidLeave(() => {
+    if (recorder) {
+      cleanup()
+    }
+    progress.value = 0;
+    instruction.value = "";
+    curr_step.value = 1;
+    video.value = null;
+  })
 </script>
 
 <template>
