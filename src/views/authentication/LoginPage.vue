@@ -314,7 +314,7 @@ const login = async () => {
       position: absolute;
 
       z-index: 1;
-      top: calc(50% - 2px);
+      top: 50%;
       left: -3px;
       transform: translateY(-50%);
     }
