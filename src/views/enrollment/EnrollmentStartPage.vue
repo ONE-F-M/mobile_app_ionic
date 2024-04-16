@@ -145,7 +145,7 @@ const handleVideo = async (video) => {
 
       z-index: 1;
       left: -3px;
-      top: calc(50% - 2px);
+      top: 50%;
       transform: translateY(-50%);
     }
   }
