@@ -322,7 +322,7 @@ onMounted(() => {
 
     &:not(.animated) {
       top: 50%;
-      transform: translateY(-50%) scale(1.5);
+      transform: translateY(-50%) scale(1.7);
     }
   }
 
