@@ -3,7 +3,7 @@ import { HttpOptions } from "@capacitor/core/types/core-plugins";
 import { useUserStore } from "../store/user.js";
 
 const BASE_URL = import.meta.env.VITE_BASE_API_URL ?? "";
-export const API_PREFIX = "/api/method/one_fm.api.v1.";
+export const API_PREFIX = import.meta.env.VITE_API_PREFIX ?? "/api/method/one_fm.api.v1.";
 
 const DEFAULT_HEADERS = () => {
   const userStore = useUserStore();

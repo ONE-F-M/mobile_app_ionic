@@ -15,6 +15,26 @@ const routes = [
     component: () => import("@/views/authentication/ForgotPassword.vue"),
   },
   {
+    path: "/register",
+    component: () => import("@/views/authentication/RegistrationPage.vue"),
+    props: { step: "select_employee_id" }
+  },
+  {
+    path: "/register/method",
+    component: () => import("@/views/authentication/RegistrationPage.vue"),
+    props: { step: "select_verify_method" }
+  },
+  {
+    path: "/register/code",
+    component: () => import("@/views/authentication/RegistrationPage.vue"),
+    props: { step: "confirm_verify_code" }
+  },
+  {
+    path: "/register/set-password",
+    component: () => import("@/views/authentication/RegistrationPage.vue"),
+    props: { step: "set_password" }
+  },
+  {
     path: "/enrollment",
     component: EnrollmentStartPage,
   },

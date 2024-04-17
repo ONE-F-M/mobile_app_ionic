@@ -21,6 +21,7 @@ import {
 } from "ionicons/icons";
 import auth from "@/api/authentication";
 import { useUserStore } from "@/store/user";
+import { useRegistrationStore } from "@/store/registration";
 
 const userStore = useUserStore();
 const router = useIonRouter();
@@ -123,6 +124,15 @@ onIonViewDidLeave(() => {
   form.id = "";
   form.password = "";
 })
+
+const forgotPassword = () => {
+  const registerStore = useRegistrationStore();
+  registerStore.employee_id = form.id;
+  registerStore.employee_name = employeeName.value;
+
+  userStore.isRegistered = true;
+  router.push("/register/method")
+}
 </script>
 
 <template>
@@ -248,9 +258,8 @@ onIonViewDidLeave(() => {
           </div>
           <p class="login-description ion-text-center">
             {{ $t("login.forgotPassword") }}
-            <router-link class="login-description-link" to="/forgot-password">
-              {{ $t("login.clickHere") }} </router-link
-            >.
+            <a @click="forgotPassword" class="login-description-link">
+              {{ $t("login.clickHere") }} </a>.
           </p>
         </div>
       </Transition>
