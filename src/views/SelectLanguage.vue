@@ -1,6 +1,6 @@
 <script setup>
 import IconDoubleArrowRight from "@/components/icon/DoubleArrowRight.vue";
-import { IonPage, IonContent, createGesture } from "@ionic/vue";
+import {IonPage, IonContent, createGesture, createAnimation} from "@ionic/vue";
 import { useUserStore } from "@/store/user";
 import { useLangStore } from "@/store/lang";
 import { useIonRouter } from "@ionic/vue";
@@ -14,6 +14,7 @@ const langStore = useLangStore();
 const i18n = useI18n();
 
 let deltaX = ref(0);
+let isAnimated = ref(false);
 const content = ref();
 let gesture;
 
@@ -21,17 +22,54 @@ if (userStore.user && langStore.lang) {
   router.push("/user/");
 }
 
+const arabicAnimation = (baseEl, opts) => {
+  const { enteringEl, leavingEl } = opts;
+
+  const enteringPage = createAnimation('entering-page-animation')
+      .addElement(enteringEl)
+      .fromTo('transform', 'translateX(40%)', 'translateX(0)')
+      .fromTo('opacity', 0, 1);
+
+  const leavingPage = createAnimation('leaving-page-animation')
+      .addElement(leavingEl)
+      .fromTo('transform', 'translateX(0)', 'translateX(-100%)')
+      .fromTo('opacity', 1, 0.2);
+
+  return createAnimation('root-transition')
+      .duration(500)
+      .easing('ease-in-out')
+      .addAnimation([enteringPage, leavingPage]);
+}
+const englishAnimation = (baseEl, opts) => {
+  const { enteringEl, leavingEl } = opts;
+
+  const enteringPage = createAnimation('entering-page-animation')
+      .addElement(enteringEl)
+      .fromTo('transform', 'translateX(-40%)', 'translateX(0)')
+      .fromTo('opacity', 0, 1);
+
+  const leavingPage = createAnimation('leaving-page-animation')
+      .addElement(leavingEl)
+      .fromTo('transform', 'translateX(0)', 'translateX(100%)')
+      .fromTo('opacity', 1, 0.2);
+
+  return createAnimation('root-transition')
+      .duration(500)
+      .easing('ease-in-out')
+      .addAnimation([enteringPage, leavingPage]);
+}
+
 const selectArabic = () => {
   langStore.setLang("ar");
 
   i18n.locale.value = "ar";
-  router.push("/login");
+  router.push("/login", arabicAnimation);
 };
 
 const selectEnglish = () => {
   langStore.setLang("en");
   i18n.locale.value = "en";
-  router.push("/login");
+  router.push("/login", englishAnimation);
 };
 
 function checkDirection() {
@@ -64,6 +102,10 @@ onMounted(() => {
   });
 
   gesture.enable();
+
+  setTimeout(() => {
+    isAnimated.value = true
+  }, 1000)
 });
 </script>
 
@@ -71,7 +113,10 @@ onMounted(() => {
   <ion-page>
     <ion-content ref="content">
       <div class="lang-wrapper">
-        <ion-row class="ion-align-items-center ion-justify-content-center">
+        <ion-row
+          class="ion-align-items-center ion-justify-content-center lang-selector-logo"
+          :class="{ 'animated': isAnimated }"
+        >
           <img src="/image/logo.svg" alt="logo" />
         </ion-row>
 
@@ -85,6 +130,7 @@ onMounted(() => {
             color="light"
             class="lang-selector-button-wrapper lang-selector-button-wrapper__ar"
             dir="rtl"
+            :class="{ 'animated': isAnimated }"
           >
             <ion-row
               class="ion-justify-content-between lang-selector-button-wrapper"
@@ -121,6 +167,7 @@ onMounted(() => {
             color="light"
             class="lang-selector-button-wrapper lang-selector-button-wrapper__en"
             dir="ltr"
+            :class="{ 'animated': isAnimated }"
           >
             <ion-row
               class="ion-justify-content-between lang-selector-button-wrapper"
@@ -203,6 +250,10 @@ onMounted(() => {
       max-width: max(200px, 60%);
       font-size: 1.85rem;
       word-wrap: break-word;
+
+      @media (max-width: 359px) {
+        font-size: 1.65rem;
+      }
     }
 
     &__ar {
@@ -214,6 +265,10 @@ onMounted(() => {
       line-height: 2.5rem;
       overflow: inherit;
       max-width: max(130px, 50%);
+
+      @media (max-width: 359px) {
+        font-size: 1.80rem;
+      }
     }
   }
 
@@ -234,10 +289,16 @@ onMounted(() => {
   &-button-wrapper {
     width: 100%;
     flex-wrap: nowrap;
+    transition: transform .75s ease;
+    transform: translateX(0);
 
     &__ar {
       &::part(native) {
         padding: 0 0 0 14px;
+      }
+
+      &:not(.animated) {
+        transform: translateX(150%);
       }
     }
 
@@ -247,6 +308,22 @@ onMounted(() => {
       &::part(native) {
         padding: 0 16px 0 0;
       }
+
+      &:not(.animated) {
+        transform: translateX(-150%);
+      }
+    }
+  }
+
+  &-logo {
+    position: relative;
+    top: 0;
+    transition: all .75s ease;
+    z-index: 2;
+
+    &:not(.animated) {
+      top: 50%;
+      transform: translateY(-50%) scale(1.7);
     }
   }
 

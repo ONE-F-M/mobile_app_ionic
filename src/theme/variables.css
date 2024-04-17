@@ -97,6 +97,7 @@ http://ionicframework.com/docs/theming/ */
     --ion-color-secondary-contrast-rgb: 32,202,48;
     --ion-color-secondary-shade: #364955;
     --ion-color-secondary-tint: #D1E5F3;
+    --ion-color-secondary-container: #202B2F;
 
     --ion-color-tertiary: #56D6F4;
     --ion-color-tertiary-rgb: 86,191,65;
@@ -250,6 +251,7 @@ body.dark {
   --ion-color-secondary-contrast-rgb: 32,202,48;
   --ion-color-secondary-shade: #364955;
   --ion-color-secondary-tint: #D1E5F3;
+  --ion-color-secondary-container: #202B2F;
 
   --ion-color-tertiary: #56D6F4;
   --ion-color-tertiary-rgb: 86,191,65;

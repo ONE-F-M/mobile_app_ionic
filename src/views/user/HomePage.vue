@@ -21,18 +21,68 @@ const logout = () => {
 <template>
   <ion-page>
     <ion-content class="ion-padding">
-      <ion-row class="login-header-wrapper">
-        <ion-col class="ion-align-self-center ion-text-center">
-          <ion-text>
-            <h3 class="login-wrapper-header ion-padding">
-              {{ $t("user.home.title") }}
-            </h3>
-          </ion-text>
-        </ion-col>
-      </ion-row>
-      <ion-button expand="block" shape="round" @click="logout">
-        {{ $t("user.home.logout") }}
-      </ion-button>
+      <h3 class="home-title ion-text-center">
+        {{ $t("user.home.title") }}
+      </h3>
+      <div class="services">
+        <div class="services-item">
+          <div class="services-item-icon-wrapper">
+            <img src="" alt="services-item-icon" class="services-item-icon">
+          </div>
+          <div class="services-item-label">Checkin Checkout</div>
+        </div>
+      </div>
+<!--      <ion-button expand="block" shape="round" @click="logout">-->
+<!--        {{ $t("user.home.logout") }}-->
+<!--      </ion-button>-->
     </ion-content>
   </ion-page>
 </template>
+
+<style lang="scss" scoped>
+.home {
+  &-title {
+    margin-top: 2px;
+    margin-bottom: 35px;
+  }
+}
+
+.services {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: -4px;
+  width: calc(100% + 8px);
+
+  &-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 25%;
+    padding: 0 2.5px;
+    margin-bottom: 22px;
+
+    &-icon {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+
+      &-wrapper {
+        width: 66px;
+        height: 62px;
+        border-radius: 13px;
+        background-color: var(--ion-color-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    &-label {
+      margin-top: 8px;
+      text-align: center;
+      font-size: 14px;
+      line-height: 20px;
+    }
+  }
+}
+</style>

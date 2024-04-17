@@ -10,8 +10,10 @@ import {
   IonContent,
   IonSpinner,
   useIonRouter,
+  onIonViewDidLeave,
 } from "@ionic/vue";
-import { reactive, ref, computed } from "vue";
+import {reactive, ref, computed, onUnmounted, onMounted} from "vue";
+
 import {
   arrowBackOutline,
   closeOutline,
@@ -113,6 +115,14 @@ const login = async () => {
     console.error(error);
   }
 };
+
+onIonViewDidLeave(() => {
+  step.value = 0;
+  isLoading.value = false;
+  employeeName.value = "";
+  form.id = "";
+  form.password = "";
+})
 </script>
 
 <template>
