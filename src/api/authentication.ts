@@ -25,7 +25,7 @@ export const userLogin = async (payload: UserLoginParams) =>
   });
 
 export const getUserEnrollment = async (payload: UserNameParams) =>
-  await httpService.put(`authentication.enrollment_status`, {
+  await httpService.post(`authentication.enrollment_status`, {
     data: payload,
   });
 

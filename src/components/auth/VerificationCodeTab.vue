@@ -154,13 +154,13 @@
 .code-wrapper {
   display: flex;
   gap: 8px;
-  border-radius: 8px;
 }
 .code-input {
   height: 56px;
   background-color: rgba(var(--ion-color-primary-tint-rgb), 16%);
   text-align: center;
   border-bottom: none;
+  border-radius: 8px;
 }
 .resend-code-wrapper {
   margin-top: 28px;

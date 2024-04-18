@@ -9,6 +9,7 @@
   import ActionButton from "@/components/auth/ActionButton.vue";
   import StepIndicator from "@/components/auth/StepIndicator.vue";
   import InputBox from "@/components/InputBox.vue";
+  import HelloName from "@/components/auth/HelloName.vue";
 
   const emit = defineEmits(["prevStep", "nextStep"]);
 
