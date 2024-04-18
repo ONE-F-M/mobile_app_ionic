@@ -1,6 +1,11 @@
 <script setup>
 import IconDoubleArrowRight from "@/components/icon/DoubleArrowRight.vue";
-import {IonPage, IonContent, createGesture, createAnimation} from "@ionic/vue";
+import {
+  IonPage,
+  IonContent,
+  createGesture,
+  createAnimation,
+} from "@ionic/vue";
 import { useUserStore } from "@/store/user";
 import { useLangStore } from "@/store/lang";
 import { useIonRouter } from "@ionic/vue";
@@ -19,57 +24,57 @@ const content = ref();
 let gesture;
 
 if (userStore.user && langStore.lang) {
-  router.push("/user/");
+  router.push("/home/");
 }
 
 const arabicAnimation = (baseEl, opts) => {
   const { enteringEl, leavingEl } = opts;
 
-  const enteringPage = createAnimation('entering-page-animation')
-      .addElement(enteringEl)
-      .fromTo('transform', 'translateX(40%)', 'translateX(0)')
-      .fromTo('opacity', 0, 1);
+  const enteringPage = createAnimation("entering-page-animation")
+    .addElement(enteringEl)
+    .fromTo("transform", "translateX(40%)", "translateX(0)")
+    .fromTo("opacity", 0, 1);
 
-  const leavingPage = createAnimation('leaving-page-animation')
-      .addElement(leavingEl)
-      .fromTo('transform', 'translateX(0)', 'translateX(-100%)')
-      .fromTo('opacity', 1, 0.2);
+  const leavingPage = createAnimation("leaving-page-animation")
+    .addElement(leavingEl)
+    .fromTo("transform", "translateX(0)", "translateX(-100%)")
+    .fromTo("opacity", 1, 0.2);
 
-  return createAnimation('root-transition')
-      .duration(500)
-      .easing('ease-in-out')
-      .addAnimation([enteringPage, leavingPage]);
-}
+  return createAnimation("root-transition")
+    .duration(500)
+    .easing("ease-in-out")
+    .addAnimation([enteringPage, leavingPage]);
+};
 const englishAnimation = (baseEl, opts) => {
   const { enteringEl, leavingEl } = opts;
 
-  const enteringPage = createAnimation('entering-page-animation')
-      .addElement(enteringEl)
-      .fromTo('transform', 'translateX(-40%)', 'translateX(0)')
-      .fromTo('opacity', 0, 1);
+  const enteringPage = createAnimation("entering-page-animation")
+    .addElement(enteringEl)
+    .fromTo("transform", "translateX(-40%)", "translateX(0)")
+    .fromTo("opacity", 0, 1);
 
-  const leavingPage = createAnimation('leaving-page-animation')
-      .addElement(leavingEl)
-      .fromTo('transform', 'translateX(0)', 'translateX(100%)')
-      .fromTo('opacity', 1, 0.2);
+  const leavingPage = createAnimation("leaving-page-animation")
+    .addElement(leavingEl)
+    .fromTo("transform", "translateX(0)", "translateX(100%)")
+    .fromTo("opacity", 1, 0.2);
 
-  return createAnimation('root-transition')
-      .duration(500)
-      .easing('ease-in-out')
-      .addAnimation([enteringPage, leavingPage]);
-}
+  return createAnimation("root-transition")
+    .duration(500)
+    .easing("ease-in-out")
+    .addAnimation([enteringPage, leavingPage]);
+};
 
 const selectArabic = () => {
   langStore.setLang("ar");
 
   i18n.locale.value = "ar";
-  router.push("/login", arabicAnimation);
+  router.push("/employee-id", arabicAnimation);
 };
 
 const selectEnglish = () => {
   langStore.setLang("en");
   i18n.locale.value = "en";
-  router.push("/login", englishAnimation);
+  router.push("/employee-id", englishAnimation);
 };
 
 function checkDirection() {
@@ -104,8 +109,8 @@ onMounted(() => {
   gesture.enable();
 
   setTimeout(() => {
-    isAnimated.value = true
-  }, 1000)
+    isAnimated.value = true;
+  }, 1000);
 });
 </script>
 
@@ -115,7 +120,7 @@ onMounted(() => {
       <div class="lang-wrapper">
         <ion-row
           class="ion-align-items-center ion-justify-content-center lang-selector-logo"
-          :class="{ 'animated': isAnimated }"
+          :class="{ animated: isAnimated }"
         >
           <img src="/image/logo.svg" alt="logo" />
         </ion-row>
@@ -130,7 +135,7 @@ onMounted(() => {
             color="light"
             class="lang-selector-button-wrapper lang-selector-button-wrapper__ar"
             dir="rtl"
-            :class="{ 'animated': isAnimated }"
+            :class="{ animated: isAnimated }"
           >
             <ion-row
               class="ion-justify-content-between lang-selector-button-wrapper"
@@ -167,7 +172,7 @@ onMounted(() => {
             color="light"
             class="lang-selector-button-wrapper lang-selector-button-wrapper__en"
             dir="ltr"
-            :class="{ 'animated': isAnimated }"
+            :class="{ animated: isAnimated }"
           >
             <ion-row
               class="ion-justify-content-between lang-selector-button-wrapper"
@@ -267,7 +272,7 @@ onMounted(() => {
       max-width: max(130px, 50%);
 
       @media (max-width: 359px) {
-        font-size: 1.80rem;
+        font-size: 1.8rem;
       }
     }
   }
@@ -289,7 +294,7 @@ onMounted(() => {
   &-button-wrapper {
     width: 100%;
     flex-wrap: nowrap;
-    transition: transform .75s ease;
+    transition: transform 0.75s ease;
     transform: translateX(0);
 
     &__ar {
@@ -318,7 +323,7 @@ onMounted(() => {
   &-logo {
     position: relative;
     top: 0;
-    transition: all .75s ease;
+    transition: all 0.75s ease;
     z-index: 2;
 
     &:not(.animated) {

@@ -1,5 +1,5 @@
 <template>
-  <ion-app :dir="rtl ? 'rtl' : 'ltr'">
+  <ion-app :class="{rtl: rtl}" :dir="rtl ? 'rtl' : 'ltr'">
     <ion-router-outlet />
   </ion-app>
 </template>

@@ -1,19 +1,15 @@
 <script setup>
-import {
-  IonButton,
-  IonCol,
-  IonContent,
-  IonPage,
-  IonRow,
-  useIonRouter,
-} from "@ionic/vue";
+import { IonButton, IonContent, IonPage, useIonRouter } from "@ionic/vue";
 import { useUserStore } from "@/store/user.js";
+import { useAuthStore } from "@/store/auth.js";
 
 const router = useIonRouter();
 const userStore = useUserStore();
+const authStore = useAuthStore();
 
 const logout = () => {
   userStore.logout();
+  authStore.reset();
   router.push("/");
 };
 </script>
@@ -27,14 +23,14 @@ const logout = () => {
       <div class="services">
         <div class="services-item">
           <div class="services-item-icon-wrapper">
-            <img src="" alt="services-item-icon" class="services-item-icon">
+            <img src="" alt="services-item-icon" class="services-item-icon" />
           </div>
           <div class="services-item-label">Checkin Checkout</div>
         </div>
       </div>
-<!--      <ion-button expand="block" shape="round" @click="logout">-->
-<!--        {{ $t("user.home.logout") }}-->
-<!--      </ion-button>-->
+      <ion-button expand="block" shape="round" @click="logout">
+        {{ $t("user.home.logout") }}
+      </ion-button>
     </ion-content>
   </ion-page>
 </template>

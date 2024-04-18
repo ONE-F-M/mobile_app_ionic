@@ -3,7 +3,8 @@ import { HttpOptions } from "@capacitor/core/types/core-plugins";
 import { useUserStore } from "../store/user.js";
 
 const BASE_URL = import.meta.env.VITE_BASE_API_URL ?? "";
-export const API_PREFIX = "/api/method/one_fm.api.v1.";
+export const API_PREFIX =
+  import.meta.env.VITE_API_PREFIX ?? "/api/method/one_fm.api.v1.";
 
 const DEFAULT_HEADERS = () => {
   const userStore = useUserStore();
@@ -26,47 +27,41 @@ const DEFAULT_HEADERS = () => {
 };
 
 export const httpService = {
-  get: (url: string, options?: Omit<HttpOptions, "url">) => {
-    return CapacitorHttp.get({
+  _request: async (
+    method: "get" | "post" | "put" | "delete",
+    url: string,
+    options?: Omit<HttpOptions, "url">,
+  ) => {
+    const response = await CapacitorHttp[method]({
       ...options,
       headers: {
         ...DEFAULT_HEADERS(),
         ...options?.headers,
       },
+
       url: `${BASE_URL}${API_PREFIX}${url}`,
     });
+
+    if (response.status >= 400) {
+      throw response;
+    }
+
+    return response;
   },
 
-  post: (url: string, options?: Omit<HttpOptions, "url">) => {
-    return CapacitorHttp.post({
-      ...options,
-      headers: {
-        ...DEFAULT_HEADERS(),
-        ...options?.headers,
-      },
-      url: `${BASE_URL}${API_PREFIX}${url}`,
-    });
+  get: function (url: string, options?: Omit<HttpOptions, "url">) {
+    return this._request("get", url, options);
   },
 
-  put: (url: string, options?: Omit<HttpOptions, "url">) => {
-    return CapacitorHttp.put({
-      ...options,
-      headers: {
-        ...DEFAULT_HEADERS(),
-        ...options?.headers,
-      },
-      url: `${BASE_URL}${API_PREFIX}${url}`,
-    });
+  post: function (url: string, options?: Omit<HttpOptions, "url">) {
+    return this._request("post", url, options);
   },
 
-  delete: (url: string, options?: Omit<HttpOptions, "url">) => {
-    return CapacitorHttp.delete({
-      ...options,
-      headers: {
-        ...DEFAULT_HEADERS(),
-        ...options?.headers,
-      },
-      url: `${BASE_URL}${API_PREFIX}${url}`,
-    });
+  put: function (url: string, options?: Omit<HttpOptions, "url">) {
+    return this._request("put", url, options);
+  },
+
+  delete: function (url: string, options?: Omit<HttpOptions, "url">) {
+    return this._request("delete", url, options);
   },
 };

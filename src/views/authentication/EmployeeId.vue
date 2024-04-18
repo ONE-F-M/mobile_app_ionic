@@ -1,135 +1,97 @@
 <script setup>
 import {
   IonInput,
+  IonRow,
   IonButton,
-  toastController,
   IonPage,
   IonContent,
-  IonSpinner,
   useIonRouter,
   onIonViewDidLeave,
 } from "@ionic/vue";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 
-import { closeOutline, checkmarkOutline } from "ionicons/icons";
 import auth from "@/api/authentication";
-import { useUserStore } from "@/store/user";
-import { useAuthStore } from "@/store/auth.js";
-import { storeToRefs } from "pinia";
 import Header from "@/components/Header.vue";
-import { useCustomToast } from "@/composable/toast.js";
+import InputBox from "@/components/InputBox.vue";
+import { useAuthStore } from "@/store/auth.js";
 
-const userStore = useUserStore();
 const authStore = useAuthStore();
-const { employeeId, userName } = storeToRefs(authStore);
 const router = useIonRouter();
-const { showErrorToast, showSuccessToast } = useCustomToast();
 
-const step = ref(0);
 const isLoading = ref(false);
 
-const password = ref("");
+const employeeId = ref("");
 
-const prevStep = () => {
-  if (step.value === 0) {
-    router.push("/");
-  } else {
-    step.value -= 1;
+const validId = computed(() => {
+  return employeeId.value.length <= 12 && employeeId.value.length > 0;
+});
+
+const nextStep = async () => {
+  try {
+    const { data } = await auth.getUserEnrollment({
+      employee_id: employeeId.value,
+    });
+    const employeeName = data.data.employee_name;
+
+    authStore.setEmployeeId(employeeId.value);
+    authStore.setUserName(employeeName);
+
+    if (data.data.registered) {
+      authStore.setRegistered(true);
+      return router.push("/login");
+    } else {
+      authStore.setRegistered(false);
+      return router.push("/register");
+    }
+  } catch (error) {
+    console.error(error);
   }
 };
 
-const login = async () => {
-  try {
-    isLoading.value = true;
-    const { data } = await auth.userLogin({
-      employee_id: employeeId.value,
-      password: password.value,
-    });
-
-    await showSuccessToast(data.message);
-
-    userStore.setUser(data.data);
-    userStore.setToken(data.data.token);
-
-    password.value = "";
-
-    isLoading.value = false;
-
-    if (data.data.enrolled) {
-      router.push("/home/");
-    } else {
-      router.push("/enrollment");
-    }
-  } catch (error) {
-    if (error?.data?.error) {
-      showErrorToast(error.data.error);
-    }
-
-    console.error(error);
-  } finally {
-    isLoading.value = false;
-  }
+const prevStep = () => {
+  router.push("/");
 };
 
 onIonViewDidLeave(() => {
-  step.value = 0;
   isLoading.value = false;
-  password.value = "";
+  employeeId.value = "";
 });
-
-const forgotPassword = () => {
-  authStore.setRegistered(true);
-  router.push("/register/method");
-};
 </script>
 
 <template>
   <ion-page>
     <ion-content>
-      <div class="ion-justify-content-between ion-padding login-wrapper">
-        <div>
-          <Header with-back-button @goBack="prevStep">
-            <slot name="title">
-              {{ $t("login.login") }}
-            </slot>
-          </Header>
+      <div class="ion-justify-content-between login-wrapper">
+        <Header with-back-button @goBack="prevStep">{{
+          $t("login.employeeId")
+        }}</Header>
 
-          <div class="login-wrapper-hello">
-            {{ $t("login.hello") }}
-            <h5 v-if="userName">{{ userName }}</h5>
-          </div>
-        </div>
-
-        <div class="login-password-wrapper">
-          <p class="login-wrapper-subtitle ion-no-margin">
-            {{ $t("login.enterYour") }}
-          </p>
-          <h1 class="login-wrapper-title ion-no-margin">
-            {{ $t("login.password") }}
-          </h1>
+        <InputBox
+          :subtitle="$t('auth.label.enterYour')"
+          :title="$t('auth.field.employeeId')"
+        >
           <ion-input
-            v-model="password"
+            v-model="employeeId"
             fill="outline"
-            type="password"
-            :placeholder="$t('login.password')"
+            :placeholder="$t('auth.placeholder.id')"
           />
+        </InputBox>
+
+        <ion-row class="ion-justify-content-end">
           <ion-button
-            @click="login"
-            class="login-button"
-            expand="block"
-            :disabled="!password"
-            shape="round"
+            fill="clear"
+            strong
+            :disabled="!validId"
+            @click="nextStep"
+            router-direction="back"
           >
-            <ion-spinner v-if="isLoading" name="crescent"></ion-spinner>
-            <span v-else>{{ $t("login.login") }}</span>
+            <ion-text>
+              <h4 class="ion-no-margin login-wrapper-next-button">
+                {{ $t("login.next") }}
+              </h4>
+            </ion-text>
           </ion-button>
-        </div>
-        <p class="login-description ion-text-center">
-          {{ $t("login.forgotPassword") }}
-          <a @click="forgotPassword" class="login-description-link">
-            {{ $t("login.clickHere") }} </a
-          >.
-        </p>
+        </ion-row>
       </div>
 
       <ion-toast
