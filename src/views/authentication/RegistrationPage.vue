@@ -52,18 +52,18 @@
 
   const prevStep = () => router.back();
 
-  const onEmployeeIdSelected = async ({ employeeId }) => {
+  const onEmployeeIdSelected = async ({ employee_id }) => {
 
     if (debug_mode) {
-      data.id = "123123123";
-      data.name = "John Doe";
+      data.employee_id = "123123123";
+      data.employee_name = "John Doe";
       router.push("/register/method");
 
       return;
     }
 
     isLoading.value = true;
-    const { data: res } = await getUserEnrollment({ employeeId });
+    const { data: res } = await getUserEnrollment({ employee_id });
     isLoading.value = false;
 
     if (res.error) {
@@ -71,8 +71,8 @@
       return;
     }
 
-    data.id = employeeId;
-    data.name = res.data.employee_name;
+    data.employee_id = employee_id;
+    data.employee_name = res.data.employee_name;
     router.push("/register/method");
   }
 
@@ -80,28 +80,30 @@
     if (debug_mode) {
       data.temp_id = "temp_id";
       await showSuccessToast(t, "debug mode: code sent");
-      return;
+      return true;
     }
 
-    const { data: res } = forgotPassword({
-      employee_id: data.id,
-      method
+    const { data: res } = await forgotPassword({
+      employee_id: data.employee_id,
+      otp_source: data.method,
     });
 
     if (res.error) {
-      await showErrorToast(t, data.error);
-      return;
+      await showErrorToast(t, data.message);
+      return false;
     }
 
-    data.temp_id = res.temp_id;
+    data.temp_id = res.data.temp_id;
 
     await showSuccessToast(t, res.message);
+    return true;
   }
 
   const onVerifyMethodSelected = async ({ method }) => {
     data.method = method;
-    await requestCode();
-    router.push("/register/code");
+    if (await requestCode()) {
+      router.push("/register/code");
+    }
   }
 
   const onVerifyCodeEntered = ({ code }) => {
@@ -117,19 +119,23 @@
       return;
     }
 
-    const { data: res } = await updatePassword({
+    updatePassword({
       otp: data.code,
       id: data.temp_id,
-      employee_id: data.id,
+      employee_id: data.employee_id,
       new_password: password,
-    });
+    })
+      .then(async (res) => {
+        if (res.error) {
+          await showErrorToast(t, data.error);
+          return;
+        }
 
-    if (res.error) {
-      await showErrorToast(t, data.error);
-      return;
-    }
-
-    router.push("/home");
+        router.push("/home");
+      })
+      .catch(async (err) => {
+        await showErrorToast(t, err.message)
+      })
   }
 </script>
 
@@ -148,7 +154,7 @@
           <VerificationMethodTab
             @prevStep="prevStep"
             @nextStep="onVerifyMethodSelected"
-            :employee_name="data.name"
+            :employee_name="data.employee_name"
             />
         </template>
         <template v-if="step == 'confirm_verify_code'">
@@ -162,7 +168,7 @@
           <SetPasswordTab
             @nextStep="onPasswordSet"
             @prevStep="prevStep"
-            :employee_name="data.name"
+            :employee_name="data.emlpoyee_name"
             />
         </template>
       </div>

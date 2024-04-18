@@ -16,7 +16,7 @@
     validId.value = newId.length <= 12 && newId.length > 0
   })
 
-  const nextStep = () => emit("nextStep", { employeeId: employeeId.value });
+  const nextStep = () => emit("nextStep", { employee_id: employeeId.value });
   const prevStep = () => emit("prevStep");
 </script>
 

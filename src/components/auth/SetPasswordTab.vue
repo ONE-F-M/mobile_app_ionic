@@ -49,7 +49,7 @@
       return;
     }
 
-    emit("nextStep", { password })
+    emit("nextStep", { password: password.value })
     fieldFilled.value = false;
   }
 </script>
