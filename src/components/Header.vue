@@ -1,40 +1,29 @@
 <script setup>
-  import {
-    IonRow,
-    IonCol,
-    IonText,
-    IonButton,
-    IonIcon,
-  } from "@ionic/vue";
+import { IonRow, IonCol, IonText, IonButton, IonIcon } from "@ionic/vue";
 
-  import { arrowBackOutline } from "ionicons/icons";
+import { arrowBackOutline } from "ionicons/icons";
 
-  const props = defineProps({
-    withBackButton: Boolean
-  })
+const props = defineProps({
+  withBackButton: Boolean,
+});
 
-  const { withBackButton } = props;
+const { withBackButton } = props;
 
-  const emit = defineEmits(["goBack"])
+const emit = defineEmits(["goBack"]);
 
-  const triggerBack = () => emit("goBack");
-
+const triggerBack = () => emit("goBack");
 </script>
 
 <template>
   <ion-row class="header-wrapper">
     <template v-if="withBackButton">
       <ion-col class="back-button-wrapper" size="3">
-        <ion-button
-          @click="triggerBack"
-          router-direction="back"
-          fill="clear"
-          >
+        <ion-button @click="triggerBack" router-direction="back" fill="clear">
           <ion-icon
             class="icon-arrow-back"
             color="light"
             :icon="arrowBackOutline"
-            />
+          />
         </ion-button>
       </ion-col>
     </template>
@@ -46,7 +35,6 @@
         </h3>
       </ion-text>
     </ion-col>
-
   </ion-row>
 </template>
 
@@ -55,16 +43,15 @@
   position: relative;
 
   ion-button {
-    --padding-start: 0;
+    --padding-start: 12px;
   }
 
   .back-button-wrapper {
     position: absolute;
-    z-index:1;
+    z-index: 1;
     top: 50%;
-    left: -3px;
+    left: -12px;
     transform: translateY(-50%);
-
   }
 
   .header-text-wrapper {

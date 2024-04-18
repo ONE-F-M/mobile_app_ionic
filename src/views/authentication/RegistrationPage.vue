@@ -1,177 +1,86 @@
 <script setup>
-  import {
-    IonPage,
-    IonContent,
-    onIonViewDidEnter,
-    onIonViewDidLeave,
-    useIonRouter
-  } from "@ionic/vue"
-  import { ref } from "vue";
-  import { useI18n } from "vue-i18n";
+import {
+  IonPage,
+  IonContent,
+  onIonViewDidEnter,
+  onIonViewDidLeave,
+  useIonRouter,
+} from "@ionic/vue";
+import { ref } from "vue";
 
-  import { forgotPassword, updatePassword } from "@/api/authentication";
+import { updatePassword } from "@/api/authentication";
 
-  import { useRegistrationStore } from "@/store/registration";
+import { useRegistrationStore } from "@/store/registration";
 
-  import { getUserEnrollment } from "@/api/authentication"
-  import { showErrorToast, showSuccessToast } from "@/utils/toast";
+import { useCustomToast } from "@/composable/toast.js";
 
-  import EmployeeIdTab from "@/components/auth/EmployeeIdTab.vue";
-  import VerificationMethodTab from "@/components/auth/VerificationMethodTab.vue";
-  import VerificationCodeTab from "@/components/auth/VerificationCodeTab.vue";
-  import SetPasswordTab from "@/components/auth/SetPasswordTab.vue"
+const { showSuccessToast, showErrorToast } = useCustomToast();
+const debug_mode = false;
 
-  const debug_mode = false;
-
-  /*
+/*
   steps:
     select_employee_id
     select_verify_method
     confirm_verify_code
     set_password
   */
-  const { step } = defineProps({
-    step: {
-      type: String,
-      default: "select_employee_id"
-    }
-  });
+const { step } = defineProps({
+  step: {
+    type: String,
+    default: "select_verify_method",
+  },
+});
 
-  const inView = ref(false);
+const inView = ref(false);
 
-  onIonViewDidEnter(() => inView.value = true);
-  onIonViewDidLeave(() => inView.value = false);
+onIonViewDidEnter(() => (inView.value = true));
+onIonViewDidLeave(() => (inView.value = false));
 
-  const { t } = useI18n();
+const router = useIonRouter();
 
-  const router = useIonRouter();
+const data = useRegistrationStore();
 
-  const isLoading = ref(false);
+const prevStep = () => router.back();
 
-  const data = useRegistrationStore();
+const onVerifyCodeEntered = ({ code }) => {
+  data.code = code;
+  router.push("/register/set-password");
+};
 
-  const prevStep = () => router.back();
+const onPasswordSet = async ({ password }) => {
+  data.password = password;
 
-  const onEmployeeIdSelected = async ({ employee_id }) => {
-
-    if (debug_mode) {
-      data.employee_id = "123123123";
-      data.employee_name = "John Doe";
-      router.push("/register/method");
-
-      return;
-    }
-
-    isLoading.value = true;
-    const { data: res } = await getUserEnrollment({ employee_id });
-    isLoading.value = false;
-
-    if (res.error) {
-      await showErrorToast(t, data.error);
-      return;
-    }
-
-    data.employee_id = employee_id;
-    data.employee_name = res.data.employee_name;
-    router.push("/register/method");
+  if (debug_mode) {
+    await showSuccessToast(
+      "debug mode: success. Redirect to homepage in normal mode.",
+    );
+    return;
   }
 
-  const requestCode = async () => {
-    if (debug_mode) {
-      data.temp_id = "temp_id";
-      await showSuccessToast(t, "debug mode: code sent");
-      return true;
-    }
+  updatePassword({
+    otp: data.code,
+    id: data.temp_id,
+    employee_id: data.employee_id,
+    new_password: password,
+  })
+    .then(async (res) => {
+      if (res.error) {
+        await showErrorToast(data.error);
+        return;
+      }
 
-    const { data: res } = await forgotPassword({
-      employee_id: data.employee_id,
-      otp_source: data.method,
-    });
-
-    if (res.error) {
-      await showErrorToast(t, data.message);
-      return false;
-    }
-
-    data.temp_id = res.data.temp_id;
-
-    await showSuccessToast(t, res.message);
-    return true;
-  }
-
-  const onVerifyMethodSelected = async ({ method }) => {
-    data.method = method;
-    if (await requestCode()) {
-      router.push("/register/code");
-    }
-  }
-
-  const onVerifyCodeEntered = ({ code }) => {
-    data.code = code;
-    router.push("/register/set-password");
-  }
-
-  const onPasswordSet = async ({ password }) => {
-    data.password = password;
-
-    if (debug_mode) {
-      await showSuccessToast(t, "debug mode: success. Redirect to homepage in normal mode.");
-      return;
-    }
-
-    updatePassword({
-      otp: data.code,
-      id: data.temp_id,
-      employee_id: data.employee_id,
-      new_password: password,
+      router.push("/home");
     })
-      .then(async (res) => {
-        if (res.error) {
-          await showErrorToast(t, data.error);
-          return;
-        }
-
-        router.push("/home");
-      })
-      .catch(async (err) => {
-        await showErrorToast(t, err.message)
-      })
-  }
+    .catch(async (err) => {
+      await showErrorToast(err.message);
+    });
+};
 </script>
 
 <template>
   <ion-page>
     <ion-content>
-      <div v-if="inView" class="wrapper ion-justify-content-between">
-        <template v-if="step == 'select_employee_id'">
-          <EmployeeIdTab
-            @prevStep="prevStep"
-            @nextStep="onEmployeeIdSelected"
-            :isLoading="isLoading"
-            />
-        </template>
-        <template v-if="step == 'select_verify_method'">
-          <VerificationMethodTab
-            @prevStep="prevStep"
-            @nextStep="onVerifyMethodSelected"
-            :employee_name="data.employee_name"
-            />
-        </template>
-        <template v-if="step == 'confirm_verify_code'">
-          <VerificationCodeTab
-            @nextStep="onVerifyCodeEntered"
-            @prevStep="prevStep"
-            @resendCode="requestCode"
-            />
-        </template>
-        <template v-if="step == 'set_password'">
-          <SetPasswordTab
-            @nextStep="onPasswordSet"
-            @prevStep="prevStep"
-            :employee_name="data.emlpoyee_name"
-            />
-        </template>
-      </div>
+      <div v-if="inView" class="wrapper ion-justify-content-between"></div>
     </ion-content>
   </ion-page>
 </template>
@@ -186,4 +95,3 @@
   padding: 0 15px 24px;
 }
 </style>
-
