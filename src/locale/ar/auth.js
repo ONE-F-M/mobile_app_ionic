@@ -8,6 +8,7 @@ export default {
   label: {
     enterYour: "ادخل الخاص بك",
     chooseYour: "اختر الخاص بك",
+    resetYour: "إعادة تعيين الخاص بك",
     setYour: "تعيين الخاص بك",
     confirmYour: "Confirm Your (ar)",
   },
@@ -15,11 +16,11 @@ export default {
     employeeId: "معرف الموظف",
     verification_method: "طريقة التحقق",
     verification_code: "رمز التحقق",
-    password: "كلمة المرور"
+    password: "كلمة المرور",
   },
   placeholder: {
     id: "هوية شخصية",
-    password: "كلمة المرور"
+    password: "كلمة المرور",
   },
   action: {
     next: "التالي",
@@ -35,6 +36,6 @@ export default {
   resend_code_now: "Resend Verification code (ar)",
   code_sent_successfully: "Verification code sent successfully (ar)",
   errors: {
-    passwords_mismatch: "Passwords mismatch (ar)"
-  }
-}
+    passwords_mismatch: "Passwords mismatch (ar)",
+  },
+};

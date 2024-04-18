@@ -7,7 +7,6 @@ export const useUserStore = defineStore(
       return {
         user: null,
         token: null,
-        isRegistered: false,
       };
     },
     persist: true,

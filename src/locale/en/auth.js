@@ -8,6 +8,7 @@ export default {
   label: {
     enterYour: "Enter Your",
     chooseYour: "Choose Your",
+    resetYour: "Reset Your",
     setYour: "Set Your",
     confirmYour: "Confirm Your",
   },
@@ -15,11 +16,11 @@ export default {
     employeeId: "Employee ID",
     verification_method: "Verification Method",
     verification_code: "Verification Code",
-    password: "Password"
+    password: "Password",
   },
   placeholder: {
     id: "ID",
-    password: "Password"
+    password: "Password",
   },
   action: {
     next: "Next",
@@ -35,6 +36,6 @@ export default {
   resend_code_now: "Resend Verification code",
   code_sent_successfully: "Verification code sent successfully",
   errors: {
-    passwords_mismatch: "Passwords mismatch"
-  }
-}
+    passwords_mismatch: "Passwords mismatch",
+  },
+};

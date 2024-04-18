@@ -30,11 +30,10 @@ export const getUserEnrollment = async (payload: UserNameParams) =>
   });
 
 export const forgotPassword = async (data: ForgotPasswordParams) =>
-  await httpService.post("authentication.forgot_password", { data })
+  await httpService.post("authentication.forgot_password", { data });
 
-export const updatePassword = async (data: UpdatePasswordParams) => {
-  await httpService.post("authentication.update_password", { data })
-}
+export const updatePassword = async (data: UpdatePasswordParams) =>
+  await httpService.post("authentication.update_password", { data });
 
 export default {
   userLogin,
