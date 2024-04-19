@@ -7,5 +7,5 @@
 # To Build
 - ionic server # to run on browser.
 - ionic build # produce static files.
-- ionic cap add android|ios # to add platform if not exist.
+- ionic cap add android|ios # to add platform if not exist. 
 - ionic cap open android|ios # launch Android Studio or Xcode for Running the app
