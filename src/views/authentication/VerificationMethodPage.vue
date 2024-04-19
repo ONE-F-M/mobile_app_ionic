@@ -108,7 +108,7 @@ const requestCode = async () => {
   gap: 18px;
 }
 .radio-button {
-  background-color: rgba(var(--ion-color-primary-rgb), 7%);
+  background-color: #1e2529;
   border-radius: 8px;
   font-size: 1rem;
   line-height: 1.5rem;
@@ -118,6 +118,7 @@ const requestCode = async () => {
 
   &.radio-checked {
     color: #76d1ff;
+    background-color: #202b2f;
   }
 }
 

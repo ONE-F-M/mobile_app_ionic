@@ -1,8 +1,14 @@
 <script setup>
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 
-import { IonContent, IonInput, IonPage, useIonRouter } from "@ionic/vue";
+import {
+  IonContent,
+  IonInput,
+  IonPage,
+  IonSpinner,
+  useIonRouter,
+} from "@ionic/vue";
 
 import Header from "@/components/Header.vue";
 import InputBox from "@/components/InputBox.vue";
@@ -11,6 +17,7 @@ import HelloName from "@/components/auth/HelloName.vue";
 import { useCustomToast } from "@/composable/toast.js";
 import { useAuthStore } from "@/store/auth.js";
 import { storeToRefs } from "pinia";
+import auth from "@/api/authentication";
 
 const { t } = useI18n();
 
@@ -24,33 +31,51 @@ const fieldFilled = ref(false);
 const password = ref("");
 const confirm_password = ref("");
 const authStore = useAuthStore();
-const { employeeId, userName, isRegistered } = storeToRefs(authStore);
+const { employeeId, userName, otpCode, userId, isRegistered } =
+  storeToRefs(authStore);
 const router = useIonRouter();
 
-const { showErrorToast } = useCustomToast();
+const { showErrorToast, showSuccessToast } = useCustomToast();
 
-watch(password, (newPass) => (fieldFilled.value = newPass.length > 0));
-watch(confirm_password, (newPass) => (fieldFilled.value = newPass.length > 0));
+const isLoading = ref(false);
 
 const prevStep = () => {
   router.back();
 };
 const nextStep = () => {
-  if (step.value == "password") {
-    step.value = "confirm";
-    confirm_password.value = "";
-    fieldFilled.value = false;
-    return;
-  }
+  step.value = "confirm";
+  confirm_password.value = "";
+};
 
-  if (password.value != confirm_password.value) {
-    showErrorToast(t("auth.errors.passwords_mismatch"));
-    step.value = "password";
-    return;
-  }
+const updatePassword = async () => {
+  try {
+    if (password.value != confirm_password.value) {
+      showErrorToast(t("auth.errors.passwords_mismatch"));
+      step.value = "password";
+      return;
+    }
 
-  // TODO Integrate update password and login with redirect to user page
-  fieldFilled.value = false;
+    isLoading.value = true;
+
+    await auth.updatePassword({
+      otp: otpCode.value,
+      id: userId.value,
+      employee_id: employeeId.value,
+      new_password: password.value,
+    });
+
+    await auth.userLogin({
+      employee_id: employeeId.value,
+      password: password.value,
+    });
+
+    showSuccessToast("Password update successfully");
+    router.push("/home");
+  } catch (error) {
+    showErrorToast(error.message);
+  } finally {
+    isLoading.value = false;
+  }
 };
 </script>
 
@@ -107,13 +132,25 @@ const nextStep = () => {
           </template>
 
           <ion-button
+            v-if="step === 'password'"
             class="continue-button"
             expand="block"
             shape="round"
             @click="nextStep"
-            :disabled="!fieldFilled"
+            :disabled="!password.length"
           >
             {{ $t("auth.action.continue") }}
+          </ion-button>
+          <ion-button
+            v-else
+            class="continue-button"
+            expand="block"
+            shape="round"
+            @click="updatePassword"
+            :disabled="!confirm_password.length || isLoading"
+          >
+            <ion-spinner v-if="isLoading" name="crescent"></ion-spinner>
+            <span v-else>{{ $t("auth.action.continue") }}</span>
           </ion-button>
         </div>
 

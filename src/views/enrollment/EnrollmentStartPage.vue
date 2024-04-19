@@ -14,8 +14,10 @@ import { ref } from "vue";
 import { enroll } from "@/api/face_recognition";
 
 import EnrollmentPage from "@/views/enrollment/EnrollmentPage.vue";
+import { useAuthStore } from "@/store/auth.js";
 
 const userStore = useUserStore();
+const authStore = useAuthStore();
 const router = useIonRouter();
 
 const inProgress = ref(false);
@@ -26,17 +28,16 @@ const logout = () => {
 };
 const startEnrollment = () => {
   inProgress.value = true;
-}
+};
 
 const handleVideo = async (video) => {
-  const employeeId = userStore.user.employeeId
+  const employeeId = authStore.employeeId;
 
-  await enroll({ employeeId, video })
+  await enroll({ employee_id: employeeId, video })
     .then(() => router.push("/enroll-success"))
     .catch(() => router.push("/enroll-failure"))
-    .finally(() => inProgress.value = false);
-}
-
+    .finally(() => (inProgress.value = false));
+};
 </script>
 
 <template>
@@ -44,54 +45,54 @@ const handleVideo = async (video) => {
     <EnrollmentPage @completed="handleVideo" />
   </template>
   <template v-else>
-  <ion-page>
-    <ion-content>
-      <Transition>
-        <div class="ion-justify-content-between login-wrapper">
-          <div>
-            <ion-row class="login-header-wrapper">
-              <ion-col class="login-wrapper-back-button" size="3">
-                <ion-button
-                  @click="logout"
-                  router-direction="back"
-                  fill="clear"
-                >
-                  <ion-icon
-                    class="icon-arrow-back"
-                    color="light"
-                    :icon="arrowBackOutline"
-                  />
-                </ion-button>
-              </ion-col>
-              <ion-col class="ion-align-self-center ion-text-center">
-                <ion-text>
-                  <h3 class="login-wrapper-header ion-padding">
-                    {{ $t("enrollment.start_screen.title") }}
-                  </h3>
-                </ion-text>
-              </ion-col>
-            </ion-row>
-            <p class="enrollment-wrapper-hello">
-              {{ $t("enrollment.start_screen.welcome_text") }}
-            </p>
-          </div>
+    <ion-page>
+      <ion-content>
+        <Transition>
+          <div class="ion-justify-content-between login-wrapper">
+            <div>
+              <ion-row class="login-header-wrapper">
+                <ion-col class="login-wrapper-back-button" size="3">
+                  <ion-button
+                    @click="logout"
+                    router-direction="back"
+                    fill="clear"
+                  >
+                    <ion-icon
+                      class="icon-arrow-back"
+                      color="light"
+                      :icon="arrowBackOutline"
+                    />
+                  </ion-button>
+                </ion-col>
+                <ion-col class="ion-align-self-center ion-text-center">
+                  <ion-text>
+                    <h3 class="login-wrapper-header ion-padding">
+                      {{ $t("enrollment.start_screen.title") }}
+                    </h3>
+                  </ion-text>
+                </ion-col>
+              </ion-row>
+              <p class="enrollment-wrapper-hello">
+                {{ $t("enrollment.start_screen.welcome_text") }}
+              </p>
+            </div>
 
-          <div class="enrollment-wrapper-description">
-            <h5>{{ $t("enrollment.start_screen.description_title") }}</h5>
-            <p>{{ $t("enrollment.start_screen.description_text") }}</p>
-            <ion-button
-              @click="startEnrollment"
-              class="login-button"
-              expand="block"
-              shape="round"
-            >
-              {{ $t("enrollment.start_screen.button") }}
-            </ion-button>
+            <div class="enrollment-wrapper-description">
+              <h5>{{ $t("enrollment.start_screen.description_title") }}</h5>
+              <p>{{ $t("enrollment.start_screen.description_text") }}</p>
+              <ion-button
+                @click="startEnrollment"
+                class="login-button"
+                expand="block"
+                shape="round"
+              >
+                {{ $t("enrollment.start_screen.button") }}
+              </ion-button>
+            </div>
           </div>
-        </div>
-      </Transition>
-    </ion-content>
-  </ion-page>
+        </Transition>
+      </ion-content>
+    </ion-page>
   </template>
 </template>
 

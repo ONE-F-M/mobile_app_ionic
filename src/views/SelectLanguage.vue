@@ -3,6 +3,10 @@ import IconDoubleArrowRight from "@/components/icon/DoubleArrowRight.vue";
 import {
   IonPage,
   IonContent,
+  IonRow,
+  IonButton,
+  IonCol,
+  IonText,
   createGesture,
   createAnimation,
 } from "@ionic/vue";

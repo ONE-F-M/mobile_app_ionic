@@ -25,22 +25,23 @@ const { employeeId, userId, verificationMethod, isRegistered } =
 const { showSuccessToast, showErrorToast } = useCustomToast();
 const router = useIonRouter();
 
-let timeout = null;
+let interval = null;
 const seconds = ref(SECONDS_BEFORE_NEXT_CODE);
 
 const otpCode = ref("");
 
 const secondsCounter = () => {
-  seconds.value -= 1;
+  if (seconds.value === 0) {
+    interval && clearInterval(interval);
+    return;
+  }
 
-  if (seconds.value == 0) return;
-
-  timeout = setTimeout(secondsCounter, 1000);
+  seconds.value -= 20;
 };
 
 const initSecondsCounter = () => {
   seconds.value = SECONDS_BEFORE_NEXT_CODE;
-  timeout = setTimeout(secondsCounter, 1000);
+  interval = setInterval(secondsCounter, 1000);
 };
 
 const resendCode = async () => {
@@ -56,6 +57,8 @@ const resendCode = async () => {
 
     authStore.setUserId(data.data.temp_id);
     showSuccessToast("Verification code sent successfully");
+
+    initSecondsCounter();
   } catch (error) {
     showErrorToast(
       "Cannot send verification code due to internal server error",
@@ -65,6 +68,12 @@ const resendCode = async () => {
 
 const verifyCode = async () => {
   try {
+    router.push("/register/set-password");
+
+    authStore.setOtpCode(otpCode.value);
+
+    // TODO integrate verify OTP code
+    return;
     const response = await auth.updatePassword({
       otp: otpCode.value,
       id: userId.value,
@@ -72,17 +81,14 @@ const verifyCode = async () => {
       // new_password: "",
     });
 
-    console.log("response", response);
-    console.log("response", response.error);
-
     const { data } = response;
 
     if (data.error) {
       throw new Error(data);
     }
 
-    authStore.setUserId(data.data.temp_id);
     showSuccessToast("Verification successfully");
+    router.push("/register/set-password");
   } catch (error) {
     showErrorToast(error.message);
   }
@@ -101,7 +107,7 @@ onMounted(() => {
 // });
 
 onIonViewDidLeave(() => {
-  timeout && clearTimeout(timeout);
+  interval && clearInterval(interval);
 });
 </script>
 
@@ -125,9 +131,8 @@ onIonViewDidLeave(() => {
           <div class="code-wrapper">
             <v-otp-input
               input-classes="otp-input"
-              :separator="false"
+              :separator="' '"
               class="otp-wrapper"
-              inputType="numeric"
               :num-inputs="6"
               v-model:value="otpCode"
               :should-auto-focus="true"

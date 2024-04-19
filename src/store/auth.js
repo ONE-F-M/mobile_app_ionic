@@ -7,6 +7,7 @@ export const useAuthStore = defineStore("auth", {
       employeeId: null,
       userId: null,
       isRegistered: false,
+      otpCode: null,
       verificationMethod: null,
     };
   },
@@ -32,11 +33,16 @@ export const useAuthStore = defineStore("auth", {
       this.verificationMethod = method;
     },
 
+    setOtpCode(code) {
+      this.otpCode = code;
+    },
+
     reset() {
       this.userName = null;
       this.employeeId = null;
       this.userId = null;
       this.isRegistered = false;
+      this.otpCode = null;
       this.verificationMethod = null;
     },
   },

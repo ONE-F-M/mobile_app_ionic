@@ -1,17 +1,18 @@
 <script setup>
 import { IonButton, IonContent, IonPage, useIonRouter } from "@ionic/vue";
 import { useUserStore } from "@/store/user.js";
-import { useAuthStore } from "@/store/auth.js";
 
 const router = useIonRouter();
 const userStore = useUserStore();
-const authStore = useAuthStore();
 
 const logout = () => {
   userStore.logout();
-  authStore.reset();
   router.push("/");
 };
+
+if (!userStore.user || userStore.token) {
+  logout();
+}
 </script>
 
 <template>
@@ -23,9 +24,53 @@ const logout = () => {
       <div class="services">
         <div class="services-item">
           <div class="services-item-icon-wrapper">
-            <img src="" alt="services-item-icon" class="services-item-icon" />
+            <img
+              src="/image/icon/home/check-in-checkout.svg"
+              alt="services-item-icon"
+              class="services-item-icon"
+            />
           </div>
           <div class="services-item-label">Checkin Checkout</div>
+        </div>
+        <div class="services-item">
+          <div class="services-item-icon-wrapper">
+            <img
+              src="/image/icon/home/penalty.svg"
+              alt="services-item-icon"
+              class="services-item-icon"
+            />
+          </div>
+          <div class="services-item-label">Penalties</div>
+        </div>
+        <div class="services-item">
+          <div class="services-item-icon-wrapper">
+            <img
+              src="/image/icon/home/new_penalty.svg"
+              alt="services-item-icon"
+              class="services-item-icon"
+            />
+          </div>
+          <div class="services-item-label">Penalty Issuance</div>
+        </div>
+        <div class="services-item">
+          <div class="services-item-icon-wrapper">
+            <img
+              src="/image/icon/home/leave.svg"
+              alt="services-item-icon"
+              class="services-item-icon"
+            />
+          </div>
+          <div class="services-item-label">Leaves</div>
+        </div>
+        <div class="services-item">
+          <div class="services-item-icon-wrapper">
+            <img
+              src="/image/icon/home/new_application.svg"
+              alt="services-item-icon"
+              class="services-item-icon"
+            />
+          </div>
+          <div class="services-item-label">New Leave Application</div>
         </div>
       </div>
       <ion-button expand="block" shape="round" @click="logout">
