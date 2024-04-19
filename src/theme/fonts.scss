@@ -21,3 +21,43 @@ label, p, span {
 [dir='rtl'] label, [dir='rtl'] p, [dir='rtl'] span {
   font-family: "Noto Naskh Arabic", serif;
 }
+
+.headline-small {
+  font-size: 24px;
+  line-height: 32px;
+}
+
+.title-large {
+  font-size: 22px;
+  line-height: 28px;
+}
+
+.title-medium {
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0.1px;
+}
+
+.label-large {
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.1px;
+}
+
+.body-large {
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0.5px;
+}
+
+.body-medium {
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.25px;
+}
+
+.body-small {
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.4px;
+}
