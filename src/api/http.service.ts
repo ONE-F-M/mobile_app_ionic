@@ -16,14 +16,10 @@ const DEFAULT_HEADERS = () => {
   };
 
   if (userStore.token) {
-    headers["Authorization"] = `Bearer ${userStore.token}`;
+    headers["Authorization"] = `${userStore.token}`;
   }
 
-  return {
-    "Content-Type": "application/x-www-form-urlencoded",
-    Accept: "application/json",
-    "X-Requested-With": "XMLHttpRequest",
-  };
+  return headers;
 };
 
 export const httpService = {

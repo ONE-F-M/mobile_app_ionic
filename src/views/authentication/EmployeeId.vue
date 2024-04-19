@@ -5,6 +5,7 @@ import {
   IonButton,
   IonPage,
   IonContent,
+  IonText,
   useIonRouter,
   onIonViewDidLeave,
 } from "@ionic/vue";
@@ -14,9 +15,11 @@ import auth from "@/api/authentication";
 import Header from "@/components/Header.vue";
 import InputBox from "@/components/InputBox.vue";
 import { useAuthStore } from "@/store/auth.js";
+import { useCustomToast } from "@/composable/toast.js";
 
 const authStore = useAuthStore();
 const router = useIonRouter();
+const { showErrorToast } = useCustomToast();
 
 const isLoading = ref(false);
 
@@ -28,6 +31,7 @@ const validId = computed(() => {
 
 const nextStep = async () => {
   try {
+    isLoading.value = true;
     const { data } = await auth.getUserEnrollment({
       employee_id: employeeId.value,
     });
@@ -44,7 +48,37 @@ const nextStep = async () => {
       return router.push("/register");
     }
   } catch (error) {
+    if (error?.data?.error) {
+      showErrorToast(error.data.error);
+    }
+
     console.error(error);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const login = async () => {
+  try {
+    isLoading.value = true;
+    const { data } = await auth.getUserEnrollment({
+      employee_id: employeeId.value,
+    });
+    const employeeName = data.data.employee_name;
+
+    authStore.setEmployeeId(employeeId.value);
+    authStore.setUserName(employeeName);
+
+    authStore.setRegistered(true);
+    return router.push("/login");
+  } catch (error) {
+    if (error?.data?.error) {
+      showErrorToast(error.data.error);
+    }
+
+    console.error(error);
+  } finally {
+    isLoading.value = false;
   }
 };
 
@@ -81,7 +115,18 @@ onIonViewDidLeave(() => {
           <ion-button
             fill="clear"
             strong
-            :disabled="!validId"
+            :disabled="!validId || isLoading"
+            @click="login"
+            router-direction="back"
+          >
+            <ion-text>
+              <h4 class="ion-no-margin login-wrapper-next-button">Login</h4>
+            </ion-text>
+          </ion-button>
+          <ion-button
+            fill="clear"
+            strong
+            :disabled="!validId || isLoading"
             @click="nextStep"
             router-direction="back"
           >
@@ -93,12 +138,6 @@ onIonViewDidLeave(() => {
           </ion-button>
         </ion-row>
       </div>
-
-      <ion-toast
-        trigger="open-inline-toast"
-        :duration="3000"
-        message="This is a toast with a long message and a button that appears on the same line."
-      ></ion-toast>
     </ion-content>
   </ion-page>
 </template>

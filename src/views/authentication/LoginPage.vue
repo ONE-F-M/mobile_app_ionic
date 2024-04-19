@@ -46,9 +46,9 @@ const login = async () => {
       password: password.value,
     });
 
-    await showSuccessToast(data.message);
-
     userStore.setUser(data.data);
+
+    console.log("data.data.token", data.data.token);
     userStore.setToken(data.data.token);
 
     password.value = "";
@@ -131,12 +131,6 @@ const forgotPassword = () => {
           >.
         </p>
       </div>
-
-      <ion-toast
-        trigger="open-inline-toast"
-        :duration="3000"
-        message="This is a toast with a long message and a button that appears on the same line."
-      ></ion-toast>
     </ion-content>
   </ion-page>
 </template>
