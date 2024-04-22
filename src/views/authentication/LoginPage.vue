@@ -47,8 +47,6 @@ const login = async () => {
     });
 
     userStore.setUser(data.data);
-
-    console.log("data.data.token", data.data.token);
     userStore.setToken(data.data.token);
 
     password.value = "";

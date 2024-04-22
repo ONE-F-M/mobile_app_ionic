@@ -58,30 +58,6 @@ const nextStep = async () => {
   }
 };
 
-const login = async () => {
-  try {
-    isLoading.value = true;
-    const { data } = await auth.getUserEnrollment({
-      employee_id: employeeId.value,
-    });
-    const employeeName = data.data.employee_name;
-
-    authStore.setEmployeeId(employeeId.value);
-    authStore.setUserName(employeeName);
-
-    authStore.setRegistered(true);
-    return router.push("/login");
-  } catch (error) {
-    if (error?.data?.error) {
-      showErrorToast(error.data.error);
-    }
-
-    console.error(error);
-  } finally {
-    isLoading.value = false;
-  }
-};
-
 const prevStep = () => {
   router.push("/");
 };
@@ -112,17 +88,6 @@ onIonViewDidLeave(() => {
         </InputBox>
 
         <ion-row class="ion-justify-content-end">
-          <ion-button
-            fill="clear"
-            strong
-            :disabled="!validId || isLoading"
-            @click="login"
-            router-direction="back"
-          >
-            <ion-text>
-              <h4 class="ion-no-margin login-wrapper-next-button">Login</h4>
-            </ion-text>
-          </ion-button>
           <ion-button
             fill="clear"
             strong
