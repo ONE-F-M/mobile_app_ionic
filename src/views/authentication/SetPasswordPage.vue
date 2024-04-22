@@ -7,6 +7,7 @@ import {
   IonInput,
   IonPage,
   IonSpinner,
+  onIonViewDidLeave,
   useIonRouter,
 } from "@ionic/vue";
 
@@ -18,6 +19,7 @@ import { useCustomToast } from "@/composable/toast.js";
 import { useAuthStore } from "@/store/auth.js";
 import { storeToRefs } from "pinia";
 import auth from "@/api/authentication";
+import { useUserStore } from "@/store/user.js";
 
 const { t } = useI18n();
 
@@ -27,12 +29,12 @@ const { t } = useI18n();
       confirm
   */
 const step = ref("password");
-const fieldFilled = ref(false);
 const password = ref("");
 const confirm_password = ref("");
 const authStore = useAuthStore();
-const { employeeId, userName, otpCode, userId, isRegistered } =
+const { employeeId, userName, passwordToken, isRegistered } =
   storeToRefs(authStore);
+const userStore = useUserStore();
 const router = useIonRouter();
 
 const { showErrorToast, showSuccessToast } = useCustomToast();
@@ -51,23 +53,30 @@ const updatePassword = async () => {
   try {
     if (password.value != confirm_password.value) {
       showErrorToast(t("auth.errors.passwords_mismatch"));
-      step.value = "password";
       return;
     }
 
     isLoading.value = true;
 
     await auth.updatePassword({
-      otp: otpCode.value,
-      id: userId.value,
       employee_id: employeeId.value,
       new_password: password.value,
+      password_token: passwordToken.value,
     });
 
-    await auth.userLogin({
+    const { data } = await auth.userLogin({
       employee_id: employeeId.value,
       password: password.value,
     });
+
+    userStore.setUser(data.data);
+    userStore.setToken(data.data.token);
+
+    if (data.data.enrolled) {
+      router.push("/home/");
+    } else {
+      router.push("/enrollment");
+    }
 
     showSuccessToast("Password update successfully");
     router.push("/home");
@@ -77,6 +86,12 @@ const updatePassword = async () => {
     isLoading.value = false;
   }
 };
+
+onIonViewDidLeave(() => {
+  step.value = "password";
+  confirm_password.value = "";
+  password.value = "";
+});
 </script>
 
 <template>

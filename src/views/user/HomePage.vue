@@ -10,7 +10,7 @@ const logout = () => {
   router.push("/");
 };
 
-if (!userStore.user || userStore.token) {
+if (!userStore.user || !userStore.token) {
   logout();
 }
 </script>
