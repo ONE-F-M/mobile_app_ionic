@@ -1,11 +1,5 @@
 <script setup>
-import {
-  IonCol,
-  IonContent,
-  IonPage,
-  IonRow,
-  IonIcon,
-} from "@ionic/vue";
+import { IonCol, IonContent, IonPage, IonRow, IonIcon } from "@ionic/vue";
 
 import BellIcon from "@/components/icon/BellIcon.vue";
 
@@ -15,19 +9,22 @@ const notifications = [
   {
     name: "Notification Name",
     time: "7 Jul at 12:00 PM",
-    content: "It is a long established fact that a reader will be by distracted by the readable"
+    content:
+      "It is a long established fact that a reader will be by distracted by the readable",
   },
   {
     name: "Notification Name",
     time: "7 Jul at 12:00 PM",
-    content: "It is a long established fact that a reader will be by distracted by the readable"
+    content:
+      "It is a long established fact that a reader will be by distracted by the readable",
   },
   {
     name: "Notification Name",
     time: "7 Jul at 12:00 PM",
-    content: "It is a long established fact that a reader will be by distracted by the readable"
+    content:
+      "It is a long established fact that a reader will be by distracted by the readable",
   },
-]
+];
 </script>
 
 <template>
@@ -44,15 +41,17 @@ const notifications = [
                 <span class="label-large">{{ notification.name }}</span>
               </div>
 
-              <span class="body-small notification-time">{{ notification.time }}</span>
+              <span class="body-small notification-time">{{
+                notification.time
+              }}</span>
             </div>
-            <p class="body-medium notification-content">{{ notification.content }}</p>
+            <p class="body-medium notification-content">
+              {{ notification.content }}
+            </p>
           </div>
         </template>
       </div>
     </ion-content>
-
-    <div class="pixel-perfect"></div>
   </ion-page>
 </template>
 
