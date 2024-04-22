@@ -6,6 +6,7 @@ import {
   IonPage,
   IonRadio,
   IonRadioGroup,
+  onIonViewDidLeave,
   useIonRouter,
 } from "@ionic/vue";
 
@@ -38,13 +39,14 @@ const requestCode = async () => {
     const { data } = await auth.forgotPassword({
       employee_id: employeeId.value,
       otp_source: otpMethod.value,
+      is_new: isRegistered.value ? 0 : 1,
     });
 
     if (data.error) {
       throw new Error(data);
     }
 
-    authStore.setUserId(data.data.temp_id);
+    authStore.setTempId(data.data.temp_id);
     authStore.setVerificationMethod(otpMethod.value);
     showSuccessToast("Verification code sent successfully");
 
@@ -55,6 +57,10 @@ const requestCode = async () => {
     );
   }
 };
+
+onIonViewDidLeave(() => {
+  otpMethod.value = "email";
+});
 </script>
 
 <template>

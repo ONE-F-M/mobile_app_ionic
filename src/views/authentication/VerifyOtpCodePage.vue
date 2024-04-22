@@ -20,7 +20,7 @@ import { storeToRefs } from "pinia";
 const SECONDS_BEFORE_NEXT_CODE = 120;
 
 const authStore = useAuthStore();
-const { employeeId, userId, verificationMethod, isRegistered } =
+const { employeeId, tempId, verificationMethod, isRegistered } =
   storeToRefs(authStore);
 const { showSuccessToast, showErrorToast } = useCustomToast();
 const router = useIonRouter();
@@ -68,29 +68,19 @@ const resendCode = async () => {
 
 const verifyCode = async () => {
   try {
-    router.push("/register/set-password");
-
-    authStore.setOtpCode(otpCode.value);
-
-    // TODO integrate verify OTP code
-    return;
-    const response = await auth.updatePassword({
+    const { data } = await auth.verifyOtp({
       otp: otpCode.value,
-      id: userId.value,
-      employee_id: employeeId.value,
-      // new_password: "",
+      temp_id: tempId.value,
     });
 
-    const { data } = response;
+    console.log("data otpCode", data);
 
-    if (data.error) {
-      throw new Error(data);
-    }
-
+    authStore.setPasswordCode(data.data.password_token);
     showSuccessToast("Verification successfully");
     router.push("/register/set-password");
   } catch (error) {
-    showErrorToast(error.message);
+    console.log("error", error);
+    showErrorToast(error.error ?? "OTP Verification Failed!");
   }
 };
 
@@ -108,6 +98,7 @@ onMounted(() => {
 
 onIonViewDidLeave(() => {
   interval && clearInterval(interval);
+  otpCode.value = "";
 });
 </script>
 
