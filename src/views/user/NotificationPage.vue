@@ -1,30 +1,45 @@
 <script setup>
-import { IonCol, IonContent, IonPage, IonRow, IonIcon } from "@ionic/vue";
+import { IonContent, IonPage, onIonViewWillEnter } from "@ionic/vue";
 
 import BellIcon from "@/components/icon/BellIcon.vue";
-
 import Header from "@/components/Header.vue";
+import { useCustomToast } from "@/composable/toast";
+import profile from "@/api/profile";
+import { useUserStore } from "@/store/user.js";
+import { storeToRefs } from "pinia";
+import { onMounted, ref } from "vue";
+import useDateHelper from "@/composable/useDateHelper";
 
-const notifications = [
-  {
-    name: "Notification Name",
-    time: "7 Jul at 12:00 PM",
-    content:
-      "It is a long established fact that a reader will be by distracted by the readable",
-  },
-  {
-    name: "Notification Name",
-    time: "7 Jul at 12:00 PM",
-    content:
-      "It is a long established fact that a reader will be by distracted by the readable",
-  },
-  {
-    name: "Notification Name",
-    time: "7 Jul at 12:00 PM",
-    content:
-      "It is a long established fact that a reader will be by distracted by the readable",
-  },
-];
+const { showErrorToast } = useCustomToast();
+const userStore = useUserStore();
+const { user } = storeToRefs(userStore);
+
+const { formatDate } = useDateHelper();
+
+const notifications = ref([]);
+
+const fetchNotifications = async () => {
+  try {
+    const { data } = await profile.getNotifications({
+      employee_id: user.value?.employee_id,
+    });
+
+    console.log("data", data.data);
+
+    notifications.value = data.data.map((notification) => ({
+      name: notification.title,
+      time: notification.time,
+      content: notification.body,
+    }));
+  } catch (error) {
+    console.error(error);
+    showErrorToast(error.error);
+  }
+};
+
+onIonViewWillEnter(async () => {
+  await fetchNotifications();
+});
 </script>
 
 <template>
@@ -42,7 +57,7 @@ const notifications = [
               </div>
 
               <span class="body-small notification-time">{{
-                notification.time
+                `${formatDate(notification.time, "D MMM")} at ${formatDate(notification.time, "h:mm A")}`
               }}</span>
             </div>
             <p class="body-medium notification-content">
@@ -84,7 +99,8 @@ const notifications = [
 
   .notification-time {
     color: var(--ion-color-medium-contrast);
-    margin-right: 4px;
+    margin-left: 8px;
+    text-wrap: nowrap;
   }
 
   .notification-content {

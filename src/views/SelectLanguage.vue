@@ -36,13 +36,12 @@ const arabicAnimation = (baseEl, opts) => {
 
   const enteringPage = createAnimation("entering-page-animation")
     .addElement(enteringEl)
-    .fromTo("transform", "translateX(40%)", "translateX(0)")
-    .fromTo("opacity", 0, 1);
+    .fromTo("transform", "translateX(30%)", "translateX(0)")
+    .fromTo("opacity", 0.2, 1);
 
   const leavingPage = createAnimation("leaving-page-animation")
     .addElement(leavingEl)
-    .fromTo("transform", "translateX(0)", "translateX(-100%)")
-    .fromTo("opacity", 1, 0.2);
+    .fromTo("transform", "translateX(0)", "translateX(-100%)");
 
   return createAnimation("root-transition")
     .duration(500)
@@ -54,13 +53,12 @@ const englishAnimation = (baseEl, opts) => {
 
   const enteringPage = createAnimation("entering-page-animation")
     .addElement(enteringEl)
-    .fromTo("transform", "translateX(-40%)", "translateX(0)")
-    .fromTo("opacity", 0, 1);
+    .fromTo("transform", "translateX(-30%)", "translateX(0)")
+    .fromTo("opacity", 0.2, 1);
 
   const leavingPage = createAnimation("leaving-page-animation")
     .addElement(leavingEl)
-    .fromTo("transform", "translateX(0)", "translateX(100%)")
-    .fromTo("opacity", 1, 0.2);
+    .fromTo("transform", "translateX(0)", "translateX(100%)");
 
   return createAnimation("root-transition")
     .duration(500)
@@ -114,7 +112,7 @@ onMounted(() => {
 
   setTimeout(() => {
     isAnimated.value = true;
-  }, 1000);
+  }, 500);
 });
 </script>
 

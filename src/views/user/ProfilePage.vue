@@ -1,18 +1,15 @@
 <script setup>
 import {
-  IonCol,
   IonContent,
   IonPage,
-  IonRow,
   IonIcon,
-  IonList,
-  IonItem,
   IonSelect,
   IonSelectOption,
   IonButton,
   createAnimation,
   IonModal,
   useIonRouter,
+  onIonViewWillEnter,
 } from "@ionic/vue";
 
 import { useI18n } from "vue-i18n";
@@ -24,8 +21,11 @@ import Header from "@/components/Header.vue";
 import PenIcon from "@/components/icon/PenIcon.vue";
 
 import { useUserStore } from "@/store/user";
-import { ref } from "vue";
+import { reactive, ref } from "vue";
 import { useLangStore } from "@/store/lang.js";
+import profile from "@/api/profile";
+import { useCustomToast } from "@/composable/toast";
+import useDisplayImage from "@/composable/useDisplayImage";
 
 const { t } = useI18n();
 
@@ -33,16 +33,17 @@ const router = useIonRouter();
 const langStore = useLangStore();
 const userStore = useUserStore();
 
-const user = {
-  name: "John Doe",
-  id: "HR-EMP-12345",
-  picture: "/profile_picture.png",
-  email: "h.javed@one-fm.com",
-  phone: "+965 12345678",
-  job_title: "UI/UX Engineer",
-  // picture: "bobross.jpeg"
-  // picture: "tall_test.jpeg"
-};
+const { showErrorToast, showSuccessToast } = useCustomToast();
+const { formatImageUrl } = useDisplayImage();
+
+const user = reactive({
+  name: "",
+  id: "",
+  picture: "",
+  email: "",
+  phone: "",
+  job_title: "",
+});
 
 const selectedLanguage = ref(langStore.lang);
 
@@ -67,8 +68,35 @@ const langSelectAlertOptions = {
   leaveAnimation: langSelectLeaveAnimation,
 };
 
-const updateImage = (event) => {
-  console.log("update image event", event);
+const updateImage = async (event) => {
+  try {
+    const file = event.target?.files[0];
+
+    if (!file) {
+      return;
+    }
+
+    const readerPromise = new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(file);
+    });
+
+    const imageBase64 = await readerPromise;
+
+    const payload = {
+      employee_id: userStore.user?.employee_id,
+      image: imageBase64.split(",")[1],
+    };
+
+    await profile.updateProfileImage(payload);
+
+    await getUserDetails();
+    showSuccessToast(t("user.profile.image_updated"));
+  } catch (error) {
+    console.error(error);
+    showErrorToast(error.error);
+  }
 };
 
 const changeLanguage = (lang) => {
@@ -79,6 +107,28 @@ const logout = () => {
   userStore.logout();
   router.push("/");
 };
+
+const getUserDetails = async () => {
+  try {
+    const { data } = await profile.getUserProfile({
+      employee_id: userStore.user?.employee_id,
+    });
+
+    user.name = data.data.name;
+    user.id = userStore.user?.name;
+    user.picture = data.data.user_image;
+    user.email = data.data.email;
+    user.phone = data.data.phone_number;
+    user.job_title = data.data.designation;
+  } catch (error) {
+    console.error(error);
+    showErrorToast(error.error);
+  }
+};
+
+onIonViewWillEnter(async () => {
+  await getUserDetails();
+});
 </script>
 
 <template>
@@ -91,21 +141,20 @@ const logout = () => {
           <div class="account-component">
             <h3 class="headline-small">{{ $t("user.profile.account") }}</h3>
 
-            <div
-              id="profile-details"
-              class="profile-details"
-              @click="openProfileDetails"
-            >
+            <div id="profile-details" class="profile-details">
               <div class="profile-picture">
-                <img :src="user.picture" />
+                <img
+                  :src="formatImageUrl(user.picture) || '/profile_picture.png'"
+                  alt="avatar"
+                />
               </div>
 
               <div class="profile-small-info">
-                <div clas="profile-name title-medium">{{ user.name }}</div>
+                <div class="profile-name title-medium">{{ user.name }}</div>
                 <div class="profile-id body-small">{{ user.id }}</div>
               </div>
 
-              <div class="action-button">
+              <div class="action-button icon icon-arrow-back">
                 <ion-icon color="light" :icon="chevronForwardOutline" />
               </div>
             </div>
@@ -118,14 +167,20 @@ const logout = () => {
               <ion-content class="full-profile-content ion-padding">
                 <div class="profile-picture-change">
                   <div class="profile-picture">
-                    <img :src="user.picture" />
+                    <img
+                      class="profile-picture-avatar"
+                      :src="
+                        formatImageUrl(user.picture) || '/profile_picture.png'
+                      "
+                      alt="avatar"
+                    />
                   </div>
                   <label class="label-large" for="file_input">
                     <input
                       id="file_input"
                       class="hidden"
                       type="file"
-                      @select="updateImage"
+                      @change="updateImage"
                     />
 
                     <PenIcon />
@@ -258,6 +313,8 @@ const logout = () => {
 
         .alert-button-inner {
           padding-bottom: 8px;
+          display: flex;
+          flex-direction: row-reverse;
         }
 
         .alert-radio-label {
@@ -269,8 +326,7 @@ const logout = () => {
         }
 
         .alert-radio-icon {
-          order: 2;
-          margin-right: 28px;
+          inset-inline-start: 0;
         }
       }
     }
@@ -291,6 +347,14 @@ const logout = () => {
       opacity: 1;
     }
   }
+}
+
+.profile-picture-avatar {
+  width: 110px;
+  height: 110px;
+  object-fit: cover;
+  overflow: hidden;
+  border-radius: 50%;
 }
 </style>
 
@@ -382,6 +446,10 @@ const logout = () => {
       color: inherit;
       width: 17px;
       height: 17px;
+    }
+
+    [dir="rtl"] &::part(icon) {
+      transform: rotate(180deg);
     }
 
     &::part(text) {

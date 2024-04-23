@@ -8,6 +8,7 @@ import {
   IonText,
   useIonRouter,
   onIonViewDidLeave,
+  createAnimation,
 } from "@ionic/vue";
 import { ref, computed } from "vue";
 
@@ -26,7 +27,7 @@ const isLoading = ref(false);
 const employeeId = ref("");
 
 const validId = computed(() => {
-  return employeeId.value.length <= 12 && employeeId.value.length > 0;
+  return employeeId.value.length === 12;
 });
 
 const nextStep = async () => {
@@ -83,7 +84,13 @@ onIonViewDidLeave(() => {
           <ion-input
             v-model="employeeId"
             fill="outline"
-            :placeholder="$t('auth.placeholder.id')"
+            :label="$t('auth.placeholder.id')"
+            label-placement="floating"
+            :class="{
+              'ion-touched': employeeId,
+              'ion-invalid': !validId,
+            }"
+            :error-text="$t('auth.invalid.id')"
           />
         </InputBox>
 

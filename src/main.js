@@ -7,7 +7,7 @@ import { useLangStore } from "@/store/lang.js";
 import pinia from "@/plugins/pinia.js";
 import initI18n from "@/plugins/i18n.js";
 
-import { IonicVue } from "@ionic/vue";
+import { createAnimation, IonicVue } from "@ionic/vue";
 
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/vue/css/core.css";
@@ -32,7 +32,29 @@ import "./theme/fonts.scss";
 const app = createApp(App);
 
 app.use(pinia);
-app.use(IonicVue).use(router);
+
+const animationPage = (baseEl, opts) => {
+  const { enteringEl, leavingEl } = opts;
+
+  const enteringPage = createAnimation("entering-page-animation")
+    .addElement(enteringEl)
+    .fromTo("opacity", 0.2, 1);
+
+  const leavingPage = createAnimation("leaving-page-animation")
+    .addElement(leavingEl)
+    .fromTo("opacity", 1, 0);
+
+  return createAnimation("root-transition")
+    .duration(300)
+    .easing("ease-in-out")
+    .addAnimation([enteringPage, leavingPage]);
+};
+
+app
+  .use(IonicVue, {
+    navAnimation: animationPage,
+  })
+  .use(router);
 
 const langStore = useLangStore();
 
