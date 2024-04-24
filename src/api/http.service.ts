@@ -6,7 +6,7 @@ const BASE_URL = import.meta.env.VITE_BASE_API_URL ?? "";
 export const API_PREFIX =
   import.meta.env.VITE_API_PREFIX ?? "/api/method/one_fm.api.v1.";
 
-const DEFAULT_HEADERS = () => {
+const DEFAULT_HEADERS = (method: "get" | "post" | "put" | "delete") => {
   const userStore = useUserStore();
 
   const headers = {
@@ -14,6 +14,10 @@ const DEFAULT_HEADERS = () => {
     Accept: "application/json",
     "X-Requested-With": "XMLHttpRequest",
   };
+
+  if (method === "get") {
+    delete headers["Content-Type"];
+  }
 
   if (userStore.token) {
     headers["Authorization"] = `${userStore.token}`;
@@ -31,7 +35,7 @@ export const httpService = {
     const response = await CapacitorHttp[method]({
       ...options,
       headers: {
-        ...DEFAULT_HEADERS(),
+        ...DEFAULT_HEADERS(method),
         ...options?.headers,
       },
 

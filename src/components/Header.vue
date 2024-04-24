@@ -56,6 +56,9 @@ const triggerBack = () => emit("goBack");
 
   .header-text-wrapper {
     margin: 0;
+    font-weight: 400;
+    font-family: "Readex Pro", sans-serif;
+    letter-spacing: 0.05px;
   }
 }
 .rtl {

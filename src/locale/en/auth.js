@@ -18,6 +18,11 @@ export default {
     verification_code: "Verification Code",
     password: "Password",
   },
+  invalid: {
+    id: "Incorrect ID",
+    password: "Incorrect Password",
+    password_mismatch: "Password validation error",
+  },
   placeholder: {
     id: "ID",
     password: "Password",

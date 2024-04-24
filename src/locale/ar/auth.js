@@ -18,6 +18,11 @@ export default {
     verification_code: "رمز التحقق",
     password: "كلمة المرور",
   },
+  invalid: {
+    id: "Incorrect ID",
+    password: "Incorrect Password",
+    password_mismatch: "Password validation error",
+  },
   placeholder: {
     id: "هوية شخصية",
     password: "كلمة المرور",

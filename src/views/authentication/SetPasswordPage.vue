@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import {
@@ -30,6 +30,7 @@ const { t } = useI18n();
   */
 const step = ref("password");
 const password = ref("");
+const isIncorrectPassword = ref(false);
 const confirm_password = ref("");
 const authStore = useAuthStore();
 const { employeeId, userName, passwordToken, isRegistered } =
@@ -52,7 +53,7 @@ const nextStep = () => {
 const updatePassword = async () => {
   try {
     if (password.value != confirm_password.value) {
-      showErrorToast(t("auth.errors.passwords_mismatch"));
+      isIncorrectPassword.value = true;
       return;
     }
 
@@ -81,7 +82,7 @@ const updatePassword = async () => {
     showSuccessToast("Password update successfully");
     router.push("/home");
   } catch (error) {
-    showErrorToast(error.message);
+    showErrorToast(error.error);
   } finally {
     isLoading.value = false;
   }
@@ -91,7 +92,15 @@ onIonViewDidLeave(() => {
   step.value = "password";
   confirm_password.value = "";
   password.value = "";
+  isIncorrectPassword.value = false;
 });
+
+watch(
+  () => confirm_password.value,
+  () => {
+    isIncorrectPassword.value = false;
+  },
+);
 </script>
 
 <template>
@@ -126,7 +135,8 @@ onIonViewDidLeave(() => {
               <ion-input
                 type="password"
                 fill="outline"
-                :placeholder="$t('auth.placeholder.password')"
+                :label="$t('auth.placeholder.password')"
+                label-placement="floating"
                 v-model="password"
               />
             </InputBox>
@@ -140,7 +150,12 @@ onIonViewDidLeave(() => {
               <ion-input
                 type="password"
                 fill="outline"
-                :placeholder="$t('auth.placeholder.password')"
+                :label="$t('auth.placeholder.password')"
+                label-placement="floating"
+                :class="{
+                  'ion-touched ion-invalid': isIncorrectPassword,
+                }"
+                :error-text="$t('auth.invalid.password_mismatch')"
                 v-model="confirm_password"
               />
             </InputBox>

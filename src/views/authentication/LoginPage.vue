@@ -2,37 +2,34 @@
 import {
   IonInput,
   IonButton,
-  toastController,
   IonPage,
   IonContent,
   IonSpinner,
   useIonRouter,
   onIonViewDidLeave,
 } from "@ionic/vue";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 
-import { closeOutline, checkmarkOutline } from "ionicons/icons";
 import auth from "@/api/authentication";
 import { useUserStore } from "@/store/user";
 import { useAuthStore } from "@/store/auth.js";
 import { storeToRefs } from "pinia";
 import Header from "@/components/Header.vue";
-import { useCustomToast } from "@/composable/toast.js";
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
 const { employeeId, userName } = storeToRefs(authStore);
 const router = useIonRouter();
-const { showErrorToast, showSuccessToast } = useCustomToast();
 
 const step = ref(0);
 const isLoading = ref(false);
+const isIncorrectPassword = ref(false);
 
 const password = ref("");
 
 const prevStep = () => {
   if (step.value === 0) {
-    router.push("/");
+    router.back();
   } else {
     step.value -= 1;
   }
@@ -59,9 +56,7 @@ const login = async () => {
       router.push("/enrollment");
     }
   } catch (error) {
-    if (error?.data?.error) {
-      showErrorToast(error.data.error);
-    }
+    isIncorrectPassword.value = true;
 
     console.error(error);
   } finally {
@@ -73,12 +68,20 @@ onIonViewDidLeave(() => {
   step.value = 0;
   isLoading.value = false;
   password.value = "";
+  isIncorrectPassword.value = false;
 });
 
 const forgotPassword = () => {
   authStore.setRegistered(true);
   router.push("/register/method");
 };
+
+watch(
+  () => password.value,
+  () => {
+    isIncorrectPassword.value = false;
+  },
+);
 </script>
 
 <template>
@@ -109,7 +112,12 @@ const forgotPassword = () => {
             v-model="password"
             fill="outline"
             type="password"
-            :placeholder="$t('login.password')"
+            :label="$t('login.password')"
+            label-placement="floating"
+            :class="{
+              'ion-touched ion-invalid': isIncorrectPassword,
+            }"
+            :error-text="$t('auth.invalid.password')"
           />
           <ion-button
             @click="login"

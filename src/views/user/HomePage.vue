@@ -73,9 +73,6 @@ if (!userStore.user || !userStore.token) {
           <div class="services-item-label">New Leave Application</div>
         </div>
       </div>
-      <ion-button expand="block" shape="round" @click="logout">
-        {{ $t("user.home.logout") }}
-      </ion-button>
     </ion-content>
   </ion-page>
 </template>
