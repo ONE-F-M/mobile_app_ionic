@@ -72,8 +72,12 @@ onIonViewWillEnter(async () => {
 
 <style lang="scss" scoped>
 .content {
-  background: var(--ion-color-dark);
+  --padding-top: 0;
+  --padding-bottom: 24px;
+  --padding-start: 15px;
+  --padding-end: 15px;
 }
+
 .notifications-wrapper {
   margin-top: 10px;
 }

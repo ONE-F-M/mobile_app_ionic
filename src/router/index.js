@@ -67,6 +67,14 @@ const routes = [
       },
     ],
   },
+  {
+    path: "/checkin",
+    component: () => import("@/views/checkin/CheckinListPage.vue"),
+  },
+  {
+    path: "/checkin/geolocation",
+    component: () => import("@/views/checkin/CheckinGeolocation.vue"),
+  },
 ];
 
 const router = createRouter({

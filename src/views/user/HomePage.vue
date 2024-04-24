@@ -13,6 +13,10 @@ const logout = () => {
 if (!userStore.user || !userStore.token) {
   logout();
 }
+
+const goToCheckin = () => {
+  router.push("/checkin");
+};
 </script>
 
 <template>
@@ -22,7 +26,7 @@ if (!userStore.user || !userStore.token) {
         {{ $t("user.home.title") }}
       </h3>
       <div class="services">
-        <div class="services-item">
+        <div class="services-item" @click="goToCheckin">
           <div class="services-item-icon-wrapper">
             <img
               src="/image/icon/home/check-in-checkout.svg"

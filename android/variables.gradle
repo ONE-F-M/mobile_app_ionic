@@ -13,4 +13,11 @@ ext {
     androidxJunitVersion = '1.1.5'
     androidxEspressoCoreVersion = '3.5.1'
     cordovaAndroidVersion = '10.1.1'
+    googleMapsPlayServicesVersion = '18.1.0'
+    googleMapsUtilsVersion = '3.4.0'
+    googleMapsKtxVersion = '3.4.0'
+    googleMapsUtilsKtxVersion = '3.4.0'
+    kotlinxCoroutinesVersion = '1.6.4'
+    androidxCoreKTXVersion = '1.10.0'
+    kotlin_version = '1.8.20'
 }
