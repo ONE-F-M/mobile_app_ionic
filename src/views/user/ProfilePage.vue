@@ -133,7 +133,7 @@ onIonViewWillEnter(async () => {
 
 <template>
   <ion-page>
-    <ion-content class="ion-padding">
+    <ion-content class="profile-page">
       <div class="profile-wrapper">
         <div>
           <Header>{{ $t("user.profile.title") }}</Header>
@@ -359,6 +359,13 @@ onIonViewWillEnter(async () => {
 </style>
 
 <style lang="scss" scoped>
+.profile-page {
+  --padding-top: 0;
+  --padding-bottom: 24px;
+  --padding-start: 15px;
+  --padding-end: 15px;
+}
+
 .profile-details {
   display: flex;
   height: 54px;

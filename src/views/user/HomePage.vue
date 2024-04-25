@@ -1,9 +1,21 @@
 <script setup>
-import { IonButton, IonContent, IonPage, useIonRouter } from "@ionic/vue";
-import { useUserStore } from "@/store/user.js";
+import {
+  IonContent,
+  IonPage,
+  onIonViewDidEnter,
+  useIonRouter,
+} from "@ionic/vue";
+import { useUserStore } from "@/store/user";
+import configuration from "@/api/configuration";
+import { useCustomToast } from "@/composable/toast";
+import { ref } from "vue";
 
 const router = useIonRouter();
 const userStore = useUserStore();
+
+const { showErrorToast } = useCustomToast();
+
+const services = ref([]);
 
 const logout = () => {
   userStore.logout();
@@ -13,6 +25,31 @@ const logout = () => {
 if (!userStore.user || !userStore.token) {
   logout();
 }
+
+const goToServicePage = (service) => {
+  switch (service) {
+    case "Checkin/Checkout":
+      router.push("/checkin");
+      break;
+    default:
+      break;
+  }
+};
+
+const fetchServices = async () => {
+  try {
+    const { data } = await configuration.getUserServices();
+
+    services.value = data.data.service_detail;
+  } catch (error) {
+    showErrorToast(error.error);
+    services.value = [];
+  }
+};
+
+onIonViewDidEnter(() => {
+  fetchServices();
+});
 </script>
 
 <template>
@@ -22,55 +59,18 @@ if (!userStore.user || !userStore.token) {
         {{ $t("user.home.title") }}
       </h3>
       <div class="services">
-        <div class="services-item">
+        <div
+          v-for="service in services"
+          class="services-item"
+          :key="service.service"
+          @click="goToServicePage(service.service)"
+        >
           <div class="services-item-icon-wrapper">
-            <img
-              src="/image/icon/home/check-in-checkout.svg"
-              alt="services-item-icon"
-              class="services-item-icon"
-            />
+            <span class="mdi" :class="`mdi-${service.service_icon}`" />
           </div>
-          <div class="services-item-label">Checkin Checkout</div>
-        </div>
-        <div class="services-item">
-          <div class="services-item-icon-wrapper">
-            <img
-              src="/image/icon/home/penalty.svg"
-              alt="services-item-icon"
-              class="services-item-icon"
-            />
+          <div class="services-item-label">
+            {{ service.service }}
           </div>
-          <div class="services-item-label">Penalties</div>
-        </div>
-        <div class="services-item">
-          <div class="services-item-icon-wrapper">
-            <img
-              src="/image/icon/home/new_penalty.svg"
-              alt="services-item-icon"
-              class="services-item-icon"
-            />
-          </div>
-          <div class="services-item-label">Penalty Issuance</div>
-        </div>
-        <div class="services-item">
-          <div class="services-item-icon-wrapper">
-            <img
-              src="/image/icon/home/leave.svg"
-              alt="services-item-icon"
-              class="services-item-icon"
-            />
-          </div>
-          <div class="services-item-label">Leaves</div>
-        </div>
-        <div class="services-item">
-          <div class="services-item-icon-wrapper">
-            <img
-              src="/image/icon/home/new_application.svg"
-              alt="services-item-icon"
-              class="services-item-icon"
-            />
-          </div>
-          <div class="services-item-label">New Leave Application</div>
         </div>
       </div>
     </ion-content>
@@ -108,6 +108,8 @@ if (!userStore.user || !userStore.token) {
         width: 66px;
         height: 62px;
         border-radius: 13px;
+        font-size: 24px;
+        color: #003549;
         background-color: var(--ion-color-primary);
         display: flex;
         align-items: center;
@@ -116,6 +118,7 @@ if (!userStore.user || !userStore.token) {
     }
 
     &-label {
+      max-width: 65px;
       margin-top: 8px;
       text-align: center;
       font-size: 14px;
