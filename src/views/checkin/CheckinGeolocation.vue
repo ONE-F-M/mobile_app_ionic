@@ -6,7 +6,7 @@ import {
   onIonViewWillLeave,
   useIonRouter,
 } from "@ionic/vue";
-import { Geolocation } from "@capacitor/geolocation";
+// import { Geolocation } from "@capacitor/geolocation";
 import Header from "@/components/Header.vue";
 import { ref } from "vue";
 // import { GoogleMap } from "@capacitor/google-maps";
@@ -19,9 +19,9 @@ const prevStep = () => {
 
 const coordinates = ref("test");
 
-const printCurrentPosition = async () => {
-  coordinates.value = await Geolocation.getCurrentPosition();
-};
+// const printCurrentPosition = async () => {
+//   coordinates.value = await Geolocation.getCurrentPosition();
+// };
 
 const apiKey = "TOKEN";
 // let googleMap;
