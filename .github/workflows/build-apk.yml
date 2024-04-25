@@ -32,13 +32,13 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Install Ionic
-        run: npm install -g @ionic/cli
+        run: yarn global add @ionic/cli
 
       - name: Install app dependencies
-        run: npm install
+        run: yarn install
 
       - name: Build Ionic App
-        run: npm run build
+        run: yarn build
 
       - name: Copy Android
         run: ionic capacitor sync
