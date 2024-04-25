@@ -59,8 +59,8 @@ onMounted(async () => {
         </slot>
       </Header>
       Test Map
-      <div style="height: calc(100% - 70px); width: 100%" id="map"></div>
     </ion-content>
+    <div style="height: calc(100% - 70px); width: 100%" id="map"></div>
   </ion-page>
 </template>
 
