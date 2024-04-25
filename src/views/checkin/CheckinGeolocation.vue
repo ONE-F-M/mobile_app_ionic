@@ -9,7 +9,7 @@ import {
 import { Geolocation } from "@capacitor/geolocation";
 import Header from "@/components/Header.vue";
 import { ref } from "vue";
-import { GoogleMap } from "@capacitor/google-maps";
+// import { GoogleMap } from "@capacitor/google-maps";
 
 const router = useIonRouter();
 
@@ -24,44 +24,44 @@ const printCurrentPosition = async () => {
 };
 
 const apiKey = "TOKEN";
-let googleMap;
+// let googleMap;
 
 onIonViewDidEnter(async () => {
-  await printCurrentPosition();
-
-  const mapRef = document.getElementById("map");
-
-  const body = document.querySelector("body.dark");
-
-  body.classList.toggle("map-transparent");
-
-  googleMap = await GoogleMap.create({
-    id: "my-map", // Unique identifier for this map instance
-    element: mapRef, // reference to the capacitor-google-map element
-    apiKey: apiKey, // Your Google Maps API Key
-    config: {
-      center: {
-        // The initial position to be rendered by the map
-        lat: coordinates.value?.coords?.latitude,
-        lng: coordinates.value?.coords?.longitude,
-      },
-      panControl: false,
-      zoom: 18, // The initial zoom level to be rendered by the map
-    },
-  });
-
-  const markerId = await googleMap.addMarker({
-    coordinate: {
-      lat: coordinates.value?.coords?.latitude,
-      lng: coordinates.value?.coords?.longitude,
-    },
-  });
+  // await printCurrentPosition();
+  //
+  // const mapRef = document.getElementById("map");
+  //
+  // const body = document.querySelector("body.dark");
+  //
+  // body.classList.toggle("map-transparent");
+  //
+  // googleMap = await GoogleMap.create({
+  //   id: "my-map", // Unique identifier for this map instance
+  //   element: mapRef, // reference to the capacitor-google-map element
+  //   apiKey: apiKey, // Your Google Maps API Key
+  //   config: {
+  //     center: {
+  //       // The initial position to be rendered by the map
+  //       lat: coordinates.value?.coords?.latitude,
+  //       lng: coordinates.value?.coords?.longitude,
+  //     },
+  //     panControl: false,
+  //     zoom: 18, // The initial zoom level to be rendered by the map
+  //   },
+  // });
+  //
+  // const markerId = await googleMap.addMarker({
+  //   coordinate: {
+  //     lat: coordinates.value?.coords?.latitude,
+  //     lng: coordinates.value?.coords?.longitude,
+  //   },
+  // });
 });
 
 onIonViewWillLeave(() => {
-  const body = document.querySelector("body.dark");
-
-  body.classList.toggle("map-transparent");
+  // const body = document.querySelector("body.dark");
+  //
+  // body.classList.toggle("map-transparent");
 });
 </script>
 
