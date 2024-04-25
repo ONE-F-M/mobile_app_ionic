@@ -1,5 +1,11 @@
 <script setup>
-import { IonContent, IonIcon, IonPage, useIonRouter } from "@ionic/vue";
+import {
+  IonContent,
+  IonButton,
+  IonText,
+  IonPage,
+  useIonRouter,
+} from "@ionic/vue";
 
 import IconPlus from "@/components/icon/Plus.vue";
 import CheckinHeader from "@/components/checkin/Header.vue";

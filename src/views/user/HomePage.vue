@@ -9,6 +9,7 @@ import { useUserStore } from "@/store/user";
 import configuration from "@/api/configuration";
 import { useCustomToast } from "@/composable/toast";
 import { ref } from "vue";
+import Header from "@/components/Header.vue";
 
 const router = useIonRouter();
 const userStore = useUserStore();
@@ -54,10 +55,8 @@ onIonViewDidEnter(() => {
 
 <template>
   <ion-page>
-    <ion-content class="ion-padding">
-      <h3 class="home-title ion-text-center">
-        {{ $t("user.home.title") }}
-      </h3>
+    <ion-content class="ion-padding user-home-page">
+      <Header>{{ $t("user.home.title") }}</Header>
       <div class="services">
         <div
           v-for="service in services"
@@ -78,11 +77,11 @@ onIonViewDidEnter(() => {
 </template>
 
 <style lang="scss" scoped>
-.home {
-  &-title {
-    margin-top: 2px;
-    margin-bottom: 35px;
-  }
+.user-home-page {
+  --padding-top: 0;
+  --padding-bottom: 24px;
+  --padding-start: 15px;
+  --padding-end: 15px;
 }
 
 .services {
