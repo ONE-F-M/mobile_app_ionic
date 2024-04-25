@@ -51,7 +51,7 @@ watch(
             :class="`mdi-${serviceGroup.icon}`"
           ></span>
           <ion-text>
-            <p class="group-card-title">Group Card</p>
+            <p class="group-card-title">{{ serviceGroup.name }}</p>
           </ion-text>
         </div>
         <IconChevronDown class="group-card-title-collapse-icon" />
