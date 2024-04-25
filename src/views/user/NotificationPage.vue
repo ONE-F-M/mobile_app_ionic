@@ -24,8 +24,6 @@ const fetchNotifications = async () => {
       employee_id: user.value?.employee_id,
     });
 
-    console.log("data", data.data);
-
     notifications.value = data.data.map((notification) => ({
       name: notification.title,
       time: notification.time,

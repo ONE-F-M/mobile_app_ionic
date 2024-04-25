@@ -11,11 +11,12 @@ import configuration from "@/api/configuration";
 import { useCustomToast } from "@/composable/toast";
 import { ref } from "vue";
 import ServiceGroupCard from "@/components/service/GroupCard.vue";
+import Header from "@/components/Header.vue";
 
 const { showErrorToast } = useCustomToast();
 
 const serviceGroups = ref([]);
-const services = ref([]);
+const userServices = ref([]);
 
 const selectedGroup = ref("");
 
@@ -29,7 +30,7 @@ const fetchGroups = async () => {
     }));
   } catch (error) {
     showErrorToast(error.error);
-    services.value = [];
+    serviceGroups.value = [];
   }
 };
 
@@ -42,21 +43,80 @@ const fetchServices = async () => {
         (group) => group.name === service.service_group,
       );
 
-      console.log("group", group);
+      const addedService = userServices.value.find(
+        (userService) => userService.service === service.name,
+      );
 
       if (group) {
-        group.services.push(service);
+        group.services.push({
+          ...service,
+          added: !!addedService,
+        });
       }
     });
-    services.value = data.data;
   } catch (error) {
     showErrorToast(error.error);
-    services.value = [];
+  }
+};
+
+const fetchUserServices = async () => {
+  try {
+    const { data } = await configuration.getUserServices();
+
+    userServices.value = data.data.service_detail;
+  } catch (error) {
+    showErrorToast(error.error);
+    userServices.value = [];
+  }
+};
+
+const removeService = async (service) => {
+  try {
+    const updatedService = [
+      ...userServices.value
+        .map((service) => ({
+          service: service.service,
+        }))
+        .filter((userService) => userService.service !== service.name),
+    ];
+
+    const payload = {
+      service_detail: JSON.stringify(updatedService),
+    };
+
+    await configuration.updateServices(payload);
+    await fetchUserServices();
+
+    service.added = false;
+  } catch (error) {
+    showErrorToast(error.error);
+  }
+};
+const addService = async (service) => {
+  try {
+    const updatedService = [
+      ...userServices.value.map((userService) => ({
+        service: userService.service,
+      })),
+      { service: service.name },
+    ];
+
+    const payload = {
+      service_detail: JSON.stringify(updatedService),
+    };
+
+    await configuration.updateServices(payload);
+
+    await fetchUserServices();
+    service.added = true;
+  } catch (error) {
+    showErrorToast(error.error);
   }
 };
 
 onIonViewDidEnter(async () => {
   await fetchGroups();
+  await fetchUserServices();
   await fetchServices();
 });
 
@@ -67,10 +127,8 @@ onIonViewDidLeave(() => {
 
 <template>
   <ion-page>
-    <ion-content class="ion-padding">
-      <h3 class="home-title ion-text-center">
-        {{ $t("user.service.title") }}
-      </h3>
+    <ion-content class="ion-padding services-page">
+      <Header>{{ $t("user.service.title") }}</Header>
       <div class="services">
         <ion-row>
           <ion-col
@@ -81,6 +139,8 @@ onIonViewDidLeave(() => {
             <ServiceGroupCard
               v-model="selectedGroup"
               :service-group="serviceGroup"
+              @remove-service="removeService($event)"
+              @add-service="addService($event)"
             />
           </ion-col>
         </ion-row>
@@ -90,10 +150,10 @@ onIonViewDidLeave(() => {
 </template>
 
 <style lang="scss" scoped>
-.home {
-  &-title {
-    margin-top: 2px;
-    margin-bottom: 35px;
-  }
+.services-page {
+  --padding-top: 0;
+  --padding-bottom: 24px;
+  --padding-start: 15px;
+  --padding-end: 15px;
 }
 </style>

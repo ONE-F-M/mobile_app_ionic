@@ -1,7 +1,13 @@
 <script setup>
 import BaseCollapse from "@/components/base/Collapse.vue";
 import { ref, watch } from "vue";
-import { IonCard, IonCardContent, IonRow } from "@ionic/vue";
+import {
+  IonCard,
+  IonCardContent,
+  IonRow,
+  IonButton,
+  IonText,
+} from "@ionic/vue";
 import IconChevronDown from "@/components/icon/ChevronDown.vue";
 
 const props = defineProps({
@@ -15,9 +21,21 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["update:model-value"]);
+const emit = defineEmits([
+  "update:model-value",
+  "remove-service",
+  "add-service",
+]);
 
 const showContent = ref(false);
+
+const updateService = (added, service) => {
+  if (!added) {
+    emit("add-service", service);
+  } else {
+    emit("remove-service", service);
+  }
+};
 
 watch(
   () => showContent.value,
@@ -71,8 +89,17 @@ watch(
                 {{ service.name }}
               </p>
             </ion-row>
-            <ion-button class="services-item-button" shape="round" size="small">
-              Get
+            <ion-button
+              class="services-item-button"
+              shape="round"
+              size="small"
+              @click="updateService(service.added, service)"
+            >
+              {{
+                service.added
+                  ? $t("user.service.remove")
+                  : $t("user.service.get")
+              }}
             </ion-button>
           </ion-row>
         </div>

@@ -9,8 +9,20 @@ const getServicesGroups = async () =>
 const getUserServices = async () =>
   await httpService.get(`configuration.user_app_service`);
 
+interface UpdateServicesPayload {
+  service_detail: {
+    service: string;
+  }[];
+}
+
+const updateServices = async (payload: UpdateServicesPayload) =>
+  await httpService.post(`configuration.update_create_user_app_service`, {
+    data: payload,
+  });
+
 export default {
   getServices,
   getServicesGroups,
   getUserServices,
+  updateServices,
 };
