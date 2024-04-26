@@ -5,121 +5,117 @@ import {
   IonProgressBar,
   IonButton,
   IonIcon,
-  IonSpinner, onIonViewDidLeave
+  IonSpinner,
+  onIonViewDidLeave,
 } from "@ionic/vue";
-  import {
-    arrowBackOutline,
-    arrowForwardOutline
-  } from "ionicons/icons";
-  import { ref, onMounted, onUnmounted,
-    onActivated, onDeactivated
-  } from "vue";
+import { arrowBackOutline, arrowForwardOutline } from "ionicons/icons";
+import { ref, onMounted, onUnmounted, onActivated, onDeactivated } from "vue";
 
-  const emit =
-    defineEmits([
-      'completed'
-    ]);
+const emit = defineEmits(["completed"]);
 
-  const progress = ref(0);
-  const step = 0.01;
+const progress = ref(0);
+const step = 0.01;
 
-  //in seconds
-  const duration = 10;
-  const instructions = [
-    "enrollment.instructions.look_straight",
-    "enrollment.instructions.face_left",
-    "enrollment.instructions.face_right",
-  ];
-  const instruction = ref("");
-  const percent = duration/100*1000;
-  const interval = 1/instructions.length
-  const curr_step = ref(1);
+//in seconds
+const duration = 10;
+const instructions = [
+  "enrollment.instructions.look_straight",
+  "enrollment.instructions.face_left",
+  "enrollment.instructions.face_right",
+];
+const instruction = ref("");
+const percent = (duration / 100) * 1000;
+const interval = 1 / instructions.length;
+const curr_step = ref(1);
 
-  const updateProgress = () => {
-    progress.value += step;
+const updateProgress = () => {
+  progress.value += step;
 
-    if (progress.value > curr_step.value*interval
-     && instructions[curr_step.value]) {
-      instruction.value = instructions[curr_step.value];
-      curr_step.value += 1;
-    }
+  if (
+    progress.value > curr_step.value * interval &&
+    instructions[curr_step.value]
+  ) {
+    instruction.value = instructions[curr_step.value];
+    curr_step.value += 1;
+  }
+};
+
+const progressWrapper = () => {
+  if (progress.value >= 1) {
+    saveVideo();
+    return;
   }
 
-  const progressWrapper = () => {
-    if (progress.value >= 1) {
-      saveVideo();
-      return;
-    }
+  updateProgress();
+  setTimeout(progressWrapper, percent);
+};
 
-    updateProgress();
-    setTimeout(progressWrapper, percent);
-  }
+const video = ref(null);
 
-  const video = ref(null);
-
-  let stream = null;
-  let dataPromise = null;
-  let recorder = null;
-  const initializeStream = async () => {
-    stream = await navigator.mediaDevices.getUserMedia({
+let stream = null;
+let dataPromise = null;
+let recorder = null;
+const initializeStream = async () => {
+  stream = await navigator.mediaDevices
+    .getUserMedia({
       video: true,
-      audio:false
+      audio: false,
     })
-      .catch(err => console.log("media stream err:", err.name))
+    .catch((err) => console.log("media stream err:", err.name));
 
-    if (!stream) return;
+  if (!stream) return;
 
-    video.value.srcObject = stream;
-    video.value.play();
+  video.value.srcObject = stream;
+  video.value.play();
 
-    let dataResolver;
-    dataPromise = new Promise((resolve) => dataResolver = resolve);
+  let dataResolver;
+  dataPromise = new Promise((resolve) => (dataResolver = resolve));
 
-    recorder = new MediaRecorder(stream);
-    recorder.ondataavailable = (event) => dataResolver(event.data);
-    recorder.start();
+  recorder = new MediaRecorder(stream);
+  recorder.ondataavailable = (event) => dataResolver(event.data);
+  recorder.start();
 
-    instruction.value = "enrollment.instructions.look_straight";
-    setTimeout(progressWrapper, percent);
-  };
+  instruction.value = "enrollment.instructions.look_straight";
+  setTimeout(progressWrapper, percent);
+};
 
-  const cleanup = async () => {
-    recorder.stop(); //just in case
-    stream && stream.getTracks().forEach(track => track.stop());
-    stream = null;
-  };
+const cleanup = async () => {
+  recorder.stop(); //just in case
+  stream && stream.getTracks().forEach((track) => track.stop());
+  stream = null;
+};
 
-  const saveVideo = async () => {
-    instruction.value = "enrollment.almost_done";
-    recorder.stop();
+const saveVideo = async () => {
+  instruction.value = "enrollment.almost_done";
+  recorder.stop();
 
-    const chunks = await dataPromise;
+  const chunks = await dataPromise;
 
-    const readerPromise = new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.readAsDataURL(chunks);
-    });
+  const readerPromise = new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.readAsDataURL(chunks);
+  });
 
-    const converted = await readerPromise;
-    emit("completed", converted);
-  };
+  const converted = await readerPromise;
+  emit("completed", converted);
+};
 
-  onMounted(initializeStream);
-  onActivated(initializeStream);
+onMounted(initializeStream);
+onActivated(initializeStream);
 
-  onUnmounted(cleanup)
-  onDeactivated(cleanup);
+onUnmounted(cleanup);
+onDeactivated(cleanup);
 
-  onIonViewDidLeave(() => {
-    if (recorder) {
-      cleanup()
-    }
-    progress.value = 0;
-    instruction.value = "";
-    curr_step.value = 1;
-    video.value = null;
-  })
+onIonViewDidLeave(() => {
+  if (recorder) {
+    cleanup();
+  }
+  progress.value = 0;
+  instruction.value = "";
+  curr_step.value = 1;
+  video.value = null;
+});
 </script>
 
 <template>
