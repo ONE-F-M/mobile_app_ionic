@@ -29,7 +29,7 @@ if (!userStore.user || !userStore.token) {
 
 const goToServicePage = (service) => {
   switch (service) {
-    case "Checkin/Checkout":
+    case "Checkin Checkout":
       router.push("/checkin");
       break;
     default:
