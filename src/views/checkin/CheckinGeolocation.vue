@@ -182,7 +182,7 @@ const verifyCheckin = async () => {
     });
     showSuccessToast("You have checkin successfully");
   } catch (error) {
-    showErrorToast(error.data?.error || error.error);
+    showErrorToast(error.data.error?.message || error.data.message);
   }
 };
 
@@ -294,7 +294,7 @@ onIonViewWillLeave(() => {
         </div>
       </ion-content>
     </ion-modal>
-    <ion-modal :is-open="!isUserWithinGeofenceRadius">
+    <ion-modal :is-open="isUserWithinGeofenceRadius">
       <ion-row
         class="geolocation-page-outside-location ion-align-items-center ion-justify-content-center"
       >
