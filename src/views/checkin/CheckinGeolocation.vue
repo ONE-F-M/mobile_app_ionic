@@ -180,6 +180,7 @@ const verifyCheckin = async () => {
       log_type: logType.value,
       skip_attendance: 1,
     });
+    await getSiteLocation();
     showSuccessToast("You have checkin successfully");
   } catch (error) {
     showErrorToast(error.data.error?.message || error.data.message);
@@ -227,6 +228,8 @@ onIonViewWillLeave(() => {
 
   isLoading.value = false;
   isUserWithinGeofenceRadius.value = true;
+  logType.value = "";
+  shift.value = null;
 });
 </script>
 
@@ -253,7 +256,7 @@ onIonViewWillLeave(() => {
             v-if="logType"
             @click="startVerifyPerson"
             shape="round"
-            color="success"
+            :color="logType === 'IN' ? 'success' : 'danger'"
           >
             {{
               logType === "IN"
@@ -294,7 +297,7 @@ onIonViewWillLeave(() => {
         </div>
       </ion-content>
     </ion-modal>
-    <ion-modal :is-open="isUserWithinGeofenceRadius">
+    <ion-modal :is-open="!isUserWithinGeofenceRadius">
       <ion-row
         class="geolocation-page-outside-location ion-align-items-center ion-justify-content-center"
       >

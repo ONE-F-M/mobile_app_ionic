@@ -11,6 +11,17 @@ const getSiteLocation = async (payload: GetSiteLocationPayload) =>
     data: payload,
   });
 
+interface GetCheckinListPayload {
+  employee_id: string;
+  from_date: string;
+  to_date: string;
+}
+
+const getCheckinList = async (payload: GetCheckinListPayload) =>
+  await httpService.post(`face_recognition.checkin_list`, {
+    data: payload,
+  });
+
 const verifyCheckin = async (payload: GetSiteLocationPayload) =>
   await httpService.post(`face_recognition.verify_checkin_checkout`, {
     data: payload,
@@ -18,5 +29,6 @@ const verifyCheckin = async (payload: GetSiteLocationPayload) =>
 
 export default {
   getSiteLocation,
+  getCheckinList,
   verifyCheckin,
 };

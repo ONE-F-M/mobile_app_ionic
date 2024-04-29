@@ -1,22 +1,53 @@
-<script setup>
+<script setup async>
 import {
   IonContent,
   IonButton,
   IonText,
   IonPage,
   useIonRouter,
+  onIonViewWillEnter,
 } from "@ionic/vue";
 
 import IconPlus from "@/components/icon/Plus.vue";
 import CheckinHeader from "@/components/checkin/Header.vue";
+import checkin from "@/api/checkin";
+import { useUserStore } from "@/store/user.js";
+import { ref } from "vue";
+import { useCustomToast } from "@/composable/toast.js";
+import useDateHelper from "@/composable/useDateHelper";
+
+const { dayjs, formatDate } = useDateHelper();
 
 const router = useIonRouter();
+const userStore = useUserStore();
+const { showErrorToast } = useCustomToast();
+
+const checkInList = ref([]);
+
+const fetchCkeckinList = async () => {
+  try {
+    const { data } = await checkin.getCheckinList({
+      employee_id: userStore.user?.employee_id,
+      from_date: "",
+      to_date: "",
+    });
+
+    checkInList.value = data.data;
+  } catch (error) {
+    showErrorToast(error.data?.error?.message || error.data?.error);
+    checkInList.value = [];
+  }
+};
+
+onIonViewWillEnter(async () => {
+  await fetchCkeckinList();
+});
 </script>
 
 <template>
   <ion-page>
     <ion-content class="checkin-page">
-      <CheckinHeader />
+      <CheckinHeader class="checkin-page-header" />
 
       <div>
         <ion-row>
@@ -28,47 +59,32 @@ const router = useIonRouter();
             >Status</ion-col
           >
         </ion-row>
-        <ion-row>
+
+        <ion-row v-for="check in checkInList" :key="check.name">
           <ion-col>
             <div class="checkin-page-name-wrapper">
-              <p class="checkin-page-name">John Watson Smith</p>
-              <p class="checkin-page-duration">Now</p>
+              <p class="checkin-page-name">{{ check.employee_name }}</p>
+              <p class="checkin-page-duration">
+                {{ dayjs(check.time).toNow(true) }}
+              </p>
             </div>
           </ion-col>
           <ion-col size="auto" class="align-cols-end">
             <div>
-              <p class="checkin-page-date">25/07/22</p>
-              <p class="checkin-page-time">08:00 AM</p>
+              <p class="checkin-page-date">
+                {{ formatDate(check.time, "DD/MM/YY") }}
+              </p>
+              <p class="checkin-page-time">
+                {{ formatDate(check.time, "hh:mm A") }}
+              </p>
             </div>
           </ion-col>
           <ion-col size="3" class="align-cols-end">
             <div
               class="checkin-page-status"
-              :class="`checkin-page-status-${'IN'}`"
+              :class="`checkin-page-status-${check.log_type}`"
             >
-              IN
-            </div>
-          </ion-col>
-        </ion-row>
-        <ion-row>
-          <ion-col>
-            <div class="checkin-page-name-wrapper">
-              <p class="checkin-page-name">John Watson Smith</p>
-              <p class="checkin-page-duration">Now</p>
-            </div>
-          </ion-col>
-          <ion-col size="auto" class="align-cols-end">
-            <div>
-              <p class="checkin-page-date">25/07/22</p>
-              <p class="checkin-page-time">05:00 PM</p>
-            </div>
-          </ion-col>
-          <ion-col size="3" class="align-cols-end">
-            <div
-              class="checkin-page-status"
-              :class="`checkin-page-status-${'OUT'}`"
-            >
-              OUT
+              {{ check.log_type }}
             </div>
           </ion-col>
         </ion-row>
@@ -92,10 +108,18 @@ p {
   margin: 0;
 }
 .checkin-page {
+  position: relative;
   --padding-top: 0;
   --padding-bottom: 24px;
   --padding-start: 15px;
   --padding-end: 15px;
+
+  &-header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: #191c1d;
+  }
 
   &-table-label {
     font-size: 0.875rem;
@@ -155,7 +179,7 @@ p {
 }
 
 .checkin-add-button {
-  position: absolute;
+  position: fixed;
   bottom: 24px;
   right: 16px;
   --background: #004c69;
