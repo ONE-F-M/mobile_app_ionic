@@ -13,7 +13,7 @@ import { arrowBackOutline, calendarOutline } from "ionicons/icons";
 const router = useIonRouter();
 
 const triggerBack = () => {
-  router.back();
+  router.push("/home");
 };
 </script>
 

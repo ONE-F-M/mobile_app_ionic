@@ -4,6 +4,8 @@ import {
   IonButton,
   IonText,
   IonPage,
+  IonCol,
+  IonRow,
   useIonRouter,
   onIonViewWillEnter,
 } from "@ionic/vue";
