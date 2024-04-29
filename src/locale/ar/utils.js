@@ -3,7 +3,6 @@ export default {
     error: "Error!",
     success: "Success!",
   },
-  select_date: "Select date",
   cancel: "Cancel",
   ok: "Ok",
 };

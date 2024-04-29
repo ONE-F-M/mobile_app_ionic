@@ -3,10 +3,15 @@ import {
   IonContent,
   IonModal,
   IonPage,
+  IonRow,
+  IonButton,
+  IonText,
+  IonSpinner,
   IonProgressBar,
   onIonViewDidEnter,
   onIonViewWillLeave,
   useIonRouter,
+  onIonViewDidLeave,
 } from "@ionic/vue";
 import { Geolocation } from "@capacitor/geolocation";
 import Header from "@/components/Header.vue";
@@ -18,6 +23,7 @@ import { useCustomToast } from "@/composable/toast.js";
 import checkin from "@/api/checkin";
 import IconClose from "@/components/icon/Close.vue";
 import { useUserStore } from "@/store/user.js";
+import MyLocation from "@/components/icon/MyLocation.vue";
 
 const router = useIonRouter();
 
@@ -27,6 +33,7 @@ const prevStep = () => {
   router.back();
 };
 let googleMap;
+let myMarker;
 
 const userStore = useUserStore();
 const isUserWithinGeofenceRadius = ref(true);
@@ -135,6 +142,27 @@ const printCurrentPosition = async () => {
   });
 };
 
+const setCenterCamera = async () => {
+  await printCurrentPosition();
+
+  await googleMap.removeMarker(myMarker);
+  const coordinatesN = {
+    lat: coordinates.value?.coords?.latitude,
+    lng: coordinates.value?.coords?.longitude,
+  };
+
+  myMarker = await googleMap.addMarker({
+    coordinate: coordinatesN,
+  });
+
+  await googleMap.setCamera({
+    coordinate: coordinatesN,
+    zoom: 18,
+    animate: true,
+    animationDuration: 500,
+  });
+};
+
 const startVerifyPerson = () => {
   isOpen.value = true;
   initializeStream();
@@ -180,9 +208,10 @@ const verifyCheckin = async () => {
       log_type: logType.value,
       skip_attendance: 1,
     });
+    await getSiteLocation();
     showSuccessToast("You have checkin successfully");
   } catch (error) {
-    showErrorToast(error.data?.error || error.error);
+    showErrorToast(error.data.error?.message || error.data.message);
   }
 };
 
@@ -210,7 +239,7 @@ onIonViewDidEnter(async () => {
     },
   });
 
-  await googleMap.addMarker({
+  myMarker = await googleMap.addMarker({
     coordinate: {
       lat: coordinates.value?.coords?.latitude,
       lng: coordinates.value?.coords?.longitude,
@@ -227,6 +256,12 @@ onIonViewWillLeave(() => {
 
   isLoading.value = false;
   isUserWithinGeofenceRadius.value = true;
+  logType.value = "";
+  shift.value = null;
+});
+
+onIonViewDidLeave(() => {
+  googleMap.destroy();
 });
 </script>
 
@@ -241,6 +276,17 @@ onIonViewWillLeave(() => {
         </Header>
       </div>
       <div style="height: calc(100% - 70px); width: 100%" id="map"></div>
+
+      <div
+        class="location-currentLocation"
+        :class="{
+          'location-currentLocation-shift': shift,
+        }"
+        @click="setCenterCamera"
+      >
+        <MyLocation />
+      </div>
+
       <div v-if="shift" class="location-wrapper">
         <ion-row
           class="ion-align-items-center ion-justify-content-between location-wrapper-row"
@@ -253,7 +299,7 @@ onIonViewWillLeave(() => {
             v-if="logType"
             @click="startVerifyPerson"
             shape="round"
-            color="success"
+            :color="logType === 'IN' ? 'success' : 'danger'"
           >
             {{
               logType === "IN"
@@ -264,6 +310,7 @@ onIonViewWillLeave(() => {
         </ion-row>
       </div>
     </ion-content>
+
     <ion-modal :is-open="isOpen">
       <ion-content class="video-verify">
         <video class="video-verify-video-play" autoplay ref="video"></video>
@@ -294,6 +341,7 @@ onIonViewWillLeave(() => {
         </div>
       </ion-content>
     </ion-modal>
+
     <ion-modal :is-open="!isUserWithinGeofenceRadius">
       <ion-row
         class="geolocation-page-outside-location ion-align-items-center ion-justify-content-center"
@@ -337,6 +385,21 @@ onIonViewWillLeave(() => {
   --padding-bottom: 0;
   --padding-start: 0;
   --padding-end: 0;
+}
+
+.location-currentLocation {
+  display: flex;
+  padding: 10px;
+  border-radius: 50%;
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  background: #25353d;
+  z-index: 10;
+
+  &-shift {
+    bottom: 160px;
+  }
 }
 
 .geolocation-page-outside-location {

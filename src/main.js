@@ -1,6 +1,8 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";
+import "dayjs/locale/en";
+import "dayjs/locale/ar";
 
 import { useLangStore } from "@/store/lang.js";
 

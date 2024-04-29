@@ -10,10 +10,12 @@ import {
 
 import { arrowBackOutline, calendarOutline } from "ionicons/icons";
 
+defineEmits(["open-date-picker"]);
+
 const router = useIonRouter();
 
 const triggerBack = () => {
-  router.back();
+  router.push("/home");
 };
 </script>
 
@@ -42,7 +44,7 @@ const triggerBack = () => {
                 </h3>
               </ion-text>
             </ion-row>
-            <ion-button router-direction="back" fill="clear">
+            <ion-button fill="clear" @click="$emit('open-date-picker')">
               <ion-icon color="light" :icon="calendarOutline" />
             </ion-button>
           </ion-row>
