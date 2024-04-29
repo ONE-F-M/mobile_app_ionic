@@ -45,7 +45,7 @@ const progress = ref(0);
 const step = 0.01;
 
 //in seconds
-const duration = 10;
+const duration = 5;
 const instruction = ref("");
 const percent = (duration / 100) * 1000;
 
