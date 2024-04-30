@@ -466,6 +466,63 @@ ion-toast.toast-error::part(icon) {
   margin-left: 10px;
   border-radius: 100%;
 }
+.vc-nav-popover-container {
+ margin-left: 20px;
+  margin-right: 20px;
+}
+
+.vc-popover-content {
+  background: #233036 !important;
+  border: none !important;
+  box-shadow: none !important;
+
+  .vc-nav-arrow {
+    background: transparent;
+    color: #c0c7cd;
+
+    &:hover {
+      background: transparent;
+      color: #c0c7cd;
+    }
+  }
+
+  .vc-nav-title {
+    background: transparent;
+    color: #c0c7cd;
+  }
+}
+
+.vc-nav-container {
+  .vc-nav-items {
+
+    margin-top: 20px;
+    margin-bottom: 36px;
+    display: flex;
+    flex-wrap: wrap;
+
+    grid-row-gap: 16px;
+
+
+    .vc-nav-item {
+      flex: 1 0 10%;
+      margin: 0 20px;
+
+      width: 72px;
+      padding: 6px 12px;
+      border-radius: 100px;
+
+      color: #C0C7CD;
+      background: transparent;
+
+      &.is-active {
+        color: #003549;
+        box-shadow: none;
+        background: #76D1FF;
+
+      }
+    }
+  }
+}
 
 html {
   /* For more information on dynamic font scaling, visit the documentation: 
