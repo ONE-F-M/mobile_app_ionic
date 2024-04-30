@@ -11,6 +11,9 @@ import initI18n from "@/plugins/i18n.js";
 
 import { createAnimation, IonicVue } from "@ionic/vue";
 
+/* Import components */
+import VCalendar from "v-calendar";
+
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/vue/css/core.css";
 import "@mdi/font/css/materialdesignicons.css";
@@ -32,9 +35,13 @@ import "@ionic/vue/css/display.css";
 import "./theme/variables.css";
 import "./theme/fonts.scss";
 
+/* Plugins CSS styles */
+import "v-calendar/style.css";
+
 const app = createApp(App);
 
 app.use(pinia);
+app.use(VCalendar, {});
 
 const animationPage = (baseEl, opts) => {
   const { enteringEl, leavingEl } = opts;

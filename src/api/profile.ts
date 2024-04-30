@@ -10,6 +10,16 @@ const getNotifications = async (payload: { employee_id: string }) =>
     params: payload,
   });
 
+interface NotificationDeviceId {
+  employee_id: string;
+  fcm_token: string;
+  device_os: "ios" | "android";
+}
+const setDeviceIdNotifications = async (payload: NotificationDeviceId) =>
+  await httpService.post(`user.store_fcm_token`, {
+    data: payload,
+  });
+
 const updateProfileImage = async (payload: {
   employee_id: string;
   image: string;
@@ -22,4 +32,5 @@ export default {
   getUserProfile,
   getNotifications,
   updateProfileImage,
+  setDeviceIdNotifications,
 };

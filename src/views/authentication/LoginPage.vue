@@ -9,8 +9,10 @@ import {
   onIonViewDidLeave,
 } from "@ionic/vue";
 import { ref, watch } from "vue";
+import { Device } from "@capacitor/device";
 
 import auth from "@/api/authentication";
+import profile from "@/api/profile";
 import { useUserStore } from "@/store/user";
 import { useAuthStore } from "@/store/auth.js";
 import { storeToRefs } from "pinia";
@@ -34,7 +36,6 @@ const prevStep = () => {
     step.value -= 1;
   }
 };
-
 const login = async () => {
   try {
     isLoading.value = true;
@@ -45,6 +46,17 @@ const login = async () => {
 
     userStore.setUser(data.data);
     userStore.setToken(data.data.token);
+
+    const { identifier } = await Device.getId();
+    const deviceInfo = await Device.getInfo();
+
+    if (deviceInfo.platform !== "web") {
+      await profile.setDeviceIdNotifications({
+        fcm_token: identifier,
+        employee_id: data.data.employee_id,
+        device_os: deviceInfo.platform,
+      });
+    }
 
     password.value = "";
 
