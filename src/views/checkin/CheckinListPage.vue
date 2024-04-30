@@ -6,18 +6,16 @@ import {
   IonPage,
   IonCol,
   IonRow,
-  IonDatetime,
   useIonRouter,
   onIonViewWillEnter,
   IonModal,
 } from "@ionic/vue";
 
 import IconPlus from "@/components/icon/Plus.vue";
-import IconEdit from "@/components/icon/Edit.vue";
 import CheckinHeader from "@/components/checkin/Header.vue";
 import checkin from "@/api/checkin";
 import { useUserStore } from "@/store/user.js";
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
 import { useCustomToast } from "@/composable/toast.js";
 import useDateHelper from "@/composable/useDateHelper";
 import { useLangStore } from "@/store/lang.js";
@@ -31,9 +29,6 @@ const { showErrorToast } = useCustomToast();
 
 const checkInList = ref([]);
 const isOpenDatePicker = ref(false);
-
-const selectedDate = ref(new Date().toISOString());
-const today = ref(new Date().toISOString());
 
 const dateRange = ref({
   start: new Date(),
@@ -129,7 +124,7 @@ onIonViewWillEnter(async () => {
               >
                 <h3 class="ckeckin-datepicker-card-header">
                   {{
-                    formatDate(dateRange.start) == formatDate(dateRange.end)
+                    formatDate(dateRange.start) === formatDate(dateRange.end)
                       ? formatDate(dateRange.start, "ddd, MMM D")
                       : `${formatDate(dateRange.start, "MMM D")} -
                   ${formatDate(dateRange.end, "MMM D")}`
