@@ -163,7 +163,9 @@ onIonViewWillEnter(async () => {
       >
         <IconPlus />
         <ion-text>
-          <p class="checkin-add-button-label">Checkin</p>
+          <p class="checkin-add-button-label">
+            {{ $t("user.checkin.checkin") }}
+          </p>
         </ion-text>
       </ion-button>
     </ion-content>
