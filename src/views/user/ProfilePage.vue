@@ -26,6 +26,7 @@ import { useLangStore } from "@/store/lang.js";
 import profile from "@/api/profile";
 import { useCustomToast } from "@/composable/toast";
 import useDisplayImage from "@/composable/useDisplayImage";
+import useNotification from "@/composable/useNotification";
 
 const { t } = useI18n();
 
@@ -46,6 +47,7 @@ const user = reactive({
 });
 
 const selectedLanguage = ref(langStore.lang);
+const { unRegisterNotifications } = useNotification();
 
 const langSelectEnterAnimation = (el) =>
   createAnimation()
@@ -105,6 +107,8 @@ const changeLanguage = (lang) => {
 
 const logout = () => {
   userStore.logout();
+  unRegisterNotifications();
+
   router.push("/");
 };
 

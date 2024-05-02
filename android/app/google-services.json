@@ -1,26 +1,79 @@
 {
   "project_info": {
-    "project_number": "282316156708",
-    "project_id": "testprojct-b5a97",
-    "storage_bucket": "testprojct-b5a97.appspot.com"
+    "project_number": "112769505353",
+    "project_id": "one-fm-70641",
+    "storage_bucket": "one-fm-70641.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:282316156708:android:5182241ddacaab3a644db1",
+        "mobilesdk_app_id": "1:112769505353:android:d78767e5633cc7740b8798",
         "android_client_info": {
-          "package_name": "Test.dsd"
+          "package_name": "com.onefacilitiesmanagement.android.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "112769505353-q7m8c616qiq4hl63rpe7hab3l62ivqu1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyC7T0jZsU4OgvD0m17pfEFmH0hAYxwFCaI"
+          "current_key": "AIzaSyAEubPYiMU3OjKyHKNbpp7Y_syHj85PzHw"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "112769505353-q7m8c616qiq4hl63rpe7hab3l62ivqu1.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "112769505353-a0tf9aqpo599uqfu686cqdt4qu87ag33.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.onefacilitiesmanagement.ios.apps"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:112769505353:android:e7fbd9d159635b690b8798",
+        "android_client_info": {
+          "package_name": "com.onefm.mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "112769505353-q7m8c616qiq4hl63rpe7hab3l62ivqu1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEubPYiMU3OjKyHKNbpp7Y_syHj85PzHw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "112769505353-q7m8c616qiq4hl63rpe7hab3l62ivqu1.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "112769505353-a0tf9aqpo599uqfu686cqdt4qu87ag33.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.onefacilitiesmanagement.ios.apps"
+              }
+            }
+          ]
         }
       }
     }

@@ -4,7 +4,7 @@ android {
     namespace "io.ionic.starter"
     compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "Test.dsd"
+        applicationId "com.onefacilitiesmanagement.android.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

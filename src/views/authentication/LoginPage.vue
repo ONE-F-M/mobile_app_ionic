@@ -12,12 +12,11 @@ import { ref, watch } from "vue";
 import { Device } from "@capacitor/device";
 
 import auth from "@/api/authentication";
-import profile from "@/api/profile";
 import { useUserStore } from "@/store/user";
-import { useAuthStore } from "@/store/auth.js";
+import { useAuthStore } from "@/store/auth";
 import { storeToRefs } from "pinia";
 import Header from "@/components/Header.vue";
-import { PushNotifications } from "@capacitor/push-notifications";
+import useNotification from "@/composable/useNotification";
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
@@ -27,6 +26,8 @@ const router = useIonRouter();
 const step = ref(0);
 const isLoading = ref(false);
 const isIncorrectPassword = ref(false);
+
+const { addListeners, registerNotifications } = useNotification();
 
 const password = ref("");
 
@@ -38,58 +39,6 @@ const prevStep = () => {
   }
 };
 
-const addListeners = async () => {
-  await PushNotifications.addListener("registration", async (token) => {
-    console.info("Registration token: ", token.value);
-
-    authStore.setFcmToken(token.value);
-
-    await profile.setDeviceIdNotifications({
-      fcm_token: token.value,
-      employee_id: employee_id.value,
-      device_os: deviceInfo.value?.platform,
-    });
-  });
-
-  await PushNotifications.addListener("registrationError", (err) => {
-    console.error("Registration error: ", err.error);
-  });
-
-  await PushNotifications.addListener(
-    "pushNotificationReceived",
-    (notification) => {
-      console.log("Push notification received: ", notification);
-    },
-  );
-
-  await PushNotifications.addListener(
-    "pushNotificationActionPerformed",
-    (notification) => {
-      console.log(
-        "Push notification action performed",
-        notification.actionId,
-        notification.inputValue,
-      );
-    },
-  );
-};
-
-const registerNotifications = async () => {
-  let permStatus = await PushNotifications.checkPermissions();
-
-  if (permStatus.receive === "prompt") {
-    permStatus = await PushNotifications.requestPermissions();
-  }
-
-  if (permStatus.receive !== "granted") {
-    throw new Error("User denied permissions!");
-  }
-
-  await PushNotifications.register();
-};
-
-const deviceInfo = ref(null);
-const employee_id = ref("");
 const login = async () => {
   try {
     isLoading.value = true;
@@ -101,11 +50,11 @@ const login = async () => {
     userStore.setUser(data.data);
     userStore.setToken(data.data.token);
 
-    deviceInfo.value = await Device.getInfo();
+    const deviceInfo = await Device.getInfo();
 
-    employee_id.value = data.data.employee_id;
+    authStore.setEmployeeIdentificator(data.data.name);
 
-    if (deviceInfo.value.platform !== "web") {
+    if (deviceInfo.platform !== "web") {
       await addListeners();
       await registerNotifications();
     }
