@@ -8,7 +8,6 @@ import {
   useIonRouter,
   onIonViewDidLeave,
 } from "@ionic/vue";
-import { PushNotifications } from "@capacitor/push-notifications";
 import { ref, watch } from "vue";
 import { Device } from "@capacitor/device";
 
@@ -18,7 +17,7 @@ import { useUserStore } from "@/store/user";
 import { useAuthStore } from "@/store/auth.js";
 import { storeToRefs } from "pinia";
 import Header from "@/components/Header.vue";
-import { CapacitorHttp } from "@capacitor/core";
+import { PushNotifications } from "@capacitor/push-notifications";
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
@@ -40,6 +39,63 @@ const prevStep = () => {
 };
 
 const testRe = ref("");
+
+const addListeners = async () => {
+  await PushNotifications.addListener("registration", async (token) => {
+    console.info("Registration token: ", token.value);
+    testRe.value = token.value;
+
+    await profile.setDeviceIdNotifications({
+      fcm_token: token.value,
+      employee_id: employee_id.value,
+      device_os: deviceInfo.value?.platform,
+    });
+  });
+
+  await PushNotifications.addListener("registrationError", (err) => {
+    console.error("Registration error: ", err.error);
+  });
+
+  await PushNotifications.addListener(
+    "pushNotificationReceived",
+    (notification) => {
+      console.log("Push notification received: ", notification);
+    },
+  );
+
+  await PushNotifications.addListener(
+    "pushNotificationActionPerformed",
+    (notification) => {
+      console.log(
+        "Push notification action performed",
+        notification.actionId,
+        notification.inputValue,
+      );
+    },
+  );
+};
+
+const registerNotifications = async () => {
+  let permStatus = await PushNotifications.checkPermissions();
+
+  if (permStatus.receive === "prompt") {
+    permStatus = await PushNotifications.requestPermissions();
+  }
+
+  if (permStatus.receive !== "granted") {
+    throw new Error("User denied permissions!");
+  }
+
+  await PushNotifications.register();
+};
+
+// const getDeliveredNotifications = async () => {
+//   const notificationList = await PushNotifications.getDeliveredNotifications();
+//   console.log("delivered notifications", notificationList);
+// };
+
+const deviceInfo = ref(null);
+const employee_id = ref("");
 const login = async () => {
   try {
     isLoading.value = true;
@@ -51,37 +107,22 @@ const login = async () => {
     userStore.setUser(data.data);
     userStore.setToken(data.data.token);
 
-    const { identifier } = await Device.getId();
-    const deviceInfo = await Device.getInfo();
-    if (deviceInfo.platform !== "web") {
-      await profile.setDeviceIdNotifications({
-        fcm_token: identifier,
-        employee_id: data.data.employee_id,
-        device_os: deviceInfo.platform,
-      });
+    deviceInfo.value = await Device.getInfo();
 
-      testRe.value = await CapacitorHttp.post({
-        params: {
-          employee_id: "HR-EMP-02756",
-          title: "Ionic Test message",
-          body: "Test message from app",
-          checkout: "False",
-          arriveLate: "True",
-          checkin: "True",
-        },
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          "X-Requested-With": "XMLHttpRequest",
-          Accept: "*/*",
-          "Accept-Encoding": "gzip, deflate, br",
-          Connection: "keep-alive",
-        },
+    await registerNotifications();
+    await addListeners();
 
-        url: `https://staging.one-fm.com/api/method/one_fm.api.api.push_notification_rest_api_for_checkin/`,
-      });
+    employee_id.value = data.data.employee_id;
+
+    if (deviceInfo.value.platform !== "web") {
+      // await profile.setDeviceIdNotifications({
+      //   fcm_token: identifier,
+      //   employee_id: data.data.employee_id,
+      //   device_os: deviceInfo.platform,
+      // });
     }
 
-    password.value = "";
+    password.value = testRe.value;
 
     isLoading.value = false;
 
@@ -92,7 +133,6 @@ const login = async () => {
       router.push("/enrollment");
     }
   } catch (error) {
-    testRe.value = error;
     isIncorrectPassword.value = true;
 
     console.error(error);
@@ -145,11 +185,11 @@ watch(
           <h1 class="login-wrapper-title ion-no-margin">
             {{ $t("login.password") }}
           </h1>
-          testResponse {{ testRe }}
+          testRe {{ testRe }}
+          <!--          type="password"-->
           <ion-input
             v-model="password"
             fill="outline"
-            type="password"
             :label="$t('login.password')"
             label-placement="floating"
             :class="{
