@@ -17,5 +17,6 @@ export default {
   },
   settings: "Settings",
   logout: "Logout",
+  image_updated: "Profile image updated successfully",
   set_profile_image: "Set Profile Image",
 };

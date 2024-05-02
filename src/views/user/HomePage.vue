@@ -32,6 +32,9 @@ const goToServicePage = (service) => {
     case "Checkin Checkout":
       router.push("/checkin");
       break;
+    case "Leaves":
+      router.push("/leaves");
+      break;
     default:
       break;
   }

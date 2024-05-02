@@ -72,6 +72,18 @@ const routes = [
     component: () => import("@/views/checkin/CheckinListPage.vue"),
   },
   {
+    path: "/leaves",
+    component: () => import("@/views/leaves/LeavesListPage.vue"),
+  },
+  {
+    path: "/leaves/add",
+    component: () => import("@/views/leaves/LeaveCreatePage.vue"),
+  },
+  {
+    path: "/leaves/:id",
+    component: () => import("@/views/leaves/LeaveDetailsPage.vue"),
+  },
+  {
     path: "/checkin/geolocation",
     component: () => import("@/views/checkin/CheckinGeolocation.vue"),
   },

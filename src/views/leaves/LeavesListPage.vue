@@ -1,0 +1,385 @@
+<script setup>
+import {
+  IonButton,
+  IonContent,
+  IonPage,
+  IonText,
+  IonSegment,
+  IonSegmentButton,
+  IonRow,
+  IonLabel,
+  IonModal,
+  useIonRouter,
+} from "@ionic/vue";
+import LeavesHeader from "@/components/leaves/Header.vue";
+import { ref } from "vue";
+
+import IconPlus from "@/components/icon/Plus.vue";
+import ArrowRight from "@/components/icon/ArrowRight.vue";
+import IconCheck from "@/components/icon/Check.vue";
+import IconClose from "@/components/icon/Close.vue";
+import IconVisibility from "@/components/icon/Visibility.vue";
+import IconBlock from "@/components/icon/Block.vue";
+
+const router = useIonRouter();
+const openFilter = ref(false);
+
+const showTypeLeaves = ref("my_leaves");
+const leaves = ref([
+  {
+    type: "sick",
+    status: "Approved",
+    id: "Leave-001",
+    from: "27-10-2022",
+    to: "30-10-2022",
+    createdAt: "27-10-2022",
+    approver: "Mohammad Jasem",
+  },
+  {
+    type: "sick",
+    status: "Rejected",
+    id: "Leave-002",
+    from: "27-10-2022",
+    to: "30-10-2022",
+    createdAt: "27-10-2022",
+    approver: "Mohammad Jasem",
+  },
+  {
+    type: "sick",
+    status: "Pending",
+    id: "Leave-003",
+    from: "27-10-2022",
+    to: "30-10-2022",
+    createdAt: "27-10-2022",
+    approver: "Mohammad Jasem",
+  },
+  {
+    type: "sick",
+    status: "Cancelled",
+    id: "Leave-003",
+    from: "27-10-2022",
+    to: "30-10-2022",
+    createdAt: "27-10-2022",
+    approver: "Mohammad Jasem",
+  },
+]);
+
+const triggerBack = () => {
+  router.push("/home");
+};
+
+const changeType = (e) => {
+  showTypeLeaves.value = e.detail.value;
+};
+
+const closeModal = (e) => {
+  if (e.detail.breakpoint === 0) {
+    openFilter.value = false;
+  }
+};
+</script>
+
+<template>
+  <ion-page>
+    <ion-content class="ion-padding leaves-page">
+      <LeavesHeader
+        class="leaves-page-header"
+        :title="$t('user.leaves.leaves')"
+        show-filter-button
+        @open-filters="openFilter = true"
+        @click-back="triggerBack"
+      />
+
+      <div class="leaves-page-switcher-wrapper">
+        <ion-segment
+          class="leaves-page-switcher"
+          :value="showTypeLeaves"
+          @ionChange="changeType"
+        >
+          <ion-segment-button
+            class="leaves-page-switcher-button"
+            value="my_leaves"
+          >
+            <ion-label class="leaves-page-switcher-button-label">
+              <IconCheck class="leaves-page-my-leaves-icon" />
+              {{ $t("user.leaves.my_leaves") }}
+            </ion-label>
+          </ion-segment-button>
+          <ion-segment-button
+            class="leaves-page-switcher-button"
+            value="reports_to"
+          >
+            <ion-label class="leaves-page-switcher-button-label"
+              >{{ $t("user.leaves.reports_to") }}
+            </ion-label>
+          </ion-segment-button>
+        </ion-segment>
+      </div>
+
+      <div class="leaves-wrapper">
+        <ion-row
+          v-for="leave in leaves"
+          :key="leave.id"
+          @click="router.push(`/leaves/${leave.id}`)"
+          class="leaves ion-align-items-center ion-justify-content-between"
+        >
+          <ion-row class="leaves-content ion-align-items-center">
+            <div class="leaves-icon-wrapper">
+              <IconCheck
+                class="leaves-icon"
+                :class="`leaves-status__${leave.status}`"
+                v-if="leave.status === 'Approved'"
+              />
+              <IconClose
+                class="leaves-icon"
+                :class="`leaves-status__${leave.status}`"
+                v-if="leave.status === 'Rejected'"
+              />
+              <IconVisibility
+                class="leaves-icon"
+                :class="`leaves-status__${leave.status}`"
+                v-if="leave.status === 'Pending'"
+              />
+              <IconBlock
+                class="leaves-icon"
+                :class="`leaves-status__${leave.status}`"
+                v-if="leave.status === 'Cancelled'"
+              />
+              <p v-if="leave.type === 'sick'" class="leaves-type">
+                {{ $t(`user.leaves.card.type.${leave.type.toLowerCase()}`) }}
+              </p>
+            </div>
+            <div>
+              <p class="leaves-label-white">
+                <span :class="`leaves-status__${leave.status}`">{{
+                  $t(`user.leaves.card.status.${leave.status.toLowerCase()}`)
+                }}</span>
+                - {{ leave.id }}
+              </p>
+              <p class="leaves-label-white">
+                <span class="leaves-label"
+                  >{{ $t("user.leaves.card.from") }}:</span
+                >
+                {{ leave.from }}
+                <span class="leaves-label"
+                  >{{ $t("user.leaves.card.to") }}:</span
+                >
+                {{ leave.to }}
+              </p>
+              <p class="leaves-label-white">
+                <span class="leaves-label"
+                  >{{ $t("user.leaves.card.date_posted") }}:</span
+                >
+                {{ leave.createdAt }}
+              </p>
+              <p class="leaves-label-white">
+                <span class="leaves-label"
+                  >{{ $t("user.leaves.card.approver") }}:</span
+                >
+                {{ leave.approver }}
+              </p>
+            </div>
+          </ion-row>
+          <ion-button fill="clear" class="leaves-redirect-button">
+            <ArrowRight />
+          </ion-button>
+        </ion-row>
+      </div>
+
+      <ion-button class="leaves-add-button" @click="router.push('/leaves/add')">
+        <IconPlus />
+        <ion-text>
+          <p class="leaves-add-button-label">
+            {{ $t("user.leaves.apply_leave") }}
+          </p>
+        </ion-text>
+      </ion-button>
+
+      <ion-modal
+        :is-open="openFilter"
+        :initial-breakpoint="0.4"
+        :breakpoints="[0, 0.4, 0.75]"
+        @didDismiss="openFilter = false"
+        @ionBreakpointDidChange="closeModal"
+      >
+        <div>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Magni illum
+            quidem recusandae ducimus quos reprehenderit. Veniam, molestias
+            quos, dolorum consequuntur nisi deserunt omnis id illo sit cum qui.
+            Eaque, dicta.
+          </p>
+        </div>
+      </ion-modal>
+    </ion-content>
+  </ion-page>
+</template>
+
+<style scoped lang="scss">
+.leaves-page {
+  --padding-top: 0;
+  --padding-bottom: 24px;
+  --padding-start: 0;
+  --padding-end: 0;
+
+  &-switcher {
+    margin-top: 20px;
+    border: 2px solid #8b9298;
+    border-radius: 100px;
+
+    &-button {
+      --padding-top: 0;
+      --padding-bottom: 0;
+      --padding-start: 0;
+      --padding-end: 0;
+
+      --margin-top: 0;
+      --margin-bottom: 0;
+      --margin-start: 0;
+      --margin-end: 0;
+
+      --indicator-height: 0;
+
+      --color: #e0e3e3;
+
+      min-height: 40px;
+
+      &.segment-button-checked {
+        --color-checked: #d1e5f3;
+        background: #364955;
+      }
+
+      &:first-child {
+        border-right: 2px solid #8b9298;
+        border-bottom: 0 !important;
+      }
+
+      &-label {
+        margin: 0;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        font-weight: 500;
+        text-transform: none;
+      }
+
+      &::part(indicator) {
+        height: 20px;
+      }
+    }
+  }
+
+  &-switcher-wrapper {
+    padding: 0 15px;
+  }
+
+  &-my-leaves-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  &-header {
+    position: sticky;
+    top: 0;
+    padding: 0 15px;
+    z-index: 1;
+    background: #191c1d;
+  }
+}
+
+.leaves-wrapper {
+  margin-top: 26px;
+}
+
+.leaves {
+  border-bottom: 1px solid var(--ion-color-medium-shade);
+  padding: 7px 8px 4px;
+  margin-bottom: 4px;
+  gap: 12px;
+  flex-wrap: nowrap;
+
+  &-icon-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    text-wrap: nowrap;
+  }
+
+  &-icon {
+    width: 42px;
+    height: 42px;
+  }
+
+  &-type {
+    margin: 8px 0 0;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: #b5c9d7;
+    font-weight: 500;
+  }
+
+  .leaves-content {
+    flex-wrap: nowrap;
+    gap: 12px;
+  }
+
+  .leaves-label {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: #8b9298;
+    &-white {
+      margin: 4px 0 0;
+      &:first-child {
+        margin-top: 0;
+      }
+      font-size: 0.75rem;
+      line-height: 1rem;
+      color: #e0e3e3;
+    }
+  }
+
+  &-redirect-button {
+    --color: #d9d9d9;
+  }
+
+  .leaves-status__Approved {
+    color: #52e169;
+  }
+
+  .leaves-status__Rejected {
+    color: #ffb4a9;
+  }
+
+  .leaves-status__Pending {
+    color: #ffb68d;
+  }
+
+  .leaves-status__Cancelled {
+    color: #8b9298;
+  }
+}
+
+.leaves-add-button {
+  position: fixed;
+  bottom: 24px;
+  right: 16px;
+  --background: #004c69;
+  --background-hover: #014662;
+  --background-activated: #004d6c;
+  --background-focused: #004969;
+  --color: #c1e8ff;
+  --border-radius: 16px;
+  --padding-end: 20px;
+
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+
+  &-label {
+    margin: 16px 0 16px 12px;
+  }
+}
+</style>
