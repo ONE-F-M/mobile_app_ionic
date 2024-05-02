@@ -8,6 +8,7 @@ import {
   useIonRouter,
   onIonViewDidLeave,
 } from "@ionic/vue";
+import { PushNotifications } from "@capacitor/push-notifications";
 import { ref, watch } from "vue";
 import { Device } from "@capacitor/device";
 
@@ -51,6 +52,7 @@ const login = async () => {
     const deviceInfo = await Device.getInfo();
 
     if (deviceInfo.platform !== "web") {
+      await PushNotifications.register();
       await profile.setDeviceIdNotifications({
         fcm_token: identifier,
         employee_id: data.data.employee_id,
