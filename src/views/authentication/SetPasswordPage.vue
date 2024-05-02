@@ -20,6 +20,8 @@ import { useAuthStore } from "@/store/auth.js";
 import { storeToRefs } from "pinia";
 import auth from "@/api/authentication";
 import { useUserStore } from "@/store/user.js";
+import useNotification from "@/composable/useNotification";
+import { Device } from "@capacitor/device";
 
 const { t } = useI18n();
 
@@ -41,6 +43,8 @@ const router = useIonRouter();
 const { showErrorToast, showSuccessToast } = useCustomToast();
 
 const isLoading = ref(false);
+
+const { addListeners, registerNotifications } = useNotification();
 
 const prevStep = () => {
   router.back();
@@ -72,6 +76,15 @@ const updatePassword = async () => {
 
     userStore.setUser(data.data);
     userStore.setToken(data.data.token);
+
+    const deviceInfo = await Device.getInfo();
+
+    authStore.setEmployeeIdentificator(data.data.name);
+
+    if (deviceInfo.platform !== "web") {
+      await addListeners();
+      await registerNotifications();
+    }
 
     if (data.data.enrolled) {
       router.push("/home/");

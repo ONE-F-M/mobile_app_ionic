@@ -5,6 +5,7 @@ export const useAuthStore = defineStore("auth", {
     return {
       userName: null,
       employeeId: null,
+      employeeIdentificator: null,
       userId: null,
       tempId: null,
       isRegistered: false,
@@ -21,6 +22,10 @@ export const useAuthStore = defineStore("auth", {
 
     setEmployeeId(id) {
       this.employeeId = id;
+    },
+
+    setEmployeeIdentificator(id) {
+      this.employeeIdentificator = id;
     },
 
     setRegistered(status) {
