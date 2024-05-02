@@ -18,6 +18,7 @@ import { useUserStore } from "@/store/user";
 import { useAuthStore } from "@/store/auth.js";
 import { storeToRefs } from "pinia";
 import Header from "@/components/Header.vue";
+import { CapacitorHttp } from "@capacitor/core";
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
@@ -37,6 +38,8 @@ const prevStep = () => {
     step.value -= 1;
   }
 };
+
+const testRe = ref("");
 const login = async () => {
   try {
     isLoading.value = true;
@@ -50,13 +53,31 @@ const login = async () => {
 
     const { identifier } = await Device.getId();
     const deviceInfo = await Device.getInfo();
-
     if (deviceInfo.platform !== "web") {
-      await PushNotifications.register();
       await profile.setDeviceIdNotifications({
         fcm_token: identifier,
         employee_id: data.data.employee_id,
         device_os: deviceInfo.platform,
+      });
+
+      testRe.value = await CapacitorHttp.post({
+        params: {
+          employee_id: "HR-EMP-02756",
+          title: "Ionic Test message",
+          body: "Test message from app",
+          checkout: "False",
+          arriveLate: "True",
+          checkin: "True",
+        },
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "X-Requested-With": "XMLHttpRequest",
+          Accept: "*/*",
+          "Accept-Encoding": "gzip, deflate, br",
+          Connection: "keep-alive",
+        },
+
+        url: `https://staging.one-fm.com/api/method/one_fm.api.api.push_notification_rest_api_for_checkin/`,
       });
     }
 
@@ -64,12 +85,14 @@ const login = async () => {
 
     isLoading.value = false;
 
+    return;
     if (data.data.enrolled) {
       router.push("/home/");
     } else {
       router.push("/enrollment");
     }
   } catch (error) {
+    testRe.value = error;
     isIncorrectPassword.value = true;
 
     console.error(error);
@@ -122,6 +145,7 @@ watch(
           <h1 class="login-wrapper-title ion-no-margin">
             {{ $t("login.password") }}
           </h1>
+          testResponse {{ testRe }}
           <ion-input
             v-model="password"
             fill="outline"
