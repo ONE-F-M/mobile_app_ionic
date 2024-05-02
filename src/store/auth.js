@@ -10,6 +10,7 @@ export const useAuthStore = defineStore("auth", {
       isRegistered: false,
       passwordToken: null,
       verificationMethod: null,
+      fcmToken: null,
     };
   },
   persist: true,
@@ -32,6 +33,10 @@ export const useAuthStore = defineStore("auth", {
 
     setTempId(id) {
       this.tempId = id;
+    },
+
+    setFcmToken(token) {
+      this.fcmToken = token;
     },
 
     setVerificationMethod(method) {

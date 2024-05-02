@@ -38,12 +38,11 @@ const prevStep = () => {
   }
 };
 
-const testRe = ref("");
-
 const addListeners = async () => {
   await PushNotifications.addListener("registration", async (token) => {
     console.info("Registration token: ", token.value);
-    testRe.value = token.value;
+
+    authStore.setFcmToken(token.value);
 
     await profile.setDeviceIdNotifications({
       fcm_token: token.value,
@@ -89,11 +88,6 @@ const registerNotifications = async () => {
   await PushNotifications.register();
 };
 
-// const getDeliveredNotifications = async () => {
-//   const notificationList = await PushNotifications.getDeliveredNotifications();
-//   console.log("delivered notifications", notificationList);
-// };
-
 const deviceInfo = ref(null);
 const employee_id = ref("");
 const login = async () => {
@@ -109,24 +103,17 @@ const login = async () => {
 
     deviceInfo.value = await Device.getInfo();
 
-    await registerNotifications();
-    await addListeners();
-
     employee_id.value = data.data.employee_id;
 
     if (deviceInfo.value.platform !== "web") {
-      // await profile.setDeviceIdNotifications({
-      //   fcm_token: identifier,
-      //   employee_id: data.data.employee_id,
-      //   device_os: deviceInfo.platform,
-      // });
+      await addListeners();
+      await registerNotifications();
     }
 
-    password.value = testRe.value;
+    password.value = "";
 
     isLoading.value = false;
 
-    return;
     if (data.data.enrolled) {
       router.push("/home/");
     } else {
@@ -185,11 +172,10 @@ watch(
           <h1 class="login-wrapper-title ion-no-margin">
             {{ $t("login.password") }}
           </h1>
-          testRe {{ testRe }}
-          <!--          type="password"-->
           <ion-input
             v-model="password"
             fill="outline"
+            type="password"
             :label="$t('login.password')"
             label-placement="floating"
             :class="{
