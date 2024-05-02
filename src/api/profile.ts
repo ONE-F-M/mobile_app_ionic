@@ -20,6 +20,23 @@ const setDeviceIdNotifications = async (payload: NotificationDeviceId) =>
     data: payload,
   });
 
+const pushNotification = async () =>
+  await httpService.post(`api.push_notification_rest_api_for_checkin`, {
+    data: {
+      employee_id: "HR-EMP-02756",
+      title: "Ionic Test message",
+      body: "Test message from app",
+      checkout: "False",
+      arriveLate: "True",
+      checkin: "True",
+    },
+    headers: {
+      Accept: "*/*",
+      "Accept-Encoding": "gzip, deflate, br",
+      Connection: "keep-alive",
+    },
+  });
+
 const updateProfileImage = async (payload: {
   employee_id: string;
   image: string;
@@ -33,4 +50,5 @@ export default {
   getNotifications,
   updateProfileImage,
   setDeviceIdNotifications,
+  pushNotification,
 };
