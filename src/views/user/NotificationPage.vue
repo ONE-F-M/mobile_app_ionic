@@ -9,6 +9,8 @@ import { useUserStore } from "@/store/user.js";
 import { storeToRefs } from "pinia";
 import { onMounted, ref } from "vue";
 import useDateHelper from "@/composable/useDateHelper";
+import { PushNotifications } from "@capacitor/push-notifications";
+import { useAuthStore } from "../../store/auth";
 
 const { showErrorToast } = useCustomToast();
 const userStore = useUserStore();
@@ -17,6 +19,15 @@ const { user } = storeToRefs(userStore);
 const { formatDate } = useDateHelper();
 
 const notifications = ref([]);
+const testNotificationList = ref([]);
+
+const authStore = useAuthStore();
+
+const getDeliveredNotifications = async () => {
+  testNotificationList.value =
+    await PushNotifications.getDeliveredNotifications();
+  console.log("delivered notifications", testNotificationList.value);
+};
 
 const fetchNotifications = async () => {
   try {
@@ -37,6 +48,7 @@ const fetchNotifications = async () => {
 
 onIonViewWillEnter(async () => {
   await fetchNotifications();
+  await getDeliveredNotifications();
 });
 </script>
 
@@ -45,6 +57,10 @@ onIonViewWillEnter(async () => {
     <ion-content class="ion-padding content">
       <Header>{{ $t("user.notification.title") }}</Header>
 
+      fcmToken = {{ authStore.fcmToken }}
+      <ion-input :value="authStore.fcmToken"></ion-input>
+
+      testNotificationList = {{ testNotificationList }}
       <div class="notifications-wrapper">
         <template v-for="notification in notifications">
           <div class="notification">
