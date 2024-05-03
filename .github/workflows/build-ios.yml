@@ -142,7 +142,7 @@ jobs:
 
       - name: export ipa
         run: |
-          xcodebuild -exportArchive -archivePath $RUNNER_TEMP/app.xcarchive -exportPath $RUNNER_TEMP/build          
+          xcodebuild -exportArchive -exportOptionsPlist -archivePath $RUNNER_TEMP/app.xcarchive -exportPath $RUNNER_TEMP/build          
 
       - name: Upload application
         uses: actions/upload-artifact@v3
