@@ -1,7 +1,7 @@
 import { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: "io.ionic.onefm",
+  appId: "com.onefacilitiesmanagement.ios.apps",
   appName: "onefacilitiesmanagement",
   webDir: "dist",
   server: {
