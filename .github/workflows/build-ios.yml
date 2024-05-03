@@ -68,6 +68,10 @@ on:
 
 jobs:
   build_with_signing:
+    env:
+     VITE_BASE_API_URL: ${{vars.VITE_BASE_API_URL}}
+     VITE_API_PREFIX: ${{vars.VITE_API_PREFIX}}
+     VITE_BASE_URL: ${{vars.VITE_BASE_URL}}    
     runs-on: macos-latest
     steps:
       # this was more debug as was curious what came pre-installed
@@ -125,6 +129,7 @@ jobs:
         run: |
           xcodebuild -scheme "App" \
           -project ios/App/App.xcodeproj \
+          -allowProvisioningUpdates \
           -archivePath $RUNNER_TEMP/app.xcarchive \
           -sdk iphoneos \
           -configuration Debug \
