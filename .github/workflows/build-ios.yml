@@ -3,7 +3,7 @@ name: Build IPA
 on:
   push:
     branches:
-      - ios-build-certificates
+      - ios-builld-certificates
  
 jobs:
   build:
