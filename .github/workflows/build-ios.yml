@@ -3,7 +3,7 @@ name: Build IPA
 on:
   push:
     branches:
-      - pipeline-updates
+      - ios-build-certificates
 
 jobs:
   build:
@@ -42,6 +42,17 @@ jobs:
           team-name: ${{ vars.APPLE_TEAM_NAME }}
           ios-app-id: ${{ vars.APPLE_APP_ID }}
           fastlane-version: "2.220.0"
+
+
+      - uses: yukiarrr/ios-build-action@v1.11.2
+        with:
+          project-path: ios/App/App.xcodeproj
+          p12-base64: ${{ secrets.P12_CERT }}
+          output-path: build-${{ github.sha }}.ipa
+          certificate-password: ${{ secrets.P12_PASSWORD }}
+          mobileprovision-base64: ${{ secrets.MOBILE_PROVISION }}
+          code-signing-identity: "iOS Distribution"
+          team-id: ${{ secrets.TEAM_ID }}
 
       - name: Upload dev IPA
         uses: actions/upload-artifact@v4
