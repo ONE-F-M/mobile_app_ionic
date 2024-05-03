@@ -8,7 +8,7 @@
             <string>iOS Team Provisioning Profile: com.onefacilitiesmanagement.ios.apps</string>
         </dict>
      <key>signingCertificate</key>
-     <string>Apple Distribution</string>
+     <string>Apple Development: Ihor Bohdanov (W7D8LTQXUZ)</string>
      <key>signingStyle</key>
      <string>manual</string>
         <key>teamID</key>
