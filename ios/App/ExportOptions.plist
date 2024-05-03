@@ -7,8 +7,10 @@
             <key>com.onefacilitiesmanagement.ios.apps</key>
             <string>iOS Team Provisioning Profile: com.onefacilitiesmanagement.ios.apps</string>
         </dict>
-        <key>method</key>
-        <string>ad-hoc</string>
+     <key>signingCertificate</key>
+     <string>Apple Distribution</string>
+     <key>signingStyle</key>
+     <string>manual</string>
         <key>teamID</key>
         <string>8R3SW4662G</string>
         <key>uploadBitcode</key>
