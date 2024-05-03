@@ -5,7 +5,7 @@
         <key>provisioningProfiles</key>
         <dict>
             <key>com.onefacilitiesmanagement.ios.apps</key>
-            <string>com onefacilitiesmanagement ios apps</string>
+            <string>iOS Team Provisioning Profile: com.onefacilitiesmanagement.ios.apps</string>
         </dict>
         <key>method</key>
         <string>ad-hoc</string>
