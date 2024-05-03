@@ -64,7 +64,7 @@ name: "Build IPA"
 on:
   push:
     branches:
-      - ios-builld-certificates
+      - dev
 
 jobs:
   build_with_signing:
