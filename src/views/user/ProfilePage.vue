@@ -44,6 +44,10 @@ const user = reactive({
   email: "",
   phone: "",
   job_title: "",
+  energy_points: 0,
+  rank: 0,
+  review_points: 0,
+  monthly_rank: 0,
 });
 
 const selectedLanguage = ref(langStore.lang);
@@ -118,12 +122,16 @@ const getUserDetails = async () => {
       employee_id: userStore.user?.employee_id,
     });
 
-    user.name = data.data.name;
-    user.id = userStore.user?.name;
-    user.picture = data.data.user_image;
-    user.email = data.data.email;
-    user.phone = data.data.phone_number;
-    user.job_title = data.data.designation;
+    user.name = data.message.Name;
+    user.id = data.message.EMP_ID;
+    user.picture = data.message.User_Image;
+    user.email = data.message.Email;
+    user.phone = data.message.Mobile_no;
+    user.job_title = data.message.Designation;
+    user.energy_points = data.message.Energy_Points;
+    user.rank = data.message.Rank;
+    user.review_points = data.message.Review_Points;
+    user.monthly_rank = data.message.Monthly_Rank;
   } catch (error) {
     console.error(error);
     showErrorToast(error.error);

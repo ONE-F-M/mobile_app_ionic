@@ -197,18 +197,44 @@ const closeModal = (e) => {
 
       <ion-modal
         :is-open="openFilter"
-        :initial-breakpoint="0.4"
-        :breakpoints="[0, 0.4, 0.75]"
+        :initial-breakpoint="0.85"
+        class="leaves-filter-modal"
+        :breakpoints="[0, 0.85]"
         @didDismiss="openFilter = false"
         @ionBreakpointDidChange="closeModal"
       >
-        <div>
-          <p>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Magni illum
-            quidem recusandae ducimus quos reprehenderit. Veniam, molestias
-            quos, dolorum consequuntur nisi deserunt omnis id illo sit cum qui.
-            Eaque, dicta.
-          </p>
+        <div class="leaves-filter-modal-content">
+          <ion-row class="ion-justify-content-between ion-align-items-center">
+            <ion-row class="ion-align-items-center">
+              <ion-button
+                fill="clear"
+                color="light"
+                class="leaves-filter-modal-close-button"
+              >
+                <IconClose @click="openFilter = false" />
+              </ion-button>
+              <p>Filter</p>
+            </ion-row>
+            <ion-button fill="clear">Reset</ion-button>
+          </ion-row>
+          <div>
+            <div>
+              <p class="leaves-filter-checkbox-list-title">leave type</p>
+              <div class="leaves-filter-checkbox-list">
+                <ion-checkbox>Sick Leave</ion-checkbox>
+                <ion-checkbox>Maternity Leave</ion-checkbox>
+                <ion-checkbox>Hajj Leave</ion-checkbox>
+                <ion-checkbox>Annual Leave</ion-checkbox>
+              </div>
+              <p class="leaves-filter-checkbox-list-title">leave type</p>
+              <div class="leaves-filter-checkbox-list">
+                <ion-checkbox>Sick Leave</ion-checkbox>
+                <ion-checkbox>Maternity Leave</ion-checkbox>
+                <ion-checkbox>Hajj Leave</ion-checkbox>
+                <ion-checkbox>Annual Leave</ion-checkbox>
+              </div>
+            </div>
+          </div>
         </div>
       </ion-modal>
     </ion-content>
@@ -344,22 +370,6 @@ const closeModal = (e) => {
   &-redirect-button {
     --color: #d9d9d9;
   }
-
-  .leaves-status__Approved {
-    color: #52e169;
-  }
-
-  .leaves-status__Rejected {
-    color: #ffb4a9;
-  }
-
-  .leaves-status__Pending {
-    color: #ffb68d;
-  }
-
-  .leaves-status__Cancelled {
-    color: #8b9298;
-  }
 }
 
 .leaves-add-button {
@@ -380,6 +390,39 @@ const closeModal = (e) => {
 
   &-label {
     margin: 16px 0 16px 12px;
+  }
+}
+
+.leaves-filter-modal {
+  &::part(content) {
+    border-radius: 28px 28px 0 0;
+
+    background: #1e2529;
+  }
+
+  &-content {
+    padding: 16px;
+  }
+
+  &-close-button {
+    --padding-top: 6px;
+    --padding-bottom: 6px;
+    --padding-start: 6px;
+    --padding-end: 6px;
+  }
+}
+
+.leaves-filter-checkbox-list-title {
+  margin: 16px 0;
+}
+
+.leaves-filter-checkbox-list {
+  display: flex;
+  flex-direction: column;
+
+  ion-checkbox {
+    margin-top: 12px;
+    padding: 8px 0;
   }
 }
 </style>

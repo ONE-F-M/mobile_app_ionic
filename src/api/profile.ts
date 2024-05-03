@@ -1,12 +1,12 @@
 import { httpService } from "./http.service";
 
 const getUserProfile = async (payload: { employee_id: string }) =>
-  await httpService.get(`user.get_user_details`, {
+  await httpService.get(`api.get_user_details`, {
     params: payload,
   });
 
 const getNotifications = async (payload: { employee_id: string }) =>
-  await httpService.get(`notification.get_notification_list`, {
+  await httpService.get(`v1.notification.get_notification_list`, {
     params: payload,
   });
 
@@ -16,12 +16,12 @@ interface NotificationDeviceId {
   device_os: "ios" | "android";
 }
 const setDeviceIdNotifications = async (payload: NotificationDeviceId) =>
-  await httpService.post(`user.store_fcm_token`, {
+  await httpService.post(`v1.user.store_fcm_token`, {
     data: payload,
   });
 
 const pushNotification = async () =>
-  await httpService.post(`api.push_notification_rest_api_for_checkin`, {
+  await httpService.post(`v1.api.push_notification_rest_api_for_checkin`, {
     data: {
       employee_id: "HR-EMP-02756",
       title: "Ionic Test message",
@@ -41,7 +41,7 @@ const updateProfileImage = async (payload: {
   employee_id: string;
   image: string;
 }) =>
-  await httpService.post(`user.change_user_profile_image`, {
+  await httpService.post(`v1.user.change_user_profile_image`, {
     data: payload,
   });
 
