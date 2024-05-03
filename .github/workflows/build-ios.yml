@@ -124,6 +124,7 @@ jobs:
       - name: build archive
         run: |
           xcodebuild -scheme "App" \
+          -project ios/App/App.xcodeproj \
           -archivePath $RUNNER_TEMP/app.xcarchive \
           -sdk iphoneos \
           -configuration Debug \
