@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-        <string>mobile_app_ionic</string>
+	<string>mobile_app_ionic</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -45,7 +45,13 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Privacy - Camera Usage Description</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Privacy - Photo Library Additions Usage Description</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Privacy - Photo Library Usage Description</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-    <string>Privacy - Location When In Use Usage Description</string>
+	<string>Privacy - Location When In Use Usage Description</string>
 </dict>
 </plist>
