@@ -132,7 +132,7 @@ jobs:
       - name: build archive
         run: |
           xcodebuild -scheme "App" \
-          -project ios/App/App.xcodeproj \
+          -workspace ios/App/App.xcworkspace \
           -allowProvisioningUpdates \
           -archivePath $RUNNER_TEMP/app.xcarchive \
           -sdk iphoneos \
