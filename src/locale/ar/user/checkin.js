@@ -15,5 +15,6 @@ export default {
     description: "Please, allow geolocation for this application to proceed",
     back: "Back",
     try_again: "Try Again",
-  }
+  },
+  apiKeyNotFound: "Failed to load Google Map. Service unavailable"
 };

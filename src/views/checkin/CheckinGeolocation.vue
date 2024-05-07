@@ -24,6 +24,7 @@ import IconClose from "@/components/icon/Close.vue";
 import { useUserStore } from "@/store/user.js";
 import MyLocation from "@/components/icon/MyLocation.vue";
 import utils from "@/api/utils";
+import { useI18n } from "vue-i18n";
 
 const router = useIonRouter();
 
@@ -56,6 +57,7 @@ const instruction = ref("");
 const percent = (duration / 100) * 1000;
 
 const { showErrorToast, showSuccessToast } = useCustomToast();
+const { t } = useI18n();
 
 const updateProgress = () => {
   progress.value += step;
@@ -225,13 +227,17 @@ const initializeMap = async () => {
 	}
 	hasUserRejectedLocation.value = false;
 	
-	const response = await utils.getGoogleMapApiKey()
-	const apiKey = response.data?.data?.google_map_api || null
+	let apiKey = null
+	try {
+		const response = await utils.getGoogleMapApiKey()
+		apiKey = response.data?.data?.google_map_api
+	} catch (e) {
+		showErrorToast(t("user.checkin.apiKeyNotFound"))
+		return
+	}
 	
 	const mapRef = document.getElementById("map");
-	
 	const body = document.querySelector("body.dark");
-	
 	body.classList.add("map-transparent");
 	
 	googleMap = await GoogleMap.create({
