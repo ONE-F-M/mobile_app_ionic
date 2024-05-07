@@ -17,17 +17,16 @@ import { Geolocation } from "@capacitor/geolocation";
 import Header from "@/components/Header.vue";
 import { ref } from "vue";
 import { GoogleMap } from "@capacitor/google-maps";
-import useConfig from "@/composable/useConfig";
 import IconScan from "@/components/icon/Scan.vue";
 import { useCustomToast } from "@/composable/toast.js";
 import checkin from "@/api/checkin";
 import IconClose from "@/components/icon/Close.vue";
 import { useUserStore } from "@/store/user.js";
 import MyLocation from "@/components/icon/MyLocation.vue";
+import utils from "@/api/utils";
+import { useI18n } from "vue-i18n";
 
 const router = useIonRouter();
-
-const { mapApiKey } = useConfig();
 
 const prevStep = () => {
   router.back();
@@ -37,6 +36,7 @@ let myMarker;
 
 const userStore = useUserStore();
 const isUserWithinGeofenceRadius = ref(true);
+const hasUserRejectedLocation = ref(false);
 
 // IN or OUT
 const logType = ref("");
@@ -57,6 +57,7 @@ const instruction = ref("");
 const percent = (duration / 100) * 1000;
 
 const { showErrorToast, showSuccessToast } = useCustomToast();
+const { t } = useI18n();
 
 const updateProgress = () => {
   progress.value += step;
@@ -169,6 +170,7 @@ const startVerifyPerson = () => {
 };
 const clickBack = () => {
   isUserWithinGeofenceRadius.value = false;
+  hasUserRejectedLocation.value = false;
   router.back();
 };
 
@@ -215,38 +217,56 @@ const verifyCheckin = async () => {
   }
 };
 
+const initializeMap = async () => {
+	hasUserRejectedLocation.value = false
+	try {
+		await printCurrentPosition();
+	} catch (e) {
+		hasUserRejectedLocation.value = true;
+		return
+	}
+	hasUserRejectedLocation.value = false;
+	
+	let apiKey = null
+	try {
+		const response = await utils.getGoogleMapApiKey()
+		apiKey = response.data?.data?.google_map_api
+	} catch (e) {
+		showErrorToast(t("user.checkin.apiKeyNotFound"))
+		return
+	}
+	
+	const mapRef = document.getElementById("map");
+	const body = document.querySelector("body.dark");
+	body.classList.add("map-transparent");
+	
+	googleMap = await GoogleMap.create({
+		apiKey, // Your Google Maps API Key
+		id: "my-map", // Unique identifier for this map instance
+		element: mapRef, // reference to the capacitor-google-map element
+		config: {
+			center: {
+				// The initial position to be rendered by the map
+				lat: coordinates.value?.coords?.latitude,
+				lng: coordinates.value?.coords?.longitude,
+			},
+			panControl: false,
+			zoom: 18, // The initial zoom level to be rendered by the map
+		},
+	});
+	
+	myMarker = await googleMap.addMarker({
+		coordinate: {
+			lat: coordinates.value?.coords?.latitude,
+			lng: coordinates.value?.coords?.longitude,
+		},
+	});
+	
+	await getSiteLocation();
+}
+
 onIonViewDidEnter(async () => {
-  await printCurrentPosition();
-
-  const mapRef = document.getElementById("map");
-
-  const body = document.querySelector("body.dark");
-
-  body.classList.add("map-transparent");
-
-  googleMap = await GoogleMap.create({
-    id: "my-map", // Unique identifier for this map instance
-    element: mapRef, // reference to the capacitor-google-map element
-    apiKey: mapApiKey, // Your Google Maps API Key
-    config: {
-      center: {
-        // The initial position to be rendered by the map
-        lat: coordinates.value?.coords?.latitude,
-        lng: coordinates.value?.coords?.longitude,
-      },
-      panControl: false,
-      zoom: 18, // The initial zoom level to be rendered by the map
-    },
-  });
-
-  myMarker = await googleMap.addMarker({
-    coordinate: {
-      lat: coordinates.value?.coords?.latitude,
-      lng: coordinates.value?.coords?.longitude,
-    },
-  });
-
-  await getSiteLocation();
+	await initializeMap()
 });
 
 onIonViewWillLeave(() => {
@@ -261,7 +281,7 @@ onIonViewWillLeave(() => {
 });
 
 onIonViewDidLeave(() => {
-  googleMap.destroy();
+  googleMap?.destroy();
 });
 </script>
 
@@ -377,6 +397,40 @@ onIonViewDidLeave(() => {
         </div>
       </ion-row>
     </ion-modal>
+	  
+	  <ion-modal :is-open="hasUserRejectedLocation">
+		  <ion-row
+			  class="geolocation-page-outside-location ion-align-items-center ion-justify-content-center"
+		  >
+			  <div class="geolocation-page-outside-card">
+				  <div class="geolocation-page-outside-card-icon-wrapper">
+					  <IconClose />
+				  </div>
+				  <p class="geolocation-page-outside-card-title">
+					  {{ $t("user.checkin.geolocation.title") }}
+				  </p>
+				  <p class="geolocation-page-outside-card-description">
+					  {{ $t("user.checkin.geolocation.description") }}
+				  </p>
+				  <ion-row class="ion-justify-content-end">
+					  <ion-button
+						  @click="clickBack"
+						  class="geolocation-page-outside-card-back"
+						  fill="clear"
+					  >
+						  {{ $t("user.checkin.geolocation.back") }}
+					  </ion-button>
+					  <ion-button
+						  class="geolocation-page-outside-card-try-again"
+						  fill="clear"
+						  @click="initializeMap"
+					  >
+						  {{ $t("user.checkin.geolocation.try_again") }}
+					  </ion-button>
+				  </ion-row>
+			  </div>
+		  </ion-row>
+	  </ion-modal>
   </ion-page>
 </template>
 
