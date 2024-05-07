@@ -291,14 +291,15 @@ onIonViewDidLeave(() => {
         <ion-row
           class="ion-align-items-center ion-justify-content-between location-wrapper-row"
         >
-          <div>
-            <p>Checkin location</p>
-            <p>{{ shift.shift }}</p>
+          <div class="checkin-location-wrapper">
+            <p class="checkin-location">Checkin location</p>
+            <p class="checkin-shift">{{ shift.shift }}</p>
           </div>
           <ion-button
             v-if="logType"
             @click="startVerifyPerson"
             shape="round"
+            class="checkin-button"
             :color="logType === 'IN' ? 'success' : 'danger'"
           >
             {{
@@ -461,6 +462,34 @@ onIonViewDidLeave(() => {
 
   &-row {
     flex-wrap: nowrap;
+  }
+
+  .checkin-location-wrapper {
+    margin-right: 8px;
+  }
+
+  [dir="rtl"] .checkin-location-wrapper {
+    margin-right: 0;
+    margin-left: 8px;
+  }
+
+  .checkin-location {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: #c0c7cd;
+  }
+
+  .checkin-shift {
+    margin-top: 4px;
+    color: #e0e3e3;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 500;
+  }
+
+  .checkin-button {
+    font-weight: 600;
   }
 }
 
