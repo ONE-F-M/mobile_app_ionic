@@ -3,11 +3,38 @@ import { IonContent, IonPage, useIonRouter } from "@ionic/vue";
 import LeavesHeader from "@/components/leaves/Header.vue";
 
 import { chevronDownOutline } from "ionicons/icons";
+import Datepicker from "@/components/base/Datepicker.vue";
+import { useLangStore } from "@/store/lang.js";
+import { ref, reactive, shallowRef } from "vue";
+import useDateHelper from "@/composable/useDateHelper";
+
 const router = useIonRouter();
+const langStore = useLangStore();
+const { formatDate } = useDateHelper();
 
 const triggerBack = () => {
   router.push("/leaves");
 };
+
+const selectedDates = reactive({
+	from_date: null,
+	to_date: null,
+})
+
+const datePickerRange = ref({
+	start: null,
+	end: null,
+});
+const isDatePickerOpen = shallowRef(false)
+const setDatePickerOpen = (isOpen) => {
+	isDatePickerOpen.value = isOpen
+}
+const onDatePickerOk = () => {
+	selectedDates.from_date = formatDate(datePickerRange.value.start, 'DD-MM-YY')
+	selectedDates.to_date = formatDate(datePickerRange.value.end, 'DD-MM-YY')
+	
+	setDatePickerOpen(false)
+}
 </script>
 
 <template>
@@ -81,7 +108,13 @@ const triggerBack = () => {
             <p class="leaves-create-label leaves-create-label__required">
               {{ $t("user.leaves.detail.from") }}
             </p>
-            <ion-input fill="outline" placeholder="From Date"></ion-input>
+            <ion-input
+	            fill="outline"
+	            placeholder="From Date"
+	            readonly
+	            :value="formatDate(datePickerRange.start, 'DD-MM-YY')"
+	            @ion-focus="setDatePickerOpen(true)"
+            />
             <span class="leaves-create-label-required"
               >*{{ $t("utils.required") }}</span
             >
@@ -90,14 +123,27 @@ const triggerBack = () => {
             <p class="leaves-create-label leaves-create-label__required">
               {{ $t("user.leaves.detail.till") }}
             </p>
-            <ion-input fill="outline" placeholder="Till Date"></ion-input>
+            <ion-input
+	            fill="outline"
+	            placeholder="Till Date"
+	            readonly
+	            :value="formatDate(datePickerRange.end, 'DD-MM-YY')"
+	            @ion-focus="setDatePickerOpen(true)"
+            />
             <span class="leaves-create-label-required"
               >*{{ $t("utils.required") }}</span
             >
           </ion-col>
         </ion-row>
-
-        <div class="ion-margin-top">
+	      <Datepicker
+		      :lang="langStore.lang"
+		      :is-open="isDatePickerOpen"
+		      v-model="datePickerRange"
+		      @cancel="setDatePickerOpen(false)"
+		      @ok="onDatePickerOk"
+	      />
+	      
+	      <div class="ion-margin-top">
           <p class="leaves-create-label leaves-create-label__required">
             {{ $t("user.leaves.detail.reason") }}
           </p>
@@ -110,7 +156,7 @@ const triggerBack = () => {
             >*{{ $t("utils.required") }}</span
           >
         </div>
-
+	      
         <div class="ion-margin-top">
           <p class="leaves-create-label">
             {{ $t("user.leaves.create_leave.proof_document") }}
