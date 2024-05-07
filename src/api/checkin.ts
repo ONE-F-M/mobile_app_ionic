@@ -7,7 +7,7 @@ interface GetSiteLocationPayload {
 }
 
 const getSiteLocation = async (payload: GetSiteLocationPayload) =>
-  await httpService.post(`face_recognition.get_site_location`, {
+  await httpService.post(`v1.face_recognition.get_site_location`, {
     data: payload,
   });
 
@@ -18,7 +18,7 @@ interface GetCheckinListPayload {
 }
 
 const getCheckinList = async (payload: GetCheckinListPayload) =>
-  await httpService.post(`face_recognition.checkin_list`, {
+  await httpService.post(`v1.face_recognition.checkin_list`, {
     data: payload,
   });
 

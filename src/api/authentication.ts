@@ -20,23 +20,23 @@ type UpdatePasswordParams = {
 type UserNameParams = Omit<UserLoginParams, "password">;
 
 export const userLogin = async (payload: UserLoginParams) =>
-  await httpService.post(`authentication.user_login`, {
+  await httpService.post(`v1.authentication.user_login`, {
     data: payload,
   });
 
 export const getUserEnrollment = async (payload: UserNameParams) =>
-  await httpService.post(`authentication.enrollment_status`, {
+  await httpService.post(`v1.authentication.enrollment_status`, {
     data: payload,
   });
 
 export const forgotPassword = async (data: ForgotPasswordParams) =>
-  await httpService.post("authentication.forgot_password", { data });
+  await httpService.post("v1.authentication.forgot_password", { data });
 
 export const verifyOtp = async (data: ForgotPasswordParams) =>
-  await httpService.post("authentication.verify_otp", { data });
+  await httpService.post("v1.authentication.verify_otp", { data });
 
 export const updatePassword = async (data: UpdatePasswordParams) =>
-  await httpService.post("authentication.change_password", { data });
+  await httpService.post("v1.authentication.change_password", { data });
 
 export default {
   userLogin,

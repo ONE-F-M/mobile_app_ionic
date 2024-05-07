@@ -1,13 +1,13 @@
 import { httpService } from "./http.service";
 
 const getServices = async () =>
-  await httpService.get(`configuration.app_service`);
+  await httpService.get(`v1.configuration.app_service`);
 
 const getServicesGroups = async () =>
-  await httpService.get(`configuration.app_service_group`);
+  await httpService.get(`v1.configuration.app_service_group`);
 
 const getUserServices = async () =>
-  await httpService.get(`configuration.user_app_service`);
+  await httpService.get(`v1.configuration.user_app_service`);
 
 interface UpdateServicesPayload {
   service_detail: {
@@ -16,7 +16,7 @@ interface UpdateServicesPayload {
 }
 
 const updateServices = async (payload: UpdateServicesPayload) =>
-  await httpService.post(`configuration.update_create_user_app_service`, {
+  await httpService.post(`v1.configuration.update_create_user_app_service`, {
     data: payload,
   });
 

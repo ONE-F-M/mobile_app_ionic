@@ -35,6 +35,9 @@ import "@ionic/vue/css/display.css";
 import "./theme/variables.css";
 import "./theme/fonts.scss";
 
+/* Custom styles */
+import "./theme/global.scss";
+
 /* Plugins CSS styles */
 import "v-calendar/style.css";
 
