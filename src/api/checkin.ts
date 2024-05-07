@@ -1,12 +1,7 @@
 import { httpService } from "./http.service";
+import { LocationPayload } from "../types/api";
 
-interface GetSiteLocationPayload {
-  employee_id: string;
-  latitude: string;
-  longitude: string;
-}
-
-const getSiteLocation = async (payload: GetSiteLocationPayload) =>
+const getSiteLocation = async (payload: LocationPayload) =>
   await httpService.post(`v1.face_recognition.get_site_location`, {
     data: payload,
   });
@@ -22,7 +17,7 @@ const getCheckinList = async (payload: GetCheckinListPayload) =>
     data: payload,
   });
 
-const verifyCheckin = async (payload: GetSiteLocationPayload) =>
+const verifyCheckin = async (payload: LocationPayload) =>
   await httpService.post(`face_recognition.verify_checkin_checkout`, {
     data: payload,
   });
