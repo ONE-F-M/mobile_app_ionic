@@ -10,4 +10,10 @@ export default {
     back: "Back",
     try_again: "Try Again",
   },
+  geolocation: {
+    title: "Application is missing geolocation permissions",
+    description: "Please, allow geolocation for this application to proceed",
+    back: "Back",
+    try_again: "Try Again",
+  }
 };
