@@ -144,7 +144,7 @@ const onFileUpload = async (event) => {
 	            fill="outline"
 	            placeholder="From Date"
 	            readonly
-	            :value="formatDate(datePickerRange.start, 'DD-MM-YY')"
+	            :value="formatDate(selectedDates.from_date, 'DD-MM-YY')"
 	            @ion-focus="setDatePickerOpen(true)"
             />
             <span class="leaves-create-label-required"
@@ -159,7 +159,7 @@ const onFileUpload = async (event) => {
 	            fill="outline"
 	            placeholder="Till Date"
 	            readonly
-	            :value="formatDate(datePickerRange.end, 'DD-MM-YY')"
+	            :value="formatDate(selectedDates.to_date, 'DD-MM-YY')"
 	            @ion-focus="setDatePickerOpen(true)"
             />
             <span class="leaves-create-label-required"
@@ -224,7 +224,7 @@ const onFileUpload = async (event) => {
           </div>
 
           <div
-	          v-if="selectedDateDifference"
+	          v-if="typeof selectedDateDifference === 'number'"
 	          class="leaves-create-summary-card-value-wrapper"
           >
             <p class="leaves-create-summary-card-label">
