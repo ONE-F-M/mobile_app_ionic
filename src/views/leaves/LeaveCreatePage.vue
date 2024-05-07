@@ -1,5 +1,5 @@
 <script setup>
-import { IonContent, IonPage, useIonRouter } from "@ionic/vue";
+import { IonContent, IonSelect, IonTextarea, IonPage, useIonRouter, IonInput } from "@ionic/vue";
 import LeavesHeader from "@/components/leaves/Header.vue";
 
 import { chevronDownOutline } from "ionicons/icons";
@@ -7,7 +7,9 @@ import Datepicker from "@/components/base/Datepicker.vue";
 import { useLangStore } from "@/store/lang.js";
 import { ref, reactive, computed, shallowRef } from "vue";
 import useDateHelper from "@/composable/useDateHelper";
+import { useCustomToast } from "@/composable/toast.js";
 
+const { showErrorToast } = useCustomToast();
 const router = useIonRouter();
 const langStore = useLangStore();
 const { formatDate, dayjs } = useDateHelper();
@@ -15,6 +17,15 @@ const { formatDate, dayjs } = useDateHelper();
 const triggerBack = () => {
   router.push("/leaves");
 };
+
+const selectedLeaveType = ref('')
+const leaveOptions = [
+	"Sick Leave",
+	"Maternity Leave",
+	"Hajj Leave",
+	"Annual Leave",
+]
+const selectedReason = ref('')
 
 const selectedDates = reactive({
 	from_date: null,
@@ -49,7 +60,6 @@ const onDatePickerOk = () => {
 }
 
 const fileInput = ref()
-
 const toBase64 = file => new Promise((resolve, reject) => {
 	const reader = new FileReader();
 	reader.readAsDataURL(file);
@@ -62,10 +72,38 @@ const attachment = ref({
 	base64: null
 })
 const onFileUpload = async (event) => {
-	const file = event.target.files[0]
+	try {
+		const file = event.target.files[0]
+		
+		attachment.value.base64 = await toBase64(file)
+		attachment.value.name = file.name
+	} catch (e) {
+		console.error(e);
+		showErrorToast("Failed to upload a file");
+	}
+}
+
+const errors = reactive({
+	leaveType: false,
+	fromDate: false,
+	toDate: false,
+	reason: false,
+	proofDocument: false,
+})
+const validateForm = () => {
+	errors.leaveType = !selectedLeaveType.value;
+	errors.fromDate = !selectedDates.from_date;
+	errors.toDate = !selectedDates.to_date;
+	errors.reason = !selectedReason.value;
+	errors.proofDocument = !attachment.value.base64;
 	
-	attachment.value.base64 = await toBase64(file)
-	attachment.value.name = file.name
+	return !errors.leaveType || !errors.fromDate || !errors.toDate || !errors.reason || !errors.proofDocument
+}
+const onSubmit = () => {
+	const isValidForm = validateForm()
+	if (!isValidForm) {
+		return
+	}
 }
 </script>
 
@@ -83,18 +121,30 @@ const onFileUpload = async (event) => {
           {{ $t("user.leaves.create_leave.type") }}
         </p>
         <ion-select
+	        v-model="selectedLeaveType"
           placeholder="Select Leave Type"
           interface="action-sheet"
+	        :class="{
+						'ion-touched ion-invalid': errors.leaveType,
+	        }"
           :toggleIcon="chevronDownOutline"
           fill="outline"
         >
-          <ion-select-option>Sick Leave</ion-select-option>
-          <ion-select-option>Maternity Leave</ion-select-option>
-          <ion-select-option>Hajj Leave</ion-select-option>
-          <ion-select-option>Annual Leave</ion-select-option>
+          <ion-select-option
+	          v-for="leaveOption in leaveOptions"
+	          :key="leaveOption"
+	          :value="leaveOption"
+          >
+	          {{ leaveOption }}
+          </ion-select-option>
         </ion-select>
-        <span class="leaves-create-label-required">
-          *{{ $t("utils.required") }}
+        <span
+	        class="leaves-create-label-required leaves-create-label__required"
+	        :class="{
+						'text-danger leaves-create-label__required-danger': errors.leaveType,
+					}"
+        >
+          {{ $t("utils.required") }}
         </span>
 
         <div class="ion-margin-top">
@@ -144,12 +194,20 @@ const onFileUpload = async (event) => {
 	            fill="outline"
 	            placeholder="From Date"
 	            readonly
+	            :class="{
+	              'ion-touched ion-invalid': errors.fromDate,
+	            }"
 	            :value="formatDate(selectedDates.from_date, 'DD-MM-YY')"
 	            @ion-focus="setDatePickerOpen(true)"
             />
-            <span class="leaves-create-label-required"
-              >*{{ $t("utils.required") }}</span
+            <span
+	            class="leaves-create-label-required leaves-create-label__required"
+	            :class="{
+								'text-danger leaves-create-label__required-danger': errors.fromDate,
+							}"
             >
+	            {{ $t("utils.required") }}
+            </span>
           </ion-col>
           <ion-col size="6">
             <p class="leaves-create-label leaves-create-label__required">
@@ -159,12 +217,20 @@ const onFileUpload = async (event) => {
 	            fill="outline"
 	            placeholder="Till Date"
 	            readonly
+	            :class="{
+	              'ion-touched ion-invalid': errors.toDate,
+	            }"
 	            :value="formatDate(selectedDates.to_date, 'DD-MM-YY')"
 	            @ion-focus="setDatePickerOpen(true)"
             />
-            <span class="leaves-create-label-required"
-              >*{{ $t("utils.required") }}</span
+            <span
+	            class="leaves-create-label-required leaves-create-label__required"
+	            :class="{
+								'text-danger leaves-create-label__required-danger': errors.toDate,
+							}"
             >
+	            {{ $t("utils.required") }}
+            </span>
           </ion-col>
         </ion-row>
 	      <Datepicker
@@ -180,13 +246,22 @@ const onFileUpload = async (event) => {
             {{ $t("user.leaves.detail.reason") }}
           </p>
           <ion-textarea
+	          v-model="selectedReason"
+	          :class="{
+              'ion-touched ion-invalid': errors.reason,
+            }"
             fill="outline"
             rows="6"
             placeholder="Enter reason here"
           />
-          <span class="leaves-create-label-required"
-            >*{{ $t("utils.required") }}</span
+          <span
+	          class="leaves-create-label-required leaves-create-label__required"
+	          :class="{
+							'text-danger leaves-create-label__required-danger': errors.reason,
+						}"
           >
+	          {{ $t("utils.required") }}
+          </span>
         </div>
 	      
         <div class="ion-margin-top">
@@ -234,7 +309,7 @@ const onFileUpload = async (event) => {
           </div>
         </div>
 
-        <ion-button shape="round" class="ion-margin-top" expand="block">
+        <ion-button shape="round" class="ion-margin-top" expand="block" @click="validateForm">
           {{ $t("user.leaves.create_leave.save_leaves_application") }}
         </ion-button>
       </div>
@@ -279,6 +354,13 @@ const onFileUpload = async (event) => {
         content: "*";
         color: #8b9298;
       }
+	    
+	    &-danger {
+		    &:after {
+			    content: "*";
+			    color: #FFB4A9;
+		    }
+	    }
     }
   }
 
