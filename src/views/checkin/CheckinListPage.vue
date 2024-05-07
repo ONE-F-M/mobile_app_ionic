@@ -15,7 +15,7 @@ import IconPlus from "@/components/icon/Plus.vue";
 import CheckinHeader from "@/components/checkin/Header.vue";
 import checkin from "@/api/checkin";
 import { useUserStore } from "@/store/user.js";
-import { ref } from "vue";
+import { ref, shallowRef } from "vue";
 import { useCustomToast } from "@/composable/toast.js";
 import useDateHelper from "@/composable/useDateHelper";
 import { useLangStore } from "@/store/lang.js";
@@ -31,8 +31,7 @@ const checkInList = ref([]);
 const isOpenDatePicker = ref(false);
 
 const dateRange = ref({
-	// Means timestamp of zero, 1970-01-01
-  start: 0,
+  start: new Date(),
   end: new Date(),
 });
 
@@ -40,12 +39,13 @@ const openDatePicker = () => {
   isOpenDatePicker.value = true;
 };
 
-const fetchCkeckinList = async () => {
+const fetchCkeckinList = async (defaults = {}) => {
   try {
     const { data } = await checkin.getCheckinList({
       employee_id: userStore.user?.employee_id,
       from_date: dayjs(dateRange.value.start).format("YYYY-MM-DD"),
       to_date: dayjs(dateRange.value.end).format("YYYY-MM-DD"),
+	    ...defaults,
     });
 
     checkInList.value = data.data;
@@ -57,8 +57,18 @@ const fetchCkeckinList = async () => {
   }
 };
 
+const useDefaults = shallowRef(true)
 onIonViewWillEnter(async () => {
-  await fetchCkeckinList();
+	let defaults = {}
+	if (useDefaults) {
+		defaults = {
+			from_date: dayjs(0).format("YYYY-MM-DD"),
+			to_date: dayjs(new Date()).format("YYYY-MM-DD"),
+		}
+	}
+	
+  await fetchCkeckinList(defaults);
+	useDefaults.value = false
 });
 </script>
 
