@@ -1,18 +1,18 @@
 <script setup>
 import {
-  IonButton,
-  IonContent,
-  IonPage,
-  IonText,
-  IonSegment,
-  IonSegmentButton,
-  IonRow,
-  IonLabel,
-  IonModal,
-  useIonRouter,
+	IonButton,
+	IonContent,
+	IonPage,
+	IonText,
+	IonSegment,
+	IonSegmentButton,
+	IonRow,
+	IonLabel,
+	IonModal,
+	useIonRouter, onIonViewWillEnter,
 } from "@ionic/vue";
 import LeavesHeader from "@/components/leaves/Header.vue";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 
 import IconPlus from "@/components/icon/Plus.vue";
 import ArrowRight from "@/components/icon/ArrowRight.vue";
@@ -20,49 +20,34 @@ import IconCheck from "@/components/icon/Check.vue";
 import IconClose from "@/components/icon/Close.vue";
 import IconVisibility from "@/components/icon/Visibility.vue";
 import IconBlock from "@/components/icon/Block.vue";
+import leave from "@/api/leave";
+import dayjs from "dayjs";
+import { useUserStore } from "@/store/user.js";
+import { useCustomToast } from "@/composable/toast.js";
 
 const router = useIonRouter();
-const openFilter = ref(false);
+const userStore = useUserStore();
+const { showErrorToast } = useCustomToast();
 
-const showTypeLeaves = ref("my_leaves");
-const leaves = ref([
-  {
-    type: "sick",
-    status: "Approved",
-    id: "Leave-001",
-    from: "27-10-2022",
-    to: "30-10-2022",
-    createdAt: "27-10-2022",
-    approver: "Mohammad Jasem",
-  },
-  {
-    type: "sick",
-    status: "Rejected",
-    id: "Leave-002",
-    from: "27-10-2022",
-    to: "30-10-2022",
-    createdAt: "27-10-2022",
-    approver: "Mohammad Jasem",
-  },
-  {
-    type: "sick",
-    status: "Pending",
-    id: "Leave-003",
-    from: "27-10-2022",
-    to: "30-10-2022",
-    createdAt: "27-10-2022",
-    approver: "Mohammad Jasem",
-  },
-  {
-    type: "sick",
-    status: "Cancelled",
-    id: "Leave-003",
-    from: "27-10-2022",
-    to: "30-10-2022",
-    createdAt: "27-10-2022",
-    approver: "Mohammad Jasem",
-  },
-]);
+const LEAVE_TYPE = {
+	MY_LEAVE: "my_leaves",
+	REPORTS_TO: "reports_to",
+}
+
+const showTypeLeaves = ref(LEAVE_TYPE.MY_LEAVE);
+const openFilter = ref(false);
+const isOpenDatePicker = ref(false);
+
+const myLeaves = ref([])
+const leavesReportsTo = ref([])
+
+const leaves = computed(() => {
+	if (showTypeLeaves.value === LEAVE_TYPE.MY_LEAVE) {
+		return [...myLeaves.value]
+	}
+	
+	return [...leavesReportsTo.value]
+});
 
 const triggerBack = () => {
   router.push("/home");
@@ -77,6 +62,34 @@ const closeModal = (e) => {
     openFilter.value = false;
   }
 };
+
+const dateRange = ref({
+	// Means timestamp of zero, 1970-01-01
+	start: 0,
+	end: new Date(),
+});
+const fetchLeaves = async () => {
+	try {
+		const { data } = await leave.getLeavesList({
+			employee_id: userStore.user?.employee_id,
+			from_date: dayjs(dateRange.value.start).format("YYYY-MM-DD"),
+			to_date: dayjs(dateRange.value.end).format("YYYY-MM-DD"),
+		});
+		
+		myLeaves.value = data.data.my_leaves || [];
+		leavesReportsTo.value = data.data.reports_to || [];
+	} catch (error) {
+		showErrorToast(error.data?.error?.message || error.data?.error);
+		myLeaves.value = [];
+		leavesReportsTo.value = [];
+	} finally {
+		isOpenDatePicker.value = false;
+	}
+};
+
+onIonViewWillEnter(async () => {
+	await fetchLeaves();
+});
 </script>
 
 <template>
