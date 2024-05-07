@@ -5,10 +5,13 @@ import LeavesHeader from "@/components/leaves/Header.vue";
 import { chevronDownOutline } from "ionicons/icons";
 import Datepicker from "@/components/base/Datepicker.vue";
 import { useLangStore } from "@/store/lang.js";
-import { ref, reactive, computed, shallowRef } from "vue";
+import { ref, reactive, computed, shallowRef, watch } from "vue";
 import useDateHelper from "@/composable/useDateHelper";
 import { useCustomToast } from "@/composable/toast.js";
+import leave from "@/api/leave";
+import { useUserStore } from "@/store/user.js";
 
+const userStore = useUserStore();
 const { showErrorToast } = useCustomToast();
 const router = useIonRouter();
 const langStore = useLangStore();
@@ -19,6 +22,9 @@ const triggerBack = () => {
 };
 
 const selectedLeaveType = ref('')
+watch(selectedLeaveType, () => {
+	errors.leaveType = false
+})
 const leaveOptions = [
 	"Sick Leave",
 	"Maternity Leave",
@@ -26,6 +32,9 @@ const leaveOptions = [
 	"Annual Leave",
 ]
 const selectedReason = ref('')
+watch(selectedReason, () => {
+	errors.reason = false
+})
 
 const selectedDates = reactive({
 	from_date: null,
@@ -36,8 +45,8 @@ const selectedDateDifference = computed(() => {
 		return null
 	}
 	
-	const startDate = dayjs(selectedDates.from_date, 'DD-MM-YY')
-	const endDate = dayjs(selectedDates.to_date, 'DD-MM-YY')
+	const startDate = dayjs(selectedDates.from_date)
+	const endDate = dayjs(selectedDates.to_date)
 	
 	return endDate.diff(startDate, "day")
 })
@@ -53,8 +62,11 @@ const setDatePickerOpen = (isOpen) => {
 	isDatePickerOpen.value = isOpen
 }
 const onDatePickerOk = () => {
-	selectedDates.from_date = formatDate(datePickerRange.value.start, 'DD-MM-YY')
-	selectedDates.to_date = formatDate(datePickerRange.value.end, 'DD-MM-YY')
+	selectedDates.from_date = datePickerRange.value.start
+	selectedDates.to_date = datePickerRange.value.end
+	
+	errors.fromDate = false
+	errors.toDate = false
 	
 	setDatePickerOpen(false)
 }
@@ -77,6 +89,8 @@ const onFileUpload = async (event) => {
 		
 		attachment.value.base64 = await toBase64(file)
 		attachment.value.name = file.name
+		
+		errors.proofDocument = false
 	} catch (e) {
 		console.error(e);
 		showErrorToast("Failed to upload a file");
@@ -99,10 +113,38 @@ const validateForm = () => {
 	
 	return !errors.leaveType || !errors.fromDate || !errors.toDate || !errors.reason || !errors.proofDocument
 }
-const onSubmit = () => {
+const clearForm = () => {
+	selectedLeaveType.value = ''
+	selectedDates.from_date = null
+	selectedDates.to_date = null
+	selectedReason.value = ''
+	attachment.value.name = null
+	attachment.value.base64 = null
+}
+const onSubmit = async () => {
 	const isValidForm = validateForm()
 	if (!isValidForm) {
 		return
+	}
+	
+	try {
+		await leave.createLeave({
+			employee_id: userStore.user?.employee_id,
+			from_date: dayjs(selectedDates.from_date).format("YYYY-MM-DD"),
+			leave_type: selectedLeaveType.value,
+			proof_document: JSON.stringify({
+				attachment_name: attachment.value.name,
+				attachment: attachment.value.base64,
+			}),
+			reason: selectedReason.value,
+			to_date: dayjs(selectedDates.to_date).format("YYYY-MM-DD"),
+		})
+		
+		clearForm();
+		triggerBack();
+	} catch (error) {
+		console.error(error);
+		showErrorToast(error.error);
 	}
 }
 </script>
@@ -197,7 +239,7 @@ const onSubmit = () => {
 	            :class="{
 	              'ion-touched ion-invalid': errors.fromDate,
 	            }"
-	            :value="formatDate(selectedDates.from_date, 'DD-MM-YY')"
+	            :value="formatDate(selectedDates.from_date, 'DD-MM-YYYY')"
 	            @ion-focus="setDatePickerOpen(true)"
             />
             <span
@@ -220,7 +262,7 @@ const onSubmit = () => {
 	            :class="{
 	              'ion-touched ion-invalid': errors.toDate,
 	            }"
-	            :value="formatDate(selectedDates.to_date, 'DD-MM-YY')"
+	            :value="formatDate(selectedDates.to_date, 'DD-MM-YYYY')"
 	            @ion-focus="setDatePickerOpen(true)"
             />
             <span
@@ -265,7 +307,12 @@ const onSubmit = () => {
         </div>
 	      
         <div class="ion-margin-top">
-          <p class="leaves-create-label leaves-create-label__required">
+          <p
+	          class="leaves-create-label leaves-create-label__required"
+	          :class="{
+							'text-danger leaves-create-label__required-danger': errors.proofDocument,
+						}"
+          >
             {{ $t("user.leaves.create_leave.proof_document") }}
           </p>
 	        <span
@@ -309,7 +356,7 @@ const onSubmit = () => {
           </div>
         </div>
 
-        <ion-button shape="round" class="ion-margin-top" expand="block" @click="validateForm">
+        <ion-button shape="round" class="ion-margin-top" expand="block" @click="onSubmit">
           {{ $t("user.leaves.create_leave.save_leaves_application") }}
         </ion-button>
       </div>
