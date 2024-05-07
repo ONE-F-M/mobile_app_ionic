@@ -291,7 +291,11 @@ onIonViewDidLeave(() => {
       <div class="ion-padding-horizontal geolocation-header">
         <Header with-back-button @goBack="prevStep">
           <slot name="title">
-            {{ $t("user.checkin.checkin") }}
+            {{
+		          logType === "IN"
+			          ? $t("user.checkin.checkin")
+			          : $t("user.checkin.checkout")
+	          }}
           </slot>
         </Header>
       </div>

@@ -18,6 +18,8 @@ import { onMounted, ref } from "vue";
 import { useCustomToast } from "@/composable/toast.js";
 import useDateHelper from "@/composable/useDateHelper";
 import { useLangStore } from "@/store/lang.js";
+import { Geolocation } from "@capacitor/geolocation";
+import { useI18n } from "vue-i18n";
 
 const { dayjs, formatDate } = useDateHelper();
 const langStore = useLangStore();
@@ -28,6 +30,27 @@ const { showErrorToast } = useCustomToast();
 
 const checkInList = ref([]);
 const isOpenDatePicker = ref(false);
+
+const logType = ref("");
+const coordinates = ref("");
+const printCurrentPosition = async () => {
+	coordinates.value = await Geolocation.getCurrentPosition({
+		enableHighAccuracy: true,
+	});
+};
+const getSiteLocation = async () => {
+	try {
+		const { data } = await checkin.getSiteLocation({
+			employee_id: userStore.user?.employee_id,
+			latitude: coordinates.value?.coords?.latitude,
+			longitude: coordinates.value?.coords?.longitude,
+		});
+		
+		logType.value = data.data.log_type;
+	} catch (error) {
+		// do nothing, expected
+	}
+};
 
 const dateRange = ref({
   start: new Date(),
@@ -56,11 +79,21 @@ const fetchCkeckinList = async (defaults = {}) => {
   }
 };
 
+const { t } = useI18n();
 onMounted(async () => {
 	await fetchCkeckinList({
 		from_date: dayjs(0).format("YYYY-MM-DD"),
 		to_date: dayjs(new Date()).format("YYYY-MM-DD"),
 	});
+	
+	try {
+		await printCurrentPosition();
+	} catch (e) {
+		showErrorToast(t("user.checkin.geolocation.title"))
+		return
+	}
+	
+	await getSiteLocation()
 })
 </script>
 
@@ -161,13 +194,18 @@ onMounted(async () => {
       </ion-modal>
 
       <ion-button
+	      v-if="logType"
         class="checkin-add-button"
         @click="router.push('/checkin/geolocation')"
       >
         <IconPlus />
         <ion-text>
           <p class="checkin-add-button-label">
-            {{ $t("user.checkin.checkin") }}
+            {{
+		          logType === "IN"
+			          ? $t("user.checkin.checkin")
+			          : $t("user.checkin.checkout")
+	          }}
           </p>
         </ion-text>
       </ion-button>
