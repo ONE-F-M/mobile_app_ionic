@@ -31,7 +31,8 @@ const checkInList = ref([]);
 const isOpenDatePicker = ref(false);
 
 const dateRange = ref({
-  start: new Date(),
+	// Means timestamp of zero, 1970-01-01
+  start: 0,
   end: new Date(),
 });
 
