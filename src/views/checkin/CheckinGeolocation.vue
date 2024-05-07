@@ -17,17 +17,15 @@ import { Geolocation } from "@capacitor/geolocation";
 import Header from "@/components/Header.vue";
 import { ref } from "vue";
 import { GoogleMap } from "@capacitor/google-maps";
-import useConfig from "@/composable/useConfig";
 import IconScan from "@/components/icon/Scan.vue";
 import { useCustomToast } from "@/composable/toast.js";
 import checkin from "@/api/checkin";
 import IconClose from "@/components/icon/Close.vue";
 import { useUserStore } from "@/store/user.js";
 import MyLocation from "@/components/icon/MyLocation.vue";
+import utils from "@/api/utils";
 
 const router = useIonRouter();
-
-const { mapApiKey } = useConfig();
 
 const prevStep = () => {
   router.back();
@@ -217,6 +215,8 @@ const verifyCheckin = async () => {
 
 onIonViewDidEnter(async () => {
   await printCurrentPosition();
+	const response = await utils.getGoogleMapApiKey()
+	const apiKey = response.data?.data?.google_map_api || null
 
   const mapRef = document.getElementById("map");
 
@@ -225,9 +225,9 @@ onIonViewDidEnter(async () => {
   body.classList.add("map-transparent");
 
   googleMap = await GoogleMap.create({
-    id: "my-map", // Unique identifier for this map instance
-    element: mapRef, // reference to the capacitor-google-map element
-    apiKey: mapApiKey, // Your Google Maps API Key
+	  apiKey, // Your Google Maps API Key
+	  id: "my-map", // Unique identifier for this map instance
+	  element: mapRef, // reference to the capacitor-google-map element
     config: {
       center: {
         // The initial position to be rendered by the map
