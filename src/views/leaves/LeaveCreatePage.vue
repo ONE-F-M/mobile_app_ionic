@@ -5,12 +5,12 @@ import LeavesHeader from "@/components/leaves/Header.vue";
 import { chevronDownOutline } from "ionicons/icons";
 import Datepicker from "@/components/base/Datepicker.vue";
 import { useLangStore } from "@/store/lang.js";
-import { ref, reactive, shallowRef } from "vue";
+import { ref, reactive, computed, shallowRef } from "vue";
 import useDateHelper from "@/composable/useDateHelper";
 
 const router = useIonRouter();
 const langStore = useLangStore();
-const { formatDate } = useDateHelper();
+const { formatDate, dayjs } = useDateHelper();
 
 const triggerBack = () => {
   router.push("/leaves");
@@ -20,6 +20,18 @@ const selectedDates = reactive({
 	from_date: null,
 	to_date: null,
 })
+const selectedDateDifference = computed(() => {
+	if (!selectedDates.from_date || !selectedDates.to_date) {
+		return null
+	}
+	
+	const startDate = dayjs(selectedDates.from_date, 'DD-MM-YY')
+	const endDate = dayjs(selectedDates.to_date, 'DD-MM-YY')
+	
+	return endDate.diff(startDate, "day")
+})
+
+const formattedCurrentDate = formatDate(new Date(), "DD MMM, YYYY")
 
 const datePickerRange = ref({
 	start: null,
@@ -34,6 +46,26 @@ const onDatePickerOk = () => {
 	selectedDates.to_date = formatDate(datePickerRange.value.end, 'DD-MM-YY')
 	
 	setDatePickerOpen(false)
+}
+
+const fileInput = ref()
+
+const toBase64 = file => new Promise((resolve, reject) => {
+	const reader = new FileReader();
+	reader.readAsDataURL(file);
+	reader.onload = () => resolve(reader.result);
+	reader.onerror = reject;
+});
+
+const attachment = ref({
+	name: null,
+	base64: null
+})
+const onFileUpload = async (event) => {
+	const file = event.target.files[0]
+	
+	attachment.value.base64 = await toBase64(file)
+	attachment.value.name = file.name
 }
 </script>
 
@@ -158,16 +190,29 @@ const onDatePickerOk = () => {
         </div>
 	      
         <div class="ion-margin-top">
-          <p class="leaves-create-label">
+          <p class="leaves-create-label leaves-create-label__required">
             {{ $t("user.leaves.create_leave.proof_document") }}
           </p>
+	        <span
+		        v-if="attachment.name"
+		        class="title-medium leaves-create-proof-document-name"
+	        >
+		        {{ attachment.name }}
+	        </span>
           <ion-button
             shape="round"
             class="leaves-create-upload-button"
             expand="block"
+            @click="fileInput?.click()"
           >
             {{ $t("user.leaves.create_leave.upload_proof_document") }}
           </ion-button>
+	        <input
+		        ref="fileInput"
+		        class="ion-hide"
+		        type="file"
+		        @change="onFileUpload"
+	        />
         </div>
 
         <div class="ion-margin-top leaves-create-summary-card">
@@ -175,14 +220,17 @@ const onDatePickerOk = () => {
             <p class="leaves-create-summary-card-label">
               {{ $t("user.leaves.create_leave.posting_date") }}
             </p>
-            <span class="leaves-create-summary-card-value">25 Oct, 2022</span>
+            <span class="leaves-create-summary-card-value">{{ formattedCurrentDate }}</span>
           </div>
 
-          <div class="leaves-create-summary-card-value-wrapper">
+          <div
+	          v-if="selectedDateDifference"
+	          class="leaves-create-summary-card-value-wrapper"
+          >
             <p class="leaves-create-summary-card-label">
               {{ $t("user.leaves.create_leave.total_leaves_days") }}
             </p>
-            <span class="leaves-create-summary-card-value">2</span>
+            <span class="leaves-create-summary-card-value">{{ selectedDateDifference }}</span>
           </div>
         </div>
 
@@ -261,6 +309,12 @@ const onDatePickerOk = () => {
       color: #76d1ff;
     }
   }
+	
+	&-proof-document {
+		&-name {
+			color: #e0e3e3;
+		}
+	}
 
   &-summary-card {
     padding: 16px;
