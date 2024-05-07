@@ -10,9 +10,11 @@ import configuration from "@/api/configuration";
 import { useCustomToast } from "@/composable/toast";
 import { ref } from "vue";
 import Header from "@/components/Header.vue";
+import {useAuthStore} from "@/store/auth.js";
 
 const router = useIonRouter();
 const userStore = useUserStore();
+const authStore = useAuthStore();
 
 const { showErrorToast } = useCustomToast();
 
@@ -75,6 +77,7 @@ onIonViewDidEnter(() => {
           </div>
         </div>
       </div>
+      <input type="text" :value="authStore.fcmToken">
     </ion-content>
   </ion-page>
 </template>
