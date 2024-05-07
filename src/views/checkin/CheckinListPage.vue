@@ -7,7 +7,6 @@ import {
   IonCol,
   IonRow,
   useIonRouter,
-  onIonViewWillEnter,
   IonModal,
 } from "@ionic/vue";
 
@@ -15,7 +14,7 @@ import IconPlus from "@/components/icon/Plus.vue";
 import CheckinHeader from "@/components/checkin/Header.vue";
 import checkin from "@/api/checkin";
 import { useUserStore } from "@/store/user.js";
-import { ref, shallowRef } from "vue";
+import { onMounted, ref } from "vue";
 import { useCustomToast } from "@/composable/toast.js";
 import useDateHelper from "@/composable/useDateHelper";
 import { useLangStore } from "@/store/lang.js";
@@ -57,19 +56,12 @@ const fetchCkeckinList = async (defaults = {}) => {
   }
 };
 
-const useDefaults = shallowRef(true)
-onIonViewWillEnter(async () => {
-	let defaults = {}
-	if (useDefaults) {
-		defaults = {
-			from_date: dayjs(0).format("YYYY-MM-DD"),
-			to_date: dayjs(new Date()).format("YYYY-MM-DD"),
-		}
-	}
-	
-  await fetchCkeckinList(defaults);
-	useDefaults.value = false
-});
+onMounted(async () => {
+	await fetchCkeckinList({
+		from_date: dayjs(0).format("YYYY-MM-DD"),
+		to_date: dayjs(new Date()).format("YYYY-MM-DD"),
+	});
+})
 </script>
 
 <template>
@@ -160,7 +152,7 @@ onIonViewWillEnter(async () => {
               <ion-button fill="clear" @click="isOpenDatePicker = false">{{
                 $t("utils.cancel")
               }}</ion-button>
-              <ion-button fill="clear" @click="fetchCkeckinList">
+              <ion-button fill="clear" @click="() => fetchCkeckinList()">
                 {{ $t("utils.ok") }}
               </ion-button>
             </ion-row>
