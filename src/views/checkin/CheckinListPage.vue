@@ -205,6 +205,11 @@ p {
     --vc-highlight-solid-content-color: #003549;
     font-weight: 600;
   }
+	
+	.vc-highlight-content-outline {
+		--vc-highlight-solid-content-color: #003549;
+		background: #76d1ff;
+	}
 
   .vc-highlight-content-light {
     --vc-highlight-light-content-color: #e0e3e3;
