@@ -25,10 +25,12 @@ import dayjs from "dayjs";
 import { useUserStore } from "@/store/user.js";
 import { useCustomToast } from "@/composable/toast.js";
 import { LEAVE_STATUS, LEAVE_TYPE } from "@/types/enums";
+import { useI18n } from "vue-i18n";
 
 const router = useIonRouter();
 const userStore = useUserStore();
 const { showErrorToast } = useCustomToast();
+const { t } = useI18n();
 
 const LEAVE_RESPONSE_TYPE = {
 	MY_LEAVE: "my_leaves",
