@@ -21,3 +21,9 @@
 .text-danger {
   color: #FFB4A9 !important;
 }
+
+.ion-select__hidden-cancel {
+  .action-sheet-group-cancel {
+    display: none
+  }
+}

@@ -24,25 +24,66 @@ import leave from "@/api/leave";
 import dayjs from "dayjs";
 import { useUserStore } from "@/store/user.js";
 import { useCustomToast } from "@/composable/toast.js";
+import { LEAVE_STATUS, LEAVE_TYPE } from "@/types/enums";
 
 const router = useIonRouter();
 const userStore = useUserStore();
 const { showErrorToast } = useCustomToast();
 
-const LEAVE_TYPE = {
+const LEAVE_RESPONSE_TYPE = {
 	MY_LEAVE: "my_leaves",
 	REPORTS_TO: "reports_to",
 }
 
-const showTypeLeaves = ref(LEAVE_TYPE.MY_LEAVE);
+const showTypeLeaves = ref(LEAVE_RESPONSE_TYPE.MY_LEAVE);
 const openFilter = ref(false);
 const isOpenDatePicker = ref(false);
+
+const leaveStatuses = [
+	{
+		label: t("user.leaves.card.status.approved"),
+		value: LEAVE_STATUS.APPROVED
+	},
+	{
+		label: t("user.leaves.card.status.rejected"),
+		value: LEAVE_STATUS.REJECTED
+	},
+	{
+		label: t("user.leaves.card.status.cancelled"),
+		value: LEAVE_STATUS.CANCELLED
+	},
+	{
+		label: t("user.leaves.card.status.opened"),
+		value: LEAVE_STATUS.OPENED
+	},
+]
+const selectedLeaveStatus = ref('')
+
+const leaveOptions = [
+	{
+		label: t("user.leaves.card.type.sick"),
+		value: LEAVE_TYPE.SICK
+	},
+	{
+		label: t("user.leaves.card.type.maternity"),
+		value: LEAVE_TYPE.MATERNITY
+	},
+	{
+		label: t("user.leaves.card.type.hajj"),
+		value: LEAVE_TYPE.HAJJ
+	},
+	{
+		label: t("user.leaves.card.type.annual"),
+		value: LEAVE_TYPE.ANNUAL
+	},
+]
+const selectedLeaveType = ref('')
 
 const myLeaves = ref([])
 const leavesReportsTo = ref([])
 
 const leaves = computed(() => {
-	if (showTypeLeaves.value === LEAVE_TYPE.MY_LEAVE) {
+	if (showTypeLeaves.value === LEAVE_RESPONSE_TYPE.MY_LEAVE) {
 		return [...myLeaves.value]
 	}
 	
@@ -74,6 +115,8 @@ const fetchLeaves = async () => {
 			employee_id: userStore.user?.employee_id,
 			from_date: dayjs(dateRange.value.start).format("YYYY-MM-DD"),
 			to_date: dayjs(dateRange.value.end).format("YYYY-MM-DD"),
+			leave_type: selectedLeaveType,
+			leave_status: selectedLeaveStatus,
 		});
 		
 		myLeaves.value = data.data.my_leaves || [];
@@ -232,19 +275,27 @@ onIonViewWillEnter(async () => {
           </ion-row>
           <div>
             <div>
-              <p class="leaves-filter-checkbox-list-title">leave type</p>
+              <p class="leaves-filter-checkbox-list-title">Leave type</p>
               <div class="leaves-filter-checkbox-list">
-                <ion-checkbox>Sick Leave</ion-checkbox>
-                <ion-checkbox>Maternity Leave</ion-checkbox>
-                <ion-checkbox>Hajj Leave</ion-checkbox>
-                <ion-checkbox>Annual Leave</ion-checkbox>
+                <ion-checkbox
+                  v-for="leaveOption in leaveOptions"
+                  v-model="selectedLeaveType"
+                  :key="leaveOption.value"
+                  :value="leaveOption.value"
+                >
+	                {{ leaveOption.label }}
+                </ion-checkbox>
               </div>
-              <p class="leaves-filter-checkbox-list-title">leave type</p>
+              <p class="leaves-filter-checkbox-list-title">Status</p>
               <div class="leaves-filter-checkbox-list">
-                <ion-checkbox>Sick Leave</ion-checkbox>
-                <ion-checkbox>Maternity Leave</ion-checkbox>
-                <ion-checkbox>Hajj Leave</ion-checkbox>
-                <ion-checkbox>Annual Leave</ion-checkbox>
+                <ion-checkbox
+	                v-model="selectedLeaveStatus"
+	                v-for="leaveStatus in leaveStatuses"
+	                :key="leaveStatus.value"
+	                :value="leaveStatus.value"
+                >
+	                {{ leaveStatus.label }}
+                </ion-checkbox>
               </div>
             </div>
           </div>

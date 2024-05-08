@@ -1,7 +1,11 @@
 import { httpService as http, httpService } from "./http.service";
 import { LocationPayload } from "../types/api";
 
-const getLeavesList = async (payload: LocationPayload) =>
+type GetLeaves = LocationPayload & {
+  leave_type: string,
+  leave_status: string,
+}
+const getLeavesList = async (payload: GetLeaves) =>
   await httpService.post(`v1.leave_application.leave_application_list`, {
     data: payload,
   });
