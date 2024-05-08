@@ -8,12 +8,16 @@ export default {
   card: {
     type: {
       sick: "Sick leave",
+      maternity: "Maternity Leave",
+      hajj: "Hajj Leave",
+      annual: "Annual Leave",
     },
     status: {
       pending: "Pending",
       approved: "Approved",
       rejected: "Rejected",
       cancelled: "Cancelled",
+      opened: "Opened",
     },
     from: "From",
     to: "To",
