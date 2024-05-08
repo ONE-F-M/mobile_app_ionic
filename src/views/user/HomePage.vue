@@ -94,6 +94,7 @@ onIonViewDidEnter(() => {
   display: flex;
   flex-wrap: wrap;
   margin-left: -4px;
+	margin-top: 12px;
   width: calc(100% + 8px);
 
   &-item {
@@ -123,11 +124,13 @@ onIonViewDidEnter(() => {
     }
 
     &-label {
+	    color: #E0E3E3;
       max-width: 65px;
       margin-top: 8px;
       text-align: center;
       font-size: 14px;
       line-height: 20px;
+	    font-weight: 300;
     }
   }
 }

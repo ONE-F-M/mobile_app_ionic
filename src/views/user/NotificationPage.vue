@@ -44,7 +44,6 @@ onIonViewWillEnter(async () => {
   <ion-page>
     <ion-content class="ion-padding content">
       <Header>{{ $t("user.notification.title") }}</Header>
-
       <div class="notifications-wrapper">
         <template v-for="notification in notifications">
           <div class="notification">
@@ -77,7 +76,7 @@ onIonViewWillEnter(async () => {
 }
 
 .notifications-wrapper {
-  margin-top: 10px;
+  margin-top: 6px;
 }
 .notification {
   border-bottom: 1px solid var(--ion-color-medium-shade);
@@ -91,6 +90,7 @@ onIonViewWillEnter(async () => {
 
     .notification-title {
       display: flex;
+	    font-weight: 400;
       gap: 12px;
     }
 
@@ -102,11 +102,13 @@ onIonViewWillEnter(async () => {
   .notification-time {
     color: var(--ion-color-medium-contrast);
     margin-left: 8px;
+	  font-weight: 300;
     text-wrap: nowrap;
   }
 
   .notification-content {
     color: var(--ion-color-dark-contrast);
+	  font-weight: 300;
     margin: 6px 0;
   }
 }

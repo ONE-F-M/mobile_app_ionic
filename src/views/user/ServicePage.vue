@@ -150,6 +150,12 @@ onIonViewDidLeave(() => {
 </template>
 
 <style lang="scss" scoped>
+.services {
+	margin-top: 7px;
+	margin-left: -4px;
+	width: calc(100% + 8px);
+}
+
 .services-page {
   --padding-top: 0;
   --padding-bottom: 24px;

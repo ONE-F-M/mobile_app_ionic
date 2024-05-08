@@ -42,6 +42,14 @@ import {gridOutline, homeOutline, notificationsOutline, personOutline} from "ion
 <style lang="scss" scoped>
 ion-tab-bar {
   height: 80px;
+	
+	.tab-selected {
+		color: var(--ion-color-secondary-tint);
+		
+		ion-icon {
+			color: var(--ion-color-secondary-tint);
+		}
+	}
 
   ion-tab-button {
     background: var(--ion-color-secondary-container);
@@ -63,8 +71,9 @@ ion-tab-bar {
     padding: 6px 0;
     width: 64px;
     border-radius: 20px;
-    color: var(--ion-color-secondary-tint);
+    color: var(--ion-color-medium-contrast);
     transition: background .3s ease;
+	  --ionicon-stroke-width: 48px;
   }
 }
 </style>

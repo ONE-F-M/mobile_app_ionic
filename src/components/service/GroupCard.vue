@@ -113,8 +113,11 @@ watch(
   margin: 0;
   background: #202b2f;
   border-radius: 12px;
-
   transition: background-color 0.3s ease;
+	
+	.card-content-md {
+		padding: 16px;
+	}
 
   &.active-card {
     background: #233036;
@@ -157,9 +160,9 @@ watch(
   }
 
   &-title {
-    margin: 0 0 0 12px;
+    margin: 4px 0 0 8px;
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 400;
     line-height: 1.25rem;
   }
 
