@@ -164,9 +164,9 @@ const setCenterCamera = async () => {
   });
 };
 
-const startVerifyPerson = () => {
-  isOpen.value = true;
-  initializeStream();
+const startVerifyPerson = async () => {
+	await initializeStream();
+	isOpen.value = true;
 };
 const clickBack = () => {
   isUserWithinGeofenceRadius.value = false;
@@ -336,7 +336,10 @@ onIonViewDidLeave(() => {
       </div>
     </ion-content>
 
-    <ion-modal :is-open="isOpen">
+    <ion-modal
+	    :is-open="isOpen"
+	    keep-contents-mounted
+    >
       <ion-content class="video-verify">
         <video class="video-verify-video-play" autoplay ref="video"></video>
 

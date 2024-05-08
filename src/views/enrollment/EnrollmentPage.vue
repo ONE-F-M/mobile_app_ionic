@@ -9,12 +9,13 @@ import {
   onIonViewDidLeave,
 } from "@ionic/vue";
 import { arrowBackOutline, arrowForwardOutline } from "ionicons/icons";
-import { ref, onMounted, onUnmounted, onActivated, onDeactivated } from "vue";
+import { ref, onMounted, onUnmounted, onActivated, onDeactivated, shallowRef } from "vue";
 
 const emit = defineEmits(["completed"]);
 
 const progress = ref(0);
 const step = 0.01;
+const showVideo = shallowRef(false)
 
 //in seconds
 const duration = 10;
@@ -83,12 +84,13 @@ const cleanup = async () => {
   recorder.stop(); //just in case
   stream && stream.getTracks().forEach((track) => track.stop());
   stream = null;
+	showVideo.value = false
 };
 
 const saveVideo = async () => {
   instruction.value = "enrollment.almost_done";
   recorder.stop();
-
+	
   const chunks = await dataPromise;
 
   const readerPromise = new Promise((resolve) => {
@@ -98,11 +100,18 @@ const saveVideo = async () => {
   });
 
   const converted = await readerPromise;
+	showVideo.value = false
   emit("completed", converted);
 };
 
-onMounted(initializeStream);
-onActivated(initializeStream);
+onMounted(async () => {
+	await initializeStream()
+	showVideo.value = true
+});
+onActivated(async () => {
+	await initializeStream()
+	showVideo.value = true
+});
 
 onUnmounted(cleanup);
 onDeactivated(cleanup);
@@ -115,6 +124,7 @@ onIonViewDidLeave(() => {
   instruction.value = "";
   curr_step.value = 1;
   video.value = null;
+	showVideo.value = false;
 });
 </script>
 
@@ -124,7 +134,13 @@ onIonViewDidLeave(() => {
       <Transition>
         <div class="centered">
           <div class="video-wrapper">
-            <video class="video" autoplay ref="video"></video>
+						<!-- v-show is important since video tag is used as a ref -->
+            <video
+	            v-show="showVideo"
+	            class="video"
+	            autoplay
+	            ref="video"
+            />
           </div>
 
           <ion-text
