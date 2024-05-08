@@ -10,12 +10,15 @@ import useDateHelper from "@/composable/useDateHelper";
 import { useCustomToast } from "@/composable/toast.js";
 import leave from "@/api/leave";
 import { useUserStore } from "@/store/user.js";
+import { useI18n } from "vue-i18n";
+import { LEAVE_TYPE } from "@/types/enums";
 
 const userStore = useUserStore();
 const { showErrorToast } = useCustomToast();
 const router = useIonRouter();
 const langStore = useLangStore();
 const { formatDate, dayjs } = useDateHelper();
+const { t } = useI18n();
 
 const triggerBack = () => {
   router.push("/leaves");
@@ -26,10 +29,22 @@ watch(selectedLeaveType, () => {
 	errors.leaveType = false
 })
 const leaveOptions = [
-	"Sick Leave",
-	"Maternity Leave",
-	"Hajj Leave",
-	"Annual Leave",
+	{
+		label: t("user.leaves.card.type.sick"),
+		value: LEAVE_TYPE.SICK
+	},
+	{
+		label: t("user.leaves.card.type.maternity"),
+		value: LEAVE_TYPE.MATERNITY
+	},
+	{
+		label: t("user.leaves.card.type.hajj"),
+		value: LEAVE_TYPE.HAJJ
+	},
+	{
+		label: t("user.leaves.card.type.annual"),
+		value: LEAVE_TYPE.ANNUAL
+	},
 ]
 const selectedReason = ref('')
 watch(selectedReason, () => {
@@ -166,6 +181,11 @@ const onSubmit = async () => {
 	        v-model="selectedLeaveType"
           placeholder="Select Leave Type"
           interface="action-sheet"
+	        :interface-options="{
+						buttons: [],
+						cssClass: 'ion-select__hidden-cancel'
+	        }"
+	        class="ion-select__hidden-cancel"
 	        :class="{
 						'ion-touched ion-invalid': errors.leaveType,
 	        }"
@@ -174,10 +194,10 @@ const onSubmit = async () => {
         >
           <ion-select-option
 	          v-for="leaveOption in leaveOptions"
-	          :key="leaveOption"
-	          :value="leaveOption"
+	          :key="leaveOption.value"
+	          :value="leaveOption.value"
           >
-	          {{ leaveOption }}
+	          {{ leaveOption.label }}
           </ion-select-option>
         </ion-select>
         <span
