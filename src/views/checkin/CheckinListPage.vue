@@ -1,20 +1,20 @@
 <script setup async>
 import {
-  IonContent,
-  IonButton,
-  IonText,
-  IonPage,
-  IonCol,
-  IonRow,
-  useIonRouter,
-  IonModal,
+	IonContent,
+	IonButton,
+	IonText,
+	IonPage,
+	IonCol,
+	IonRow,
+	useIonRouter,
+	onIonViewWillEnter,
 } from "@ionic/vue";
 
 import IconPlus from "@/components/icon/Plus.vue";
 import CheckinHeader from "@/components/checkin/Header.vue";
 import checkin from "@/api/checkin";
 import { useUserStore } from "@/store/user.js";
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
 import { useCustomToast } from "@/composable/toast.js";
 import useDateHelper from "@/composable/useDateHelper";
 import { useLangStore } from "@/store/lang.js";
@@ -81,20 +81,23 @@ const fetchCheckinList = async (defaults = {}) => {
 };
 
 const { t } = useI18n();
-onMounted(async () => {
+onIonViewWillEnter(async () => {
 	await fetchCheckinList({
 		from_date: dayjs(0).format("YYYY-MM-DD"),
 		to_date: dayjs(new Date()).format("YYYY-MM-DD"),
 	});
 	
+	dateRange.value.start = new Date();
+	dateRange.value.end = new Date();
+	
 	try {
 		await printCurrentPosition();
 	} catch (e) {
-		showErrorToast(t("user.checkin.geolocation.title"))
+		showErrorToast(t("user.checkin.geolocation.title"));
 		return
 	}
 	
-	await getSiteLocation()
+	await getSiteLocation();
 })
 </script>
 
@@ -106,7 +109,7 @@ onMounted(async () => {
         @open-date-picker="openDatePicker"
       />
 
-      <div>
+      <div class="checkin-page-table-wrapper">
         <ion-row>
           <ion-col class="checkin-page-table-label">Employee Name</ion-col>
           <ion-col size="auto" class="align-cols-end checkin-page-table-label"
@@ -117,34 +120,40 @@ onMounted(async () => {
           >
         </ion-row>
 
-        <ion-row v-for="check in checkInList" :key="check.name">
-          <ion-col>
-            <div class="checkin-page-name-wrapper">
-              <p class="checkin-page-name">{{ check.employee_name }}</p>
-              <p class="checkin-page-duration">
-                {{ dayjs(check.time).locale(langStore.lang).toNow(true) }}
-              </p>
-            </div>
-          </ion-col>
-          <ion-col size="auto" class="align-cols-end">
-            <div>
-              <p class="checkin-page-date">
-                {{ formatDate(check.time, "DD/MM/YY") }}
-              </p>
-              <p class="checkin-page-time">
-                {{ formatDate(check.time, "hh:mm A") }}
-              </p>
-            </div>
-          </ion-col>
-          <ion-col size="3" class="align-cols-end">
-            <div
-              class="checkin-page-status"
-              :class="`checkin-page-status-${check.log_type}`"
-            >
-              {{ check.log_type }}
-            </div>
-          </ion-col>
-        </ion-row>
+	      <div class="checkin-page-table-content-wrapper">
+		      <ion-row
+			      v-for="check in checkInList"
+			      :key="check.name"
+			      class="checkin-page-table-content-row"
+		      >
+			      <ion-col>
+				      <div class="checkin-page-name-wrapper">
+					      <p class="checkin-page-name">{{ check.employee_name }}</p>
+					      <p class="checkin-page-duration">
+						      {{ dayjs(check.time).locale(langStore.lang).toNow(true) }}
+					      </p>
+				      </div>
+			      </ion-col>
+			      <ion-col size="auto" class="align-cols-end">
+				      <div>
+					      <p class="checkin-page-date">
+						      {{ formatDate(check.time, "DD/MM/YY") }}
+					      </p>
+					      <p class="checkin-page-time">
+						      {{ formatDate(check.time, "hh:mm A") }}
+					      </p>
+				      </div>
+			      </ion-col>
+			      <ion-col size="3" class="align-cols-end">
+				      <div
+					      class="checkin-page-status"
+					      :class="`checkin-page-status-${check.log_type}`"
+				      >
+					      {{ check.log_type }}
+				      </div>
+			      </ion-col>
+		      </ion-row>
+	      </div>
       </div>
 
 	    <Datepicker
@@ -193,6 +202,18 @@ p {
     z-index: 1;
     background: #191c1d;
   }
+	
+	&-table-wrapper {
+		margin: 22px -4px 0;
+	}
+	
+	&-table-content-wrapper {
+		margin-top: 6px;
+	}
+	
+	&-table-content-row {
+		margin-bottom: 2px;
+	}
 
   &-table-label {
     font-size: 0.875rem;
@@ -204,15 +225,12 @@ p {
   &-name {
     font-size: 0.875rem;
     line-height: 1.25rem;
-    font-weight: 600;
     color: #e0e3e3;
   }
 
   &-duration {
-    margin-top: 4px;
     font-size: 0.75rem;
     line-height: 1rem;
-    font-weight: 500;
     color: #8b9298;
   }
 
@@ -220,7 +238,6 @@ p {
   &-time {
     font-size: 0.75rem;
     line-height: 1rem;
-    font-weight: 500;
     color: #c0c7cd;
   }
 

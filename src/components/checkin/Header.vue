@@ -22,14 +22,14 @@ const triggerBack = () => {
 <template>
   <ion-row class="header-wrapper">
     <ion-col class="ion-align-self-center ion-no-padding ion-text-center">
-      <ion-row class="">
-        <ion-col>
+      <ion-row>
+        <ion-col class="pr-0 pl-0">
           <ion-row class="ion-justify-content-between">
             <ion-row>
               <ion-button
                 @click="triggerBack"
                 router-direction="back"
-                class="button-back"
+                class="button-back ion-no-padding"
                 fill="clear"
               >
                 <ion-icon
@@ -39,13 +39,20 @@ const triggerBack = () => {
                 />
               </ion-button>
               <ion-text>
-                <h3 class="header-text-wrapper ion-padding-vertical">
+                <h3 class="header-text-wrapper text-dark-tint ion-padding-vertical">
                   {{ $t("user.checkin.title") }}
                 </h3>
               </ion-text>
             </ion-row>
-            <ion-button fill="clear" @click="$emit('open-date-picker')">
-              <ion-icon color="light" :icon="calendarOutline" />
+            <ion-button
+	            class="ion-no-padding"
+	            fill="clear"
+	            @click="$emit('open-date-picker')"
+            >
+              <ion-icon
+	              color="light"
+	              :icon="calendarOutline"
+              />
             </ion-button>
           </ion-row>
         </ion-col>
@@ -72,18 +79,23 @@ const triggerBack = () => {
 
   .header-text-wrapper {
     margin: 0;
-    font-weight: 400;
+    font-weight: 300;
     font-family: "Readex Pro", sans-serif;
     letter-spacing: 0.05px;
   }
 }
 
 [dir="ltr"] .button-back {
-  margin-left: -8px;
+	margin-right: 20px;
 }
 
 [dir="rtl"] .button-back {
-  margin-right: -8px;
+	margin-left: 20px;
+}
+
+.button-back::part(native) {
+	padding-left: 0;
+	padding-right: 0;
 }
 
 .rtl {

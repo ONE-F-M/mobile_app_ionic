@@ -544,14 +544,23 @@ onIonViewDidLeave(() => {
   .checkin-shift {
     margin-top: 4px;
     color: #e0e3e3;
-    font-size: 1rem;
+    font-size: 16px;
     line-height: 1.5rem;
-    font-weight: 500;
+	  letter-spacing: 1px;
   }
 
   .checkin-button {
-    font-weight: 600;
+	  margin-bottom: 0;
   }
+	.checkin-button::part(native) {
+		padding: 8px 35px;
+		font-weight: 600;
+		font-size: 16px;
+		line-height: 1.5rem;
+		letter-spacing: 0.1px;
+		color: var(--ion-color-success-contrast);
+		font-family: "Readex Pro";
+	}
 }
 
 .video-verify {

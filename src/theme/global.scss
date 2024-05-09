@@ -22,6 +22,21 @@
   color: #FFB4A9 !important;
 }
 
+.mb-0 {
+  margin-bottom: 0;
+}
+
+.pl-0 {
+  padding-left: 0;
+}
+.pr-0 {
+  padding-left: 0;
+}
+
+.text-dark-tint {
+  color: var(--ion-color-dark-tint)
+}
+
 .ion-select__hidden-cancel {
   .action-sheet-group-cancel {
     display: none
