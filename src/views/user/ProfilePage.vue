@@ -151,7 +151,7 @@ onIonViewWillEnter(async () => {
           <Header>{{ $t("user.profile.title") }}</Header>
 
           <div class="account-component">
-            <h3 class="headline-small">{{ $t("user.profile.account") }}</h3>
+            <h3 class="headline-small text-dark-tint">{{ $t("user.profile.account") }}</h3>
 
             <div id="profile-details" class="profile-details">
               <div class="profile-picture">
@@ -161,13 +161,17 @@ onIonViewWillEnter(async () => {
                 />
               </div>
 
-              <div class="profile-small-info">
+              <div class="profile-small-info text-dark-tint">
                 <div class="profile-name title-medium">{{ user.name }}</div>
                 <div class="profile-id body-small">{{ user.id }}</div>
               </div>
 
               <div class="action-button icon icon-arrow-back">
-                <ion-icon color="light" :icon="chevronForwardOutline" />
+                <ion-icon
+	                class="text-dark-tint"
+	                color="light"
+	                :icon="chevronForwardOutline"
+                />
               </div>
             </div>
             <ion-modal
@@ -239,14 +243,14 @@ onIonViewWillEnter(async () => {
           </div>
 
           <div class="settings-component">
-            <h3 class="headline-small">
+            <h3 class="headline-small text-dark-tint mb-0">
               {{ $t("user.profile.settings") }}
             </h3>
 
             <div class="lang-switcher">
               <ion-select
                 v-model="selectedLanguage"
-                class="language-select body-large"
+                class="language-select body-large text-dark-tint"
                 :label="$t('user.profile.language.label')"
                 :toggle-icon="chevronForwardOutline"
                 :expanded-icon="chevronForwardOutline"
@@ -480,6 +484,7 @@ onIonViewWillEnter(async () => {
 .logout-button {
   height: 40px;
   margin-top: 24px;
+	margin-bottom: 12px;
   font-family: "Readex Pro", sans-serif;
 }
 
