@@ -1,12 +1,48 @@
 <script setup>
-import { IonContent, IonPage, useIonRouter } from "@ionic/vue";
+import { IonContent, IonPage, onIonViewWillEnter, useIonRouter } from "@ionic/vue";
 import LeavesHeader from "@/components/leaves/Header.vue";
+import { useRoute } from "vue-router";
+import { computed, ref } from "vue";
+import { useUserStore } from "@/store/user";
+import leave from "@/api/leave";
+import { useCustomToast } from "@/composable/toast";
+import useDateHelper from "@/composable/useDateHelper";
+import dayjs from "dayjs";
 
+const { formatDate } = useDateHelper();
 const router = useIonRouter();
+const userStore = useUserStore();
+const { showErrorToast } = useCustomToast();
+const route = useRoute();
 
 const triggerBack = () => {
   router.push("/leaves");
 };
+const leaveDetails = ref({})
+const proofDocumentName = computed(() => {
+	return leaveDetails.value.proof_documents?.[0]?.description
+})
+const formatDateToDisplay = (date) => {
+	return dayjs(date, "YYYY-MM-DD").format("DD MMM, YYYY")
+}
+const fetchLeave = async () => {
+	try {
+		const { data } = await leave.details({
+			employee_id: userStore.user?.employee_id,
+			leave_id: route.params.id,
+		})
+		
+		
+		leaveDetails.value = data.data || {}
+	} catch (error) {
+		showErrorToast(error.data?.error?.message || error.data?.error);
+		leaveDetails.value = {}
+	}
+}
+
+onIonViewWillEnter(async () => {
+	await fetchLeave()
+})
 </script>
 
 <template>
@@ -23,10 +59,13 @@ const triggerBack = () => {
         <div class="leaves-details-card">
           <div class="leaves-details-card-value-wrapper">
             <p class="leaves-details-card-label">
-              {{ $t("user.leaves.leave_details") }}
+              {{ $t("user.leaves.detail.status") }}
             </p>
-            <p class="leaves-details-card-value leaves-status__Accepted">
-              {{ $t("user.leaves.leave_details") }}
+            <p
+	            class="leaves-details-card-value"
+	            :class="`leaves-status__${leaveDetails.workflow_state}`"
+            >
+              {{ leaveDetails.workflow_state }}
             </p>
           </div>
 
@@ -35,7 +74,7 @@ const triggerBack = () => {
               {{ $t("user.leaves.detail.leave_type") }}
             </p>
             <p class="leaves-details-card-value">
-              {{ $t("user.leaves.card.type.sick") }}
+              {{ leaveDetails.leave_type }}
             </p>
           </div>
 
@@ -43,63 +82,62 @@ const triggerBack = () => {
             <p class="leaves-details-card-label">
               {{ $t("user.leaves.detail.days_requested") }}
             </p>
-            <p class="leaves-details-card-value">2 Days</p>
+            <p class="leaves-details-card-value">{{ leaveDetails.total_leave_days }} {{ leaveDetails.total_leave_days > 1 ? "Days" : "Day"}}</p>
           </div>
 
           <div class="leaves-details-card-value-wrapper">
             <p class="leaves-details-card-label">
               {{ $t("user.leaves.detail.date_posted") }}
             </p>
-            <p class="leaves-details-card-value">25 Oct, 2022</p>
+            <p class="leaves-details-card-value">{{ formatDate(leaveDetails.posting_date, "DD MMM, YYYY") }}</p>
           </div>
 
           <div class="leaves-details-card-value-wrapper">
             <p class="leaves-details-card-label">
               {{ $t("user.leaves.detail.from") }}
             </p>
-            <p class="leaves-details-card-value">26 Oct, 2022</p>
+            <p class="leaves-details-card-value">{{ formatDateToDisplay(leaveDetails.from_date) }}</p>
           </div>
 
           <div class="leaves-details-card-value-wrapper">
             <p class="leaves-details-card-label">
               {{ $t("user.leaves.detail.till") }}
             </p>
-            <p class="leaves-details-card-value">28 Oct, 2022</p>
+            <p class="leaves-details-card-value">{{ formatDateToDisplay(leaveDetails.to_date) }}</p>
           </div>
 
           <div class="leaves-details-card-value-wrapper">
             <p class="leaves-details-card-label">
               {{ $t("user.leaves.detail.reason") }}
             </p>
-            <p class="leaves-details-card-value">Medical Issue</p>
+            <p class="leaves-details-card-value">{{ leaveDetails.description }}</p>
           </div>
 
-          <div class="leaves-details-card-value-wrapper">
+          <div v-if="leaveDetails.leave_approver_name" class="leaves-details-card-value-wrapper">
             <p class="leaves-details-card-label">
               {{ $t("user.leaves.detail.leave_approver") }}
             </p>
-            <p class="leaves-details-card-value">Mohammed Jasem</p>
+            <p class="leaves-details-card-value">{{ leaveDetails.leave_approver_name }}</p>
           </div>
         </div>
 
-        <p class="leaves-details-proof-title">
-          {{ $t("user.leaves.detail.document_proof") }}
-        </p>
-        <div class="leaves-details-proof-card">
-          <ion-row class="ion-align-items-center ion-justify-content-between">
-            <ion-row class="ion-align-items-center">
-              <img
-                src="/image/icon/leaves/jpg-file.png"
-                alt="file type"
-                class="leaves-details-proof-card-image"
-              />
-              <p class="leaves-details-proof-card-file-name">Image Name.JPG</p>
-            </ion-row>
-            <ion-button size="large" fill="clear">{{
-              $t("user.leaves.detail.view")
-            }}</ion-button>
-          </ion-row>
-        </div>
+	      <template v-if="proofDocumentName">
+		      <p class="leaves-details-proof-title">
+			      {{ $t("user.leaves.detail.document_proof") }}
+		      </p>
+		      <div class="leaves-details-proof-card">
+			      <ion-row class="ion-align-items-center ion-justify-content-between">
+				      <ion-row class="ion-align-items-center leaves-details-proof-card-wrapper">
+					      <img
+						      src="/image/icon/leaves/jpg-file.png"
+						      alt="file type"
+						      class="leaves-details-proof-card-image"
+					      />
+					      <p class="leaves-details-proof-card-file-name">{{ proofDocumentName }}</p>
+				      </ion-row>
+			      </ion-row>
+		      </div>
+	      </template>
       </div>
     </ion-content>
   </ion-page>
@@ -165,9 +203,13 @@ const triggerBack = () => {
   }
 
   &-proof-card {
-    padding: 2px 2px 2px 12px;
+    padding: 10px 12px;
     border-radius: 16px;
     background: #1e2529;
+	  
+	  &-wrapper {
+		  flex-wrap: nowrap;
+	  }
 
     &-image {
       width: 36px;
@@ -177,6 +219,7 @@ const triggerBack = () => {
 
     &-file-name {
       margin: 0 0 0 4px;
+	    word-break: break-word;
     }
   }
 }

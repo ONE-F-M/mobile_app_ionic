@@ -7,17 +7,17 @@ export default {
   new_leave_application: "New Leave Application",
   card: {
     type: {
-      sick: "Sick leave",
+      sick_leave: "Sick leave",
       maternity: "Maternity Leave",
       hajj: "Hajj Leave",
-      annual: "Annual Leave",
+      annual_leave: "Annual Leave",
     },
     status: {
       pending: "Pending",
       approved: "Approved",
       rejected: "Rejected",
       cancelled: "Cancelled",
-      opened: "Opened",
+      open: "Open",
     },
     from: "From",
     to: "To",
