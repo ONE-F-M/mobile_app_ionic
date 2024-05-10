@@ -239,7 +239,7 @@ onIonViewWillEnter(async () => {
                 <span class="leaves-label"
                   >{{ $t("user.leaves.card.to") }}:</span
                 >
-                {{ formatDateToDisplay(leave.to) }}
+                {{ formatDateToDisplay(leave.to_date) }}
               </p>
               <p class="leaves-label-white">
                 <span class="leaves-label"
