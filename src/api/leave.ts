@@ -1,5 +1,6 @@
 import { httpService as http, httpService } from "./http.service";
 import { LocationPayload } from "../types/api";
+import { HttpParams } from "@capacitor/core/types/core-plugins";
 
 type GetLeaves = LocationPayload & {
   leave_type: string,
@@ -18,10 +19,34 @@ type EnrollParams = {
   reason: string;
   to_date: string;
 };
-export const createLeave = async (data: EnrollParams) =>
+const createLeave = async (data: EnrollParams) =>
   await http.post(`v1.leave_application.create_new_leave_application`, { data });
+
+interface LeaveBalanceParams extends HttpParams {
+  employee_id: string;
+  leave_type: string,
+}
+const balance = async (params: LeaveBalanceParams) =>
+  await http.get(`v1.leave_application.get_leave_balance`, { params });
+
+interface LeaveTypeParams extends HttpParams {
+  employee_id: string;
+  leave_type: string,
+}
+const types = async (params: LeaveTypeParams) =>
+  await http.get(`v1.leave_application.get_leave_types`, { params });
+
+interface LeaveDetailsParams extends HttpParams {
+  employee_id: string;
+  leave_id: string,
+}
+const details = async (params: LeaveDetailsParams) =>
+  await http.get(`v1.leave_application.get_leave_detail`, { params });
 
 export default {
   getLeavesList,
   createLeave,
+  balance,
+  types,
+  details,
 };

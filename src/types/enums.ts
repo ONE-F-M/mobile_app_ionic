@@ -1,13 +1,7 @@
-export enum LEAVE_TYPE {
-  SICK= "Sick leave",
-  MATERNITY= "Maternity Leave",
-  HAJJ= "Hajj Leave",
-  ANNUAL= "Annual Leave",
-}
-
 export enum LEAVE_STATUS {
-  OPENED = "Opened",
+  OPEN = "Open",
   APPROVED = "Approved",
   REJECTED = "Rejected",
   CANCELLED = "Cancelled",
+  PENDING = "Pending",
 }

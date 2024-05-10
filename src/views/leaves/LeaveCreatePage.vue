@@ -1,5 +1,5 @@
 <script setup>
-import { IonContent, IonSelect, IonTextarea, IonPage, useIonRouter, IonInput } from "@ionic/vue";
+import { IonContent, IonSelect, IonTextarea, IonPage, useIonRouter, IonInput, onIonViewWillEnter } from "@ionic/vue";
 import LeavesHeader from "@/components/leaves/Header.vue";
 
 import { chevronDownOutline } from "ionicons/icons";
@@ -10,15 +10,12 @@ import useDateHelper from "@/composable/useDateHelper";
 import { useCustomToast } from "@/composable/toast.js";
 import leave from "@/api/leave";
 import { useUserStore } from "@/store/user.js";
-import { useI18n } from "vue-i18n";
-import { LEAVE_TYPE } from "@/types/enums";
 
 const userStore = useUserStore();
 const { showErrorToast } = useCustomToast();
 const router = useIonRouter();
 const langStore = useLangStore();
 const { formatDate, dayjs } = useDateHelper();
-const { t } = useI18n();
 
 const triggerBack = () => {
   router.push("/leaves");
@@ -27,29 +24,50 @@ const triggerBack = () => {
 const selectedLeaveType = ref('')
 watch(selectedLeaveType, () => {
 	errors.leaveType = false
+	fetchLeaveBalance()
 })
-const leaveOptions = [
-	{
-		label: t("user.leaves.card.type.sick"),
-		value: LEAVE_TYPE.SICK
-	},
-	{
-		label: t("user.leaves.card.type.maternity"),
-		value: LEAVE_TYPE.MATERNITY
-	},
-	{
-		label: t("user.leaves.card.type.hajj"),
-		value: LEAVE_TYPE.HAJJ
-	},
-	{
-		label: t("user.leaves.card.type.annual"),
-		value: LEAVE_TYPE.ANNUAL
-	},
-]
 const selectedReason = ref('')
 watch(selectedReason, () => {
 	errors.reason = false
 })
+
+const leaveOptions = ref([])
+const fetchLeaveTypes = async () => {
+	try {
+		const { data } = await leave.types({
+			employee_id: userStore.user?.employee_id,
+		});
+		
+		leaveOptions.value = data.data || []
+	} catch (error) {
+		showErrorToast(error.data?.error?.message || error.data?.error);
+	}
+}
+
+const EMPTY_LEAVE_BALANCE = {
+	expired_leaves: null,
+	leave_type: "",
+	leaves_pending_approval: null,
+	leaves_taken: null,
+	remaining_leaves: null,
+	total_leaves: null,
+}
+const leaveBalance = ref({ ...EMPTY_LEAVE_BALANCE })
+const fetchLeaveBalance = async () => {
+	try {
+		const { data } = await leave.balance({
+			employee_id: userStore.user?.employee_id,
+			leave_type: selectedLeaveType.value,
+		});
+		
+		leaveBalance.value = { ...data.data };
+	} catch (error) {
+		showErrorToast(error.data?.error?.message || error.data?.error);
+	}
+}
+const clearLeaveBalance = () => {
+	leaveBalance.value = { ...EMPTY_LEAVE_BALANCE }
+}
 
 const selectedDates = reactive({
 	from_date: null,
@@ -90,7 +108,7 @@ const fileInput = ref()
 const toBase64 = file => new Promise((resolve, reject) => {
 	const reader = new FileReader();
 	reader.readAsDataURL(file);
-	reader.onload = () => resolve(reader.result);
+	reader.onload = () => resolve(reader.result.split(',')[1]);
 	reader.onerror = reject;
 });
 
@@ -126,7 +144,7 @@ const validateForm = () => {
 	errors.reason = !selectedReason.value;
 	errors.proofDocument = !attachment.value.base64;
 	
-	return !errors.leaveType || !errors.fromDate || !errors.toDate || !errors.reason || !errors.proofDocument
+	return !errors.leaveType && !errors.fromDate && !errors.toDate && !errors.reason && !errors.proofDocument
 }
 const clearForm = () => {
 	selectedLeaveType.value = ''
@@ -159,9 +177,15 @@ const onSubmit = async () => {
 		triggerBack();
 	} catch (error) {
 		console.error(error);
-		showErrorToast(error.error);
+		showErrorToast(error.data?.error?.message || error.data?.error);
 	}
 }
+
+onIonViewWillEnter(async () => {
+	clearForm()
+	clearLeaveBalance()
+	await fetchLeaveTypes()
+})
 </script>
 
 <template>
@@ -194,10 +218,10 @@ const onSubmit = async () => {
         >
           <ion-select-option
 	          v-for="leaveOption in leaveOptions"
-	          :key="leaveOption.value"
-	          :value="leaveOption.value"
+	          :key="leaveOption"
+	          :value="leaveOption"
           >
-	          {{ leaveOption.label }}
+	          {{ leaveOption }}
           </ion-select-option>
         </ion-select>
         <span
@@ -209,7 +233,10 @@ const onSubmit = async () => {
           {{ $t("utils.required") }}
         </span>
 
-        <div class="ion-margin-top">
+        <div
+	        v-if="leaveBalance.leave_type"
+	        class="ion-margin-top"
+        >
           <p class="leaves-create-label">
             {{ $t("user.leaves.create_leave.details") }}
           </p>
@@ -218,31 +245,31 @@ const onSubmit = async () => {
               class="leaves-create-detail-card-total-leaves leaves-create-detail-card-stats ion-align-items-center ion-justify-content-between"
             >
               <p>{{ $t("user.leaves.create_leave.total_leaves") }}</p>
-              <span>0</span>
+              <span>{{ leaveBalance.total_leaves }}</span>
             </ion-row>
             <ion-row
               class="leaves-create-detail-card-stats ion-align-items-center ion-justify-content-between"
             >
               <p>{{ $t("user.leaves.create_leave.expired_leaves") }}</p>
-              <span>- 0</span>
+	            <span>{{ leaveBalance.expired_leaves }}</span>
             </ion-row>
             <ion-row
               class="leaves-create-detail-card-stats ion-align-items-center ion-justify-content-between"
             >
               <p>{{ $t("user.leaves.create_leave.pending_leaves") }}</p>
-              <span>0</span>
+	            <span>{{ leaveBalance.leaves_pending_approval }}</span>
             </ion-row>
             <ion-row
               class="leaves-create-detail-card-stats ion-align-items-center ion-justify-content-between"
             >
               <p>{{ $t("user.leaves.create_leave.leaves_taken") }}</p>
-              <span>- 0</span>
+	            <span>{{ leaveBalance.leaves_taken }}</span>
             </ion-row>
             <ion-row
               class="leaves-create-detail-card-available-leaves leaves-create-detail-card-stats ion-align-items-center ion-justify-content-between"
             >
               <p>{{ $t("user.leaves.create_leave.available_leaves") }}</p>
-              <span> 0</span>
+	            <span>{{ leaveBalance.remaining_leaves }}</span>
             </ion-row>
           </div>
         </div>
