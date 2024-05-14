@@ -18,6 +18,10 @@
   color: #8b9298 !important;
 }
 
+.leaves-status__Open {
+  color: #E0E3E3 !important;
+}
+
 .text-danger {
   color: #FFB4A9 !important;
 }
@@ -40,5 +44,21 @@
 .ion-select__hidden-cancel {
   .action-sheet-group-cancel {
     display: none
+  }
+}
+
+.action-sheet-wrapper {
+
+  .action-sheet-container {
+
+    .action-sheet-group {
+      padding: 16px;
+      border-radius: 18px 18px 0 0;
+      background: #1e2529;
+
+      button {
+        border-bottom: 1px solid #8B9298;
+      }
+    }
   }
 }

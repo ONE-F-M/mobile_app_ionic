@@ -3,6 +3,7 @@ export default {
   my_leaves: "My Leaves",
   reports_to: "Reports to",
   apply_leave: "Apply leave",
+  leave_type: "Leave Type",
   leave_details: "Leave Details",
   new_leave_application: "New Leave Application",
   card: {

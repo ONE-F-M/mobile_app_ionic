@@ -1,5 +1,13 @@
 <script setup>
-import { IonContent, IonSelect, IonTextarea, IonPage, useIonRouter, IonInput, onIonViewWillEnter } from "@ionic/vue";
+import {
+  IonContent,
+  IonSelect,
+  IonTextarea,
+  IonPage,
+  useIonRouter,
+  IonInput,
+  onIonViewWillEnter,
+} from "@ionic/vue";
 import LeavesHeader from "@/components/leaves/Header.vue";
 
 import { chevronDownOutline } from "ionicons/icons";
@@ -21,171 +29,178 @@ const triggerBack = () => {
   router.push("/leaves");
 };
 
-const selectedLeaveType = ref('')
+const selectedLeaveType = ref("");
 watch(selectedLeaveType, () => {
-	errors.leaveType = false
-	fetchLeaveBalance()
-})
-const selectedReason = ref('')
+  errors.leaveType = false;
+  fetchLeaveBalance();
+});
+const selectedReason = ref("");
 watch(selectedReason, () => {
-	errors.reason = false
-})
+  errors.reason = false;
+});
 
-const leaveOptions = ref([])
+const leaveOptions = ref([]);
 const fetchLeaveTypes = async () => {
-	try {
-		const { data } = await leave.types({
-			employee_id: userStore.user?.employee_id,
-		});
-		
-		leaveOptions.value = data.data || []
-	} catch (error) {
-		showErrorToast(error.data?.error?.message || error.data?.error);
-	}
-}
+  try {
+    const { data } = await leave.types({
+      employee_id: userStore.user?.employee_id,
+    });
+
+    leaveOptions.value = Object.keys(data.data) || [];
+  } catch (error) {
+    showErrorToast(error.data?.error?.message || error.data?.error);
+  }
+};
 
 const EMPTY_LEAVE_BALANCE = {
-	expired_leaves: null,
-	leave_type: "",
-	leaves_pending_approval: null,
-	leaves_taken: null,
-	remaining_leaves: null,
-	total_leaves: null,
-}
-const leaveBalance = ref({ ...EMPTY_LEAVE_BALANCE })
+  expired_leaves: null,
+  leave_type: "",
+  leaves_pending_approval: null,
+  leaves_taken: null,
+  remaining_leaves: null,
+  total_leaves: null,
+};
+const leaveBalance = ref({ ...EMPTY_LEAVE_BALANCE });
 const fetchLeaveBalance = async () => {
-	try {
-		const { data } = await leave.balance({
-			employee_id: userStore.user?.employee_id,
-			leave_type: selectedLeaveType.value,
-		});
-		
-		leaveBalance.value = { ...data.data };
-	} catch (error) {
-		showErrorToast(error.data?.error?.message || error.data?.error);
-	}
-}
+  try {
+    const { data } = await leave.balance({
+      employee_id: userStore.user?.employee_id,
+      leave_type: selectedLeaveType.value,
+    });
+
+    leaveBalance.value = { ...data.data };
+  } catch (error) {
+    showErrorToast(error.data?.error?.message || error.data?.error);
+  }
+};
 const clearLeaveBalance = () => {
-	leaveBalance.value = { ...EMPTY_LEAVE_BALANCE }
-}
+  leaveBalance.value = { ...EMPTY_LEAVE_BALANCE };
+};
 
 const selectedDates = reactive({
-	from_date: null,
-	to_date: null,
-})
+  from_date: null,
+  to_date: null,
+});
 const selectedDateDifference = computed(() => {
-	if (!selectedDates.from_date || !selectedDates.to_date) {
-		return null
-	}
-	
-	const startDate = dayjs(selectedDates.from_date)
-	const endDate = dayjs(selectedDates.to_date)
-	
-	return endDate.diff(startDate, "day")
-})
+  if (!selectedDates.from_date || !selectedDates.to_date) {
+    return null;
+  }
 
-const formattedCurrentDate = formatDate(new Date(), "DD MMM, YYYY")
+  const startDate = dayjs(selectedDates.from_date);
+  const endDate = dayjs(selectedDates.to_date);
+
+  return endDate.diff(startDate, "day");
+});
+
+const formattedCurrentDate = formatDate(new Date(), "DD MMM, YYYY");
 
 const datePickerRange = ref({
-	start: null,
-	end: null,
+  start: null,
+  end: null,
 });
-const isDatePickerOpen = shallowRef(false)
+const isDatePickerOpen = shallowRef(false);
 const setDatePickerOpen = (isOpen) => {
-	isDatePickerOpen.value = isOpen
-}
+  isDatePickerOpen.value = isOpen;
+};
 const onDatePickerOk = () => {
-	selectedDates.from_date = datePickerRange.value.start
-	selectedDates.to_date = datePickerRange.value.end
-	
-	errors.fromDate = false
-	errors.toDate = false
-	
-	setDatePickerOpen(false)
-}
+  selectedDates.from_date = datePickerRange.value.start;
+  selectedDates.to_date = datePickerRange.value.end;
 
-const fileInput = ref()
-const toBase64 = file => new Promise((resolve, reject) => {
-	const reader = new FileReader();
-	reader.readAsDataURL(file);
-	reader.onload = () => resolve(reader.result.split(',')[1]);
-	reader.onerror = reject;
-});
+  errors.fromDate = false;
+  errors.toDate = false;
+
+  setDatePickerOpen(false);
+};
+
+const fileInput = ref();
+const toBase64 = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result.split(",")[1]);
+    reader.onerror = reject;
+  });
 
 const attachment = ref({
-	name: null,
-	base64: null
-})
+  name: null,
+  base64: null,
+});
 const onFileUpload = async (event) => {
-	try {
-		const file = event.target.files[0]
-		
-		attachment.value.base64 = await toBase64(file)
-		attachment.value.name = file.name
-		
-		errors.proofDocument = false
-	} catch (e) {
-		console.error(e);
-		showErrorToast("Failed to upload a file");
-	}
-}
+  try {
+    const file = event.target.files[0];
+
+    attachment.value.base64 = await toBase64(file);
+    attachment.value.name = file.name;
+
+    errors.proofDocument = false;
+  } catch (e) {
+    console.error(e);
+    showErrorToast("Failed to upload a file");
+  }
+};
 
 const errors = reactive({
-	leaveType: false,
-	fromDate: false,
-	toDate: false,
-	reason: false,
-	proofDocument: false,
-})
+  leaveType: false,
+  fromDate: false,
+  toDate: false,
+  reason: false,
+  proofDocument: false,
+});
 const validateForm = () => {
-	errors.leaveType = !selectedLeaveType.value;
-	errors.fromDate = !selectedDates.from_date;
-	errors.toDate = !selectedDates.to_date;
-	errors.reason = !selectedReason.value;
-	errors.proofDocument = !attachment.value.base64;
-	
-	return !errors.leaveType && !errors.fromDate && !errors.toDate && !errors.reason && !errors.proofDocument
-}
+  errors.leaveType = !selectedLeaveType.value;
+  errors.fromDate = !selectedDates.from_date;
+  errors.toDate = !selectedDates.to_date;
+  errors.reason = !selectedReason.value;
+  errors.proofDocument = !attachment.value.base64;
+
+  return (
+    !errors.leaveType &&
+    !errors.fromDate &&
+    !errors.toDate &&
+    !errors.reason &&
+    !errors.proofDocument
+  );
+};
 const clearForm = () => {
-	selectedLeaveType.value = ''
-	selectedDates.from_date = null
-	selectedDates.to_date = null
-	selectedReason.value = ''
-	attachment.value.name = null
-	attachment.value.base64 = null
-}
+  selectedLeaveType.value = "";
+  selectedDates.from_date = null;
+  selectedDates.to_date = null;
+  selectedReason.value = "";
+  attachment.value.name = null;
+  attachment.value.base64 = null;
+};
 const onSubmit = async () => {
-	const isValidForm = validateForm()
-	if (!isValidForm) {
-		return
-	}
-	
-	try {
-		await leave.createLeave({
-			employee_id: userStore.user?.employee_id,
-			from_date: dayjs(selectedDates.from_date).format("YYYY-MM-DD"),
-			leave_type: selectedLeaveType.value,
-			proof_document: JSON.stringify({
-				attachment_name: attachment.value.name,
-				attachment: attachment.value.base64,
-			}),
-			reason: selectedReason.value,
-			to_date: dayjs(selectedDates.to_date).format("YYYY-MM-DD"),
-		})
-		
-		clearForm();
-		triggerBack();
-	} catch (error) {
-		console.error(error);
-		showErrorToast(error.data?.error?.message || error.data?.error);
-	}
-}
+  const isValidForm = validateForm();
+  if (!isValidForm) {
+    return;
+  }
+
+  try {
+    await leave.createLeave({
+      employee_id: userStore.user?.employee_id,
+      from_date: dayjs(selectedDates.from_date).format("YYYY-MM-DD"),
+      leave_type: selectedLeaveType.value,
+      proof_document: JSON.stringify({
+        attachment_name: attachment.value.name,
+        attachment: attachment.value.base64,
+      }),
+      reason: selectedReason.value,
+      to_date: dayjs(selectedDates.to_date).format("YYYY-MM-DD"),
+    });
+
+    clearForm();
+    triggerBack();
+  } catch (error) {
+    console.error(error);
+    showErrorToast(error.data?.error?.message || error.data?.error);
+  }
+};
 
 onIonViewWillEnter(async () => {
-	clearForm()
-	clearLeaveBalance()
-	await fetchLeaveTypes()
-})
+  clearForm();
+  clearLeaveBalance();
+  await fetchLeaveTypes();
+});
 </script>
 
 <template>
@@ -202,41 +217,39 @@ onIonViewWillEnter(async () => {
           {{ $t("user.leaves.create_leave.type") }}
         </p>
         <ion-select
-	        v-model="selectedLeaveType"
+          v-model="selectedLeaveType"
           placeholder="Select Leave Type"
           interface="action-sheet"
-	        :interface-options="{
-						buttons: [],
-						cssClass: 'ion-select__hidden-cancel'
-	        }"
-	        class="ion-select__hidden-cancel"
-	        :class="{
-						'ion-touched ion-invalid': errors.leaveType,
-	        }"
+          :interface-options="{
+            buttons: [],
+            cssClass: 'ion-select__hidden-cancel',
+          }"
+          class="ion-select__hidden-cancel"
+          :class="{
+            'ion-touched ion-invalid': errors.leaveType,
+          }"
           :toggleIcon="chevronDownOutline"
           fill="outline"
         >
           <ion-select-option
-	          v-for="leaveOption in leaveOptions"
-	          :key="leaveOption"
-	          :value="leaveOption"
+            v-for="leaveOption in leaveOptions"
+            :key="leaveOption"
+            :value="leaveOption"
           >
-	          {{ leaveOption }}
+            {{ leaveOption }}
           </ion-select-option>
         </ion-select>
         <span
-	        class="leaves-create-label-required leaves-create-label__required"
-	        :class="{
-						'text-danger leaves-create-label__required-danger': errors.leaveType,
-					}"
+          class="leaves-create-label-required leaves-create-label__required"
+          :class="{
+            'text-danger leaves-create-label__required-danger':
+              errors.leaveType,
+          }"
         >
           {{ $t("utils.required") }}
         </span>
 
-        <div
-	        v-if="leaveBalance.leave_type"
-	        class="ion-margin-top"
-        >
+        <div v-if="leaveBalance.leave_type" class="ion-margin-top">
           <p class="leaves-create-label">
             {{ $t("user.leaves.create_leave.details") }}
           </p>
@@ -251,25 +264,25 @@ onIonViewWillEnter(async () => {
               class="leaves-create-detail-card-stats ion-align-items-center ion-justify-content-between"
             >
               <p>{{ $t("user.leaves.create_leave.expired_leaves") }}</p>
-	            <span>{{ leaveBalance.expired_leaves }}</span>
+              <span>{{ leaveBalance.expired_leaves }}</span>
             </ion-row>
             <ion-row
               class="leaves-create-detail-card-stats ion-align-items-center ion-justify-content-between"
             >
               <p>{{ $t("user.leaves.create_leave.pending_leaves") }}</p>
-	            <span>{{ leaveBalance.leaves_pending_approval }}</span>
+              <span>{{ leaveBalance.leaves_pending_approval }}</span>
             </ion-row>
             <ion-row
               class="leaves-create-detail-card-stats ion-align-items-center ion-justify-content-between"
             >
               <p>{{ $t("user.leaves.create_leave.leaves_taken") }}</p>
-	            <span>{{ leaveBalance.leaves_taken }}</span>
+              <span>{{ leaveBalance.leaves_taken }}</span>
             </ion-row>
             <ion-row
               class="leaves-create-detail-card-available-leaves leaves-create-detail-card-stats ion-align-items-center ion-justify-content-between"
             >
               <p>{{ $t("user.leaves.create_leave.available_leaves") }}</p>
-	            <span>{{ leaveBalance.remaining_leaves }}</span>
+              <span>{{ leaveBalance.remaining_leaves }}</span>
             </ion-row>
           </div>
         </div>
@@ -280,22 +293,23 @@ onIonViewWillEnter(async () => {
               {{ $t("user.leaves.detail.from") }}
             </p>
             <ion-input
-	            fill="outline"
-	            placeholder="From Date"
-	            readonly
-	            :class="{
-	              'ion-touched ion-invalid': errors.fromDate,
-	            }"
-	            :value="formatDate(selectedDates.from_date, 'DD-MM-YYYY')"
-	            @ion-focus="setDatePickerOpen(true)"
+              fill="outline"
+              placeholder="From Date"
+              readonly
+              :class="{
+                'ion-touched ion-invalid': errors.fromDate,
+              }"
+              :value="formatDate(selectedDates.from_date, 'DD-MM-YYYY')"
+              @ion-focus="setDatePickerOpen(true)"
             />
             <span
-	            class="leaves-create-label-required leaves-create-label__required"
-	            :class="{
-								'text-danger leaves-create-label__required-danger': errors.fromDate,
-							}"
+              class="leaves-create-label-required leaves-create-label__required"
+              :class="{
+                'text-danger leaves-create-label__required-danger':
+                  errors.fromDate,
+              }"
             >
-	            {{ $t("utils.required") }}
+              {{ $t("utils.required") }}
             </span>
           </ion-col>
           <ion-col size="6">
@@ -303,40 +317,41 @@ onIonViewWillEnter(async () => {
               {{ $t("user.leaves.detail.till") }}
             </p>
             <ion-input
-	            fill="outline"
-	            placeholder="Till Date"
-	            readonly
-	            :class="{
-	              'ion-touched ion-invalid': errors.toDate,
-	            }"
-	            :value="formatDate(selectedDates.to_date, 'DD-MM-YYYY')"
-	            @ion-focus="setDatePickerOpen(true)"
+              fill="outline"
+              placeholder="Till Date"
+              readonly
+              :class="{
+                'ion-touched ion-invalid': errors.toDate,
+              }"
+              :value="formatDate(selectedDates.to_date, 'DD-MM-YYYY')"
+              @ion-focus="setDatePickerOpen(true)"
             />
             <span
-	            class="leaves-create-label-required leaves-create-label__required"
-	            :class="{
-								'text-danger leaves-create-label__required-danger': errors.toDate,
-							}"
+              class="leaves-create-label-required leaves-create-label__required"
+              :class="{
+                'text-danger leaves-create-label__required-danger':
+                  errors.toDate,
+              }"
             >
-	            {{ $t("utils.required") }}
+              {{ $t("utils.required") }}
             </span>
           </ion-col>
         </ion-row>
-	      <Datepicker
-		      :lang="langStore.lang"
-		      :is-open="isDatePickerOpen"
-		      v-model="datePickerRange"
-		      @cancel="setDatePickerOpen(false)"
-		      @ok="onDatePickerOk"
-	      />
-	      
-	      <div class="ion-margin-top">
+        <Datepicker
+          :lang="langStore.lang"
+          :is-open="isDatePickerOpen"
+          v-model="datePickerRange"
+          @cancel="setDatePickerOpen(false)"
+          @ok="onDatePickerOk"
+        />
+
+        <div class="ion-margin-top">
           <p class="leaves-create-label leaves-create-label__required">
             {{ $t("user.leaves.detail.reason") }}
           </p>
           <ion-textarea
-	          v-model="selectedReason"
-	          :class="{
+            v-model="selectedReason"
+            :class="{
               'ion-touched ion-invalid': errors.reason,
             }"
             fill="outline"
@@ -344,30 +359,31 @@ onIonViewWillEnter(async () => {
             placeholder="Enter reason here"
           />
           <span
-	          class="leaves-create-label-required leaves-create-label__required"
-	          :class="{
-							'text-danger leaves-create-label__required-danger': errors.reason,
-						}"
+            class="leaves-create-label-required leaves-create-label__required"
+            :class="{
+              'text-danger leaves-create-label__required-danger': errors.reason,
+            }"
           >
-	          {{ $t("utils.required") }}
+            {{ $t("utils.required") }}
           </span>
         </div>
-	      
+
         <div class="ion-margin-top">
           <p
-	          class="leaves-create-label leaves-create-label__required"
-	          :class="{
-							'text-danger leaves-create-label__required-danger': errors.proofDocument,
-						}"
+            class="leaves-create-label leaves-create-label__required"
+            :class="{
+              'text-danger leaves-create-label__required-danger':
+                errors.proofDocument,
+            }"
           >
             {{ $t("user.leaves.create_leave.proof_document") }}
           </p>
-	        <span
-		        v-if="attachment.name"
-		        class="title-medium leaves-create-proof-document-name"
-	        >
-		        {{ attachment.name }}
-	        </span>
+          <span
+            v-if="attachment.name"
+            class="title-medium leaves-create-proof-document-name"
+          >
+            {{ attachment.name }}
+          </span>
           <ion-button
             shape="round"
             class="leaves-create-upload-button"
@@ -376,12 +392,12 @@ onIonViewWillEnter(async () => {
           >
             {{ $t("user.leaves.create_leave.upload_proof_document") }}
           </ion-button>
-	        <input
-		        ref="fileInput"
-		        class="ion-hide"
-		        type="file"
-		        @change="onFileUpload"
-	        />
+          <input
+            ref="fileInput"
+            class="ion-hide"
+            type="file"
+            @change="onFileUpload"
+          />
         </div>
 
         <div class="ion-margin-top leaves-create-summary-card">
@@ -389,21 +405,30 @@ onIonViewWillEnter(async () => {
             <p class="leaves-create-summary-card-label">
               {{ $t("user.leaves.create_leave.posting_date") }}
             </p>
-            <span class="leaves-create-summary-card-value">{{ formattedCurrentDate }}</span>
+            <span class="leaves-create-summary-card-value">{{
+              formattedCurrentDate
+            }}</span>
           </div>
 
           <div
-	          v-if="typeof selectedDateDifference === 'number'"
-	          class="leaves-create-summary-card-value-wrapper"
+            v-if="typeof selectedDateDifference === 'number'"
+            class="leaves-create-summary-card-value-wrapper"
           >
             <p class="leaves-create-summary-card-label">
               {{ $t("user.leaves.create_leave.total_leaves_days") }}
             </p>
-            <span class="leaves-create-summary-card-value">{{ selectedDateDifference }}</span>
+            <span class="leaves-create-summary-card-value">{{
+              selectedDateDifference
+            }}</span>
           </div>
         </div>
 
-        <ion-button shape="round" class="ion-margin-top" expand="block" @click="onSubmit">
+        <ion-button
+          shape="round"
+          class="ion-margin-top"
+          expand="block"
+          @click="onSubmit"
+        >
           {{ $t("user.leaves.create_leave.save_leaves_application") }}
         </ion-button>
       </div>
@@ -448,13 +473,13 @@ onIonViewWillEnter(async () => {
         content: "*";
         color: #8b9298;
       }
-	    
-	    &-danger {
-		    &:after {
-			    content: "*";
-			    color: #FFB4A9;
-		    }
-	    }
+
+      &-danger {
+        &:after {
+          content: "*";
+          color: #ffb4a9;
+        }
+      }
     }
   }
 
@@ -485,12 +510,12 @@ onIonViewWillEnter(async () => {
       color: #76d1ff;
     }
   }
-	
-	&-proof-document {
-		&-name {
-			color: #e0e3e3;
-		}
-	}
+
+  &-proof-document {
+    &-name {
+      color: #e0e3e3;
+    }
+  }
 
   &-summary-card {
     padding: 16px;

@@ -1,15 +1,16 @@
 <script setup>
 import {
-	IonButton,
-	IonContent,
-	IonPage,
-	IonText,
-	IonSegment,
-	IonSegmentButton,
-	IonRow,
-	IonLabel,
-	IonModal,
-	useIonRouter, onIonViewWillEnter,
+  IonButton,
+  IonContent,
+  IonPage,
+  IonText,
+  IonSegment,
+  IonSegmentButton,
+  IonRow,
+  IonLabel,
+  IonModal,
+  useIonRouter,
+  onIonViewWillEnter,
 } from "@ionic/vue";
 import LeavesHeader from "@/components/leaves/Header.vue";
 import { computed, nextTick, ref, shallowRef, watch } from "vue";
@@ -18,6 +19,7 @@ import IconPlus from "@/components/icon/Plus.vue";
 import ArrowRight from "@/components/icon/ArrowRight.vue";
 import IconCheck from "@/components/icon/Check.vue";
 import IconClose from "@/components/icon/Close.vue";
+import IconAccountClock from "@/components/icon/AccountClock.vue";
 import IconVisibility from "@/components/icon/Visibility.vue";
 import IconBlock from "@/components/icon/Block.vue";
 import leave from "@/api/leave";
@@ -33,74 +35,74 @@ const { showErrorToast } = useCustomToast();
 const { t } = useI18n();
 
 const LEAVE_RESPONSE_TYPE = {
-	MY_LEAVE: "my_leaves",
-	REPORTS_TO: "reports_to",
-}
+  MY_LEAVE: "my_leaves",
+  REPORTS_TO: "reports_to",
+};
 
 const showTypeLeaves = ref(LEAVE_RESPONSE_TYPE.MY_LEAVE);
 const openFilter = ref(false);
 const isOpenDatePicker = ref(false);
 
 const leaveStatuses = [
-	{
-		label: t("user.leaves.card.status.approved"),
-		value: `${LEAVE_STATUS.APPROVED}`
-	},
-	{
-		label: t("user.leaves.card.status.rejected"),
-		value: `${LEAVE_STATUS.REJECTED}`
-	},
-	{
-		label: t("user.leaves.card.status.cancelled"),
-		value: `${LEAVE_STATUS.CANCELLED}`
-	},
-	{
-		label: t("user.leaves.card.status.open"),
-		value: `${LEAVE_STATUS.OPEN}`
-	},
-]
-const selectedLeaveStatus = ref('')
-const showStatuses = shallowRef(true)
+  {
+    label: t("user.leaves.card.status.approved"),
+    value: `${LEAVE_STATUS.APPROVED}`,
+  },
+  {
+    label: t("user.leaves.card.status.rejected"),
+    value: `${LEAVE_STATUS.REJECTED}`,
+  },
+  {
+    label: t("user.leaves.card.status.cancelled"),
+    value: `${LEAVE_STATUS.CANCELLED}`,
+  },
+  {
+    label: t("user.leaves.card.status.open"),
+    value: `${LEAVE_STATUS.OPEN}`,
+  },
+];
+const selectedLeaveStatus = ref("");
+const showStatuses = shallowRef(true);
 watch(selectedLeaveStatus, () => {
-	showStatuses.value = false
-	nextTick(() => {
-		showStatuses.value = true
-	})
-})
-
-const selectedLeaveType = ref('')
-const showTypes = shallowRef(true)
-watch(selectedLeaveType, () => {
-	showTypes.value = false
-	nextTick(() => {
-		showTypes.value = true
-	})
-})
-const leaveOptions = ref([])
-const fetchLeaveTypes = async () => {
-	try {
-		const { data } = await leave.types({
-			employee_id: userStore.user?.employee_id,
-		});
-		
-		leaveOptions.value = data.data || []
-	} catch (error) {
-		showErrorToast(error.data?.error?.message || error.data?.error);
-	}
-}
-
-const myLeaves = ref([])
-const leavesReportsTo = ref([])
-const leaves = computed(() => {
-	if (showTypeLeaves.value === LEAVE_RESPONSE_TYPE.MY_LEAVE) {
-		return [...myLeaves.value]
-	}
-	
-	return [...leavesReportsTo.value]
+  showStatuses.value = false;
+  nextTick(() => {
+    showStatuses.value = true;
+  });
 });
-const formatDateToDisplay = (date) => {
-	return dayjs(date, "YYYY-MM-DD").format("DD-MM-YYYY")
-}
+
+const selectedLeaveType = ref("");
+const showTypes = shallowRef(true);
+watch(selectedLeaveType, () => {
+  showTypes.value = false;
+  nextTick(() => {
+    showTypes.value = true;
+  });
+});
+const leaveOptions = ref([]);
+const fetchLeaveTypes = async () => {
+  try {
+    const { data } = await leave.types({
+      employee_id: userStore.user?.employee_id,
+    });
+
+    leaveOptions.value = Object.keys(data.data) || [];
+  } catch (error) {
+    showErrorToast(error.data?.error?.message || error.data?.error);
+  }
+};
+
+const myLeaves = ref([]);
+const leavesReportsTo = ref([]);
+const leaves = computed(() => {
+  if (showTypeLeaves.value === LEAVE_RESPONSE_TYPE.MY_LEAVE) {
+    return [...myLeaves.value];
+  }
+
+  return [...leavesReportsTo.value];
+});
+const formatDateToDisplay = (date, format = "DD-MM-YYYY") => {
+  return dayjs(date, "YYYY-MM-DD").format(format);
+};
 
 const triggerBack = () => {
   router.push("/home");
@@ -110,46 +112,64 @@ const changeType = (e) => {
   showTypeLeaves.value = e.detail.value;
 };
 const onDismiss = () => {
-	openFilter.value = false
-	fetchLeaves()
-}
+  openFilter.value = false;
+  fetchLeaves();
+};
 const closeModal = (e) => {
   if (e.detail.breakpoint === 0) {
     openFilter.value = false;
   }
 };
 
+const resetFilters = () => {
+  selectedLeaveType.value = "";
+  selectedLeaveStatus.value = "";
+};
+
+const setLeaveType = (event) => {
+  if (event.detail.value === selectedLeaveType.value) {
+    selectedLeaveType.value = "";
+    return;
+  }
+  selectedLeaveType.value = event.detail.value;
+};
+
+const setLeaveStatus = (event) => {
+  if (event.detail.value === selectedLeaveStatus.value) {
+    selectedLeaveStatus.value = "";
+    return;
+  }
+  selectedLeaveStatus.value = event.detail.value;
+};
+
 const dateRange = ref({
-	// Means timestamp of zero, 1970-01-01
-	start: 0,
-	end: new Date(),
+  // Means timestamp of zero, 1970-01-01
+  start: 0,
+  end: new Date(),
 });
 const fetchLeaves = async () => {
-	try {
-		const { data } = await leave.getLeavesList({
-			employee_id: userStore.user?.employee_id,
-			from_date: dayjs(dateRange.value.start).format("YYYY-MM-DD"),
-			to_date: dayjs(dateRange.value.end).format("YYYY-MM-DD"),
-			leave_type: selectedLeaveType.value,
-			status: selectedLeaveStatus.value,
-		});
-		
-		myLeaves.value = data.data.my_leaves || [];
-		leavesReportsTo.value = data.data.reports_to || [];
-	} catch (error) {
-		showErrorToast(error.data?.error?.message || error.data?.error);
-		myLeaves.value = [];
-		leavesReportsTo.value = [];
-	} finally {
-		isOpenDatePicker.value = false;
-	}
+  try {
+    const { data } = await leave.getLeavesList({
+      employee_id: userStore.user?.employee_id,
+      from_date: dayjs(dateRange.value.start).format("YYYY-MM-DD"),
+      to_date: dayjs(dateRange.value.end).format("YYYY-MM-DD"),
+      leave_type: selectedLeaveType.value,
+      status: selectedLeaveStatus.value,
+    });
+
+    myLeaves.value = data.data.my_leaves || [];
+    leavesReportsTo.value = data.data.reports_to || [];
+  } catch (error) {
+    showErrorToast(error.data?.error?.message || error.data?.error);
+    myLeaves.value = [];
+    leavesReportsTo.value = [];
+  } finally {
+    isOpenDatePicker.value = false;
+  }
 };
 
 onIonViewWillEnter(async () => {
-	await Promise.all([
-		fetchLeaves(),
-		fetchLeaveTypes(),
-	])
+  await Promise.all([fetchLeaves(), fetchLeaveTypes()]);
 });
 </script>
 
@@ -198,37 +218,47 @@ onIonViewWillEnter(async () => {
           class="leaves ion-align-items-center ion-justify-content-between"
         >
           <ion-row class="leaves-content ion-align-items-center">
-            <div
-	            v-if="leave.workflow_state"
-	            class="leaves-icon-wrapper"
-            >
-              <IconCheck
-	              v-if="leave.workflow_state === LEAVE_STATUS.APPROVED"
-	              class="leaves-icon"
-                :class="`leaves-status__${leave.workflow_state}`"
-              />
-              <IconClose
-	              v-if="leave.workflow_state === LEAVE_STATUS.REJECTED"
-	              class="leaves-icon"
-                :class="`leaves-status__${leave.workflow_state}`"
-              />
-              <IconVisibility
-	              v-if="leave.workflow_state === LEAVE_STATUS.PENDING"
-	              class="leaves-icon"
-                :class="`leaves-status__${leave.workflow_state}`"
-              />
-              <IconBlock
-	              v-if="leave.workflow_state === LEAVE_STATUS.CANCELLED"
-	              class="leaves-icon"
-                :class="`leaves-status__${leave.workflow_state}`"
-              />
-              <p v-if="leave.leave_type === 'Sick Leave'" class="leaves-type">
-                {{ $t(`user.leaves.card.type.${leave.leave_type.toLowerCase().replaceAll(' ', '_')}`) }}
-              </p>
-            </div>
-            <div>
+            <ion-col size="3">
+              <div v-if="leave.workflow_state" class="leaves-icon-wrapper">
+                <IconAccountClock
+                  v-if="leave.workflow_state === LEAVE_STATUS.OPEN"
+                  class="leaves-icon"
+                  :class="`leaves-status__${leave.workflow_state}`"
+                />
+                <IconCheck
+                  v-if="leave.workflow_state === LEAVE_STATUS.APPROVED"
+                  class="leaves-icon"
+                  :class="`leaves-status__${leave.workflow_state}`"
+                />
+                <IconClose
+                  v-if="leave.workflow_state === LEAVE_STATUS.REJECTED"
+                  class="leaves-icon"
+                  :class="`leaves-status__${leave.workflow_state}`"
+                />
+                <IconVisibility
+                  v-if="leave.workflow_state === LEAVE_STATUS.PENDING"
+                  class="leaves-icon"
+                  :class="`leaves-status__${leave.workflow_state}`"
+                />
+                <IconBlock
+                  v-if="leave.workflow_state === LEAVE_STATUS.CANCELLED"
+                  class="leaves-icon"
+                  :class="`leaves-status__${leave.workflow_state}`"
+                />
+                <p class="leaves-type">
+                  {{
+                    $t(
+                      `user.leaves.card.type.${leave.leave_type.toLowerCase().replaceAll(" ", "_")}`,
+                    )
+                  }}
+                </p>
+              </div>
+            </ion-col>
+            <div class="leaves-content-wrapper">
               <p class="leaves-label-white">
-                <span :class="`leaves-status__${leave.workflow_state}`">{{ leave.workflow_state }}</span>
+                <span :class="`leaves-status__${leave.workflow_state}`">{{
+                  leave.workflow_state
+                }}</span>
                 - {{ leave.name }}
               </p>
               <p class="leaves-label-white">
@@ -245,12 +275,9 @@ onIonViewWillEnter(async () => {
                 <span class="leaves-label"
                   >{{ $t("user.leaves.card.date_posted") }}:</span
                 >
-                {{ formatDateToDisplay(leave.posting_date) }}
+                {{ formatDateToDisplay(leave.posting_date, "DD MMM, YYYY") }}
               </p>
-              <p
-	              v-if="leave.leave_approver_name"
-	              class="leaves-label-white"
-              >
+              <p v-if="leave.leave_approver_name" class="leaves-label-white">
                 <span class="leaves-label"
                   >{{ $t("user.leaves.card.approver") }}:</span
                 >
@@ -288,43 +315,44 @@ onIonViewWillEnter(async () => {
                 fill="clear"
                 color="light"
                 class="leaves-filter-modal-close-button"
+                @click="openFilter = false"
               >
-                <IconClose @click="openFilter = false" />
+                <IconClose />
               </ion-button>
-              <p>Filter</p>
+              <p>
+                {{ $t("utils.filter") }}
+              </p>
             </ion-row>
-            <ion-button fill="clear">Reset</ion-button>
+            <ion-button fill="clear" @click="resetFilters">
+              {{ $t("utils.reset") }}
+            </ion-button>
           </ion-row>
           <div>
             <div>
-              <p class="leaves-filter-checkbox-list-title">Leave type</p>
-              <div
-	              v-if="showTypes"
-	              class="leaves-filter-checkbox-list"
-              >
+              <p class="leaves-filter-checkbox-list-title">
+                {{ $t("user.leaves.leave_type") }}
+              </p>
+              <div v-if="showTypes" class="leaves-filter-checkbox-list">
                 <ion-checkbox
                   v-for="leaveOption in leaveOptions"
                   :checked="selectedLeaveType === leaveOption"
                   :key="leaveOption"
                   :value="leaveOption"
-                  @ionChange="selectedLeaveType = leaveOption"
+                  @ionChange="setLeaveType($event)"
                 >
-	                {{ leaveOption }}
+                  {{ leaveOption }}
                 </ion-checkbox>
               </div>
               <p class="leaves-filter-checkbox-list-title">Status</p>
-              <div
-	              v-if="showStatuses"
-	              class="leaves-filter-checkbox-list"
-              >
+              <div v-if="showStatuses" class="leaves-filter-checkbox-list">
                 <ion-checkbox
-	                v-for="leaveStatus in leaveStatuses"
-	                :checked="selectedLeaveStatus === leaveStatus.value"
-	                :key="leaveStatus.value"
-	                :value="leaveStatus.value"
-	                @ionChange="selectedLeaveStatus = leaveStatus.value"
+                  v-for="leaveStatus in leaveStatuses"
+                  :checked="selectedLeaveStatus === leaveStatus.value"
+                  :key="leaveStatus.value"
+                  :value="leaveStatus.value"
+                  @ionChange="setLeaveStatus($event)"
                 >
-	                {{ leaveStatus.label }}
+                  {{ leaveStatus.label }}
                 </ion-checkbox>
               </div>
             </div>
@@ -444,6 +472,7 @@ onIonViewWillEnter(async () => {
   .leaves-content {
     flex-wrap: nowrap;
     gap: 12px;
+    flex-grow: 1;
   }
 
   .leaves-label {
@@ -462,6 +491,7 @@ onIonViewWillEnter(async () => {
   }
 
   &-redirect-button {
+    --padding-end: 10px;
     --color: #d9d9d9;
   }
 }
@@ -484,6 +514,16 @@ onIonViewWillEnter(async () => {
 
   &-label {
     margin: 16px 0 16px 12px;
+  }
+}
+
+.leaves-content-wrapper {
+  p {
+    letter-spacing: 0.5px;
+  }
+
+  p:not(:first-child) {
+    margin-top: 4px;
   }
 }
 
