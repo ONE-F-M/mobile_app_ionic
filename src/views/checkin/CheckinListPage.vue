@@ -1,13 +1,13 @@
 <script setup async>
 import {
-	IonContent,
-	IonButton,
-	IonText,
-	IonPage,
-	IonCol,
-	IonRow,
-	useIonRouter,
-	onIonViewWillEnter,
+  IonContent,
+  IonButton,
+  IonText,
+  IonPage,
+  IonCol,
+  IonRow,
+  useIonRouter,
+  onIonViewWillEnter,
 } from "@ionic/vue";
 
 import IconPlus from "@/components/icon/Plus.vue";
@@ -35,22 +35,22 @@ const isOpenDatePicker = ref(false);
 const logType = ref("");
 const coordinates = ref("");
 const printCurrentPosition = async () => {
-	coordinates.value = await Geolocation.getCurrentPosition({
-		enableHighAccuracy: true,
-	});
+  coordinates.value = await Geolocation.getCurrentPosition({
+    enableHighAccuracy: true,
+  });
 };
 const getSiteLocation = async () => {
-	try {
-		const { data } = await checkin.getSiteLocation({
-			employee_id: userStore.user?.employee_id,
-			latitude: coordinates.value?.coords?.latitude,
-			longitude: coordinates.value?.coords?.longitude,
-		});
-		
-		logType.value = data.data.log_type;
-	} catch (error) {
-		// do nothing, expected
-	}
+  try {
+    const { data } = await checkin.getSiteLocation({
+      employee_id: userStore.user?.employee_id,
+      latitude: coordinates.value?.coords?.latitude,
+      longitude: coordinates.value?.coords?.longitude,
+    });
+
+    logType.value = data.data.log_type;
+  } catch (error) {
+    // do nothing, expected
+  }
 };
 
 const dateRange = ref({
@@ -68,7 +68,7 @@ const fetchCheckinList = async (defaults = {}) => {
       employee_id: userStore.user?.employee_id,
       from_date: dayjs(dateRange.value.start).format("YYYY-MM-DD"),
       to_date: dayjs(dateRange.value.end).format("YYYY-MM-DD"),
-	    ...defaults,
+      ...defaults,
     });
 
     checkInList.value = data.data;
@@ -82,23 +82,23 @@ const fetchCheckinList = async (defaults = {}) => {
 
 const { t } = useI18n();
 onIonViewWillEnter(async () => {
-	await fetchCheckinList({
-		from_date: dayjs(0).format("YYYY-MM-DD"),
-		to_date: dayjs(new Date()).format("YYYY-MM-DD"),
-	});
-	
-	dateRange.value.start = new Date();
-	dateRange.value.end = new Date();
-	
-	try {
-		await printCurrentPosition();
-	} catch (e) {
-		showErrorToast(t("user.checkin.geolocation.title"));
-		return
-	}
-	
-	await getSiteLocation();
-})
+  await fetchCheckinList({
+    from_date: dayjs(0).format("YYYY-MM-DD"),
+    to_date: dayjs(new Date()).format("YYYY-MM-DD"),
+  });
+
+  dateRange.value.start = new Date();
+  dateRange.value.end = new Date();
+
+  try {
+    await printCurrentPosition();
+  } catch (e) {
+    showErrorToast(t("user.checkin.geolocation.title"));
+    return;
+  }
+
+  await getSiteLocation();
+});
 </script>
 
 <template>
@@ -120,52 +120,51 @@ onIonViewWillEnter(async () => {
           >
         </ion-row>
 
-	      <div class="checkin-page-table-content-wrapper">
-		      <ion-row
-			      v-for="check in checkInList"
-			      :key="check.name"
-			      class="checkin-page-table-content-row"
-		      >
-			      <ion-col>
-				      <div class="checkin-page-name-wrapper">
-					      <p class="checkin-page-name">{{ check.employee_name }}</p>
-					      <p class="checkin-page-duration">
-						      {{ dayjs(check.time).locale(langStore.lang).toNow(true) }}
-					      </p>
-				      </div>
-			      </ion-col>
-			      <ion-col size="auto" class="align-cols-end">
-				      <div>
-					      <p class="checkin-page-date">
-						      {{ formatDate(check.time, "DD/MM/YY") }}
-					      </p>
-					      <p class="checkin-page-time">
-						      {{ formatDate(check.time, "hh:mm A") }}
-					      </p>
-				      </div>
-			      </ion-col>
-			      <ion-col size="3" class="align-cols-end">
-				      <div
-					      class="checkin-page-status"
-					      :class="`checkin-page-status-${check.log_type}`"
-				      >
-					      {{ check.log_type }}
-				      </div>
-			      </ion-col>
-		      </ion-row>
-	      </div>
+        <div class="checkin-page-table-content-wrapper">
+          <ion-row
+            v-for="check in checkInList"
+            :key="check.name"
+            class="checkin-page-table-content-row"
+          >
+            <ion-col>
+              <div class="checkin-page-name-wrapper">
+                <p class="checkin-page-name">{{ check.employee_name }}</p>
+                <p class="checkin-page-duration">
+                  {{ dayjs(check.time).locale(langStore.lang).toNow(true) }}
+                </p>
+              </div>
+            </ion-col>
+            <ion-col size="auto" class="align-cols-end">
+              <div>
+                <p class="checkin-page-date">
+                  {{ formatDate(check.time, "DD/MM/YY") }}
+                </p>
+                <p class="checkin-page-time">
+                  {{ formatDate(check.time, "hh:mm A") }}
+                </p>
+              </div>
+            </ion-col>
+            <ion-col size="3" class="align-cols-end">
+              <div
+                class="checkin-page-status"
+                :class="`checkin-page-status-${check.log_type}`"
+              >
+                {{ check.log_type }}
+              </div>
+            </ion-col>
+          </ion-row>
+        </div>
       </div>
 
-	    <Datepicker
-		    :lang="langStore.lang"
-		    :is-open="isOpenDatePicker"
-		    v-model="dateRange"
-		    @cancel="isOpenDatePicker = false"
-		    @ok="() => fetchCheckinList()"
-	    />
+      <Datepicker
+        :lang="langStore.lang"
+        :is-open="isOpenDatePicker"
+        v-model="dateRange"
+        @cancel="isOpenDatePicker = false"
+        @ok="() => fetchCheckinList()"
+      />
 
       <ion-button
-	      v-if="logType"
         class="checkin-add-button"
         @click="router.push('/checkin/geolocation')"
       >
@@ -173,10 +172,10 @@ onIonViewWillEnter(async () => {
         <ion-text>
           <p class="checkin-add-button-label">
             {{
-		          logType === "IN"
-			          ? $t("user.checkin.checkin")
-			          : $t("user.checkin.checkout")
-	          }}
+              logType === "IN"
+                ? $t("user.checkin.checkin")
+                : $t("user.checkin.checkout")
+            }}
           </p>
         </ion-text>
       </ion-button>
@@ -202,18 +201,18 @@ p {
     z-index: 1;
     background: #191c1d;
   }
-	
-	&-table-wrapper {
-		margin: 22px -4px 0;
-	}
-	
-	&-table-content-wrapper {
-		margin-top: 6px;
-	}
-	
-	&-table-content-row {
-		margin-bottom: 2px;
-	}
+
+  &-table-wrapper {
+    margin: 22px -4px 0;
+  }
+
+  &-table-content-wrapper {
+    margin-top: 6px;
+  }
+
+  &-table-content-row {
+    margin-bottom: 2px;
+  }
 
   &-table-label {
     font-size: 0.875rem;
@@ -272,6 +271,7 @@ p {
   position: fixed;
   bottom: 24px;
   right: 16px;
+  z-index: 10;
   --background: #004c69;
   --background-hover: #014662;
   --background-activated: #004d6c;

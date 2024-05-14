@@ -7,4 +7,6 @@ export default {
   cancel: "Cancel",
   ok: "Ok",
   required: "required",
+  reset: "Reset",
+  filter: "Filter",
 };
