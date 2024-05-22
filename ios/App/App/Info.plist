@@ -53,5 +53,9 @@
 	<string>Privacy - Photo Library Usage Description</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Privacy - Location When In Use Usage Description</string>
+	<key>UIFileSharingEnabled</key>
+    <string>Application supports iTunes file sharing</string>
+    <key>LSSupportsOpeningDocumentsInPlace</key>
+    <string>Supports opening documents in place</string>
 </dict>
 </plist>
