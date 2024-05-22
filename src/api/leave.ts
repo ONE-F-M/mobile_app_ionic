@@ -48,6 +48,9 @@ const details = async (params: LeaveDetailsParams) =>
 const profDocument = async (params: LeaveDetailsParams) =>
   await http.get(`v1.leave_application.fetch_proof_document`, { params });
 
+const updateLeaveStatus = async (params: LeaveDetailsParams) =>
+  await http.post(`v1.leave_application.leave_approver_action`, { params });
+
 export default {
   getLeavesList,
   createLeave,
@@ -55,4 +58,5 @@ export default {
   types,
   details,
   profDocument,
+  updateLeaveStatus,
 };
