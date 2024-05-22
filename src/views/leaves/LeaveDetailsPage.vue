@@ -40,7 +40,6 @@ const writeProofFile = async () => {
     path: `${proofDocumentName.value}`,
     data: documentContent.value,
     directory: Directory.Documents,
-    encoding: Encoding.ASCII,
   });
 };
 const fetchLeave = async () => {
