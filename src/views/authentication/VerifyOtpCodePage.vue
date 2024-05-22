@@ -36,7 +36,7 @@ const secondsCounter = () => {
     return;
   }
 
-  seconds.value -= 20;
+  seconds.value -= 1;
 };
 
 const initSecondsCounter = () => {

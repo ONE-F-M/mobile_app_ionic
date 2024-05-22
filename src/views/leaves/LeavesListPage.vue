@@ -277,11 +277,23 @@ onIonViewWillEnter(async () => {
                 >
                 {{ formatDateToDisplay(leave.posting_date, "DD MMM, YYYY") }}
               </p>
-              <p v-if="leave.leave_approver_name" class="leaves-label-white">
+              <p
+                v-if="
+                  leave.leave_approver_name &&
+                  showTypeLeaves === LEAVE_RESPONSE_TYPE.MY_LEAVE
+                "
+                class="leaves-label-white"
+              >
                 <span class="leaves-label"
                   >{{ $t("user.leaves.card.approver") }}:</span
                 >
                 {{ leave.leave_approver_name }}
+              </p>
+              <p
+                v-if="showTypeLeaves === LEAVE_RESPONSE_TYPE.REPORTS_TO"
+                class="leaves-label-white"
+              >
+                {{ leave.employee_name }}
               </p>
             </div>
           </ion-row>
