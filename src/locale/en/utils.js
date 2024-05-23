@@ -9,4 +9,6 @@ export default {
   required: "required",
   reset: "Reset",
   filter: "Filter",
+  back: "Back",
+  confirm: "Confirm",
 };

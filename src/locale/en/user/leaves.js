@@ -52,4 +52,9 @@ export default {
     total_leaves_days: "Total Leaves Days",
     save_leaves_application: "Save Leaves Application",
   },
+  change_status: {
+    accept_leave: "Accept Leave",
+    reject_leave: "Reject leave",
+    confirm_text: "Are you sure you want to accept leave request",
+  },
 };

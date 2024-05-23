@@ -10,7 +10,7 @@ import configuration from "@/api/configuration";
 import { useCustomToast } from "@/composable/toast";
 import { ref } from "vue";
 import Header from "@/components/Header.vue";
-import {useAuthStore} from "@/store/auth.js";
+import { useAuthStore } from "@/store/auth.js";
 
 const router = useIonRouter();
 const userStore = useUserStore();
@@ -36,6 +36,9 @@ const goToServicePage = (service) => {
       break;
     case "Leaves":
       router.push("/leaves");
+      break;
+    case "New Leave Application":
+      router.push("/leaves/add");
       break;
     default:
       break;
@@ -77,7 +80,7 @@ onIonViewDidEnter(() => {
           </div>
         </div>
       </div>
-      <input type="text" :value="authStore.fcmToken">
+      <input type="text" :value="authStore.fcmToken" />
     </ion-content>
   </ion-page>
 </template>
@@ -94,7 +97,7 @@ onIonViewDidEnter(() => {
   display: flex;
   flex-wrap: wrap;
   margin-left: -4px;
-	margin-top: 12px;
+  margin-top: 12px;
   width: calc(100% + 8px);
 
   &-item {
@@ -124,13 +127,13 @@ onIonViewDidEnter(() => {
     }
 
     &-label {
-	    color: #E0E3E3;
-      max-width: 65px;
+      color: #e0e3e3;
+      max-width: 73px;
       margin-top: 8px;
       text-align: center;
       font-size: 14px;
       line-height: 20px;
-	    font-weight: 300;
+      font-weight: 300;
     }
   }
 }

@@ -1,7 +1,10 @@
 <script setup>
 import {
+  IonButton,
   IonContent,
+  IonModal,
   IonPage,
+  IonRow,
   onIonViewWillEnter,
   useIonRouter,
 } from "@ionic/vue";
@@ -14,13 +17,20 @@ import { useCustomToast } from "@/composable/toast";
 import useDateHelper from "@/composable/useDateHelper";
 import dayjs from "dayjs";
 import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
+import { storeToRefs } from "pinia";
+import IconLeave from "@/components/icon/Leave.vue";
 
 const { formatDate } = useDateHelper();
 const router = useIonRouter();
 const userStore = useUserStore();
+const { user } = storeToRefs(userStore);
 const { showErrorToast } = useCustomToast();
 const route = useRoute();
 
+const { showSuccessToast } = useCustomToast();
+
+const showAcceptModal = ref(false);
+const showRejectModal = ref(false);
 const triggerBack = () => {
   router.push("/leaves");
 };
@@ -33,14 +43,16 @@ const formatDateToDisplay = (date) => {
   return dayjs(date, "YYYY-MM-DD").format("DD MMM, YYYY");
 };
 
-const contents = ref("");
-
 const writeProofFile = async () => {
   await Filesystem.writeFile({
     path: `${proofDocumentName.value}`,
     data: documentContent.value,
     directory: Directory.Documents,
   });
+
+  showSuccessToast(
+    "The file has been successfully downloaded to your documents on device",
+  );
 };
 const fetchLeave = async () => {
   try {
@@ -65,6 +77,39 @@ const fetchProfDocument = async () => {
     });
 
     documentContent.value = data.data.content;
+  } catch (error) {
+    showErrorToast(error.data?.error?.message || error.data?.error);
+  }
+};
+const rejectLeave = async () => {
+  try {
+    await leave.updateLeaveStatus({
+      leave_id: route.params.id,
+      status: "Rejected",
+    });
+
+    showRejectModal.value = false;
+    router.push({
+      name: "leaves-list",
+    });
+    showSuccessToast("Leave rejected successfully");
+  } catch (error) {
+    showErrorToast(error.data?.error?.message || error.data?.error);
+  }
+};
+
+const acceptLeave = async () => {
+  try {
+    await leave.updateLeaveStatus({
+      leave_id: route.params.id,
+      status: "Approved",
+    });
+
+    showAcceptModal.value = false;
+    router.push({
+      name: "leaves-list",
+    });
+    showSuccessToast("Leave accepted successfully");
   } catch (error) {
     showErrorToast(error.data?.error?.message || error.data?.error);
   }
@@ -192,8 +237,97 @@ onIonViewWillEnter(async () => {
             </ion-row>
           </div>
         </template>
+
+        <ion-row
+          class="ion-margin-top"
+          v-if="
+            leaveDetails.status === 'Open' &&
+            user.user === leaveDetails.leave_approver
+          "
+        >
+          <ion-col>
+            <ion-button
+              color="danger"
+              expand="block"
+              shape="round"
+              @click="showRejectModal = true"
+            >
+              Reject Leave
+            </ion-button>
+          </ion-col>
+          <ion-col>
+            <ion-button
+              color="success"
+              expand="block"
+              shape="round"
+              @click="showAcceptModal = true"
+            >
+              Accept Leave
+            </ion-button>
+          </ion-col>
+        </ion-row>
       </div>
     </ion-content>
+
+    <ion-modal :is-open="showAcceptModal">
+      <ion-row
+        class="leave-confirm-location ion-align-items-center ion-justify-content-center"
+      >
+        <div class="leave-confirm-card">
+          <div class="leave-confirm-card-icon-wrapper-accept">
+            <IconLeave />
+          </div>
+          <p class="leave-confirm-card-title">
+            {{ $t("user.leaves.change_status.accept_leave") }}
+          </p>
+          <p class="leave-confirm-card-description">
+            {{ $t("user.leaves.change_status.confirm_text") }}
+          </p>
+          <ion-row class="ion-justify-content-end">
+            <ion-button
+              @click="showAcceptModal = false"
+              class="leave-confirm-card-back"
+              fill="clear"
+            >
+              {{ $t("utils.back") }}
+            </ion-button>
+            <ion-button fill="clear" color="success" @click="acceptLeave">
+              {{ $t("utils.confirm") }}
+            </ion-button>
+          </ion-row>
+        </div>
+      </ion-row>
+    </ion-modal>
+
+    <ion-modal :is-open="showRejectModal">
+      <ion-row
+        class="leave-confirm-location ion-align-items-center ion-justify-content-center"
+      >
+        <div class="leave-confirm-card">
+          <div class="leave-confirm-card-icon-wrapper-reject">
+            <IconLeave />
+          </div>
+          <p class="leave-confirm-card-title">
+            {{ $t("user.leaves.change_status.reject_leave") }}
+          </p>
+          <p class="leave-confirm-card-description">
+            {{ $t("user.leaves.change_status.confirm_text") }}
+          </p>
+          <ion-row class="ion-justify-content-end">
+            <ion-button
+              @click="showRejectModal = false"
+              class="leave-confirm-card-back"
+              fill="clear"
+            >
+              {{ $t("utils.back") }}
+            </ion-button>
+            <ion-button fill="clear" color="danger" @click="rejectLeave">
+              {{ $t("utils.confirm") }}
+            </ion-button>
+          </ion-row>
+        </div>
+      </ion-row>
+    </ion-modal>
   </ion-page>
 </template>
 
@@ -275,6 +409,58 @@ onIonViewWillEnter(async () => {
       margin: 0 0 0 4px;
       word-break: break-word;
     }
+  }
+}
+
+.leave-confirm-location {
+  height: 100%;
+}
+
+.leave-confirm-card {
+  margin: 8px 20px;
+  padding: 18px 16px 10px;
+  background: #233036;
+  border-radius: 28px;
+
+  &-icon-wrapper-reject {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 48px;
+    width: 48px;
+    margin: 0 auto;
+    background: #ffb3ac;
+    color: #68000a;
+    border-radius: 50%;
+  }
+
+  &-icon-wrapper-accept {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 48px;
+    width: 48px;
+    margin: 0 auto;
+    background: #52e169;
+    color: #00390c;
+    border-radius: 50%;
+  }
+
+  &-title {
+    text-align: center;
+    font-size: 1.5rem;
+    line-height: 2rem;
+    color: #e0e3e3;
+  }
+
+  &-description {
+    font-size: 0.925rem;
+    line-height: 1rem;
+    color: #c0c7cd;
+  }
+
+  &-back {
+    color: #c0c7cd;
   }
 }
 </style>
