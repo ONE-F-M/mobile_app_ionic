@@ -18,7 +18,7 @@ const getCheckinList = async (payload: GetCheckinListPayload) =>
   });
 
 const verifyCheckin = async (payload: LocationPayload) =>
-  await httpService.post(`face_recognition.verify_checkin_checkout`, {
+  await httpService.post(`v1.face_recognition.verify_checkin_checkout`, {
     data: payload,
   });
 
