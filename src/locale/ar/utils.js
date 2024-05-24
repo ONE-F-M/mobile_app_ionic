@@ -11,4 +11,5 @@ export default {
   filter: "Filter",
   back: "Back",
   confirm: "Confirm",
+  view: "View",
 };

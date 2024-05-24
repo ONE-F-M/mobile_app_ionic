@@ -4,6 +4,10 @@ import {
   IonSelect,
   IonTextarea,
   IonPage,
+  IonRow,
+  IonSelectOption,
+  IonButton,
+  IonCol,
   useIonRouter,
   IonInput,
   onIonViewWillEnter,
@@ -125,6 +129,8 @@ const attachment = ref({
   name: null,
   base64: null,
 });
+
+const file = ref(null);
 const onFileUpload = async (event) => {
   try {
     const file = event.target.files[0];
@@ -168,11 +174,16 @@ const clearForm = () => {
   selectedReason.value = "";
   attachment.value.name = null;
   attachment.value.base64 = null;
+  file.value = null;
 };
 const onSubmit = async () => {
   const isValidForm = validateForm();
   if (!isValidForm) {
     return;
+  }
+
+  if (leaveBalance.value.remaining_leaves - selectedDateDifference.value < 0) {
+    return showErrorToast("You don't have enough leaves to apply");
   }
 
   try {
