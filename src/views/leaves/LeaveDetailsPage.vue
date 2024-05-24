@@ -5,6 +5,7 @@ import {
   IonModal,
   IonPage,
   IonRow,
+  IonSpinner,
   onIonViewWillEnter,
   useIonRouter,
 } from "@ionic/vue";
@@ -16,7 +17,7 @@ import leave from "@/api/leave";
 import { useCustomToast } from "@/composable/toast";
 import useDateHelper from "@/composable/useDateHelper";
 import dayjs from "dayjs";
-import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
+import { Filesystem, Directory } from "@capacitor/filesystem";
 import { storeToRefs } from "pinia";
 import IconLeave from "@/components/icon/Leave.vue";
 
@@ -31,6 +32,7 @@ const { showSuccessToast } = useCustomToast();
 
 const showAcceptModal = ref(false);
 const showRejectModal = ref(false);
+const isLoading = ref(false);
 const triggerBack = () => {
   router.push("/leaves");
 };
@@ -78,11 +80,12 @@ const fetchProfDocument = async () => {
 
     documentContent.value = data.data.content;
   } catch (error) {
-    showErrorToast(error.data?.error?.message || error.data?.error);
+    console.error(error);
   }
 };
 const rejectLeave = async () => {
   try {
+    isLoading.value = true;
     await leave.updateLeaveStatus({
       leave_id: route.params.id,
       status: "Rejected",
@@ -95,11 +98,14 @@ const rejectLeave = async () => {
     showSuccessToast("Leave rejected successfully");
   } catch (error) {
     showErrorToast(error.data?.error?.message || error.data?.error);
+  } finally {
+    isLoading.value = false;
   }
 };
 
 const acceptLeave = async () => {
   try {
+    isLoading.value = true;
     await leave.updateLeaveStatus({
       leave_id: route.params.id,
       status: "Approved",
@@ -112,6 +118,8 @@ const acceptLeave = async () => {
     showSuccessToast("Leave accepted successfully");
   } catch (error) {
     showErrorToast(error.data?.error?.message || error.data?.error);
+  } finally {
+    isLoading.value = false;
   }
 };
 
@@ -213,30 +221,32 @@ onIonViewWillEnter(async () => {
           </div>
         </div>
 
-        <template v-if="proofDocumentName">
-          <p class="leaves-details-proof-title">
-            {{ $t("user.leaves.detail.document_proof") }}
-          </p>
-          <div class="leaves-details-proof-card">
-            <ion-row class="ion-align-items-center ion-justify-content-between">
-              <ion-row
-                class="ion-align-items-center leaves-details-proof-card-wrapper"
-              >
-                <img
-                  src="/image/icon/leaves/jpg-file.png"
-                  alt="file type"
-                  class="leaves-details-proof-card-image"
-                />
-                <p class="leaves-details-proof-card-file-name">
-                  {{ proofDocumentName }}
-                </p>
-              </ion-row>
-              <ion-button @click="writeProofFile" fill="clear">
-                View
-              </ion-button>
+        <p class="leaves-details-proof-title">
+          {{ $t("user.leaves.detail.document_proof") }}
+        </p>
+        <div class="leaves-details-proof-card">
+          <ion-row
+            class="ion-align-items-center ion-justify-content-between ion-nowrap"
+            v-if="proofDocumentName"
+          >
+            <ion-row
+              class="ion-align-items-center leaves-details-proof-card-wrapper"
+            >
+              <img
+                src="/image/icon/leaves/jpg-file.png"
+                alt="file type"
+                class="leaves-details-proof-card-image"
+              />
+              <p class="leaves-details-proof-card-file-name">
+                {{ proofDocumentName }}
+              </p>
             </ion-row>
-          </div>
-        </template>
+            <ion-button @click="writeProofFile" fill="clear">
+              {{ $t("utils.view") }}
+            </ion-button>
+          </ion-row>
+          <p v-else>We can't fetch proof document</p>
+        </div>
 
         <ion-row
           class="ion-margin-top"
@@ -288,11 +298,13 @@ onIonViewWillEnter(async () => {
               @click="showAcceptModal = false"
               class="leave-confirm-card-back"
               fill="clear"
+              :disabled="isLoading"
             >
               {{ $t("utils.back") }}
             </ion-button>
             <ion-button fill="clear" color="success" @click="acceptLeave">
-              {{ $t("utils.confirm") }}
+              <ion-spinner v-if="isLoading" name="crescent"></ion-spinner>
+              <span v-else>{{ $t("utils.confirm") }}</span>
             </ion-button>
           </ion-row>
         </div>
@@ -318,11 +330,13 @@ onIonViewWillEnter(async () => {
               @click="showRejectModal = false"
               class="leave-confirm-card-back"
               fill="clear"
+              :disabled="isLoading"
             >
               {{ $t("utils.back") }}
             </ion-button>
             <ion-button fill="clear" color="danger" @click="rejectLeave">
-              {{ $t("utils.confirm") }}
+              <ion-spinner v-if="isLoading" name="crescent"></ion-spinner>
+              <span v-else>{{ $t("utils.confirm") }}</span>
             </ion-button>
           </ion-row>
         </div>
