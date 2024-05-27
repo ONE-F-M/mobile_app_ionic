@@ -44,6 +44,7 @@ watch(selectedReason, () => {
 });
 
 const leaveOptions = ref([]);
+const requiredProofDocument = ref({});
 const fetchLeaveTypes = async () => {
   try {
     const { data } = await leave.types({
@@ -51,6 +52,7 @@ const fetchLeaveTypes = async () => {
     });
 
     leaveOptions.value = Object.keys(data.data) || [];
+    requiredProofDocument.value = data.data;
   } catch (error) {
     showErrorToast(error.data?.error?.message || error.data?.error);
   }
@@ -133,12 +135,14 @@ const attachment = ref({
 const file = ref(null);
 const onFileUpload = async (event) => {
   try {
-    const file = event.target.files[0];
+    const uploadFile = event.target.files[0];
 
-    attachment.value.base64 = await toBase64(file);
-    attachment.value.name = file.name;
+    attachment.value.base64 = await toBase64(uploadFile);
+    attachment.value.name = uploadFile.name;
 
     errors.proofDocument = false;
+
+    fileInput.value.value = null;
   } catch (e) {
     console.error(e);
     showErrorToast("Failed to upload a file");
@@ -157,7 +161,12 @@ const validateForm = () => {
   errors.fromDate = !selectedDates.from_date;
   errors.toDate = !selectedDates.to_date;
   errors.reason = !selectedReason.value;
-  errors.proofDocument = !attachment.value.base64;
+
+  if (!requiredProofDocument.value[selectedLeaveType.value]) {
+    errors.proofDocument = false;
+  } else {
+    errors.proofDocument = !attachment.value.base64;
+  }
 
   return (
     !errors.leaveType &&
@@ -178,6 +187,8 @@ const clearForm = () => {
 };
 const onSubmit = async () => {
   const isValidForm = validateForm();
+
+  console.log("isValidForm", isValidForm);
   if (!isValidForm) {
     return;
   }
@@ -187,17 +198,23 @@ const onSubmit = async () => {
   }
 
   try {
-    await leave.createLeave({
+    const data = {
       employee_id: userStore.user?.employee_id,
       from_date: dayjs(selectedDates.from_date).format("YYYY-MM-DD"),
       leave_type: selectedLeaveType.value,
-      proof_document: JSON.stringify({
-        attachment_name: attachment.value.name,
-        attachment: attachment.value.base64,
-      }),
+
       reason: selectedReason.value,
       to_date: dayjs(selectedDates.to_date).format("YYYY-MM-DD"),
-    });
+    };
+
+    if (requiredProofDocument.value[selectedLeaveType.value]) {
+      data.proof_document = JSON.stringify({
+        attachment_name: attachment.value.name,
+        attachment: attachment.value.base64,
+      });
+    }
+
+    await leave.createLeave(data);
 
     clearForm();
     triggerBack();
@@ -379,7 +396,10 @@ onIonViewWillEnter(async () => {
           </span>
         </div>
 
-        <div class="ion-margin-top">
+        <div
+          v-if="requiredProofDocument[selectedLeaveType]"
+          class="ion-margin-top"
+        >
           <p
             class="leaves-create-label leaves-create-label__required"
             :class="{
