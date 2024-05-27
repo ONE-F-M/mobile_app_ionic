@@ -11,6 +11,8 @@ import {
   IonModal,
   useIonRouter,
   onIonViewWillEnter,
+  IonInput,
+  IonCol,
 } from "@ionic/vue";
 import LeavesHeader from "@/components/leaves/Header.vue";
 import { computed, nextTick, ref, shallowRef, watch } from "vue";
@@ -23,15 +25,18 @@ import IconAccountClock from "@/components/icon/AccountClock.vue";
 import IconVisibility from "@/components/icon/Visibility.vue";
 import IconBlock from "@/components/icon/Block.vue";
 import leave from "@/api/leave";
-import dayjs from "dayjs";
 import { useUserStore } from "@/store/user.js";
 import { useCustomToast } from "@/composable/toast.js";
 import { LEAVE_STATUS } from "@/types/enums";
 import { useI18n } from "vue-i18n";
+import Datepicker from "@/components/base/Datepicker.vue";
+import { useLangStore } from "@/store/lang.js";
+import useDateHelper from "@/composable/useDateHelper";
 
 const router = useIonRouter();
 const userStore = useUserStore();
 const { showErrorToast } = useCustomToast();
+const { formatDate, dayjs } = useDateHelper();
 const { t } = useI18n();
 
 const LEAVE_RESPONSE_TYPE = {
@@ -42,6 +47,7 @@ const LEAVE_RESPONSE_TYPE = {
 const showTypeLeaves = ref(LEAVE_RESPONSE_TYPE.MY_LEAVE);
 const openFilter = ref(false);
 const isOpenDatePicker = ref(false);
+const langStore = useLangStore();
 
 const leaveStatuses = [
   {
@@ -142,17 +148,34 @@ const setLeaveStatus = (event) => {
   selectedLeaveStatus.value = event.detail.value;
 };
 
-const dateRange = ref({
-  // Means timestamp of zero, 1970-01-01
-  start: 0,
+const selectedDates = ref({
+  start: new Date(),
   end: new Date(),
 });
+
+const datePickerRange = ref({
+  start: selectedDates.value.start,
+  end: selectedDates.value.end,
+});
+const isDatePickerOpen = shallowRef(false);
+const setDatePickerOpen = (isOpen) => {
+  isDatePickerOpen.value = isOpen;
+};
+const onDatePickerOk = () => {
+  selectedDates.value.start = datePickerRange.value.start;
+  selectedDates.value.end = datePickerRange.value.end;
+
+  setDatePickerOpen(false);
+
+  fetchLeaves();
+};
+
 const fetchLeaves = async () => {
   try {
     const { data } = await leave.getLeavesList({
       employee_id: userStore.user?.employee_id,
-      from_date: dayjs(dateRange.value.start).format("YYYY-MM-DD"),
-      to_date: dayjs(dateRange.value.end).format("YYYY-MM-DD"),
+      from_date: dayjs(selectedDates.value.start).format("YYYY-MM-DD"),
+      to_date: dayjs(selectedDates.value.end).format("YYYY-MM-DD"),
       leave_type: selectedLeaveType.value,
       status: selectedLeaveStatus.value,
     });
@@ -339,6 +362,39 @@ onIonViewWillEnter(async () => {
               {{ $t("utils.reset") }}
             </ion-button>
           </ion-row>
+          <ion-row class="ion-margin-top">
+            <ion-col size="6">
+              <p class="leaves-create-label leaves-create-label__required">
+                {{ $t("user.leaves.detail.from") }}
+              </p>
+              <ion-input
+                fill="outline"
+                placeholder="From Date"
+                readonly
+                :value="formatDate(selectedDates.start, 'DD-MM-YYYY')"
+                @ion-focus="setDatePickerOpen(true)"
+              />
+            </ion-col>
+            <ion-col size="6">
+              <p class="leaves-create-label leaves-create-label__required">
+                {{ $t("user.leaves.detail.till") }}
+              </p>
+              <ion-input
+                fill="outline"
+                placeholder="Till Date"
+                readonly
+                :value="formatDate(selectedDates.end, 'DD-MM-YYYY')"
+                @ion-focus="setDatePickerOpen(true)"
+              />
+            </ion-col>
+          </ion-row>
+          <Datepicker
+            :lang="langStore.lang"
+            :is-open="isDatePickerOpen"
+            v-model="datePickerRange"
+            @cancel="setDatePickerOpen(false)"
+            @ok="onDatePickerOk"
+          />
           <div>
             <div>
               <p class="leaves-filter-checkbox-list-title">

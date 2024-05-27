@@ -25,6 +25,7 @@ const emit = defineEmits([
   "update:model-value",
   "remove-service",
   "add-service",
+  "open-service",
 ]);
 
 const showContent = ref(false);
@@ -81,7 +82,10 @@ watch(
             :key="service.name"
             class="ion-align-items-center ion-justify-content-between group-card-service-item"
           >
-            <ion-row class="ion-align-items-center">
+            <ion-row
+              class="ion-align-items-center"
+              @click="$emit('open-service', service.name)"
+            >
               <div class="services-item-icon-wrapper">
                 <span class="mdi" :class="`mdi-${service.icon}`" />
               </div>
@@ -114,10 +118,10 @@ watch(
   background: #202b2f;
   border-radius: 12px;
   transition: background-color 0.3s ease;
-	
-	.card-content-md {
-		padding: 16px;
-	}
+
+  .card-content-md {
+    padding: 16px;
+  }
 
   &.active-card {
     background: #233036;

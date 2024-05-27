@@ -6,6 +6,7 @@ import {
   IonRow,
   onIonViewDidEnter,
   onIonViewDidLeave,
+  useIonRouter,
 } from "@ionic/vue";
 import configuration from "@/api/configuration";
 import { useCustomToast } from "@/composable/toast";
@@ -17,8 +18,27 @@ const { showErrorToast } = useCustomToast();
 
 const serviceGroups = ref([]);
 const userServices = ref([]);
+const router = useIonRouter();
 
 const selectedGroup = ref("");
+
+const goToServicePage = (service) => {
+  console.log("service", service);
+
+  switch (service) {
+    case "Checkin Checkout":
+      router.push("/checkin");
+      break;
+    case "Leaves":
+      router.push("/leaves");
+      break;
+    case "New Leave Application":
+      router.push("/leaves/add");
+      break;
+    default:
+      break;
+  }
+};
 
 const fetchGroups = async () => {
   try {
@@ -139,6 +159,7 @@ onIonViewDidLeave(() => {
             <ServiceGroupCard
               v-model="selectedGroup"
               :service-group="serviceGroup"
+              @open-service="goToServicePage"
               @remove-service="removeService($event)"
               @add-service="addService($event)"
             />
@@ -151,9 +172,9 @@ onIonViewDidLeave(() => {
 
 <style lang="scss" scoped>
 .services {
-	margin-top: 7px;
-	margin-left: -4px;
-	width: calc(100% + 8px);
+  margin-top: 7px;
+  margin-left: -4px;
+  width: calc(100% + 8px);
 }
 
 .services-page {
