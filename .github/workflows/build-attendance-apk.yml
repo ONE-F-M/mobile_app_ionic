@@ -1,4 +1,4 @@
-name: Build Apk
+name: Build Attendance Apk
 
 on:
   push:
