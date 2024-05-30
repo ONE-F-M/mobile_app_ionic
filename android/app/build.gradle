@@ -7,6 +7,7 @@ android {
         applicationId "com.onefacilitiesmanagement.android.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
+        manifestPlaceholders.googleApiKey = ""
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
