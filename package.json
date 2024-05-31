@@ -26,6 +26,7 @@
     "@capacitor/keyboard": "5.0.7",
     "@capacitor/push-notifications": "^6.0.0",
     "@capacitor/status-bar": "5.0.6",
+    "@googlemaps/js-api-loader": "^1.16.6",
     "@ionic/vue": "^7.0.0",
     "@ionic/vue-router": "^7.0.0",
     "@mdi/font": "^7.4.47",
