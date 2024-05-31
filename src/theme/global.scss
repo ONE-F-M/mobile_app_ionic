@@ -62,3 +62,43 @@
     }
   }
 }
+
+.ios {
+  input.sc-ion-input-ios {
+    border: 1px solid #8B9298;
+    padding: 16px;
+  }
+  textarea.sc-ion-textarea-ios {
+    border: 1px solid #8B9298;
+    padding: 8px 16px !important;
+  }
+  ion-select {
+    border: 1px solid #8B9298;
+    padding: 5px 16px !important;
+    border-radius: 4px;
+
+    .select-wrapper {
+      border: 1px solid #8B9298;
+      padding: 16px;
+      border-radius: 4px;
+
+      &-inner {
+        width: 100%;
+      }
+
+      & > .native-wrapper {
+        width: 100%;
+      }
+    }
+  }
+}
+
+@media (orientation: portrait) {
+  .ios {
+    & > ion-router-outlet {
+      & > .ion-page {
+        padding-top: 40px;
+      }
+    }
+  }
+}
