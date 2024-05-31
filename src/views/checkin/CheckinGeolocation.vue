@@ -14,8 +14,9 @@ import {
   onIonViewDidLeave,
 } from "@ionic/vue";
 import { Geolocation } from "@capacitor/geolocation";
+import { Capacitor } from '@capacitor/core';
 import Header from "@/components/Header.vue";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { GoogleMap } from "@capacitor/google-maps";
 import IconScan from "@/components/icon/Scan.vue";
 import { useCustomToast } from "@/composable/toast.js";
@@ -25,6 +26,7 @@ import { useUserStore } from "@/store/user.js";
 import MyLocation from "@/components/icon/MyLocation.vue";
 import utils from "@/api/utils";
 import { useI18n } from "vue-i18n";
+import { Loader } from "@googlemaps/js-api-loader"
 
 const router = useIonRouter();
 
@@ -146,18 +148,24 @@ const printCurrentPosition = async () => {
 const setCenterCamera = async () => {
   await printCurrentPosition();
 
-  await googleMap.removeMarker(myMarker);
-  const coordinatesN = {
-    lat: coordinates.value?.coords?.latitude,
-    lng: coordinates.value?.coords?.longitude,
-  };
+  if (isIOS.value) {
+    myMarker.setMap(null)
+  } else {
+    await googleMap.removeMarker(myMarker);
+  }
 
-  myMarker = await googleMap.addMarker({
-    coordinate: coordinatesN,
-  });
+  await addInitialMarker(googleMap);
+
+  if (isIOS.value) {
+    googleMap.moveCamera({
+      center: initialPosition.value,
+      zoom: 18,
+    })
+    return;
+  }
 
   await googleMap.setCamera({
-    coordinate: coordinatesN,
+    coordinate: initialPosition.value,
     zoom: 18,
     animate: true,
     animationDuration: 500,
@@ -217,6 +225,29 @@ const verifyCheckin = async () => {
   }
 };
 
+const initialPosition = computed(() => ({
+  lat: coordinates.value?.coords?.latitude || 0,
+  lng: coordinates.value?.coords?.longitude || 0,
+}));
+const platform = computed(() => Capacitor.getPlatform());
+const isIOS = computed(() => platform.value === "ios");
+
+const addInitialMarker = async (map) => {
+  if (isIOS.value) {
+    const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
+
+    myMarker = new AdvancedMarkerElement({
+      map,
+      position: initialPosition.value,
+    });
+    return;
+  }
+
+  myMarker = await map.addMarker({
+    coordinate: initialPosition.value,
+  });
+};
+
 const initializeMap = async () => {
   hasUserRejectedLocation.value = false;
   try {
@@ -236,32 +267,40 @@ const initializeMap = async () => {
     return;
   }
 
-  const mapRef = document.getElementById("map");
-  const body = document.querySelector("body.dark");
-  body.classList.add("map-transparent");
+  if (isIOS.value) {
+    const loader = new Loader({
+      apiKey,
+      version: "weekly",
+    });
+    await loader.load()
+    const { Map } = await google.maps.importLibrary("maps");
 
-  googleMap = await GoogleMap.create({
-    apiKey, // Your Google Maps API Key
-    id: "my-map", // Unique identifier for this map instance
-    element: mapRef, // reference to the capacitor-google-map element
-    config: {
-      center: {
-        // The initial position to be rendered by the map
-        lat: coordinates.value?.coords?.latitude,
-        lng: coordinates.value?.coords?.longitude,
-      },
+    googleMap = new Map(document.getElementById("map"), {
+      mapId: 'my-map',
+      center: initialPosition.value,
       panControl: false,
-      zoom: 18, // The initial zoom level to be rendered by the map
-    },
-  });
+      zoom: 18,
+      disableDefaultUI: true,
+    });
+  } else {
+    const mapRef = document.getElementById("map");
+    const body = document.querySelector("body.dark");
+    body.classList.add("map-transparent");
 
-  myMarker = await googleMap.addMarker({
-    coordinate: {
-      lat: coordinates.value?.coords?.latitude,
-      lng: coordinates.value?.coords?.longitude,
-    },
-  });
+    googleMap = await GoogleMap.create({
+      apiKey, // Your Google Maps API Key
+      id: "my-map", // Unique identifier for this map instance
+      element: mapRef, // reference to the capacitor-google-map element
+      config: {
+        // The initial position to be rendered by the map
+        center: initialPosition.value,
+        panControl: false,
+        zoom: 18, // The initial zoom level to be rendered by the map
+      },
+    });
+  }
 
+  await addInitialMarker(googleMap);
   await getSiteLocation();
 };
 
