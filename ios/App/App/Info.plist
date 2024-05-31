@@ -22,6 +22,18 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<string>Supports opening documents in place</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Allow to use camera?</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Privacy - Location When In Use Usage Description</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Privacy - Photo Library Additions Usage Description</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Privacy - Photo Library Usage Description</string>
+	<key>UIFileSharingEnabled</key>
+	<string>Application supports iTunes file sharing</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -45,17 +57,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
-	<key>NSCameraUsageDescription</key>
-	<string>Privacy - Camera Usage Description</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Privacy - Photo Library Additions Usage Description</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Privacy - Photo Library Usage Description</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Privacy - Location When In Use Usage Description</string>
-	<key>UIFileSharingEnabled</key>
-    <string>Application supports iTunes file sharing</string>
-    <key>LSSupportsOpeningDocumentsInPlace</key>
-    <string>Supports opening documents in place</string>
 </dict>
 </plist>
