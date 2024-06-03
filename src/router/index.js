@@ -43,7 +43,7 @@ const routes = [
   {
     path: "/enroll-failure",
     component: () => import("@/views/enrollment/EnrollmentResult.vue"),
-    props: { type: "failure", action: "/enrollment-start" },
+    props: { type: "failure", action: "/enrollment" },
   },
   {
     path: "/home",

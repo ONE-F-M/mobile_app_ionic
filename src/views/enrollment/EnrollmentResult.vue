@@ -26,7 +26,7 @@ defineProps({
             {{ $t(`enrollment.${type}_title`) }}
           </h3>
           <p class="enrollment-result-status-description">
-            {{ $t(`enrollment.${type}_description`) }}
+            {{ $route.query?.error || $t(`enrollment.${type}_description`) }}
           </p>
 
           <router-link class="enrollment-result-link" :to="action">

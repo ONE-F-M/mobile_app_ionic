@@ -33,10 +33,19 @@ const startEnrollment = () => {
 const handleVideo = async (video) => {
   const employeeId = authStore.employeeId;
 
-  await enroll({ employee_id: employeeId, video })
-    .then(() => router.push("/enroll-success"))
-    .catch(() => router.push("/enroll-failure"))
-    .finally(() => (inProgress.value = false));
+  try {
+    await enroll({ employee_id: employeeId, video });
+    router.push("/enroll-success");
+  } catch (error) {
+    router.push({
+      path: "/enroll-failure",
+      query: {
+        error: error?.data?.error,
+      },
+    });
+  } finally {
+    inProgress.value = false;
+  }
 };
 </script>
 

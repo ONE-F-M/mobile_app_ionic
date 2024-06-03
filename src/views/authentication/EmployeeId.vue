@@ -27,7 +27,7 @@ const isLoading = ref(false);
 const employeeId = ref("");
 
 const validId = computed(() => {
-  return employeeId.value.length === 12;
+  return employeeId.value.length >= 4;
 });
 
 const nextStep = async () => {
