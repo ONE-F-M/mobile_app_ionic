@@ -101,7 +101,11 @@ const saveVideo = async () => {
 
   const readerPromise = new Promise((resolve) => {
     const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result);
+    reader.onload = () => {
+      const base64String = reader.result.split(",")[1];
+
+      resolve(base64String);
+    };
     reader.readAsDataURL(chunks);
   });
 
