@@ -14,7 +14,7 @@ import {
   onIonViewDidLeave,
 } from "@ionic/vue";
 import { Geolocation } from "@capacitor/geolocation";
-import { Capacitor } from '@capacitor/core';
+import { Capacitor } from "@capacitor/core";
 import Header from "@/components/Header.vue";
 import { computed, ref } from "vue";
 import { GoogleMap } from "@capacitor/google-maps";
@@ -26,7 +26,7 @@ import { useUserStore } from "@/store/user.js";
 import MyLocation from "@/components/icon/MyLocation.vue";
 import utils from "@/api/utils";
 import { useI18n } from "vue-i18n";
-import { Loader } from "@googlemaps/js-api-loader"
+import { Loader } from "@googlemaps/js-api-loader";
 
 const router = useIonRouter();
 
@@ -122,7 +122,11 @@ const saveVideo = async () => {
 
   const readerPromise = new Promise((resolve) => {
     const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result);
+    reader.onload = () => {
+      const base64String = reader.result.split(",")[1];
+
+      resolve(base64String);
+    };
     reader.readAsDataURL(chunks);
   });
 
@@ -149,7 +153,7 @@ const setCenterCamera = async () => {
   await printCurrentPosition();
 
   if (isIOS.value) {
-    myMarker.setMap(null)
+    myMarker.setMap(null);
   } else {
     await googleMap.removeMarker(myMarker);
   }
@@ -160,7 +164,7 @@ const setCenterCamera = async () => {
     googleMap.moveCamera({
       center: initialPosition.value,
       zoom: 18,
-    })
+    });
     return;
   }
 
@@ -272,11 +276,11 @@ const initializeMap = async () => {
       apiKey,
       version: "weekly",
     });
-    await loader.load()
+    await loader.load();
     const { Map } = await google.maps.importLibrary("maps");
 
     googleMap = new Map(document.getElementById("map"), {
-      mapId: 'my-map',
+      mapId: "my-map",
       center: initialPosition.value,
       panControl: false,
       zoom: 18,
