@@ -8,6 +8,8 @@ PODS:
   - CapacitorCordova (5.6.0)
   - CapacitorDevice (6.0.0):
     - Capacitor
+  - CapacitorFilesystem (6.0.0):
+    - Capacitor
   - CapacitorGeolocation (6.0.0):
     - Capacitor
   - CapacitorGoogleMaps (5.4.1):
@@ -53,12 +55,14 @@ DEPENDENCIES:
   - "CapacitorCamera (from `../../node_modules/@capacitor/camera`)"
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorDevice (from `../../node_modules/@capacitor/device`)"
+  - "CapacitorFilesystem (from `../../node_modules/@capacitor/filesystem`)"
   - "CapacitorGeolocation (from `../../node_modules/@capacitor/geolocation`)"
   - "CapacitorGoogleMaps (from `../../node_modules/@capacitor/google-maps`)"
   - "CapacitorHaptics (from `../../node_modules/@capacitor/haptics`)"
   - "CapacitorKeyboard (from `../../node_modules/@capacitor/keyboard`)"
   - "CapacitorPushNotifications (from `../../node_modules/@capacitor/push-notifications`)"
   - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
+  - Google-Maps-iOS-Utils (= 4.2.2)
 
 SPEC REPOS:
   trunk:
@@ -76,6 +80,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/ios"
   CapacitorDevice:
     :path: "../../node_modules/@capacitor/device"
+  CapacitorFilesystem:
+    :path: "../../node_modules/@capacitor/filesystem"
   CapacitorGeolocation:
     :path: "../../node_modules/@capacitor/geolocation"
   CapacitorGoogleMaps:
@@ -95,6 +101,7 @@ SPEC CHECKSUMS:
   CapacitorCamera: 4892c5c392f60039d853dde78bc50ba19fbd113e
   CapacitorCordova: 931b48fcdbc9bc985fc2f16cec9f77c794a27729
   CapacitorDevice: f8fd88f9edd1261c55a109f32015b09bbbfdc4a0
+  CapacitorFilesystem: 60e59ba274c234a979e7a3be2552feaadcee4263
   CapacitorGeolocation: 1f12bbe372b65116e851bd8e3a94cf0ef9bacebb
   CapacitorGoogleMaps: 7764613bb8eab28f290c1ca76b6ff4ee32d3c50f
   CapacitorHaptics: 1fffc1217c7e64a472d7845be50fb0c2f7d4204c
@@ -104,6 +111,6 @@ SPEC CHECKSUMS:
   Google-Maps-iOS-Utils: f77eab4c4326d7e6a277f8e23a0232402731913a
   GoogleMaps: 032f676450ba0779bd8ce16840690915f84e57ac
 
-PODFILE CHECKSUM: 1eaf00b7725370773f2e6aaae12e2b21b024e246
+PODFILE CHECKSUM: bae6df94f014f1432e124697c68d291c3e01b59a
 
 COCOAPODS: 1.15.2

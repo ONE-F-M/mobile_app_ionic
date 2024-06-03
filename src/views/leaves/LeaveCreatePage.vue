@@ -11,6 +11,7 @@ import {
   useIonRouter,
   IonInput,
   onIonViewWillEnter,
+  IonSpinner,
 } from "@ionic/vue";
 import LeavesHeader from "@/components/leaves/Header.vue";
 
@@ -28,6 +29,8 @@ const { showErrorToast } = useCustomToast();
 const router = useIonRouter();
 const langStore = useLangStore();
 const { formatDate, dayjs } = useDateHelper();
+
+const isLoading = ref(false);
 
 const triggerBack = () => {
   router.push("/leaves");
@@ -193,6 +196,8 @@ const onSubmit = async () => {
     return;
   }
 
+  isLoading.value = true;
+
   if (leaveBalance.value.remaining_leaves - selectedDateDifference.value < 0) {
     return showErrorToast("You don't have enough leaves to apply");
   }
@@ -221,6 +226,8 @@ const onSubmit = async () => {
   } catch (error) {
     console.error(error);
     showErrorToast(error.data?.error?.message || error.data?.error);
+  } finally {
+    isLoading.value = false;
   }
 };
 
@@ -460,7 +467,10 @@ onIonViewWillEnter(async () => {
           expand="block"
           @click="onSubmit"
         >
-          {{ $t("user.leaves.create_leave.save_leaves_application") }}
+          <ion-spinner v-if="isLoading" name="crescent"></ion-spinner>
+          <span v-else>
+            {{ $t("user.leaves.create_leave.save_leaves_application") }}
+          </span>
         </ion-button>
       </div>
     </ion-content>

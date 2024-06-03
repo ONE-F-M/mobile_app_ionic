@@ -149,7 +149,7 @@ const setLeaveStatus = (event) => {
 };
 
 const selectedDates = ref({
-  start: new Date(),
+  start: dayjs().subtract(1, 'year').toDate(),
   end: new Date(),
 });
 
@@ -468,6 +468,13 @@ onIonViewWillEnter(async () => {
       &:first-child {
         border-right: 2px solid #8b9298;
         border-bottom: 0 !important;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+
+      &:last-child {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
       }
 
       &-label {
