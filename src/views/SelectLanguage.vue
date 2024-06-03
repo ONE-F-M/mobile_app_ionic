@@ -28,7 +28,7 @@ const content = ref();
 let gesture;
 
 if (userStore.user && langStore.lang) {
-  router.push("/home/");
+  userStore.user.enrolled ? router.push("/home/") : router.push("/enrollment");
 }
 
 const arabicAnimation = (baseEl, opts) => {
