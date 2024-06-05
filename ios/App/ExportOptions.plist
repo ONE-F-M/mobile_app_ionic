@@ -5,7 +5,7 @@
         <key>provisioningProfiles</key>
         <dict>
             <key>com.onefacilitiesmanagement.ios.apps</key>
-            <string>XC Wildcard</string>
+            <string>ONE FM Test Profile</string>
         </dict>
      <key>signingCertificate</key>
      <string>Apple Development: Ihor Bohdanov (W7D8LTQXUZ)</string>
