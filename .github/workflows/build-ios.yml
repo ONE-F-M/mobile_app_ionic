@@ -84,7 +84,7 @@ jobs:
           -allowProvisioningUpdates \
           -archivePath $RUNNER_TEMP/app.xcarchive \
           -sdk iphoneos \
-          -configuration Debug \
+          -configuration Release \
           -destination generic/platform=iOS \
           clean archive          
 
