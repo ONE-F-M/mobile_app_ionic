@@ -5,10 +5,10 @@
         <key>provisioningProfiles</key>
         <dict>
             <key>com.onefacilitiesmanagement.ios.apps</key>
-            <string>iOS Team Provisioning Profile: com.onefacilitiesmanagement.ios.apps</string>
+            <string>ONE FM Test Profile</string>
         </dict>
      <key>signingCertificate</key>
-     <string>Apple Development: Ihor Bohdanov (W7D8LTQXUZ)</string>
+     <string>iPhone Distribution: ONE Facilities Management Company WLL (8R3SW4662G)</string>
      <key>signingStyle</key>
      <string>manual</string>
         <key>teamID</key>
