@@ -42,6 +42,7 @@ jobs:
           BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.MOBILE_PROVISION }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
           EXPORT_CERTIFICATE_BASE64: ${{ secrets.EXPORT_CERT }}
+          EXPORT_CERTIFICATE_PASSWORD: ${{ secrets.EXPORT_CERT_PASSWORD }}
           EXPORT_PROVISION_PROFILE_BASE64: ${{ secrets.EXPORT_PROFILE }}
         run: |
           # create variables
@@ -65,7 +66,7 @@ jobs:
 
           # import certificate to keychain
           security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-          security import $EXPORT_CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security import $EXPORT_CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH -p $EXPORT_CERTIFICATE_PASSWORD
           security list-keychain -d user -s $KEYCHAIN_PATH
 
           # apply provisioning profile
