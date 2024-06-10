@@ -113,7 +113,8 @@ const setDatePickerOpen = (isOpen) => {
 };
 const onDatePickerOk = () => {
   selectedDates.from_date = datePickerRange.value.start;
-  selectedDates.to_date = datePickerRange.value.end;
+  selectedDates.to_date =
+    datePickerRange.value.end ?? datePickerRange.value.start;
 
   errors.fromDate = false;
   errors.toDate = false;
