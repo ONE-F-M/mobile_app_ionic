@@ -48,9 +48,10 @@ const routes = [
   {
     path: "/home",
     component: () => import("@/views/user/Tabs.vue"),
+    redirect: "/dashboard",
     children: [
       {
-        path: "/home",
+        path: "/dashboard",
         component: () => import("@/views/user/HomePage.vue"),
       },
       {

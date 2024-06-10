@@ -8,7 +8,12 @@ import {
   IonTabBar,
   IonRouterOutlet,
 } from "@ionic/vue";
-import {gridOutline, homeOutline, notificationsOutline, personOutline} from "ionicons/icons";
+import {
+  gridOutline,
+  homeOutline,
+  notificationsOutline,
+  personOutline,
+} from "ionicons/icons";
 </script>
 
 <template>
@@ -17,7 +22,7 @@ import {gridOutline, homeOutline, notificationsOutline, personOutline} from "ion
       <ion-tabs>
         <ion-router-outlet />
         <ion-tab-bar class="navigation-tabs" slot="bottom">
-          <ion-tab-button tab="home" href="/home">
+          <ion-tab-button tab="home" href="/dashboard">
             <ion-icon :icon="homeOutline" />
             {{ $t("user.home.title") }}
           </ion-tab-button>
@@ -42,14 +47,14 @@ import {gridOutline, homeOutline, notificationsOutline, personOutline} from "ion
 <style lang="scss" scoped>
 ion-tab-bar {
   height: 80px;
-	
-	.tab-selected {
-		color: var(--ion-color-secondary-tint);
-		
-		ion-icon {
-			color: var(--ion-color-secondary-tint);
-		}
-	}
+
+  .tab-selected {
+    color: var(--ion-color-secondary-tint);
+
+    ion-icon {
+      color: var(--ion-color-secondary-tint);
+    }
+  }
 
   ion-tab-button {
     background: var(--ion-color-secondary-container);
@@ -57,7 +62,8 @@ ion-tab-bar {
     padding-bottom: 5px;
     --ripple-color: transparent;
 
-    &.tab-selected, &.ion-activated {
+    &.tab-selected,
+    &.ion-activated {
       ion-icon {
         background: var(--ion-color-secondary-shade);
       }
@@ -72,8 +78,8 @@ ion-tab-bar {
     width: 64px;
     border-radius: 20px;
     color: var(--ion-color-medium-contrast);
-    transition: background .3s ease;
-	  --ionicon-stroke-width: 48px;
+    transition: background 0.3s ease;
+    --ionicon-stroke-width: 48px;
   }
 }
 </style>

@@ -113,7 +113,7 @@ const logout = () => {
   userStore.logout();
   unRegisterNotifications();
 
-  router.push("/");
+  router.navigate("/", "root");
 };
 
 const getUserDetails = async () => {
@@ -151,7 +151,9 @@ onIonViewWillEnter(async () => {
           <Header>{{ $t("user.profile.title") }}</Header>
 
           <div class="account-component">
-            <h3 class="headline-small text-dark-tint">{{ $t("user.profile.account") }}</h3>
+            <h3 class="headline-small text-dark-tint">
+              {{ $t("user.profile.account") }}
+            </h3>
 
             <div id="profile-details" class="profile-details">
               <div class="profile-picture">
@@ -168,9 +170,9 @@ onIonViewWillEnter(async () => {
 
               <div class="action-button icon icon-arrow-back">
                 <ion-icon
-	                class="text-dark-tint"
-	                color="light"
-	                :icon="chevronForwardOutline"
+                  class="text-dark-tint"
+                  color="light"
+                  :icon="chevronForwardOutline"
                 />
               </div>
             </div>
@@ -484,7 +486,7 @@ onIonViewWillEnter(async () => {
 .logout-button {
   height: 40px;
   margin-top: 24px;
-	margin-bottom: 12px;
+  margin-bottom: 12px;
   font-family: "Readex Pro", sans-serif;
 }
 
