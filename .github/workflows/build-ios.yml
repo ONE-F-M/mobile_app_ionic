@@ -78,6 +78,14 @@ jobs:
           pod install
           cd ..
 
+      - name: Build number bump
+        uses: ngeri/version-bump@v1.0.2
+        with:
+          appStoreConnectPrivateKey: ${{ secrets.APPSTORE_API_KEY_ID }}
+          keyID: ${{ env.keyID }}
+          issuerID: ${{ secrets.APPSTORE_API_KEY_ID }}
+          targetName: App
+
       - name: build archive
         run: |
           xcodebuild -scheme "App" \
