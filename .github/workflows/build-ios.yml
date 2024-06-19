@@ -80,7 +80,7 @@ jobs:
 
       - uses: yanamura/ios-bump-version@v1
         with:
-          project-path: ios/App
+          project-path: ios
           # version number
           # ex. 3.2.0
           # If version is not set, the version does not be changed.
