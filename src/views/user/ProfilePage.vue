@@ -464,6 +464,7 @@ onIonViewWillEnter(async () => {
     --min-height: 0;
     --highlight-color-focused: transparent;
     min-height: 0;
+    border: 0;
 
     &::part(icon) {
       margin: 2px -4px 0 auto;
