@@ -9,6 +9,7 @@ import {
   IonText,
   createGesture,
   createAnimation,
+  onIonViewWillEnter,
 } from "@ionic/vue";
 import { useUserStore } from "@/store/user";
 import { useLangStore } from "@/store/lang";
@@ -99,6 +100,10 @@ const onEnd = () => {
     deltaX.value = 0;
   }, 400);
 };
+
+onIonViewWillEnter(() => {
+  langStore.resetLang()
+});
 
 onMounted(() => {
   gesture = createGesture({

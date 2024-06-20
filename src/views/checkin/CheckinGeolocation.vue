@@ -254,6 +254,7 @@ const addInitialMarker = async (map) => {
 
 const initializeMap = async () => {
   hasUserRejectedLocation.value = false;
+  isLoadingLocation.value = true;
   try {
     await printCurrentPosition();
   } catch (e) {
@@ -306,6 +307,7 @@ const initializeMap = async () => {
 
   await addInitialMarker(googleMap);
   await getSiteLocation();
+  isLoadingLocation.value = false;
 };
 
 onIonViewDidEnter(async () => {
@@ -376,6 +378,13 @@ onIonViewDidLeave(() => {
             }}
           </ion-button>
         </ion-row>
+      </div>
+
+      <div v-if="isLoadingLocation" class="loader">
+        <ion-spinner
+          class="loader-spinner"
+          name="crescent"
+        />
       </div>
     </ion-content>
 
@@ -482,6 +491,20 @@ onIonViewDidLeave(() => {
 </template>
 
 <style lang="scss" scoped>
+.loader {
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  &-spinner {
+    width: 100px;
+    height: 100px;
+  }
+}
+
 .geolocation-page {
   --padding-top: 0;
   --padding-bottom: 0;
@@ -674,5 +697,11 @@ onIonViewDidLeave(() => {
 .v-enter-from,
 .v-leave-to {
   opacity: 0;
+}
+
+ion-modal {
+  &::part(content) {
+    background: transparent;
+  }
 }
 </style>
