@@ -77,19 +77,19 @@
     padding: 5px 16px !important;
     border-radius: 4px;
 
-    .select-wrapper {
-      border: 1px solid #8B9298;
-      padding: 16px;
-      border-radius: 4px;
-
-      &-inner {
-        width: 100%;
-      }
-
-      & > .native-wrapper {
-        width: 100%;
-      }
+    &::part(icon) {
+      position: absolute;
+      right: 10px;
     }
+  }
+  .input-label-placement-floating.sc-ion-input-ios-h .label-text-wrapper.sc-ion-input-ios {
+    transform: translateY(170%) translateX(20px) scale(1);
+  }
+  .label-floating.sc-ion-input-ios-h .label-text-wrapper.sc-ion-input-ios {
+    transform: translateY(10%) scale(0.75);
+  }
+  .input-label-placement-floating.sc-ion-input-ios-h input.sc-ion-input-ios {
+    opacity: 1;
   }
 }
 
