@@ -14,5 +14,9 @@ export const useLangStore = defineStore("lang", {
 
       this.rtl = lang === "ar";
     },
+    resetLang() {
+      this.lang = null;
+      this.rtl = false;
+    }
   },
 });
