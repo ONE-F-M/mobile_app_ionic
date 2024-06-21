@@ -91,6 +91,12 @@
   .input-label-placement-floating.sc-ion-input-ios-h input.sc-ion-input-ios {
     opacity: 1;
   }
+
+  &.rtl {
+    .input-label-placement-floating.sc-ion-input-ios-h .label-text-wrapper.sc-ion-input-ios {
+      transform: translateY(170%) translateX(-20px) scale(1);
+    }
+  }
 }
 
 @media (orientation: portrait) {
