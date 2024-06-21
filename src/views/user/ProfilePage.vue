@@ -21,12 +21,13 @@ import Header from "@/components/Header.vue";
 import PenIcon from "@/components/icon/PenIcon.vue";
 
 import { useUserStore } from "@/store/user";
-import { reactive, ref } from "vue";
+import { computed, reactive, ref } from "vue";
 import { useLangStore } from "@/store/lang.js";
 import profile from "@/api/profile";
 import { useCustomToast } from "@/composable/toast";
 import useDisplayImage from "@/composable/useDisplayImage";
 import useNotification from "@/composable/useNotification";
+import { Capacitor } from '@capacitor/core';
 
 const { t } = useI18n();
 
@@ -53,6 +54,9 @@ const user = reactive({
 const selectedLanguage = ref(langStore.lang);
 const { unRegisterNotifications } = useNotification();
 
+const platform = computed(() => Capacitor.getPlatform());
+const isIOS = computed(() => platform.value === "ios");
+
 const langSelectEnterAnimation = (el) =>
   createAnimation()
     .addElement(el)
@@ -70,8 +74,8 @@ const langSelectLeaveAnimation = (el) =>
 const langSelectAlertOptions = {
   cssClass: "profile-select-language-alert-wrapper",
   header: t("user.profile.language.alert_header"),
-  enterAnimation: langSelectEnterAnimation,
-  leaveAnimation: langSelectLeaveAnimation,
+  ...(!isIOS.value && { enterAnimation: langSelectEnterAnimation }),
+  ...(!isIOS.value && { leaveAnimation: langSelectLeaveAnimation }),
 };
 
 const updateImage = async (event) => {
@@ -352,10 +356,15 @@ onIonViewWillEnter(async () => {
     .alert-button-group {
       gap: 14px;
       padding-inline-end: 2px;
+      flex-wrap: nowrap;
+      justify-content: flex-end;
 
       .alert-button {
         text-transform: none;
         margin-inline-end: 0;
+        border: none;
+        min-width: initial;
+        flex-grow: 0;
       }
     }
   }
