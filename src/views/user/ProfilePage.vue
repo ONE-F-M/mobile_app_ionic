@@ -162,7 +162,7 @@ onIonViewWillEnter(async () => {
             <div id="profile-details" class="profile-details">
               <div class="profile-picture">
                 <img
-                  :src="formatImageUrl(user.picture) || '/profile_picture.png'"
+                  :src="formatImageUrl(user.picture) || '/profile_picture.svg'"
                   alt="avatar"
                 />
               </div>
