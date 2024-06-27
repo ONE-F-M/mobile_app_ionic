@@ -40,7 +40,7 @@ const { formatImageUrl } = useDisplayImage();
 
 const user = reactive({
   name: "",
-  id: "",
+  id: userStore.user?.employee_id || "",
   picture: "",
   email: "",
   phone: "",
@@ -127,7 +127,6 @@ const getUserDetails = async () => {
     });
 
     user.name = data.message.Name;
-    user.id = data.message.EMP_ID;
     user.picture = data.message.User_Image;
     user.email = data.message.Email;
     user.phone = data.message.Mobile_no;
