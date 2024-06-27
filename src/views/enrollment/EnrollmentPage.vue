@@ -145,7 +145,7 @@ onIonViewDidLeave(() => {
         <div class="centered">
           <div class="video-wrapper">
             <!-- v-show is important since video tag is used as a ref -->
-            <video v-show="showVideo" class="video" autoplay ref="video" />
+            <video v-show="showVideo" class="video" autoplay playsinline ref="video" />
           </div>
 
           <ion-text
@@ -199,7 +199,7 @@ onIonViewDidLeave(() => {
 
 <style lang="scss" scoped>
 .centered {
-  margin-top: 96px;
+  padding-top: 96px;
   width: 100%;
   height: 100%;
   display: flex;

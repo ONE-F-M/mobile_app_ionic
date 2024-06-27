@@ -1,4 +1,5 @@
 import { CapacitorConfig } from "@capacitor/cli";
+import { KeyboardResize } from '@capacitor/keyboard';
 
 const config: CapacitorConfig = {
   appId: "com.onefacilitiesmanagement.ios.apps",
@@ -17,6 +18,9 @@ const config: CapacitorConfig = {
     PushNotifications: {
       presentationOptions: ["badge", "sound", "alert"],
     },
+    Keyboard: {
+      resize: KeyboardResize.None,
+    }
   },
 };
 

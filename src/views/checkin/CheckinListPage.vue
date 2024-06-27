@@ -172,9 +172,9 @@ onIonViewWillEnter(async () => {
         <ion-text>
           <p class="checkin-add-button-label">
             {{
-              logType === "IN"
-                ? $t("user.checkin.checkin")
-                : $t("user.checkin.checkout")
+              logType === "OUT"
+                ? $t("user.checkin.checkout")
+                : $t("user.checkin.checkin")
             }}
           </p>
         </ion-text>

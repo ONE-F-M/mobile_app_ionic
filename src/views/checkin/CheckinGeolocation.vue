@@ -337,9 +337,9 @@ onIonViewDidLeave(() => {
         <Header with-back-button @goBack="prevStep">
           <slot name="title">
             {{
-              logType === "IN"
-                ? $t("user.checkin.checkin")
-                : $t("user.checkin.checkout")
+              logType === "OUT"
+                ? $t("user.checkin.checkout")
+                : $t("user.checkin.checkin")
             }}
           </slot>
         </Header>
