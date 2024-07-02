@@ -16,7 +16,7 @@ import {
 import { Geolocation } from "@capacitor/geolocation";
 import { Capacitor } from "@capacitor/core";
 import Header from "@/components/Header.vue";
-import { computed, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { GoogleMap } from "@capacitor/google-maps";
 import IconScan from "@/components/icon/Scan.vue";
 import { useCustomToast } from "@/composable/toast.js";
@@ -57,6 +57,8 @@ const step = 0.01;
 const duration = 5;
 const instruction = ref("");
 const percent = (duration / 100) * 1000;
+
+const defaultSwipeHandler = ref(null);
 
 const { showErrorToast, showSuccessToast } = useCustomToast();
 const { t } = useI18n();
@@ -181,7 +183,7 @@ const startVerifyPerson = async () => {
   isOpen.value = true;
 };
 const clickBack = () => {
-  isUserWithinGeofenceRadius.value = false;
+  isUserWithinGeofenceRadius.value = true;
   hasUserRejectedLocation.value = false;
   router.back();
 };
@@ -309,6 +311,34 @@ const initializeMap = async () => {
   await getSiteLocation();
   isLoadingLocation.value = false;
 };
+
+const disableSwipeBack = () => {
+  const ionRouterOutlet = document.querySelector('ion-router-outlet');
+  if (ionRouterOutlet) {
+    defaultSwipeHandler.value = ionRouterOutlet.swipeHandler;
+
+    ionRouterOutlet.swipeHandler = {
+      canStart: () => false,
+      onStart: () => {},
+      onEnd: () => {},
+    }
+  }
+};
+
+const enableSwipeBack = () => {
+  const ionRouterOutlet = document.querySelector('ion-router-outlet');
+  if (ionRouterOutlet) {
+    ionRouterOutlet.swipeHandler = defaultSwipeHandler.value;
+  }
+};
+
+onMounted(() => {
+  disableSwipeBack();
+});
+
+onBeforeUnmount(() => {
+  enableSwipeBack();
+});
 
 onIonViewDidEnter(async () => {
   await initializeMap();
