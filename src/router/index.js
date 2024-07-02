@@ -1,18 +1,22 @@
 import { createRouter, createWebHistory } from "@ionic/vue-router";
 import EnrollmentStartPage from "@/views/enrollment/EnrollmentStartPage.vue";
+import { isLoggedInForbidden } from '@/middleware/loggedIn';
 
 const routes = [
   {
     path: "/",
     component: () => import("@/views/SelectLanguage.vue"),
+    beforeEnter: isLoggedInForbidden,
   },
   {
     path: "/employee-id",
     component: () => import("@/views/authentication/EmployeeId.vue"),
+    beforeEnter: isLoggedInForbidden,
   },
   {
     path: "/login",
     component: () => import("@/views/authentication/LoginPage.vue"),
+    beforeEnter: isLoggedInForbidden,
   },
   {
     path: "/register",
