@@ -164,7 +164,7 @@ watch(
   }
 
   &-title {
-    margin: 4px 0 0 8px;
+    margin: 4px 8px 0 8px;
     font-size: 0.875rem;
     font-weight: 400;
     line-height: 1.25rem;
@@ -221,6 +221,7 @@ watch(
     &-label {
       color: #e0e3e3;
       margin-left: 8px;
+      margin-right: 8px;
       text-align: center;
       font-weight: 500;
       font-size: 14px;
