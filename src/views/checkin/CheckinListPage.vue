@@ -14,13 +14,15 @@ import IconPlus from "@/components/icon/Plus.vue";
 import CheckinHeader from "@/components/checkin/Header.vue";
 import checkin from "@/api/checkin";
 import { useUserStore } from "@/store/user.js";
-import { ref } from "vue";
+import { onBeforeUnmount, onMounted, ref } from "vue";
 import { useCustomToast } from "@/composable/toast.js";
 import useDateHelper from "@/composable/useDateHelper";
 import { useLangStore } from "@/store/lang.js";
 import { Geolocation } from "@capacitor/geolocation";
 import { useI18n } from "vue-i18n";
 import Datepicker from "@/components/base/Datepicker.vue";
+
+import { App } from '@capacitor/app';
 
 const { dayjs, formatDate } = useDateHelper();
 const langStore = useLangStore();
@@ -98,6 +100,23 @@ onIonViewWillEnter(async () => {
   }
 
   await getSiteLocation();
+});
+
+onMounted(() => {
+  App.addListener('appStateChange', async ({ isActive }) => {
+    if (isActive) {
+      await fetchCheckinList({
+        from_date: dayjs(0).format("YYYY-MM-DD"),
+        to_date: dayjs(new Date()).format("YYYY-MM-DD"),
+      });
+      await printCurrentPosition();
+      await getSiteLocation();
+    }
+  });
+});
+
+onBeforeUnmount(() => {
+  App.removeAllListeners();
 });
 </script>
 
