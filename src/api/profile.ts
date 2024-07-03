@@ -43,6 +43,12 @@ const updateProfileImage = async (payload: {
 }) =>
   await httpService.post(`v1.user.change_user_profile_image`, {
     data: payload,
+    headers: {
+      "Content-Type": "multipart/form-data",
+      "Accept": "*/*",
+      "Accept-Encoding": "gzip, deflate, br",
+      "Connection": "keep-alive",
+    },
   });
 
 export default {
