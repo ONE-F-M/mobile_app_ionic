@@ -63,6 +63,12 @@
   }
 }
 
+.rtl {
+  .input-label-placement-floating.sc-ion-input-md-h .label-text-wrapper.sc-ion-input-md {
+    transform: translateY(40%);
+  }
+}
+
 .ios {
   input.sc-ion-input-ios {
     border: 1px solid #8B9298;
