@@ -67,6 +67,10 @@
   .input-label-placement-floating.sc-ion-input-md-h .label-text-wrapper.sc-ion-input-md {
     transform: translateY(40%);
   }
+
+  .label-floating.input-fill-outline.sc-ion-input-md-h .label-text-wrapper.sc-ion-input-md {
+    transform: translateY(-32%) scale(0.75);
+  }
 }
 
 .ios {
