@@ -420,7 +420,7 @@ onIonViewDidLeave(() => {
 
     <ion-modal :is-open="isOpen" keep-contents-mounted>
       <ion-content class="video-verify">
-        <video class="video-verify-video-play" autoplay ref="video"></video>
+        <video class="video-verify-video-play" autoplay playsinline ref="video"></video>
 
         <IconScan class="video-verify-icon-scan" />
 
