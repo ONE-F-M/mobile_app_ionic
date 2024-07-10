@@ -12,6 +12,7 @@ export default {
       maternity: "Maternity Leave",
       hajj: "Hajj Leave",
       annual_leave: "Annual Leave",
+      leave_without_pay: "Leave without pay",
     },
     status: {
       pending: "Pending",
