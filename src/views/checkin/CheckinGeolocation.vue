@@ -227,7 +227,7 @@ const verifyCheckin = async () => {
     await getSiteLocation();
     showSuccessToast("You have checkin successfully");
   } catch (error) {
-    showErrorToast(error.data.error?.message || error.data.message);
+    showErrorToast(error.data.error || error.data.error?.message || error.data.message);
   }
 };
 
