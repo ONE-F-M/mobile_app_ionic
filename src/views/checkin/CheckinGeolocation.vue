@@ -228,7 +228,7 @@ const verifyCheckin = async () => {
     showSuccessToast("You have checkin successfully");
   } catch (error) {
     console.error(error);
-    showErrorToast(`${error.data.status_code} ${error.data.error} ${error.data.message}`);
+    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
   }
 };
 
