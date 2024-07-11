@@ -180,7 +180,9 @@ const setCenterCamera = async () => {
 
 const startVerifyPerson = async () => {
   await initializeStream();
-  isOpen.value = true;
+  setTimeout(() => {
+    isOpen.value = true;
+  }, 750);
 };
 const clickBack = () => {
   isUserWithinGeofenceRadius.value = true;
@@ -216,16 +218,20 @@ const getSiteLocation = async () => {
 
 const verifyCheckin = async () => {
   try {
-    await checkin.verifyCheckin({
+    const payload = {
       employee_id: userStore.user?.employee_id,
       video: verifyVideo.value,
       latitude: Number(coordinates.value?.coords?.latitude),
       longitude: Number(coordinates.value?.coords?.longitude),
       log_type: logType.value,
       skip_attendance: 1,
-    });
+    }
+
+    await checkin.verifyCheckin(payload);
     await getSiteLocation();
-    showSuccessToast("You have checkin successfully");
+
+    const type = logType.value === "IN" ? "checkin" : "checkout";
+    showSuccessToast(`You have ${type} successfully`);
   } catch (error) {
     console.error(error);
     showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
@@ -666,6 +672,7 @@ onIonViewDidLeave(() => {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transform: scaleX(-1);
   }
 
   &-icon-scan {
