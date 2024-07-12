@@ -93,7 +93,7 @@ const fetchLeaveTypes = async () => {
 
     leaveOptions.value = Object.keys(data.data) || [];
   } catch (error) {
-    showErrorToast(error.data?.error?.message || error.data?.error);
+    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
   }
 };
 
@@ -183,7 +183,7 @@ const fetchLeaves = async () => {
     myLeaves.value = data.data.my_leaves || [];
     leavesReportsTo.value = data.data.reports_to || [];
   } catch (error) {
-    showErrorToast(error.data?.error?.message || error.data?.error);
+    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
     myLeaves.value = [];
     leavesReportsTo.value = [];
   } finally {
@@ -369,7 +369,7 @@ onIonViewWillEnter(async () => {
               </p>
               <ion-input
                 fill="outline"
-                placeholder="From Date"
+                :placeholder="$t('user.leaves.from_date')"
                 readonly
                 :value="formatDate(selectedDates.start, 'DD-MM-YYYY')"
                 @ion-focus="setDatePickerOpen(true)"
@@ -381,7 +381,7 @@ onIonViewWillEnter(async () => {
               </p>
               <ion-input
                 fill="outline"
-                placeholder="Till Date"
+                :placeholder="$t('user.leaves.to_date')"
                 readonly
                 :value="formatDate(selectedDates.end, 'DD-MM-YYYY')"
                 @ion-focus="setDatePickerOpen(true)"

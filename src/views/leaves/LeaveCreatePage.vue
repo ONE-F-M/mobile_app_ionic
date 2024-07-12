@@ -57,7 +57,7 @@ const fetchLeaveTypes = async () => {
     leaveOptions.value = Object.keys(data.data) || [];
     requiredProofDocument.value = data.data;
   } catch (error) {
-    showErrorToast(error.data?.error?.message || error.data?.error);
+    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
   }
 };
 
@@ -79,7 +79,7 @@ const fetchLeaveBalance = async () => {
 
     leaveBalance.value = { ...data.data };
   } catch (error) {
-    showErrorToast(error.data?.error?.message || error.data?.error);
+    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
   }
 };
 const clearLeaveBalance = () => {
@@ -87,8 +87,8 @@ const clearLeaveBalance = () => {
 };
 
 const selectedDates = reactive({
-  from_date: null,
-  to_date: null,
+  from_date: new Date(),
+  to_date: new Date(),
 });
 const selectedDateDifference = computed(() => {
   if (!selectedDates.from_date || !selectedDates.to_date) {
@@ -104,8 +104,8 @@ const selectedDateDifference = computed(() => {
 const formattedCurrentDate = formatDate(new Date(), "DD MMM, YYYY");
 
 const datePickerRange = ref({
-  start: null,
-  end: null,
+  start: new Date(),
+  end: new Date(),
 });
 const isDatePickerOpen = shallowRef(false);
 const setDatePickerOpen = (isOpen) => {
@@ -182,12 +182,14 @@ const validateForm = () => {
 };
 const clearForm = () => {
   selectedLeaveType.value = "";
-  selectedDates.from_date = null;
-  selectedDates.to_date = null;
+  selectedDates.from_date = new Date();
+  selectedDates.to_date = new Date();
   selectedReason.value = "";
   attachment.value.name = null;
   attachment.value.base64 = null;
   file.value = null;
+  datePickerRange.value.start = new Date();
+  datePickerRange.value.end = new Date();
 };
 const onSubmit = async () => {
   const isValidForm = validateForm();
@@ -226,7 +228,7 @@ const onSubmit = async () => {
     triggerBack();
   } catch (error) {
     console.error(error);
-    showErrorToast(error.data?.error?.message || error.data?.error);
+    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
   } finally {
     isLoading.value = false;
   }
@@ -254,7 +256,7 @@ onIonViewWillEnter(async () => {
         </p>
         <ion-select
           v-model="selectedLeaveType"
-          placeholder="Select Leave Type"
+          :placeholder="$t('user.leaves.select_leave_type')"
           interface="action-sheet"
           :interface-options="{
             buttons: [],
@@ -330,7 +332,7 @@ onIonViewWillEnter(async () => {
             </p>
             <ion-input
               fill="outline"
-              placeholder="From Date"
+              :placeholder="$t('user.leaves.from_date')"
               readonly
               :class="{
                 'ion-touched ion-invalid': errors.fromDate,
@@ -354,7 +356,7 @@ onIonViewWillEnter(async () => {
             </p>
             <ion-input
               fill="outline"
-              placeholder="Till Date"
+              :placeholder="$t('user.leaves.to_date')"
               readonly
               :class="{
                 'ion-touched ion-invalid': errors.toDate,
@@ -380,7 +382,6 @@ onIonViewWillEnter(async () => {
           @cancel="setDatePickerOpen(false)"
           @ok="onDatePickerOk"
         />
-
         <div class="ion-margin-top">
           <p class="leaves-create-label leaves-create-label__required">
             {{ $t("user.leaves.detail.reason") }}
@@ -392,7 +393,7 @@ onIonViewWillEnter(async () => {
             }"
             fill="outline"
             rows="6"
-            placeholder="Enter reason here"
+            :placeholder="$t('user.leaves.enter_reason')"
           />
           <span
             class="leaves-create-label-required leaves-create-label__required"

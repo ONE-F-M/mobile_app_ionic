@@ -95,7 +95,7 @@ const updatePassword = async () => {
     showSuccessToast("Password update successfully");
     router.push("/home");
   } catch (error) {
-    showErrorToast(error.error);
+    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
   } finally {
     isLoading.value = false;
   }

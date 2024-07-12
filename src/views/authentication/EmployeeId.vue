@@ -50,7 +50,7 @@ const nextStep = async () => {
     }
   } catch (error) {
     if (error?.data?.error) {
-      showErrorToast(error.data.error);
+      showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
     }
 
     console.error(error);

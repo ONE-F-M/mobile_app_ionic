@@ -212,7 +212,7 @@ const getSiteLocation = async () => {
     logType.value = data.data.log_type;
     shift.value = data.data.shift;
   } catch (error) {
-    showErrorToast(error.data.error);
+    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
   }
 };
 
@@ -230,7 +230,7 @@ const verifyCheckin = async () => {
     await checkin.verifyCheckin(payload);
     await getSiteLocation();
 
-    const type = logType.value === "IN" ? "checkin" : "checkout";
+    const type = logType.value === "OUT" ? "checkin" : "checkout";
     showSuccessToast(`You have ${type} successfully`);
   } catch (error) {
     console.error(error);
