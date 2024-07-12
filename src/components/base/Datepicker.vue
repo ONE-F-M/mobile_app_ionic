@@ -47,7 +47,7 @@ const range = computed({
                 formatDate(range.start) === formatDate(range.end)
                   ? formatDate(range.start, "ddd, MMM D")
                   : `${formatDate(range.start, "MMM D")} -
-                  ${formatDate(range.end, "MMM D")}`
+                  ${range.end && formatDate(range.end, "MMM D") || ''}`
               }}
             </h3>
             <!--                <ion-button class="ckeckin-datepicker-edit-button" fill="clear">-->
