@@ -6,6 +6,10 @@ export default {
   leave_type: "Leave Type",
   leave_details: "Leave Details",
   new_leave_application: "New Leave Application",
+  from_date: "From Date",
+  to_date: "Till Date",
+  select_leave_type: "Select Leave Type",
+  enter_reason: "Enter reason here",
   card: {
     type: {
       sick_leave: "Sick leave",
