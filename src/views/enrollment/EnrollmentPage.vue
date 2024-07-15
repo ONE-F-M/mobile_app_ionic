@@ -110,7 +110,7 @@ const saveVideo = async () => {
   });
 
   const converted = await readerPromise;
-  showVideo.value = false;
+  video.value.pause();
   emit("completed", converted);
 };
 
@@ -189,6 +189,7 @@ onIonViewDidLeave(() => {
             <ion-spinner
               class="enrollment-spinner-almost-done"
               name="crescent"
+              color="primary"
             ></ion-spinner>
           </div>
         </div>
@@ -221,7 +222,7 @@ onIonViewDidLeave(() => {
     position: absolute;
     left: 50%;
     top: 50%;
-    transform: translateX(-50%) translateY(-50%);
+    transform: translateX(-50%) translateY(-50%) scaleX(-1);
   }
 }
 
@@ -238,13 +239,11 @@ onIonViewDidLeave(() => {
   }
 
   &-instruction-arrow {
-    margin-top: 32px;
-    margin-bottom: 0;
+    margin: 32px auto 0;
     padding-bottom: 0;
   }
 
   &-left {
-    margin-left: -26px;
 
     .command-icon {
       margin-right: 16px;
@@ -252,7 +251,6 @@ onIonViewDidLeave(() => {
   }
 
   &-right {
-    margin-right: -26px;
 
     .command-icon {
       margin-left: 16px;

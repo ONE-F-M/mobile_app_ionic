@@ -106,6 +106,9 @@
     .input-label-placement-floating.sc-ion-input-ios-h .label-text-wrapper.sc-ion-input-ios {
       transform: translateY(155%) translateX(-20px) scale(1);
     }
+    .label-floating.sc-ion-input-ios-h .label-text-wrapper.sc-ion-input-ios {
+      transform: translateY(10%) scale(0.75);
+    }
   }
 }
 
