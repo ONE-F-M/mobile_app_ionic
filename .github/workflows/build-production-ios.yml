@@ -1,4 +1,4 @@
-name: "Build IPA"
+name: "Build IPA (Production)"
 
 on:
   push:
@@ -8,17 +8,17 @@ on:
 jobs:
   build_with_signing:
     env:
-     VITE_BASE_API_URL: ${{vars.VITE_BASE_API_URL}}
-     VITE_API_PREFIX: ${{vars.VITE_API_PREFIX}}
-     VITE_BASE_URL: ${{vars.VITE_BASE_URL}}    
+     VITE_BASE_API_URL: ${{ vars.VITE_BASE_PRODUCTION_API_URL }}
+     VITE_API_PREFIX: ${{ vars.VITE_API_PREFIX }}
+     VITE_BASE_URL: ${{ vars.VITE_BASE_URL }}    
     runs-on: macos-latest
     steps:
       # this was more debug as was curious what came pre-installed
       # GitHub shares this online, e.g. https://github.com/actions/runner-images/blob/macOS-12/20230224.1/images/macos/macos-12-Readme.md
-      - name: check Xcode version
+      - name: Check Xcode version
         run: /usr/bin/xcodebuild -version
 
-      - name: checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Setup Node.js
@@ -91,7 +91,7 @@ jobs:
           # If build-number is not set, auto-increment build number.
           build-number: ''
 
-      - name: build archive
+      - name: Build archive
         run: |
           xcodebuild -scheme "App" \
           -workspace ios/App/App.xcworkspace \
@@ -102,17 +102,17 @@ jobs:
           -destination generic/platform=iOS \
           clean archive          
 
-      - name: export ipa
+      - name: Export IPA
         run: |
           xcodebuild -exportOptionsPlist ios/App/ExportOptions.plist -exportArchive -archivePath $RUNNER_TEMP/app.xcarchive -exportPath $RUNNER_TEMP/build          
 
-      - name: Upload application
+      - name: Upload Application
         uses: actions/upload-artifact@v3
         with:
           name: app
           path: ${{ runner.temp }}/build/App.ipa
 
-      - name: 'Upload app to TestFlight'
+      - name: Upload app to TestFlight
         uses: apple-actions/upload-testflight-build@v1
         with: 
           app-path: ${{ runner.temp }}/build/App.ipa
