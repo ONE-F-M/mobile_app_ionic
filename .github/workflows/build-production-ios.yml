@@ -3,7 +3,7 @@ name: "Build IPA (Production)"
 on:
   push:
     branches:
-      - dev
+      - production
 
 jobs:
   build_with_signing:
