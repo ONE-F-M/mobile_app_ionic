@@ -3,7 +3,7 @@ name: "Build IPA (Staging)"
 on:
   push:
     branches:
-      - dev
+      - staging
 
 jobs:
   build_with_signing:

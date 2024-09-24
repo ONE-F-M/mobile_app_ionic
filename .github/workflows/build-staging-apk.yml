@@ -3,7 +3,7 @@ name: Build APK (Staging)
 on:
   push:
     branches:
-      - dev
+      - staging
 
 jobs:
   build:
@@ -64,6 +64,6 @@ jobs:
       #   with:
       #     serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_KEY }}
       #     packageName: com.example.app
-      #     releaseFiles: app/build/outputs/apk/release/app-release.apk
+      #     releaseFiles: android/app/build/outputs/apk/debug/app-debug.apk
       #     track: internal
 
