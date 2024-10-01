@@ -89,7 +89,7 @@ jobs:
           # build number
           # ex. 10
           # If build-number is not set, auto-increment build number.
-          build-number: ''
+          build-number: '22' # temporary build number
 
       - name: Build archive
         run: |
