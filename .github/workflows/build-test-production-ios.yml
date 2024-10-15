@@ -1,14 +1,14 @@
-name: "Build IPA (Staging)"
+name: "Build IPA (Test Production)"
 
 on:
   push:
     branches:
-      - staging
+      - test-production
 
 jobs:
   build_with_signing:
     env:
-     VITE_BASE_API_URL: ${{ vars.VITE_BASE_STAGING_API_URL }}
+     VITE_BASE_API_URL: ${{ vars.VITE_BASE_TEST_PRODUCTION_API_URL }}
      VITE_API_PREFIX: ${{ vars.VITE_API_PREFIX }}
      VITE_BASE_URL: ${{ vars.VITE_BASE_URL }}    
     runs-on: macos-latest

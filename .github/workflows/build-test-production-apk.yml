@@ -1,14 +1,14 @@
-name: Build APK (Staging)
+name: Build APK (Test Production)
 
 on:
   push:
     branches:
-      - staging
+      - test-production
 
 jobs:
   build:
     env:
-      VITE_BASE_API_URL: ${{ vars.VITE_BASE_STAGING_API_URL }}
+      VITE_BASE_API_URL: ${{ vars.VITE_BASE_TEST_PRODUCTION_API_URL }}
       VITE_API_PREFIX: ${{ vars.VITE_API_PREFIX }}
       VITE_BASE_URL: ${{ vars.VITE_BASE_URL }}    
     name: Build APK
@@ -63,7 +63,7 @@ jobs:
       #   uses: r0adkll/upload-google-play@v1
       #   with:
       #     serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_KEY }}
-      #     packageName: com.example.app
-      #     releaseFiles: android/app/build/outputs/apk/debug/app-debug.apk
+      #     packageName: com.onefm.mobile
+      #     releaseFiles: app/build/outputs/apk/release/app-release.apk
       #     track: internal
 
