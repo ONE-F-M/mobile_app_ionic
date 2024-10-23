@@ -125,8 +125,7 @@ const saveVideo = async () => {
   const readerPromise = new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = () => {
-      const base64String = reader.result.split(",")[1];
-
+      const base64String = reader.result.split(",")[1]; // Extract base64 part
       resolve(base64String);
     };
     reader.readAsDataURL(chunks);
@@ -218,16 +217,18 @@ const getSiteLocation = async () => {
 
 const verifyCheckin = async () => {
   try {
-    const payload = {
-      employee_id: userStore.user?.employee_id,
-      video: verifyVideo.value,
-      latitude: Number(coordinates.value?.coords?.latitude),
-      longitude: Number(coordinates.value?.coords?.longitude),
-      log_type: logType.value,
-      skip_attendance: 1,
-    }
+    const formData = new FormData();
 
-    await checkin.verifyCheckin(payload);
+    formData.append('employee_id', userStore.user?.employee_id);
+    formData.append('latitude', Number(coordinates.value?.coords?.latitude));
+    formData.append('longitude', Number(coordinates.value?.coords?.longitude));
+    formData.append('log_type', logType.value);
+    formData.append('skip_attendance', 1);
+    
+    const videoBlob = await base64ToBlob(verifyVideo.value, 'video/mp4');
+    formData.append('video_file', videoBlob, 'checkin_video.mp4');
+
+    await checkin.verifyCheckin(formData);
     await getSiteLocation();
 
     const type = logType.value === "OUT" ? "checkin" : "checkout";
@@ -237,6 +238,14 @@ const verifyCheckin = async () => {
     showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
   }
 };
+
+// Function to convert base64 to Blob
+const base64ToBlob = async (base64, mimeType) => {
+  const res = await fetch(`data:${mimeType};base64,${base64}`);
+  const blob = await res.blob();
+  return blob;
+};
+
 
 const initialPosition = computed(() => ({
   lat: coordinates.value?.coords?.latitude || 0,
