@@ -30,11 +30,21 @@ const startEnrollment = () => {
   inProgress.value = true;
 };
 
+const base64ToBlob = async (base64, mimeType) => {
+  const res = await fetch(`data:${mimeType};base64,${base64}`);
+  const blob = await res.blob();
+  return blob;
+};
+
 const handleVideo = async (video) => {
   const employeeId = authStore.employeeId;
+  const formData = new FormData();
 
+  formData.append('employee_id', employeeId);
+  const videoBlob = await base64ToBlob(video, 'video/mp4');
+  formData.append('video_file', videoBlob, 'checkin_video.mp4');
   try {
-    await enroll({ employee_id: employeeId, video });
+    await enroll(formData);
     router.push("/enroll-success");
   } catch (error) {
     router.push({
