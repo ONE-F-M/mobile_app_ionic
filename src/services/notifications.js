@@ -59,7 +59,7 @@ export const setupNotifications = async (proxy) => {
 
     // Listen for foreground messages
     onMessage(messaging, (payload) => {
-      console.log("E DEY ACTIVE O")
+      
       const notificationTitle = payload?.notification?.title || "Notification";
       const notificationOptions = {
         body: payload?.notification?.body || "",

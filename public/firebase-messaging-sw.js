@@ -19,7 +19,7 @@ const messaging = firebase.messaging();
 const isChrome = navigator.userAgent.toLowerCase().includes("chrome");
 
 messaging.onBackgroundMessage((payload) => {
-    console.log("BACKGROUND MESSAGE o")
+    
   const notificationTitle = payload?.notification?.title || "Notification";
   const notificationOptions = {
     body: payload?.notification?.body || "",
