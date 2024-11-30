@@ -8,7 +8,7 @@ import {
   useIonRouter,
   onIonViewDidLeave,
 } from "@ionic/vue";
-import { ref, watch } from "vue";
+import { ref, watch,getCurrentInstance } from "vue";
 import { Device } from "@capacitor/device";
 
 import auth from "@/api/authentication";
@@ -17,11 +17,13 @@ import { useAuthStore } from "@/store/auth";
 import { storeToRefs } from "pinia";
 import Header from "@/components/Header.vue";
 import useNotification from "@/composable/useNotification";
+import { setupNotifications } from '@/services/notifications.js';
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
 const { employeeId, userName } = storeToRefs(authStore);
 const router = useIonRouter();
+const { proxy } = getCurrentInstance();
 
 const step = ref(0);
 const isLoading = ref(false);
@@ -46,7 +48,7 @@ const login = async () => {
       employee_id: employeeId.value,
       password: password.value,
     });
-
+    console.log("USER DETAILS: ",data)
     userStore.setUser(data.data);
     userStore.setToken(data.data.token);
 
@@ -57,6 +59,9 @@ const login = async () => {
     if (deviceInfo.platform !== "web") {
       await addListeners();
       await registerNotifications();
+    }
+    else{
+      setupNotifications(data)
     }
 
     password.value = "";
