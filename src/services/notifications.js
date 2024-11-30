@@ -27,8 +27,10 @@ export const setupNotifications = async (proxy) => {
   
   if (permission === "granted") {
     try {
+      const swRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
       const currentToken = await getToken(messaging, {
         vapidKey: firebaseConfig.vapidKey,
+        serviceWorkerRegistration: swRegistration 
       });
       
       if (currentToken) {

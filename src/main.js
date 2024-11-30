@@ -56,7 +56,7 @@ const firebaseConfig = {
 };
 
 const firebaseApp = initializeApp(firebaseConfig);
-const messaging = getMessaging(firebaseApp);
+getMessaging(firebaseApp);
 const app = createApp(App);
 app.use(pinia);
 app.use(VCalendar, {});
