@@ -19,18 +19,16 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const messaging = getMessaging(firebaseApp);
 
-export const setupNotifications = async (proxy) => {
+export const setupNotifications = async (proxy={}) => {
   // Request Notification permission
- 
+  
   const authStore = useAuthStore();
   const permission = await Notification.requestPermission();
   
   if (permission === "granted") {
     try {
-      const swRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
       const currentToken = await getToken(messaging, {
         vapidKey: firebaseConfig.vapidKey,
-        serviceWorkerRegistration: swRegistration 
       });
       
       if (currentToken) {
@@ -48,7 +46,8 @@ export const setupNotifications = async (proxy) => {
           });
           
         }
-      } else {
+      } 
+      else {
         console.log(
           "No registration token available. Request permission to generate one."
         );
@@ -63,7 +62,7 @@ export const setupNotifications = async (proxy) => {
       const notificationTitle = payload?.notification?.title || "Notification";
       const notificationOptions = {
         body: payload?.notification?.body || "",
-        icon: payload?.notification?.icon || "/assets/img/logo.png",
+        icon: payload?.notification?.icon || "/assets/logo.png",
       };
 
       const isChrome = navigator.userAgent.toLowerCase().includes("chrome");

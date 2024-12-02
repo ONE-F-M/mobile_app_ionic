@@ -7,9 +7,8 @@ import "dayjs/locale/ar";
 import { initializeApp } from "firebase/app";
 import { getMessaging } from "firebase/messaging";
 
-
 import { useLangStore } from "@/store/lang.js";
-
+import { setupNotifications } from '@/services/notifications.js';
 import pinia from "@/plugins/pinia.js";
 import initI18n from "@/plugins/i18n.js";
 
@@ -44,6 +43,30 @@ import "./theme/global.scss";
 
 /* Plugins CSS styles */
 import "v-calendar/style.css";
+
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistration('/firebase-messaging-sw.js')
+    .then((registration) => {
+      if (registration) {
+        ;
+        // Service Worker already registered with scope
+      } else {
+         // Service Worker not registered
+        navigator.serviceWorker.register('/firebase-messaging-sw.js')
+          .then((newRegistration) => {
+            setupNotifications()
+          })
+          .catch((error) => {
+            console.error('Service Worker registration failed:', error);
+          });
+      }
+    })
+    .catch((error) => {
+      console.error('Error checking Service Worker registration:', error);
+    });
+}
+
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -54,6 +77,9 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
   vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
 };
+
+
+
 
 const firebaseApp = initializeApp(firebaseConfig);
 getMessaging(firebaseApp);
@@ -85,7 +111,6 @@ app
   .use(router);
 
 const langStore = useLangStore();
-
 const lang = langStore.lang || "en";
 
 const i18n = initI18n(lang);
@@ -94,5 +119,8 @@ app.use(i18n);
 
 router.isReady().then(() => {
   app.mount("#app");
+  
+  
+
 });
 
