@@ -1,8 +1,8 @@
-import { getMessaging, getToken, onMessage } from "firebase/messaging";
+import { getMessaging, getToken } from "firebase/messaging";
 import { initializeApp } from "firebase/app";
 import { useAuthStore } from "@/store/auth";
 import { Device } from "@capacitor/device";
-
+import { initializeFirebase, getFirebaseMessaging } from "@/services/firebase";
 import profile from "@/api/profile";
 
 const firebaseConfig = {
@@ -16,18 +16,18 @@ const firebaseConfig = {
   vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
 };
 
-const firebaseApp = initializeApp(firebaseConfig);
-const messaging = getMessaging(firebaseApp);
+
+
 
 export const setupNotifications = async (proxy={}) => {
   // Request Notification permission
-  
+  const messaging = await getFirebaseMessaging();
   const authStore = useAuthStore();
   const permission = await Notification.requestPermission();
   
   if (permission === "granted") {
     try {
-      const currentToken = await getToken(messaging, {
+            const currentToken = await getToken(messaging, {
         vapidKey: firebaseConfig.vapidKey,
       });
       
@@ -55,48 +55,6 @@ export const setupNotifications = async (proxy={}) => {
     } catch (error) {
       console.error("An error occurred while retrieving token: ", error);
     }
-
-    // Listen for foreground messages
-    onMessage(messaging, (payload) => {
-      
-      const notificationTitle = payload?.notification?.title || "Notification";
-      const notificationOptions = {
-        body: payload?.notification?.body || "",
-        icon: payload?.notification?.icon || "/assets/logo.png",
-      };
-
-      const isChrome = navigator.userAgent.toLowerCase().includes("chrome");
-      if (isChrome) {
-        notificationOptions.data = {
-          url: payload?.notification?.click_action,
-        };
-      } else {
-        if (payload?.notification?.click_action) {
-          notificationOptions.actions = [
-            {
-              action: payload.notification.click_action,
-              title: "View Details",
-            },
-          ];
-        }
-      }
-
-      if (Notification.permission === "granted") {
-        const notification = new Notification(
-          notificationTitle,
-          notificationOptions
-        );
-        notification.onclick = (event) => {
-          event.preventDefault();
-          const url = isChrome
-            ? notificationOptions.data.url
-            : payload?.notification?.click_action;
-          if (url) {
-            window.open(url, "_blank");
-          }
-        };
-      }
-    });
   } else {
     console.log("Unable to get permission to notify.");
   }
