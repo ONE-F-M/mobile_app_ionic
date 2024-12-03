@@ -72,11 +72,10 @@ const langStore = useLangStore();
 const lang = langStore.lang || "en";
 const i18n = initI18n(lang);
 app.use(i18n);
-await registerServiceWorker()
-const messaging =  await getFirebaseMessaging();
 
-router.isReady().then(() => {
-    
+router.isReady().then( async () => {
+  await registerServiceWorker()
+  await getFirebaseMessaging();
   app.mount("#app");
  
 });
