@@ -137,6 +137,7 @@ const saveVideo = async () => {
 
   await verifyCheckin();
   await getSiteLocation();
+  video.value.pause();
   cleanup();
   isOpen.value = false;
   isLoading.value = false;
