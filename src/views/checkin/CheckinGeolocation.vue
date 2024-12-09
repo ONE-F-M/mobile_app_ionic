@@ -112,9 +112,11 @@ const initializeStream = async () => {
 };
 
 const cleanup = async () => {
+  
   recorder.stop();
   stream && stream.getTracks().forEach((track) => track.stop());
   stream = null;
+  
 };
 
 const saveVideo = async () => {
@@ -134,10 +136,11 @@ const saveVideo = async () => {
   verifyVideo.value = await readerPromise;
 
   isLoading.value = true;
-
+  video.value.pause();
+  
   await verifyCheckin();
   await getSiteLocation();
-  video.value.pause();
+  
   cleanup();
   isOpen.value = false;
   isLoading.value = false;
