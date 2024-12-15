@@ -18,11 +18,30 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 const isChrome = navigator.userAgent.toLowerCase().includes("chrome");
 
-
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const clickUrl = event.notification.data?.url;
+  
+  if (clickUrl) {
+    // Open the URL in a new window or tab
+    event.waitUntil(
+      clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+        // Focus an already open tab with the same URL, or open a new one
+        for (let client of clientList) {
+          if (client.url === clickUrl && 'focus' in client) {
+            return client.focus();
+          }
+        }
+        if (clients.openWindow) {
+          return clients.openWindow(clickUrl);
+        }
+      })
+    );
+  }
+})
 
 
 messaging.onBackgroundMessage((payload) => {
-  
   const notificationTitle = payload?.notification?.title || "Notification";
   const notificationOptions = {
     body: payload?.notification?.body || "",
@@ -45,27 +64,7 @@ messaging.onBackgroundMessage((payload) => {
   }
 
   
-    self.addEventListener('notificationclick', (event) => {
-      event.notification.close();
-      const clickUrl = event.notification.data?.url;
-      
-      if (clickUrl) {
-        // Open the URL in a new window or tab
-        event.waitUntil(
-          clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-            // Focus an already open tab with the same URL, or open a new one
-            for (let client of clientList) {
-              if (client.url === clickUrl && 'focus' in client) {
-                return client.focus();
-              }
-            }
-            if (clients.openWindow) {
-              return clients.openWindow(clickUrl);
-            }
-          })
-        );
-      }
-    })
+    
     self.registration.showNotification(notificationTitle, notificationOptions);
   
 });

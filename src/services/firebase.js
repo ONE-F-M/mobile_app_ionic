@@ -29,10 +29,11 @@ export async function initializeFirebase() {
     try {      
         import("firebase/messaging").then(({ onMessage }) => {
           onMessage(messaging, (payload) => {
+            
             const notificationTitle = payload?.notification?.title || "Notification";
             const notificationOptions = {
               body: payload?.notification?.body || "",
-              icon: payload?.notification?.icon || "/logo.png",
+              icon: payload?.notification?.icon || "../../public/logo.png",
             };
   
             if (Notification.permission === "granted") {
@@ -47,6 +48,9 @@ export async function initializeFirebase() {
             }
           });
         });
+
+        
+        
       } catch (error) {
         console.error("Error initializing Firebase:", error);
       }
