@@ -51,7 +51,7 @@ const login = async () => {
    
     userStore.setUser(data.data);
     userStore.setToken(data.data.token);
-
+    userStore.setEndpointStatus(data.data.endpoint_status)
     const deviceInfo = await Device.getInfo();
 
     authStore.setEmployeeIdentificator(data.data.name);

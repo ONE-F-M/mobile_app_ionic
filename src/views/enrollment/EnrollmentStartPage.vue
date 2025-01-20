@@ -41,8 +41,11 @@ const handleVideo = async (video) => {
   const formData = new FormData();
 
   formData.append('employee_id', employeeId);
-  const videoBlob = await base64ToBlob(video, 'video/mp4');
-  formData.append('video_file', videoBlob, 'checkin_video.mp4');
+  if(userStore.isEndpointEnabled){
+    const videoBlob = await base64ToBlob(video, 'video/mp4');
+    formData.append('video_file', videoBlob, 'checkin_video.mp4');
+  }
+  
   try {
     await enroll(formData);
     router.push("/enroll-success");

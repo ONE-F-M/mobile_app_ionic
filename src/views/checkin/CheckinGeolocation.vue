@@ -39,7 +39,7 @@ let myMarker;
 const userStore = useUserStore();
 const isUserWithinGeofenceRadius = ref(true);
 const hasUserRejectedLocation = ref(false);
-
+const faceRecEndpointEnabled = ref(true)
 // IN or OUT
 const logType = ref("");
 const shift = ref(null);
@@ -212,6 +212,7 @@ const getSiteLocation = async () => {
     });
 
     isUserWithinGeofenceRadius.value = data.data.user_within_geofence_radius;
+    faceRecEndpointEnabled.value = data.data.endpoint_status
     logType.value = data.data.log_type;
     shift.value = data.data.shift;
   } catch (error) {
@@ -228,10 +229,13 @@ const verifyCheckin = async () => {
     formData.append('longitude', Number(coordinates.value?.coords?.longitude));
     formData.append('log_type', logType.value);
     formData.append('skip_attendance', 1);
+    // Only add the video if facial recognition endpoint is enabled on the server 
+    if(faceRecEndpointEnabled.value){
+      const videoBlob = await base64ToBlob(verifyVideo.value, 'video/mp4');
+      formData.append('video_file', videoBlob, 'checkin_video.mp4');
+    }
     
-    const videoBlob = await base64ToBlob(verifyVideo.value, 'video/mp4');
-    formData.append('video_file', videoBlob, 'checkin_video.mp4');
-
+    
     await checkin.verifyCheckin(formData);
     await getSiteLocation();
 
