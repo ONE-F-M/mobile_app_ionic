@@ -217,18 +217,18 @@ const getSiteLocation = async () => {
 
 const verifyCheckin = async () => {
   try {
-    const formData = new FormData();
+    const payload = {
+      employee_id: userStore.user?.employee_id,
+      video: verifyVideo.value,
+      latitude: Number(coordinates.value?.coords?.latitude),
+      longitude: Number(coordinates.value?.coords?.longitude),
+      log_type: logType.value,
+      skip_attendance: 1,
+    }
 
-    formData.append('employee_id', userStore.user?.employee_id);
-    formData.append('latitude', Number(coordinates.value?.coords?.latitude));
-    formData.append('longitude', Number(coordinates.value?.coords?.longitude));
-    formData.append('log_type', logType.value);
-    formData.append('skip_attendance', 1);
     
-    const videoBlob = await base64ToBlob(verifyVideo.value, 'video/mp4');
-    formData.append('video_file', videoBlob, 'checkin_video.mp4');
-
-    await checkin.verifyCheckin(formData);
+    
+    await checkin.verifyCheckin(payload);
     await getSiteLocation();
 
     const type = logType.value === "OUT" ? "checkin" : "checkout";
