@@ -54,7 +54,7 @@ onIonViewWillEnter(async () => {
               </div>
 
               <span class="body-small notification-time">{{
-                `${formatDate(notification.time, "D MMM")} at ${formatDate(notification.time, "h:mm A")}`
+                notification.time ? `${formatDate(notification.time, "D MMM")} at ${formatDate(notification.time, "h:mm A")}` : ""
               }}</span>
             </div>
             <p class="body-medium notification-content">
