@@ -7,7 +7,7 @@ export default {
     button: "Enroll Now",
   },
   instructions: {
-    look_straight: "Look straight in the camera",
+    look_straight: "Please look straight at the camera and blink your eyes",
     face_left: "Turn your face to the left",
     face_right: "Turn your face to the right",
   },
