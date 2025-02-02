@@ -243,6 +243,9 @@ const verifyCheckin = async () => {
     showSuccessToast(`You have ${type} successfully`);
   } catch (error) {
     console.error(error);
+    if(error.data && error.data.error==="Enroll again,Filename is required."){
+      router.push("/enrollment");
+    }
     showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
   }
 };
