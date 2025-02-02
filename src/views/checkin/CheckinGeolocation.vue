@@ -27,6 +27,8 @@ import MyLocation from "@/components/icon/MyLocation.vue";
 import utils from "@/api/utils";
 import { useI18n } from "vue-i18n";
 import { Loader } from "@googlemaps/js-api-loader";
+import auth from "@/api/authentication";
+
 
 const router = useIonRouter();
 
@@ -205,6 +207,14 @@ const loadAgainLocation = async () => {
 
 const getSiteLocation = async () => {
   try {
+
+    const response = await auth.getUserFaceEnrollment({
+    employee_id: userStore.user?.employee_id,
+  });
+  if(response.data.data.enrolled===false){
+    showErrorToast(`You have not enrolled your face,Please Enroll`);
+    router.push("/enrollment");
+  }
     const { data } = await checkin.getSiteLocation({
       employee_id: userStore.user?.employee_id,
       latitude: coordinates.value?.coords?.latitude,
