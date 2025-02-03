@@ -6,10 +6,14 @@ export const useUserStore = defineStore("user", {
     return {
       user: null,
       token: null,
+      isEndpointEnabled:null,
     };
   },
   persist: true,
   actions: {
+    setEndpointStatus(status){
+      this.isEndpointEnabled = status;
+    },
     setUser(user) {
       this.user = user;
     },
@@ -25,6 +29,7 @@ export const useUserStore = defineStore("user", {
 
       this.user = null;
       this.token = null;
+      this.isEndpointEnabled = null;
     },
   },
 });

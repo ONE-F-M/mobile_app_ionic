@@ -134,6 +134,7 @@ const saveVideo = async () => {
   verifyVideo.value = await readerPromise;
 
   isLoading.value = true;
+  video.value.pause();
 
   await verifyCheckin();
   await getSiteLocation();
@@ -206,7 +207,7 @@ const getSiteLocation = async () => {
       latitude: coordinates.value?.coords?.latitude,
       longitude: coordinates.value?.coords?.longitude,
     });
-
+    userStore.setEndpointStatus(data.data.endpoint_status)
     isUserWithinGeofenceRadius.value = data.data.user_within_geofence_radius;
     logType.value = data.data.log_type;
     shift.value = data.data.shift;
@@ -219,7 +220,6 @@ const verifyCheckin = async () => {
   try {
     const payload = {
       employee_id: userStore.user?.employee_id,
-      video: verifyVideo.value,
       latitude: Number(coordinates.value?.coords?.latitude),
       longitude: Number(coordinates.value?.coords?.longitude),
       log_type: logType.value,
@@ -227,7 +227,10 @@ const verifyCheckin = async () => {
     }
 
     
-    
+    if(userStore.isEndpointEnabled){
+      payload.video = verifyVideo.value
+    }
+   
     await checkin.verifyCheckin(payload);
     await getSiteLocation();
 

@@ -36,7 +36,12 @@ const handleVideo = async (video) => {
   const employeeId = authStore.employeeId;
   
   try {
-    await enroll({'employee_id':employeeId,video});
+    let payload = {'employee_id':employeeId}
+    if(userStore.isEndpointEnabled){
+      payload.video = video
+    }
+    
+    await enroll(payload);
     router.push("/enroll-success");
   } catch (error) {
     router.push({

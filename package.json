@@ -33,6 +33,7 @@
     "@popperjs/core": "^2.11.8",
     "axios": "^1.6.8",
     "dayjs": "^1.11.10",
+    "firebase": "^11.0.2",
     "ionicons": "^7.0.0",
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^3.2.1",

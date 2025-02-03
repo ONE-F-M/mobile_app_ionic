@@ -8,6 +8,7 @@ import {
   useIonRouter,
   onIonViewDidLeave,
 } from "@ionic/vue";
+import { setupNotifications } from '@/services/notifications.js';
 import { ref, watch } from "vue";
 import { Device } from "@capacitor/device";
 
@@ -49,7 +50,7 @@ const login = async () => {
 
     userStore.setUser(data.data);
     userStore.setToken(data.data.token);
-
+    userStore.setEndpointStatus(data.data.endpoint_state)
     const deviceInfo = await Device.getInfo();
 
     authStore.setEmployeeIdentificator(data.data.name);
@@ -57,6 +58,9 @@ const login = async () => {
     if (deviceInfo.platform !== "web") {
       await addListeners();
       await registerNotifications();
+    }
+    else{
+      setupNotifications(data)
     }
 
     password.value = "";
