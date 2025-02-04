@@ -52,9 +52,7 @@ const requestCode = async () => {
 
     router.push("/register/verify-code");
   } catch (error) {
-    showErrorToast(
-      "Cannot send verification code due to internal server error",
-    );
+    showErrorToast(error?.data?.error || "Something went wrong in sending verification code");
   }
 };
 
