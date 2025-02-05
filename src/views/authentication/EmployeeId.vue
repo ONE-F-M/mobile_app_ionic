@@ -49,10 +49,7 @@ const nextStep = async () => {
       return router.push("/register");
     }
   } catch (error) {
-    if (error?.data?.error) {
-      showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
-    }
-
+    showErrorToast(error?.data?.error || "Something went wrong in authenticating your Employee ID");
     console.error(error);
   } finally {
     isLoading.value = false;

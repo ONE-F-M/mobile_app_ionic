@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
-    "build": "vite build",
+    "build": "node swEnvBuild.js && vite build",
     "sync": "yarn build && npx cap sync",
     "preview": "vite preview",
     "test:e2e": "cypress run",
@@ -61,6 +61,7 @@
     "terser": "^5.26.0",
     "typescript": "^5.3.3",
     "vite": "^5.0.0",
+    "vite-plugin-pwa": "^0.21.0",
     "vitest": "^0.34.6"
   },
   "description": "An Ionic project for One Facilities Management"

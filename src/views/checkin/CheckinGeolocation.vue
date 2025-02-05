@@ -27,6 +27,8 @@ import MyLocation from "@/components/icon/MyLocation.vue";
 import utils from "@/api/utils";
 import { useI18n } from "vue-i18n";
 import { Loader } from "@googlemaps/js-api-loader";
+import auth from "@/api/authentication";
+
 
 const router = useIonRouter();
 
@@ -39,7 +41,7 @@ let myMarker;
 const userStore = useUserStore();
 const isUserWithinGeofenceRadius = ref(true);
 const hasUserRejectedLocation = ref(false);
-
+const faceRecEndpointEnabled = ref(true)
 // IN or OUT
 const logType = ref("");
 const shift = ref(null);
@@ -56,7 +58,7 @@ const step = 0.01;
 //in seconds
 const duration = 5;
 const instruction = ref("");
-const percent = (duration / 100) * 1000;
+const percent = (duration / 100) * 2000;
 
 const defaultSwipeHandler = ref(null);
 
@@ -112,9 +114,11 @@ const initializeStream = async () => {
 };
 
 const cleanup = async () => {
+  
   recorder.stop();
   stream && stream.getTracks().forEach((track) => track.stop());
   stream = null;
+  
 };
 
 const saveVideo = async () => {
@@ -138,6 +142,7 @@ const saveVideo = async () => {
 
   await verifyCheckin();
   await getSiteLocation();
+  
   cleanup();
   isOpen.value = false;
   isLoading.value = false;
@@ -202,6 +207,14 @@ const loadAgainLocation = async () => {
 
 const getSiteLocation = async () => {
   try {
+
+    const response = await auth.getUserFaceEnrollment({
+    employee_id: userStore.user?.employee_id,
+  });
+  if(response.data.data.enrolled===false){
+    showErrorToast(`You have not enrolled your face,Please Enroll`);
+    router.push("/enrollment");
+  }
     const { data } = await checkin.getSiteLocation({
       employee_id: userStore.user?.employee_id,
       latitude: coordinates.value?.coords?.latitude,
@@ -209,6 +222,7 @@ const getSiteLocation = async () => {
     });
     userStore.setEndpointStatus(data.data.endpoint_status)
     isUserWithinGeofenceRadius.value = data.data.user_within_geofence_radius;
+    faceRecEndpointEnabled.value = data.data.endpoint_status
     logType.value = data.data.log_type;
     shift.value = data.data.shift;
   } catch (error) {

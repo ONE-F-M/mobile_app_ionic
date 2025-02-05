@@ -29,6 +29,11 @@ export const getUserEnrollment = async (payload: UserNameParams) =>
     data: payload,
   });
 
+export const getUserFaceEnrollment = async (payload: UserNameParams) =>
+    await httpService.post(`v1.utils.enrollment_status`, {
+      data: payload,
+    });
+
 export const forgotPassword = async (data: ForgotPasswordParams) =>
   await httpService.post("v1.authentication.forgot_password", { data });
 
@@ -41,6 +46,7 @@ export const updatePassword = async (data: UpdatePasswordParams) =>
 export default {
   userLogin,
   getUserEnrollment,
+  getUserFaceEnrollment,
   verifyOtp,
   forgotPassword,
   updatePassword,

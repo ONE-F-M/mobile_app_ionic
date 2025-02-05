@@ -18,11 +18,13 @@ import { useAuthStore } from "@/store/auth";
 import { storeToRefs } from "pinia";
 import Header from "@/components/Header.vue";
 import useNotification from "@/composable/useNotification";
+import { setupNotifications } from '@/services/notifications.js';
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
 const { employeeId, userName } = storeToRefs(authStore);
 const router = useIonRouter();
+
 
 const step = ref(0);
 const isLoading = ref(false);
@@ -47,10 +49,11 @@ const login = async () => {
       employee_id: employeeId.value,
       password: password.value,
     });
-
+   
     userStore.setUser(data.data);
     userStore.setToken(data.data.token);
     userStore.setEndpointStatus(data.data.endpoint_state)
+    
     const deviceInfo = await Device.getInfo();
 
     authStore.setEmployeeIdentificator(data.data.name);

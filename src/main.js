@@ -4,8 +4,9 @@ import router from "./router";
 import "dayjs/locale/en";
 import "dayjs/locale/ar";
 
+import { initializeFirebase, getFirebaseMessaging } from "@/services/firebase";
 import { useLangStore } from "@/store/lang.js";
-
+import { registerServiceWorker } from "@/services/serviceWorker";
 import pinia from "@/plugins/pinia.js";
 import initI18n from "@/plugins/i18n.js";
 
@@ -40,9 +41,7 @@ import "./theme/global.scss";
 
 /* Plugins CSS styles */
 import "v-calendar/style.css";
-
 const app = createApp(App);
-
 app.use(pinia);
 app.use(VCalendar, {});
 
@@ -70,13 +69,14 @@ app
   .use(router);
 
 const langStore = useLangStore();
-
 const lang = langStore.lang || "en";
-
 const i18n = initI18n(lang);
-
 app.use(i18n);
 
-router.isReady().then(() => {
+router.isReady().then( async () => {
+  await registerServiceWorker()
+  await getFirebaseMessaging();
   app.mount("#app");
+ 
 });
+

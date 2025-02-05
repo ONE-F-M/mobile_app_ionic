@@ -22,7 +22,7 @@ import auth from "@/api/authentication";
 import { useUserStore } from "@/store/user.js";
 import useNotification from "@/composable/useNotification";
 import { Device } from "@capacitor/device";
-
+import { setupNotifications } from '@/services/notifications.js';
 const { t } = useI18n();
 
 /*
@@ -84,6 +84,9 @@ const updatePassword = async () => {
     if (deviceInfo.platform !== "web") {
       await addListeners();
       await registerNotifications();
+    }
+    else{
+      setupNotifications(data)
     }
 
     if (data.data.enrolled) {
