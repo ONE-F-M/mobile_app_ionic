@@ -18,7 +18,7 @@ import { useAuthStore } from "@/store/auth";
 import { storeToRefs } from "pinia";
 import Header from "@/components/Header.vue";
 import useNotification from "@/composable/useNotification";
-import { setupNotifications } from '@/services/notifications.js';
+
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
