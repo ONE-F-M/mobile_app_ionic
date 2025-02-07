@@ -93,7 +93,12 @@ let recorder = null;
 const initializeStream = async () => {
   stream = await navigator.mediaDevices
     .getUserMedia({
-      video: true,
+      video: {
+				width: { ideal: 640 },
+				height: { ideal: 360 },
+				frameRate: {ideal: 12},//, max: 20},
+				facingMode: 'user'
+			},
       audio: false,
     })
     .catch((err) => console.log("media stream err:", err.name));
