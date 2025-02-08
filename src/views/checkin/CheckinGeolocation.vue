@@ -96,7 +96,7 @@ const initializeStream = async () => {
       video: {
 				width: { ideal: 640 },
 				height: { ideal: 360 },
-				frameRate: {ideal: 12},//, max: 20},
+				frameRate: {ideal: 15},
 				facingMode: 'user'
 			},
       audio: false,
