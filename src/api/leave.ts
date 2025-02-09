@@ -51,6 +51,10 @@ const profDocument = async (params: LeaveDetailsParams) =>
 const updateLeaveStatus = async (params: LeaveDetailsParams) =>
   await http.post(`v1.leave_application.leave_approver_action`, { params });
 
+const getEmployeesList = async () =>
+  await http.post(`v1.leave_application.get_employees_list`, {});
+
+
 export default {
   getLeavesList,
   createLeave,
@@ -59,4 +63,5 @@ export default {
   details,
   profDocument,
   updateLeaveStatus,
+  getEmployeesList,
 };
