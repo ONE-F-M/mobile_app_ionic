@@ -65,7 +65,7 @@ const fetchLeave = async () => {
 
     leaveDetails.value = data.data || {};
   } catch (error) {
-    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
     leaveDetails.value = {};
   }
 };
@@ -97,7 +97,7 @@ const rejectLeave = async () => {
     });
     showSuccessToast("Leave rejected successfully");
   } catch (error) {
-    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   } finally {
     isLoading.value = false;
   }
@@ -117,7 +117,7 @@ const acceptLeave = async () => {
     });
     showSuccessToast("Leave accepted successfully");
   } catch (error) {
-    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   } finally {
     isLoading.value = false;
   }

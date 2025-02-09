@@ -97,7 +97,7 @@ const updatePassword = async () => {
 
     showSuccessToast("Password update successfully");
   } catch (error) {
-    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   } finally {
     isLoading.value = false;
   }

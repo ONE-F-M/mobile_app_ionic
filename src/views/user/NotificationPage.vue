@@ -31,7 +31,7 @@ const fetchNotifications = async () => {
     }));
   } catch (error) {
     console.error(error);
-    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   }
 };
 

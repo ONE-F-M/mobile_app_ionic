@@ -49,7 +49,7 @@ const fetchGroups = async () => {
       services: [],
     }));
   } catch (error) {
-    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
     serviceGroups.value = [];
   }
 };
@@ -75,7 +75,7 @@ const fetchServices = async () => {
       }
     });
   } catch (error) {
-    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   }
 };
 
@@ -85,7 +85,7 @@ const fetchUserServices = async () => {
 
     userServices.value = data.data.service_detail;
   } catch (error) {
-    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
     userServices.value = [];
   }
 };
@@ -109,7 +109,7 @@ const removeService = async (service) => {
 
     service.added = false;
   } catch (error) {
-    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   }
 };
 const addService = async (service) => {
@@ -130,7 +130,7 @@ const addService = async (service) => {
     await fetchUserServices();
     service.added = true;
   } catch (error) {
-    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   }
 };
 
