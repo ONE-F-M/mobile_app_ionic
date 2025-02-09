@@ -70,7 +70,10 @@ const fetchLeaveTypes = async () => {
 const fetchReliever = async () => {
   try {
     const { data } = await leave.getEmployeesList({});
-    relieverOptions.value = data.data|| {};
+    relieverOptions.value = Object.entries(data.data).map(([key, value]) => ({
+      key,
+      value,
+    }));
   } catch (error) {
     showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
   }
@@ -447,13 +450,13 @@ onIonViewWillEnter(async () => {
             fill="outline"
             search-enabled
           >
-            <ion-select-option
-              v-for="(value, key) in relieverOptions"
-              :key="key"
-              :value="key"
-            >
-              {{ value }}  <!-- Display the value -->
-            </ion-select-option>
+          <ion-select-option
+            v-for="reliever in relieverOptions"
+            :key="reliever.key"
+            :value="reliever.key"
+          >
+            {{ reliever.value }}
+          </ion-select-option>
           </ion-select>
         <span
           class="leaves-create-label-required leaves-create-label"
