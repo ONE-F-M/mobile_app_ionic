@@ -1,24 +1,24 @@
 export default {
   start_screen: {
-    title: "Enrollment(ar)",
-    welcome_text: "Follow the instructions after clicking Enroll Now(ar)",
-    description_title: "To Begin Enrollment Process(ar)",
-    description_text: "Please remove your spectacles to start(ar)",
-    button: "Enroll Now(ar)",
+    title: "التسجيل",
+    welcome_text: "اتبع التعليمات بعد النقر على 'سجل الآن'",
+    description_title: "لبدء عملية التسجيل",
+    description_text: "يرجى إزالة النظارات لبدء التسجيل",
+    button: "سجل الآن",
   },
   instructions: {
-    look_straight: "Look straight in the camera(ar)",
-    face_left: "Turn your face to the left(ar)",
-    face_right: "Turn your face to the right(ar)",
+    look_straight: "انظر مباشرة إلى الكاميرا",
+    face_left: "أدر وجهك إلى اليسار",
+    face_right: "أدر وجهك إلى اليمين",
   },
-  almost_done: "Almost Done...(ar)",
-  scan_in_progress: "Facial scanning in progress...(ar)",
+  almost_done: "اقتربنا من النهاية...",
+  scan_in_progress: "جارٍ المسح الضوئي للوجه...",
 
-  success_title: "Enrollment Successful(ar)",
-  success_description: "You have enrolled successfully. Click on the button below to start using ONE-FM(ar)",
-  success_action: "Go to Home(ar)",
+  success_title: "تم التسجيل بنجاح",
+  success_description: "لقد تم تسجيلك بنجاح. انقر على الزر أدناه لبدء استخدام ONE-FM",
+  success_action: "انتقل إلى الصفحة الرئيسية",
 
-  failure_title: "Enrollment Unsuccessful(ar)",
-  failure_description: "Your enrollment is unsuccessful. Click on the button below to try again.(ar)",
-  failure_action: "Try Again(ar)",
-}
+  failure_title: "فشل التسجيل",
+  failure_description: "لم يتم تسجيلك بنجاح. انقر على الزر أدناه للمحاولة مرة أخرى.",
+  failure_action: "حاول مرة أخرى",
+};

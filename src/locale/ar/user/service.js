@@ -1,5 +1,5 @@
 export default {
-  title: "Service",
-  get: "Get",
-  remove: "Remove",
+  title: "الخدمة",
+  get: "احصل على",
+  remove: "إزالة",
 };
