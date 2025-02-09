@@ -69,15 +69,8 @@ const writeProofFile = async () => {
     const mimeTypes = {
         pdf: 'application/pdf',
         txt: 'text/plain',
-        docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        csv: 'text/csv',
         jpeg: 'image/jpeg',
         png: 'image/png',
-        mp4: 'video/mp4',
-        mp3: 'audio/mp3',
-        json: 'application/json',
-        // Add other file types as necessary
     };
     const mimeType = mimeTypes[fileExtension] || 'application/octet-stream'; 
     if (documentContent.value) {
