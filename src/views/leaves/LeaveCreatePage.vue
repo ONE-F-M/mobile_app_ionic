@@ -150,6 +150,13 @@ const validateForm = () => {
   errors.toDate = !selectedDates.to_date;
   errors.reason = !selectedReason.value;
 
+  // Validate To Date is not earlier than From Date
+  if (selectedDates.from_date && selectedDates.to_date) {
+    errors.toDateInvalid = selectedDates.to_date < selectedDates.from_date;
+  } else {
+    errors.toDateInvalid = false;
+  }
+
   if (!requiredProofDocument.value[selectedLeaveType.value]) {
     errors.proofDocument = false;
   } else {
@@ -160,6 +167,7 @@ const validateForm = () => {
     !errors.leaveType &&
     !errors.fromDate &&
     !errors.toDate &&
+    !errors.toDateInvalid &&
     !errors.reason &&
     !errors.proofDocument
   );
@@ -173,18 +181,7 @@ const clearForm = () => {
   attachment.value.base64 = null;
   file.value = null;
 };
-
-const isInvalidDate = computed(() => {
-  return selectedDates.from_date && selectedDates.to_date && selectedDates.to_date < selectedDates.from_date;
-});
-
 const onSubmit = async () => {
-  if (isInvalidDate.value) {
-    console.log('here')
-    alert("To Date cannot be earlier than From Date");
-    return;
-  }
-
   const isValidForm = validateForm();
 
   console.log("isValidForm", isValidForm);
@@ -347,6 +344,9 @@ onIonViewWillEnter(async () => {
               {{ $t("user.leaves.detail.till") }}
             </p>
            <!-- To Date Input -->
+           <ion-text color="danger" v-if="errors.toDateInvalid">
+            To Date cannot be earlier than From Date.
+          </ion-text>
           <ion-input
             fill="outline"
             :placeholder="$t('user.leaves.to_date')"
