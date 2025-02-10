@@ -61,6 +61,9 @@ const instruction = ref("");
 const percent = (duration / 100) * 2000;
 
 const defaultSwipeHandler = ref(null);
+const site_radius = ref(100);
+const site_lat = ref(0);
+const site_long = ref(0);
 
 const { showErrorToast, showSuccessToast } = useCustomToast();
 const { t } = useI18n();
@@ -225,6 +228,10 @@ const getSiteLocation = async () => {
       latitude: coordinates.value?.coords?.latitude,
       longitude: coordinates.value?.coords?.longitude,
     });
+
+    site_radius.value = data.data.geofence_radius;
+    site_lat.value = data.data.latitude;
+    site_long.value = data.data.longitude;
     userStore.setEndpointStatus(data.data.endpoint_status)
     isUserWithinGeofenceRadius.value = data.data.user_within_geofence_radius;
     faceRecEndpointEnabled.value = data.data.endpoint_status
@@ -347,8 +354,32 @@ const initializeMap = async () => {
 
   await addInitialMarker(googleMap);
   await getSiteLocation();
+  await addsitemarker();
   isLoadingLocation.value = false;
 };
+
+const addsitemarker = async () =>{
+  if (isIOS.value) {
+    new google.maps.Circle({
+      strokeColor: "#FF0000",
+      fillColor: 'red',
+      fillOpacity: 0.35,
+      googleMap,
+      center: {lat: site_lat.value, lng: site_long.value},
+      radius: site_radius.value,
+    });
+  }
+  else{
+    googleMap.addCircles([{
+        center: { lat: site_lat.value, lng: site_long.value },
+        radius: site_radius.value,
+        strokeWidth: 3, 
+        strokeColor: '#FF0000', 
+        fillColor: 'red',
+      }])
+  }
+
+}
 
 const disableSwipeBack = () => {
   const ionRouterOutlet = document.querySelector('ion-router-outlet');
