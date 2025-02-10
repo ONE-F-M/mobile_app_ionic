@@ -9,6 +9,7 @@ export default {
   from_date: "From Date",
   to_date: "Till Date",
   select_leave_type: "Select Leave Type",
+  select_reliever:"حدد المخلص",
   enter_reason: "Enter reason here",
   card: {
     type: {
@@ -56,6 +57,6 @@ export default {
     posting_date: "Posting Date",
     total_leaves_days: "Total Leaves Days",
     save_leaves_application: "Save Leaves Application",
-    reliever:'Reliever',
+    reliever:'المخلص',
   },
 };
