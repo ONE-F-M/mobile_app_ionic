@@ -55,7 +55,7 @@ export default {
     upload_proof_document: "Upload Proof Document",
     posting_date: "Posting Date",
     total_leaves_days: "Total Leaves Days",
-    save_leaves_application: "Save Leaves Application",
+    save_leaves_application: "Apply",
   },
   change_status: {
     accept_leave: "Accept Leave",
