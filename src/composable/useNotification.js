@@ -13,7 +13,7 @@ export default function useNotification() {
       authStore.setFcmToken(token.value);
 
       const deviceInfo = await Device.getInfo();
-
+        
       await profile.setDeviceIdNotifications({
         fcm_token: token.value,
         employee_id: authStore.employeeIdentificator,

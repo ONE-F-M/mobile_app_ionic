@@ -8,6 +8,7 @@ import {
   onIonViewDidLeave,
 } from "@ionic/vue";
 import { arrowBackOutline, arrowForwardOutline } from "ionicons/icons";
+import { Filesystem, Directory } from '@capacitor/filesystem';
 import {
   ref,
   onMounted,
@@ -48,8 +49,8 @@ const updateProgress = () => {
 };
 
 const progressWrapper = () => {
-  if (progress.value >= 1) {
-    saveVideo();
+    if (progress.value >= 1) {
+        saveVideo();
     return;
   }
 
@@ -65,7 +66,13 @@ let recorder = null;
 const initializeStream = async () => {
   stream = await navigator.mediaDevices
     .getUserMedia({
-      video: true,
+      video: {
+				width: { ideal: 640 },
+				height: { ideal: 360 },
+				frameRate: {ideal: 15},//, max: 20},
+				facingMode: 'user'
+			},
+      
       audio: false,
     })
     .catch((err) => console.log("media stream err:", err.name));
@@ -78,12 +85,14 @@ const initializeStream = async () => {
   let dataResolver;
   dataPromise = new Promise((resolve) => (dataResolver = resolve));
 
-  recorder = new MediaRecorder(stream);
+let recorder_options = { mimeType: 'video/webm;codecs=vp9' };
+
+  recorder = new MediaRecorder(stream,recorder_options);
   recorder.ondataavailable = (event) => dataResolver(event.data);
   recorder.start();
-
+  
   instruction.value = "enrollment.instructions.look_straight";
-  setTimeout(progressWrapper, percent);
+    setTimeout(progressWrapper, percent);
 };
 
 const cleanup = async () => {
@@ -94,23 +103,23 @@ const cleanup = async () => {
 };
 
 const saveVideo = async () => {
-  instruction.value = "enrollment.almost_done";
+    instruction.value = "enrollment.almost_done";
   recorder.stop();
 
   const chunks = await dataPromise;
-
+  
   const readerPromise = new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = () => {
       const base64String = reader.result.split(",")[1];
 
       resolve(base64String);
-    };
+    }; 
     reader.readAsDataURL(chunks);
   });
 
   const converted = await readerPromise;
-  video.value.pause();
+    video.value.pause();
   emit("completed", converted);
 };
 
