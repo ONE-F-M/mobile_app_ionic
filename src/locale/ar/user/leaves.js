@@ -56,5 +56,6 @@ export default {
     posting_date: "Posting Date",
     total_leaves_days: "Total Leaves Days",
     save_leaves_application: "Save Leaves Application",
+    reliever:'Reliever',
   },
 };

@@ -185,7 +185,6 @@ const validateForm = () => {
   errors.fromDate = !selectedDates.from_date;
   errors.toDate = !selectedDates.to_date;
   errors.reason = !selectedReason.value;
-  // errors.reliever = !selectedReliever.reliever;
 
   if (!requiredProofDocument.value[selectedLeaveType.value]) {
     errors.proofDocument = false;
@@ -199,7 +198,6 @@ const validateForm = () => {
     !errors.toDate &&
     !errors.reason &&
     !errors.proofDocument
-    // !errors.reliever 
   );
 };
 const clearForm = () => {
