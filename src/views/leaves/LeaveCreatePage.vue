@@ -70,9 +70,9 @@ const fetchLeaveTypes = async () => {
 const fetchReliever = async () => {
   try {
     const { data } = await leave.getEmployeesList({});
-    relieverOptions.value = Object.entries(data.data).map(([key, value]) => ({
-      key,
-      value,
+    relieverOptions.value = Object.entries(data.data).map(([key, employee]) => ({
+      key: employee.employee,
+      value: `${employee.employee_name} - [${employee.employee}] - [${employee.employee_id}]`,
     }));
   } catch (error) {
     showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
