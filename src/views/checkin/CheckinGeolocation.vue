@@ -61,6 +61,9 @@ const instruction = ref("");
 const percent = (duration / 100) * 2000;
 
 const defaultSwipeHandler = ref(null);
+const site_radius = ref(100);
+const site_lat = ref(0);
+const site_long = ref(0);
 
 const { showErrorToast, showSuccessToast } = useCustomToast();
 const { t } = useI18n();
@@ -93,7 +96,12 @@ let recorder = null;
 const initializeStream = async () => {
   stream = await navigator.mediaDevices
     .getUserMedia({
-      video: true,
+      video: {
+				width: { ideal: 640 },
+				height: { ideal: 360 },
+				frameRate: {ideal: 15},
+				facingMode: 'user'
+			},
       audio: false,
     })
     .catch((err) => console.log("media stream err:", err.name));
@@ -139,7 +147,7 @@ const saveVideo = async () => {
 
   isLoading.value = true;
   video.value.pause();
-  
+
   await verifyCheckin();
   await getSiteLocation();
   
@@ -221,6 +229,10 @@ const getSiteLocation = async () => {
       longitude: coordinates.value?.coords?.longitude,
     });
 
+    site_radius.value = data.data.geofence_radius;
+    site_lat.value = data.data.latitude;
+    site_long.value = data.data.longitude;
+    userStore.setEndpointStatus(data.data.endpoint_status)
     isUserWithinGeofenceRadius.value = data.data.user_within_geofence_radius;
     faceRecEndpointEnabled.value = data.data.endpoint_status
     logType.value = data.data.log_type;
@@ -232,21 +244,20 @@ const getSiteLocation = async () => {
 
 const verifyCheckin = async () => {
   try {
-    const formData = new FormData();
-
-    formData.append('employee_id', userStore.user?.employee_id);
-    formData.append('latitude', Number(coordinates.value?.coords?.latitude));
-    formData.append('longitude', Number(coordinates.value?.coords?.longitude));
-    formData.append('log_type', logType.value);
-    formData.append('skip_attendance', 1);
-    // Only add the video if facial recognition endpoint is enabled on the server 
-    if(faceRecEndpointEnabled.value){
-      const videoBlob = await base64ToBlob(verifyVideo.value, 'video/mp4');
-      formData.append('video_file', videoBlob, 'checkin_video.mp4');
+    const payload = {
+      employee_id: userStore.user?.employee_id,
+      latitude: Number(coordinates.value?.coords?.latitude),
+      longitude: Number(coordinates.value?.coords?.longitude),
+      log_type: logType.value,
+      skip_attendance: 1,
     }
+
     
-    
-    await checkin.verifyCheckin(formData);
+    if(userStore.isEndpointEnabled){
+      payload.video = verifyVideo.value
+    }
+   
+    await checkin.verifyCheckin(payload);
     await getSiteLocation();
 
     const type = logType.value === "OUT" ? "checkin" : "checkout";
@@ -343,8 +354,32 @@ const initializeMap = async () => {
 
   await addInitialMarker(googleMap);
   await getSiteLocation();
+  await addsitemarker();
   isLoadingLocation.value = false;
 };
+
+const addsitemarker = async () =>{
+  if (isIOS.value) {
+    new google.maps.Circle({
+      strokeColor: "#FF0000",
+      fillColor: 'red',
+      fillOpacity: 0.35,
+      googleMap,
+      center: {lat: site_lat.value, lng: site_long.value},
+      radius: site_radius.value,
+    });
+  }
+  else{
+    googleMap.addCircles([{
+        center: { lat: site_lat.value, lng: site_long.value },
+        radius: site_radius.value,
+        strokeWidth: 3, 
+        strokeColor: '#FF0000', 
+        fillColor: 'red',
+      }])
+  }
+
+}
 
 const disableSwipeBack = () => {
   const ionRouterOutlet = document.querySelector('ion-router-outlet');

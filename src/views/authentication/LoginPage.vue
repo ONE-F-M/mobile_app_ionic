@@ -8,6 +8,7 @@ import {
   useIonRouter,
   onIonViewDidLeave,
 } from "@ionic/vue";
+import { setupNotifications } from '@/services/notifications.js';
 import { ref, watch } from "vue";
 import { Device } from "@capacitor/device";
 
@@ -17,7 +18,7 @@ import { useAuthStore } from "@/store/auth";
 import { storeToRefs } from "pinia";
 import Header from "@/components/Header.vue";
 import useNotification from "@/composable/useNotification";
-import { setupNotifications } from '@/services/notifications.js';
+
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
