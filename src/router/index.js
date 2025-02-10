@@ -90,6 +90,7 @@ const routes = [
   {
     path: "/leaves/add",
     component: () => import("@/views/leaves/LeaveCreatePage.vue"),
+    beforeEnter: isAuthenticated,
   },
   {
     path: "/leaves/:id",
