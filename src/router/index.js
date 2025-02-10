@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "@ionic/vue-router";
 import EnrollmentStartPage from "@/views/enrollment/EnrollmentStartPage.vue";
-import { isLoggedInForbidden } from '@/middleware/loggedIn';
+import { isLoggedInForbidden, isAuthenticated } from '@/middleware/loggedIn';
 
 const routes = [
   {
@@ -38,21 +38,25 @@ const routes = [
   {
     path: "/enrollment",
     component: EnrollmentStartPage,
+	beforeEnter: isAuthenticated,
   },
   {
     path: "/enroll-success",
     component: () => import("@/views/enrollment/EnrollmentResult.vue"),
     props: { type: "success", action: "/home" },
+	beforeEnter: isAuthenticated,
   },
   {
     path: "/enroll-failure",
     component: () => import("@/views/enrollment/EnrollmentResult.vue"),
     props: { type: "failure", action: "/enrollment" },
+	beforeEnter: isAuthenticated,
   },
   {
     path: "/home",
     component: () => import("@/views/user/Tabs.vue"),
     redirect: "/dashboard",
+	beforeEnter: isAuthenticated,
     children: [
       {
         path: "/dashboard",
@@ -75,23 +79,28 @@ const routes = [
   {
     path: "/checkin",
     component: () => import("@/views/checkin/CheckinListPage.vue"),
+	beforeEnter: isAuthenticated,
   },
   {
     name: "leaves-list",
     path: "/leaves",
     component: () => import("@/views/leaves/LeavesListPage.vue"),
-  },
+    beforeEnter: isAuthenticated,
+},
   {
     path: "/leaves/add",
     component: () => import("@/views/leaves/LeaveCreatePage.vue"),
+    beforeEnter: isAuthenticated,
   },
   {
     path: "/leaves/:id",
     component: () => import("@/views/leaves/LeaveDetailsPage.vue"),
+    beforeEnter: isAuthenticated,
   },
   {
     path: "/checkin/geolocation",
     component: () => import("@/views/checkin/CheckinGeolocation.vue"),
+    beforeEnter: isAuthenticated,
   },
 ];
 
