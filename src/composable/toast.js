@@ -12,11 +12,14 @@ export const useCustomToast = () => {
 
   const { t } = useI18n();
 
-  const showErrorToast = async (message) => {
+  const showErrorToast = async (message, error, statusCode) => {
+    const errorMessage = error ? error : getStatusMessage(statusCode);
+    const errorTitle = message ? message : t("utils.toast.error");
+
     const errorToast = await toastController.create({
       cssClass: "toast-error",
-      header: t("utils.toast.error"),
-      message,
+      header: errorTitle,
+      message: errorMessage,
       ...commonConfig,
       icon: closeOutline,
     });
@@ -34,6 +37,22 @@ export const useCustomToast = () => {
     });
 
     return await successToast.present();
+  };
+
+  const getStatusMessage = (statusCode) => {
+    if (statusCode >= 100 && statusCode < 200) {
+      return "Informational response received.";
+    } else if (statusCode >= 200 && statusCode < 300) {
+      return "Success, but no detailed message provided.";
+    } else if (statusCode >= 300 && statusCode < 400) {
+      return "Redirection detected. Additional action needed.";
+    } else if (statusCode >= 400 && statusCode < 500) {
+      return "Client error occurred. Please check your request.";
+    } else if (statusCode >= 500 && statusCode < 600) {
+      return "Server error occurred. Please try again later.";
+    } else {
+      return "Unexpected status code received.";
+    }
   };
 
   return {

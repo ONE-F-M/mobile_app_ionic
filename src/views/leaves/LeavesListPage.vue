@@ -93,7 +93,7 @@ const fetchLeaveTypes = async () => {
 
     leaveOptions.value = Object.keys(data.data) || [];
   } catch (error) {
-    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   }
 };
 
@@ -194,7 +194,7 @@ const fetchLeaves = async () => {
     myLeaves.value = data.data.my_leaves || [];
     leavesReportsTo.value = data.data.reports_to || [];
   } catch (error) {
-    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
     myLeaves.value = [];
     leavesReportsTo.value = [];
   } finally {

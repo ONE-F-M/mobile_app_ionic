@@ -63,7 +63,7 @@ const fetchLeaveTypes = async () => {
     leaveOptions.value = Object.keys(data.data) || [];
     requiredProofDocument.value = data.data;
   } catch (error) {
-    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   }
 };
 
@@ -98,7 +98,7 @@ const fetchLeaveBalance = async () => {
 
     leaveBalance.value = { ...data.data };
   } catch (error) {
-    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   }
 };
 const clearLeaveBalance = () => {
@@ -250,7 +250,7 @@ const onSubmit = async () => {
     triggerBack();
   } catch (error) {
     console.error(error);
-    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   } finally {
     isLoading.value = false;
   }

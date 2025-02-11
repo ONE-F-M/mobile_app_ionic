@@ -49,7 +49,7 @@ const fetchServices = async () => {
 
     services.value = data.data.service_detail;
   } catch (error) {
-    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
     services.value = [];
   }
 };

@@ -72,7 +72,7 @@ const onPasswordSet = async ({ password }) => {
       router.push("/home");
     })
     .catch(async (err) => {
-      await showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
+      await showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
     });
 };
 </script>
