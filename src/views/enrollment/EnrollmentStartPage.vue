@@ -22,10 +22,10 @@ const router = useIonRouter();
 
 const inProgress = ref(false);
 
-const logout = () => {
-  userStore.logout();
-  router.push("/");
+const goBack = () => {
+  router.back();
 };
+
 const startEnrollment = () => {
   inProgress.value = true;
 };
@@ -69,7 +69,7 @@ const handleVideo = async (video) => {
               <ion-row class="login-header-wrapper">
                 <ion-col class="login-wrapper-back-button" size="3">
                   <ion-button
-                    @click="logout"
+                    @click="goBack"
                     router-direction="back"
                     fill="clear"
                   >
