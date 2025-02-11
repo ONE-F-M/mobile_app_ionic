@@ -1,3 +1,3 @@
 export default {
-  title: "Notification",
+  title: "الإشعارات",
 };

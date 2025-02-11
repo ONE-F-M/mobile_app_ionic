@@ -20,6 +20,8 @@ import dayjs from "dayjs";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { storeToRefs } from "pinia";
 import IconLeave from "@/components/icon/Leave.vue";
+import { App } from '@capacitor/app'; // for opening files in native apps
+
 
 const { formatDate } = useDateHelper();
 const router = useIonRouter();
@@ -45,17 +47,55 @@ const formatDateToDisplay = (date) => {
   return dayjs(date, "YYYY-MM-DD").format("DD MMM, YYYY");
 };
 
-const writeProofFile = async () => {
-  await Filesystem.writeFile({
-    path: `${proofDocumentName.value}`,
-    data: documentContent.value,
-    directory: Directory.Documents,
-  });
 
-  showSuccessToast(
-    "The file has been successfully downloaded to your documents on device",
-  );
+const writeProofFile = async () => {
+  if (Capacitor.isNativePlatform()) {
+    await Filesystem.writeFile({
+      path: `${proofDocumentName.value}`,
+      data: documentContent.value,
+      directory: Directory.Documents,
+    });
+    const fileUri = await Filesystem.getUri({
+        path: proofDocumentName.value,
+        directory: Directory.Documents,
+      });
+    const fileUrl = fileUri.uri;
+    window.open(fileUrl, '_system');
+    showSuccessToast(
+      "The file has been successfully downloaded to your documents on device"
+    );
+  } else {
+    const fileExtension = proofDocumentName.value.split('.').pop().toLowerCase();
+    const mimeTypes = {
+        pdf: 'application/pdf',
+        txt: 'text/plain',
+        jpeg: 'image/jpeg',
+        png: 'image/png',
+    };
+    const mimeType = mimeTypes[fileExtension] || 'application/octet-stream'; 
+    if (documentContent.value) {
+        // Decode the Base64 string
+        const decodedData = atob(documentContent.value);
+        const byteArray = new Uint8Array(decodedData.length);
+        for (let i = 0; i < decodedData.length; i++) {
+            byteArray[i] = decodedData.charCodeAt(i);
+        }
+
+        // Web-specific behavior (trigger file download)
+        const blob = new Blob([byteArray], { type: mimeType });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = proofDocumentName.value;
+        link.click();
+
+        showSuccessToast("The file has been downloaded on the web.");
+    } else {
+        showErrorToast("No content available for download.");
+    }
+  }
+
 };
+
 const fetchLeave = async () => {
   try {
     const { data } = await leave.details({

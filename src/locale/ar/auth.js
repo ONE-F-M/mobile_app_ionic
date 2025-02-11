@@ -19,9 +19,9 @@ export default {
     password: "كلمة المرور",
   },
   invalid: {
-    id: "Incorrect ID",
-    password: "Incorrect Password",
-    password_mismatch: "Password validation error",
+    id: "معرّف غير صحيح",
+    password: "كلمة مرور غير صحيحة",
+    password_mismatch: "خطأ في التحقق من كلمة المرور",
   },
   placeholder: {
     id: "هوية شخصية",
@@ -37,10 +37,10 @@ export default {
     whatsapp: "واتساب",
     sms: "الرسائل القصيرة",
   },
-  resend_code_in: "Resend Verification code in {seconds} sec (ar)",
-  resend_code_now: "Resend Verification code (ar)",
-  code_sent_successfully: "Verification code sent successfully (ar)",
+  resend_code_in: "إعادة إرسال رمز التحقق خلال {seconds} ثانية",
+  resend_code_now: "إعادة إرسال رمز التحقق الآن",
+  code_sent_successfully: "تم إرسال رمز التحقق بنجاح",
   errors: {
-    passwords_mismatch: "Passwords mismatch (ar)",
+    passwords_mismatch: "كلمات المرور غير متطابقة",
   },
 };

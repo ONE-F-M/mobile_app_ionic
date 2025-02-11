@@ -46,20 +46,39 @@ watch(selectedReason, () => {
   errors.reason = false;
 });
 
+const selectedReliever = ref("");
+watch(selectedReliever, () => {
+  errors.reliever = false;
+  fetchReliever();
+});
+
 const leaveOptions = ref([]);
+const relieverOptions = ref([]);
 const requiredProofDocument = ref({});
 const fetchLeaveTypes = async () => {
   try {
     const { data } = await leave.types({
       employee_id: userStore.user?.employee_id,
     });
-
     leaveOptions.value = Object.keys(data.data) || [];
     requiredProofDocument.value = data.data;
   } catch (error) {
     showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
   }
 };
+
+const fetchReliever = async () => {
+  try {
+    const { data } = await leave.getEmployeesList({});
+    relieverOptions.value = data.data.map((employee) => ({
+      key: employee.employee,
+      value: `${employee.employee_name} - [${employee.employee}] - [${employee.employee_id}]`,
+    }));
+  } catch (error) {
+    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
+  }
+};
+
 
 const EMPTY_LEAVE_BALANCE = {
   expired_leaves: null,
@@ -143,6 +162,7 @@ const errors = reactive({
   toDate: false,
   reason: false,
   proofDocument: false,
+  reliever: false,
 });
 const validateForm = () => {
   errors.leaveType = !selectedLeaveType.value;
@@ -180,6 +200,7 @@ const clearForm = () => {
   attachment.value.name = null;
   attachment.value.base64 = null;
   file.value = null;
+  selectedReliever.value=""
 };
 const onSubmit = async () => {
   const isValidForm = validateForm();
@@ -200,6 +221,7 @@ const onSubmit = async () => {
       employee_id: userStore.user?.employee_id,
       from_date: dayjs(selectedDates.from_date).format("YYYY-MM-DD"),
       leave_type: selectedLeaveType.value,
+      reliever : selectedReliever.value,
 
       reason: selectedReason.value,
       to_date: dayjs(selectedDates.to_date).format("YYYY-MM-DD"),
@@ -228,6 +250,7 @@ onIonViewWillEnter(async () => {
   clearForm();
   clearLeaveBalance();
   await fetchLeaveTypes();
+  await fetchReliever();
 });
 </script>
 
@@ -404,6 +427,44 @@ onIonViewWillEnter(async () => {
             {{ $t("utils.required") }}
           </span>
         </div>
+
+        <ion-row class="ion-margin-top">
+        <p class="leaves-create-label leaves-create-label">
+          {{ $t("user.leaves.create_leave.reliever") }}
+        </p>
+        <ion-select
+            v-model="selectedReliever"
+            :placeholder="$t('user.leaves.select_reliever')"
+            interface="action-sheet"
+            :interface-options="{
+              buttons: [],
+              cssClass: 'ion-select__hidden-cancel',
+            }"
+            class="ion-select__hidden-cancel"
+            :class="{
+              'ion-touched ion-invalid': errors.reliever,
+            }"
+            :toggleIcon="chevronDownOutline"
+            fill="outline"
+            search-enabled
+          >
+          <ion-select-option
+            v-for="reliever in relieverOptions"
+            :key="reliever.key"
+            :value="reliever.key"
+          >
+            {{ reliever.value }}
+          </ion-select-option>
+          </ion-select>
+        <span
+          class="leaves-create-label-required leaves-create-label"
+          :class="{
+            'text-danger leaves-create-label__required-danger':
+              errors.reliever,
+          }"
+        >
+        </span>
+      </ion-row>
 
         <div
           v-if="requiredProofDocument[selectedLeaveType]"
