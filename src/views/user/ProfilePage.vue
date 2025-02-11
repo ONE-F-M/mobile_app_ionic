@@ -111,6 +111,7 @@ const updateImage = async (event) => {
 
 const changeLanguage = (lang) => {
   langStore.setLang(lang);
+  window.location.reload();
 };
 
 const logout = () => {
