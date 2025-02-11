@@ -11,8 +11,8 @@ const props = defineProps({
     required: true,
   },
   modelValue: {
-    type: Object,
-    default: () => {},
+    type: Date,
+    default: () => new Date(),
   },
   lang: {
     type: String,
@@ -21,7 +21,7 @@ const props = defineProps({
 });
 const emit = defineEmits(["update:model-value", "cancel", "ok"]);
 
-const range = computed({
+const selectedDate = computed({
   get() {
     return props.modelValue;
   },
@@ -43,12 +43,7 @@ const range = computed({
           </div>
           <ion-row class="ion-justify-content-between ion-align-items-center">
             <h3 class="datepicker-card-header">
-              {{
-                formatDate(range.start) === formatDate(range.end)
-                  ? formatDate(range.start, "ddd, MMM D")
-                  : `${formatDate(range.start, "MMM D")} -
-                  ${range.end && formatDate(range.end, "MMM D") || ''}`
-              }}
+              {{ formatDate(selectedDate, "ddd, MMM D") }}
             </h3>
             <!--                <ion-button class="ckeckin-datepicker-edit-button" fill="clear">-->
             <!--                  <IconEdit />-->
@@ -56,7 +51,7 @@ const range = computed({
           </ion-row>
         </div>
         <v-date-picker
-          v-model.range="range"
+          v-model="selectedDate"
           class="datepicker-range"
           :locale="lang"
           mode="date"
@@ -69,7 +64,7 @@ const range = computed({
           </ion-button>
           <ion-button
             fill="clear"
-            :disabled="!range.start || !range.end"
+            :disabled="!selectedDate"
             @click="emit('ok')"
           >
             {{ $t("utils.ok") }}

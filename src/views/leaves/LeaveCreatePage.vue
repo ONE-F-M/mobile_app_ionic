@@ -122,24 +122,8 @@ const selectedDateDifference = computed(() => {
 
 const formattedCurrentDate = formatDate(new Date(), "DD MMM, YYYY");
 
-const datePickerRange = ref({
-  start: new Date(),
-  end: new Date(),
-});
-const isDatePickerOpen = shallowRef(false);
-const setDatePickerOpen = (isOpen) => {
-  isDatePickerOpen.value = isOpen;
-};
-const onDatePickerOk = () => {
-  selectedDates.from_date = datePickerRange.value.start;
-  selectedDates.to_date =
-    datePickerRange.value.end ?? datePickerRange.value.start;
-
-  errors.fromDate = false;
-  errors.toDate = false;
-
-  setDatePickerOpen(false);
-};
+const isFromDatePickerOpen = shallowRef(false);
+const isToDatePickerOpen = shallowRef(false);
 
 const fileInput = ref();
 const toBase64 = (file) =>
@@ -186,6 +170,13 @@ const validateForm = () => {
   errors.toDate = !selectedDates.to_date;
   errors.reason = !selectedReason.value;
 
+  // Validate To Date is not earlier than From Date
+  if (selectedDates.from_date && selectedDates.to_date) {
+    errors.toDateInvalid = selectedDates.to_date < selectedDates.from_date;
+  } else {
+    errors.toDateInvalid = false;
+  }
+
   if (!requiredProofDocument.value[selectedLeaveType.value]) {
     errors.proofDocument = false;
   } else {
@@ -196,6 +187,7 @@ const validateForm = () => {
     !errors.leaveType &&
     !errors.fromDate &&
     !errors.toDate &&
+    !errors.toDateInvalid &&
     !errors.reason &&
     !errors.proofDocument
   );
@@ -208,8 +200,6 @@ const clearForm = () => {
   attachment.value.name = null;
   attachment.value.base64 = null;
   file.value = null;
-  datePickerRange.value.start = new Date();
-  datePickerRange.value.end = new Date();
   selectedReliever.value=""
 };
 const onSubmit = async () => {
@@ -353,15 +343,14 @@ onIonViewWillEnter(async () => {
             <p class="leaves-create-label leaves-create-label__required">
               {{ $t("user.leaves.detail.from") }}
             </p>
+           <!-- From Date Input -->
             <ion-input
               fill="outline"
               :placeholder="$t('user.leaves.from_date')"
               readonly
-              :class="{
-                'ion-touched ion-invalid': errors.fromDate,
-              }"
+              :class="{ 'ion-touched ion-invalid': errors.fromDate }"
               :value="formatDate(selectedDates.from_date, 'DD-MM-YYYY')"
-              @ion-focus="setDatePickerOpen(true)"
+              @ion-focus="isFromDatePickerOpen = true"
             />
             <span
               class="leaves-create-label-required leaves-create-label__required"
@@ -377,16 +366,18 @@ onIonViewWillEnter(async () => {
             <p class="leaves-create-label leaves-create-label__required">
               {{ $t("user.leaves.detail.till") }}
             </p>
-            <ion-input
-              fill="outline"
-              :placeholder="$t('user.leaves.to_date')"
-              readonly
-              :class="{
-                'ion-touched ion-invalid': errors.toDate,
-              }"
-              :value="formatDate(selectedDates.to_date, 'DD-MM-YYYY')"
-              @ion-focus="setDatePickerOpen(true)"
-            />
+           <!-- To Date Input -->
+           <ion-text color="danger" v-if="errors.toDateInvalid">
+            To Date cannot be earlier than From Date.
+          </ion-text>
+          <ion-input
+            fill="outline"
+            :placeholder="$t('user.leaves.to_date')"
+            readonly
+            :class="{ 'ion-touched ion-invalid': errors.toDate }"
+            :value="formatDate(selectedDates.to_date, 'DD-MM-YYYY')"
+            @ion-focus="isToDatePickerOpen = true"
+          />
             <span
               class="leaves-create-label-required leaves-create-label__required"
               :class="{
@@ -398,12 +389,21 @@ onIonViewWillEnter(async () => {
             </span>
           </ion-col>
         </ion-row>
+        <!-- From Date Picker -->
         <Datepicker
           :lang="langStore.lang"
-          :is-open="isDatePickerOpen"
-          v-model="datePickerRange"
-          @cancel="setDatePickerOpen(false)"
-          @ok="onDatePickerOk"
+          :is-open="isFromDatePickerOpen"
+          v-model="selectedDates.from_date"
+          @cancel="isFromDatePickerOpen = false"
+          @ok="isFromDatePickerOpen = false"
+        />
+        <!-- To Date Picker -->
+        <Datepicker
+          :lang="langStore.lang"
+          :is-open="isToDatePickerOpen"
+          v-model="selectedDates.to_date"
+          @cancel="isToDatePickerOpen = false"
+          @ok="isToDatePickerOpen = false"
         />
         <div class="ion-margin-top">
           <p class="leaves-create-label leaves-create-label__required">
