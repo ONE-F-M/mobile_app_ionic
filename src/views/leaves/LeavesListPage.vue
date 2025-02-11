@@ -130,6 +130,17 @@ const closeModal = (e) => {
 const resetFilters = () => {
   selectedLeaveType.value = "";
   selectedLeaveStatus.value = "";
+
+  const today = new Date();
+  const lastYear = new Date();
+  lastYear.setFullYear(today.getFullYear() - 1);
+
+  selectedDates.value = {
+    start: formatDate(lastYear, 'DD-MM-YYYY'), 
+    end: formatDate(today, 'DD-MM-YYYY')
+  };
+
+  fetchLeaves();
 };
 
 const setLeaveType = (event) => {
