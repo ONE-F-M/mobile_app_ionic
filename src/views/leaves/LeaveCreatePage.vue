@@ -75,7 +75,7 @@ const fetchReliever = async () => {
       value: `${employee.employee_name} - [${employee.employee}] - [${employee.employee_id}]`,
     }));
   } catch (error) {
-    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   }
 };
 
@@ -117,7 +117,7 @@ const selectedDateDifference = computed(() => {
   const startDate = dayjs(selectedDates.from_date);
   const endDate = dayjs(selectedDates.to_date);
 
-  return endDate.diff(startDate, "day");
+  return endDate.diff(startDate, "day") + 1;
 });
 
 const formattedCurrentDate = formatDate(new Date(), "DD MMM, YYYY");
