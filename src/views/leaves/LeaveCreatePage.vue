@@ -122,8 +122,8 @@ const selectedDateDifference = computed(() => {
 
 const formattedCurrentDate = formatDate(new Date(), "DD MMM, YYYY");
 
-const isFromDatePickerOpen = shallowRef(false);
-const isToDatePickerOpen = shallowRef(false);
+const isFromDatePickerOpen = ref(false);
+const isToDatePickerOpen = ref(false);
 
 const fileInput = ref();
 const toBase64 = (file) =>
@@ -350,7 +350,7 @@ onIonViewWillEnter(async () => {
               readonly
               :class="{ 'ion-touched ion-invalid': errors.fromDate }"
               :value="formatDate(selectedDates.from_date, 'DD-MM-YYYY')"
-              @ion-focus="isFromDatePickerOpen = true"
+              @click="isFromDatePickerOpen = true"
             />
             <span
               class="leaves-create-label-required leaves-create-label__required"
@@ -376,7 +376,7 @@ onIonViewWillEnter(async () => {
             readonly
             :class="{ 'ion-touched ion-invalid': errors.toDate }"
             :value="formatDate(selectedDates.to_date, 'DD-MM-YYYY')"
-            @ion-focus="isToDatePickerOpen = true"
+            @click="isToDatePickerOpen = true"
           />
             <span
               class="leaves-create-label-required leaves-create-label__required"
@@ -396,6 +396,7 @@ onIonViewWillEnter(async () => {
           v-model="selectedDates.from_date"
           @cancel="isFromDatePickerOpen = false"
           @ok="isFromDatePickerOpen = false"
+          @didDismiss="isFromDatePickerOpen = false"
         />
         <!-- To Date Picker -->
         <Datepicker
@@ -404,6 +405,7 @@ onIonViewWillEnter(async () => {
           v-model="selectedDates.to_date"
           @cancel="isToDatePickerOpen = false"
           @ok="isToDatePickerOpen = false"
+          @didDismiss="isToDatePickerOpen = false"
         />
         <div class="ion-margin-top">
           <p class="leaves-create-label leaves-create-label__required">
