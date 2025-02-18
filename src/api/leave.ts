@@ -54,6 +54,12 @@ const updateLeaveStatus = async (params: LeaveDetailsParams) =>
 const getEmployeesList = async () =>
   await http.post(`v1.leave_application.get_employees_list`, {});
 
+type EmployeeDetailsParams = {
+  employee_id: string;
+}
+
+const getEmployee_reliever_permission = async (params: EmployeeDetailsParams) =>
+    await http.post(`v1.leave_application.get_employees_role_to_display_reliever_field`, { params});
 
 export default {
   getLeavesList,
@@ -64,4 +70,5 @@ export default {
   profDocument,
   updateLeaveStatus,
   getEmployeesList,
+  getEmployee_reliever_permission,
 };

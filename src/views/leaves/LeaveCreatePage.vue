@@ -12,6 +12,14 @@ import {
   IonInput,
   onIonViewWillEnter,
   IonSpinner,
+  IonItem,
+  IonSearchbar,
+  IonText,
+  IonList,
+  IonTitle,
+  IonToolbar,
+  IonModal,
+  IonHeader,
 } from "@ionic/vue";
 import LeavesHeader from "@/components/leaves/Header.vue";
 
@@ -45,7 +53,7 @@ const selectedReason = ref("");
 watch(selectedReason, () => {
   errors.reason = false;
 });
-
+const reliever_field_permission = ref(false);
 const selectedReliever = ref("");
 watch(selectedReliever, () => {
   errors.reliever = false;
@@ -69,14 +77,33 @@ const fetchLeaveTypes = async () => {
 
 const fetchReliever = async () => {
   try {
-    const { data } = await leave.getEmployeesList({});
-    relieverOptions.value = data.data.map((employee) => ({
-      key: employee.employee,
-      value: `${employee.employee_name} - [${employee.employee}] - [${employee.employee_id}]`,
-    }));
+    const datas = await leave.getEmployee_reliever_permission({employee_id: userStore.user?.employee_id});
+    reliever_field_permission.value = datas.data.data
+    if(reliever_field_permission.value){
+        const { data } = await leave.getEmployeesList({});
+        relieverOptions.value = data.data.map((employee) => ({
+          key: employee.employee,
+          value: `${employee.employee_name} | ${employee.employee_id} | ${employee.designation}`,
+        }));
+      }
   } catch (error) {
     showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
   }
+};
+
+const searchQuery = ref("");
+const filteredRelieverOptions = computed(() => {
+  if (!searchQuery.value) return relieverOptions.value;
+  return relieverOptions.value.filter((reliever) =>
+    reliever.value.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
+});
+
+const isModalOpen = ref(false);
+const selectReliever = (reliever) => {
+  selectedReliever.value = reliever.key;
+  isModalOpen.value = false; 
+  searchQuery.value = reliever.value;
 };
 
 
@@ -169,6 +196,7 @@ const validateForm = () => {
   errors.fromDate = !selectedDates.from_date;
   errors.toDate = !selectedDates.to_date;
   errors.reason = !selectedReason.value;
+  errors.reliever = !selectedReliever.value;
 
   // Validate To Date is not earlier than From Date
   if (selectedDates.from_date && selectedDates.to_date) {
@@ -189,7 +217,9 @@ const validateForm = () => {
     !errors.toDate &&
     !errors.toDateInvalid &&
     !errors.reason &&
-    !errors.proofDocument
+    !errors.proofDocument&&
+    !errors.reliever
+    
   );
 };
 const clearForm = () => {
@@ -428,43 +458,50 @@ onIonViewWillEnter(async () => {
           </span>
         </div>
 
-        <ion-row class="ion-margin-top">
-        <p class="leaves-create-label leaves-create-label">
-          {{ $t("user.leaves.create_leave.reliever") }}
-        </p>
-        <ion-select
-            v-model="selectedReliever"
+        <ion-row class="ion-margin-top" v-if="reliever_field_permission">
+          <p class="leaves-create-label leaves-create-label__required" style="margin:12px 0 8px">
+            {{ $t("user.leaves.create_leave.reliever") }}:
+          </p>
+          <ion-searchbar
+            class="leaves-create-label__required"
+            v-model="searchQuery"
+            @click="isModalOpen = true"
+            debounce="300"
             :placeholder="$t('user.leaves.select_reliever')"
-            interface="action-sheet"
-            :interface-options="{
-              buttons: [],
-              cssClass: 'ion-select__hidden-cancel',
-            }"
-            class="ion-select__hidden-cancel"
-            :class="{
-              'ion-touched ion-invalid': errors.reliever,
-            }"
-            :toggleIcon="chevronDownOutline"
-            fill="outline"
-            search-enabled
-          >
-          <ion-select-option
-            v-for="reliever in relieverOptions"
-            :key="reliever.key"
-            :value="reliever.key"
-          >
-            {{ reliever.value }}
-          </ion-select-option>
-          </ion-select>
-        <span
-          class="leaves-create-label-required leaves-create-label"
+          />
+          
+          <ion-modal :is-open="isModalOpen" @did-dismiss="isModalOpen = false">
+              <ion-header>
+                <ion-toolbar>
+                  <ion-title>Select Reliever</ion-title>
+                </ion-toolbar>
+              </ion-header>
+              <ion-content>
+                <ion-searchbar
+                  v-model="searchQuery"
+                  debounce="300"
+                  placeholder="Search relievers"
+                />
+                <ion-list class="scrollable-list">
+                  <ion-item
+                    v-for="reliever in filteredRelieverOptions"
+                    :key="reliever.key"
+                    @click="selectReliever(reliever)"
+                  >
+                    {{ reliever.value }}
+                  </ion-item>
+                </ion-list>
+              </ion-content>
+            </ion-modal>
+            <span
+          class="leaves-create-label-required leaves-create-label__required"
           :class="{
             'text-danger leaves-create-label__required-danger':
               errors.reliever,
           }"
         >
-        </span>
-      </ion-row>
+          {{ $t("utils.required") }}</span>
+        </ion-row>
 
         <div
           v-if="requiredProofDocument[selectedLeaveType]"
@@ -651,6 +688,16 @@ onIonViewWillEnter(async () => {
   &-upload-button {
     --background: #004c69;
     --color: #c1e8ff;
+  }
+}
+.scrollable-list {
+  max-height: 70vh; /* Limits the height of the list */
+  overflow-y: auto; /* Adds scrolling if the list exceeds the max height */
+}
+
+@media (max-width: 767px) {
+  .scrollable-list {
+    max-height: 50vh; /* Further limit the height for smaller screens */
   }
 }
 </style>
