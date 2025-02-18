@@ -205,6 +205,10 @@ const validateForm = () => {
     errors.toDateInvalid = false;
   }
 
+  if (errors.toDateInvalid) {
+    showErrorToast("Invalid Date Range", "To Date cannot be earlier than From Date", 400);
+  }
+
   if (!requiredProofDocument.value[selectedLeaveType.value]) {
     errors.proofDocument = false;
   } else {
@@ -397,9 +401,6 @@ onIonViewWillEnter(async () => {
               {{ $t("user.leaves.detail.till") }}
             </p>
            <!-- To Date Input -->
-           <ion-text color="danger" v-if="errors.toDateInvalid">
-            To Date cannot be earlier than From Date.
-          </ion-text>
           <ion-input
             fill="outline"
             :placeholder="$t('user.leaves.to_date')"
