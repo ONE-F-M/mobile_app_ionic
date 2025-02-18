@@ -60,9 +60,7 @@ const resendCode = async () => {
 
     initSecondsCounter();
   } catch (error) {
-    showErrorToast(
-      "Cannot send verification code due to internal server error",
-    );
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   }
 };
 
@@ -80,7 +78,7 @@ const verifyCode = async () => {
     router.push("/register/set-password");
   } catch (error) {
     console.log("error", error);
-    showErrorToast(error.error ?? "OTP Verification Failed!");
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   }
 };
 

@@ -93,7 +93,7 @@ const fetchLeaveTypes = async () => {
 
     leaveOptions.value = Object.keys(data.data) || [];
   } catch (error) {
-    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   }
 };
 
@@ -164,22 +164,8 @@ const selectedDates = ref({
   end: new Date(),
 });
 
-const datePickerRange = ref({
-  start: selectedDates.value.start,
-  end: selectedDates.value.end,
-});
-const isDatePickerOpen = shallowRef(false);
-const setDatePickerOpen = (isOpen) => {
-  isDatePickerOpen.value = isOpen;
-};
-const onDatePickerOk = () => {
-  selectedDates.value.start = datePickerRange.value.start;
-  selectedDates.value.end = datePickerRange.value.end;
-
-  setDatePickerOpen(false);
-
-  fetchLeaves();
-};
+const isFromDatePickerOpen = shallowRef(false);
+const isToDatePickerOpen = shallowRef(false);
 
 const fetchLeaves = async () => {
   try {
@@ -194,7 +180,7 @@ const fetchLeaves = async () => {
     myLeaves.value = data.data.my_leaves || [];
     leavesReportsTo.value = data.data.reports_to || [];
   } catch (error) {
-    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
     myLeaves.value = [];
     leavesReportsTo.value = [];
   } finally {
@@ -383,7 +369,7 @@ onIonViewWillEnter(async () => {
                 :placeholder="$t('user.leaves.from_date')"
                 readonly
                 :value="formatDate(selectedDates.start, 'DD-MM-YYYY')"
-                @ion-focus="setDatePickerOpen(true)"
+                @ion-focus="isFromDatePickerOpen = true"
               />
             </ion-col>
             <ion-col size="6">
@@ -395,17 +381,26 @@ onIonViewWillEnter(async () => {
                 :placeholder="$t('user.leaves.to_date')"
                 readonly
                 :value="formatDate(selectedDates.end, 'DD-MM-YYYY')"
-                @ion-focus="setDatePickerOpen(true)"
+                @ion-focus="isToDatePickerOpen = true"
               />
             </ion-col>
           </ion-row>
-          <Datepicker
-            :lang="langStore.lang"
-            :is-open="isDatePickerOpen"
-            v-model="datePickerRange"
-            @cancel="setDatePickerOpen(false)"
-            @ok="onDatePickerOk"
-          />
+         <!-- From Date Picker -->
+        <Datepicker
+          :lang="langStore.lang"
+          :is-open="isFromDatePickerOpen"
+          v-model="selectedDates.start"
+          @cancel="isFromDatePickerOpen = false"
+          @ok="isFromDatePickerOpen = false"
+        />
+        <!-- To Date Picker -->
+        <Datepicker
+          :lang="langStore.lang"
+          :is-open="isToDatePickerOpen"
+          v-model="selectedDates.end"
+          @cancel="isToDatePickerOpen = false"
+          @ok="isToDatePickerOpen = false"
+        />
           <div>
             <div>
               <p class="leaves-filter-checkbox-list-title">

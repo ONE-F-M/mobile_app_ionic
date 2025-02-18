@@ -52,7 +52,7 @@ const requestCode = async () => {
 
     router.push("/register/verify-code");
   } catch (error) {
-    showErrorToast(error?.data?.error || "Something went wrong in sending verification code");
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   }
 };
 

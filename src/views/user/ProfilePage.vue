@@ -105,7 +105,7 @@ const updateImage = async (event) => {
     showSuccessToast(t("user.profile.image_updated"));
   } catch (error) {
     console.error(error);
-    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   }
 };
 
@@ -138,7 +138,7 @@ const getUserDetails = async () => {
     user.monthly_rank = data.message.Monthly_Rank;
   } catch (error) {
     console.error(error);
-    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   }
 };
 

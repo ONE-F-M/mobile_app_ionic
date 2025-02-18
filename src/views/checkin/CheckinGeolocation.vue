@@ -238,7 +238,7 @@ const getSiteLocation = async () => {
     logType.value = data.data.log_type;
     shift.value = data.data.shift;
   } catch (error) {
-    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   }
 };
 
@@ -264,7 +264,7 @@ const verifyCheckin = async () => {
     showSuccessToast(`You have ${type} successfully`);
   } catch (error) {
     console.error(error);
-    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   }
 };
 
