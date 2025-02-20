@@ -364,7 +364,7 @@ const addsitemarker = async () =>{
       strokeColor: "#FF0000",
       fillColor: 'red',
       fillOpacity: 0.35,
-      googleMap,
+      map:googleMap,
       center: {lat: site_lat.value, lng: site_long.value},
       radius: site_radius.value,
     });
