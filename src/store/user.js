@@ -6,7 +6,7 @@ export const useUserStore = defineStore("user", {
     return {
       user: null,
       token: null,
-      isEndpointEnabled:null,
+      isEndpointEnabled:1,
     };
   },
   persist: true,
