@@ -86,8 +86,10 @@ const initializeStream = async () => {
   dataPromise = new Promise((resolve) => (dataResolver = resolve));
 
 let recorder_options = { mimeType: 'video/webm;codecs=vp9' };
-
-  recorder = new MediaRecorder(stream,recorder_options);
+if (!MediaRecorder.isTypeSupported(recorder_options.mimeType)) {
+  recorder_options = { mimeType: 'video/webm;codecs=vp8' }; // Fallback for browsers that don't support MP4
+}
+  recorder = new MediaRecorder(stream);
   recorder.ondataavailable = (event) => dataResolver(event.data);
   recorder.start();
   

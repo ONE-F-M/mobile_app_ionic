@@ -114,6 +114,9 @@ const initializeStream = async () => {
   let dataResolver;
   dataPromise = new Promise((resolve) => (dataResolver = resolve));
   let recorder_options = { mimeType: 'video/webm;codecs=vp9' };
+  if (!MediaRecorder.isTypeSupported(recorder_options.mimeType)) {
+  recorder_options = { mimeType: 'video/webm;codecs=vp8' }; // Fallback for browsers that don't support MP4
+  }
   recorder = new MediaRecorder(stream,recorder_options);
   recorder.ondataavailable = (event) => dataResolver(event.data);
   recorder.start();
@@ -267,14 +270,6 @@ const verifyCheckin = async () => {
     showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   }
 };
-
-// Function to convert base64 to Blob
-const base64ToBlob = async (base64, mimeType) => {
-  const res = await fetch(`data:${mimeType};base64,${base64}`);
-  const blob = await res.blob();
-  return blob;
-};
-
 
 const initialPosition = computed(() => ({
   lat: coordinates.value?.coords?.latitude || 0,
