@@ -25,11 +25,9 @@ const step = 0.01;
 const showVideo = shallowRef(false);
 
 //in seconds
-const duration = 10;
+const duration = 5;
 const instructions = [
-  "enrollment.instructions.look_straight",
-  "enrollment.instructions.face_left",
-  "enrollment.instructions.face_right",
+  "enrollment.instructions.look_straight"
 ];
 const instruction = ref("");
 const percent = (duration / 100) * 1000;
@@ -161,31 +159,11 @@ onIonViewDidLeave(() => {
 
           <ion-text
             class="command ion-align-items-center ion-d-flex"
-            :class="{
-              'command-instruction-arrow':
-                instruction === 'enrollment.instructions.face_left' ||
-                instruction === 'enrollment.instructions.face_right',
-              'command-left':
-                instruction === 'enrollment.instructions.face_left',
-              'command-right':
-                instruction === 'enrollment.instructions.face_right',
-            }"
+            
           >
-            <ion-icon
-              v-if="instruction === 'enrollment.instructions.face_left'"
-              class="icon-arrow-back command-icon"
-              color="light"
-              size="large"
-              :icon="arrowBackOutline"
-            />
+            
             <span>{{ $t(instruction) }}</span>
-            <ion-icon
-              v-if="instruction === 'enrollment.instructions.face_right'"
-              class="icon-arrow-back command-icon"
-              color="light"
-              size="large"
-              :icon="arrowForwardOutline"
-            />
+            
           </ion-text>
 
           <template v-if="progress < 1">
