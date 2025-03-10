@@ -3,7 +3,7 @@ import { KeyboardResize } from '@capacitor/keyboard';
 
 const config: CapacitorConfig = {
   appId: "com.onefacilitiesmanagement.ios.apps",
-  appName: "onefacilitiesmanagement",
+  appName: "OneFMMobile",
   webDir: "dist",
   server: {
     hostname: "localhost",
