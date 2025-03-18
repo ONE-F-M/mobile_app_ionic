@@ -50,8 +50,6 @@ export const useCustomToast = () => {
       return "Client error occurred. Please check your request.";
     } else if (statusCode >= 500 && statusCode < 600) {
       return "Server error occurred. Please try again later.";
-    } else {
-      return "Unexpected status code received.";
     }
   };
 
