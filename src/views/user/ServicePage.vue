@@ -118,15 +118,20 @@ const removeService = async (service) => {
     showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   }
 };
+
 const addService = async (service) => {
   try {
-    const updatedService = [
-      ...userServices.value.map((userService) => ({
-        service: userService.service,
-      })),
-      { service: service.name },
-    ];
+    const localizedName = getLocalizedServiceName(service);
 
+    const updatedService = [
+      ...userServices.value.map((userService) => {
+        const localizedServiceName = getLocalizedServiceName(userService.service) || userService.service; // Fallback to original if not localized
+        return {
+          service: localizedServiceName,
+        };
+      }),
+      { service: localizedName },
+    ];
     const payload = {
       service_detail: JSON.stringify(updatedService),
     };
@@ -139,6 +144,7 @@ const addService = async (service) => {
     showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   }
 };
+
 
 onIonViewDidEnter(async () => {
   await fetchGroups();
