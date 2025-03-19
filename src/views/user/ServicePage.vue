@@ -13,6 +13,13 @@ import { useCustomToast } from "@/composable/toast";
 import { ref } from "vue";
 import ServiceGroupCard from "@/components/service/GroupCard.vue";
 import Header from "@/components/Header.vue";
+import { useI18n } from "vue-i18n";
+
+const { locale } = useI18n();
+
+const getLocalizedServiceName = (service) => {
+  return locale.value === "ar" ? service.name_ar || service.name : service.name;
+};
 
 const { showErrorToast } = useCustomToast();
 
@@ -23,8 +30,6 @@ const router = useIonRouter();
 const selectedGroup = ref("");
 
 const goToServicePage = (service) => {
-  console.log("service", service);
-
   switch (service) {
     case "Checkin Checkout":
       router.push("/checkin");
@@ -43,10 +48,10 @@ const goToServicePage = (service) => {
 const fetchGroups = async () => {
   try {
     const { data } = await configuration.getServicesGroups();
-
     serviceGroups.value = data.data.map((group) => ({
       ...group,
       services: [],
+      name: getLocalizedServiceName(group), 
     }));
   } catch (error) {
     showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
@@ -60,7 +65,7 @@ const fetchServices = async () => {
 
     data.data.forEach((service) => {
       const group = serviceGroups.value.find(
-        (group) => group.name === service.service_group,
+        (group) => group.name === getLocalizedServiceName({ name: service.service_group, name_ar: service.service_group_ar })
       );
 
       const addedService = userServices.value.find(
@@ -70,6 +75,7 @@ const fetchServices = async () => {
       if (group) {
         group.services.push({
           ...service,
+          name: getLocalizedServiceName(service), 
           added: !!addedService,
         });
       }
@@ -156,13 +162,13 @@ onIonViewDidLeave(() => {
             :key="serviceGroup.name"
             size="12"
           >
-            <ServiceGroupCard
-              v-model="selectedGroup"
-              :service-group="serviceGroup"
-              @open-service="goToServicePage"
-              @remove-service="removeService($event)"
-              @add-service="addService($event)"
-            />
+          <ServiceGroupCard
+            v-model="selectedGroup"
+            :service-group="serviceGroup"
+            @open-service="(service) => goToServicePage(getLocalizedServiceName(service))"
+            @remove-service="removeService($event)"
+            @add-service="addService($event)"
+          />
           </ion-col>
         </ion-row>
       </div>
