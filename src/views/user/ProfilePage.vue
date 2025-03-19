@@ -29,6 +29,7 @@ import useDisplayImage from "@/composable/useDisplayImage";
 import useNotification from "@/composable/useNotification";
 import { Capacitor } from '@capacitor/core';
 
+
 const { t } = useI18n();
 
 const router = useIonRouter();
@@ -37,6 +38,7 @@ const userStore = useUserStore();
 
 const { showErrorToast, showSuccessToast } = useCustomToast();
 const { formatImageUrl } = useDisplayImage();
+
 
 const user = reactive({
   name: "",
@@ -56,6 +58,7 @@ const { unRegisterNotifications } = useNotification();
 
 const platform = computed(() => Capacitor.getPlatform());
 const isIOS = computed(() => platform.value === "ios");
+const { locale } = useI18n(); // Get the current locale
 
 const langSelectEnterAnimation = (el) =>
   createAnimation()
@@ -126,8 +129,9 @@ const getUserDetails = async () => {
     const { data } = await profile.getUserProfile({
       employee_id: userStore.user?.employee_id,
     });
+    user.name = locale.value === "ar" ? data.message.Name_ar : data.message.Name;
 
-    user.name = data.message.Name;
+
     user.picture = data.message.User_Image;
     user.email = data.message.Email;
     user.phone = data.message.Mobile_no;
