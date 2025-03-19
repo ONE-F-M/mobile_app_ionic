@@ -17,10 +17,14 @@ import Header from "@/components/Header.vue";
 import InputBox from "@/components/InputBox.vue";
 import { useAuthStore } from "@/store/auth.js";
 import { useCustomToast } from "@/composable/toast.js";
+import { useI18n } from "vue-i18n";
+
 
 const authStore = useAuthStore();
 const router = useIonRouter();
 const { showErrorToast } = useCustomToast();
+const { locale } = useI18n(); // Get the current locale
+
 
 const isLoading = ref(false);
 
@@ -36,7 +40,7 @@ const nextStep = async () => {
     const { data } = await auth.getUserEnrollment({
       employee_id: employeeId.value,
     });
-    const employeeName = data.data.employee_name;
+    const employeeName = locale.value === "ar" ? data.data.employee_name_ar : data.data.employee_name;
 
     authStore.setEmployeeId(employeeId.value);
     authStore.setUserName(employeeName);
