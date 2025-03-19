@@ -74,7 +74,7 @@ onIonViewDidEnter(() => {
             <span class="mdi" :class="`mdi-${service.service_icon}`" />
           </div>
           <div class="services-item-label">
-            {{ service.service }}
+            {{ $i18n.locale === 'ar' ? service.service_ar : service.service }}
           </div>
         </div>
       </div>
