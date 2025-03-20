@@ -61,6 +61,7 @@ const fetchGroups = async () => {
   }
 };
 
+
 const fetchServices = async () => {
   try {
     const { data } = await configuration.getServices();
@@ -73,8 +74,8 @@ const fetchServices = async () => {
 
       const addedService = userServices.value.find(
         (userService) =>{const serviceName = locale.value === "ar" ? service.name_ar : service.name;
-        return locale.value === "ar" ? userService.service_ar : userService.service === serviceName;
-      }
+        return locale.value === "ar" ? userService.service_ar === serviceName: userService.service === serviceName;    
+        }
       );
 
       if (group) {
