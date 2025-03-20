@@ -130,12 +130,12 @@ onBeforeUnmount(() => {
 
       <div class="checkin-page-table-wrapper">
         <ion-row>
-          <ion-col class="checkin-page-table-label">Employee Name</ion-col>
+          <ion-col class="checkin-page-table-label">{{ $t("user.checkin.employee_name") }}</ion-col>
           <ion-col size="auto" class="align-cols-end checkin-page-table-label"
-            >Date/Time</ion-col
+            >{{ $t("user.checkin.date_time") }}</ion-col
           >
           <ion-col size="3" class="align-cols-end checkin-page-table-label"
-            >Status</ion-col
+            >{{ $t("user.checkin.status") }}</ion-col
           >
         </ion-row>
 
@@ -147,7 +147,7 @@ onBeforeUnmount(() => {
           >
             <ion-col>
               <div class="checkin-page-name-wrapper">
-                <p class="checkin-page-name">{{ check.employee_name }}</p>
+                <p class="checkin-page-name"> {{ $i18n.locale === 'ar' ? check.employee_name_in_arabic: check.employee_name }}</p>
                 <p class="checkin-page-duration">
                   {{ dayjs(check.time).locale(langStore.lang).toNow(true) }}
                 </p>
@@ -168,7 +168,11 @@ onBeforeUnmount(() => {
                 class="checkin-page-status"
                 :class="`checkin-page-status-${check.log_type}`"
               >
-                {{ check.log_type }}
+              {{
+              check.log_type  === "OUT"
+                ? $t("user.checkin.in")
+                : $t("user.checkin.out")
+            }}
               </div>
             </ion-col>
           </ion-row>
