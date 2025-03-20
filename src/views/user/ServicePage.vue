@@ -21,6 +21,7 @@ const getLocalizedServiceName = (service) => {
   return locale.value === "ar" ? service.name_ar || service.name : service.name;
 };
 
+
 const { showErrorToast } = useCustomToast();
 
 const serviceGroups = ref([]);
@@ -30,6 +31,7 @@ const router = useIonRouter();
 const selectedGroup = ref("");
 
 const goToServicePage = (service) => {
+
   switch (service) {
     case "Checkin Checkout":
       router.push("/checkin");
@@ -64,12 +66,15 @@ const fetchServices = async () => {
     const { data } = await configuration.getServices();
 
     data.data.forEach((service) => {
-      const group = serviceGroups.value.find(
-        (group) => group.name === getLocalizedServiceName({ name: service.service_group, name_ar: service.service_group_ar })
-      );
+    const group = serviceGroups.value.find((group) => {
+      const groupName = locale.value === "ar" ? group.name_ar : group.name;
+      return groupName === (locale.value === "ar" ? service.service_group_ar : service.service_group);
+    });
 
       const addedService = userServices.value.find(
-        (userService) => userService.service === service.name,
+        (userService) =>{const serviceName = locale.value === "ar" ? service.name_ar : service.name;
+        return locale.value === "ar" ? userService.service_ar : userService.service === serviceName;
+      }
       );
 
       if (group) {
@@ -88,7 +93,6 @@ const fetchServices = async () => {
 const fetchUserServices = async () => {
   try {
     const { data } = await configuration.getUserServices();
-
     userServices.value = data.data.service_detail;
   } catch (error) {
     showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
@@ -101,7 +105,7 @@ const removeService = async (service) => {
     const updatedService = [
       ...userServices.value
         .map((service) => ({
-          service: service.service,
+          service:locale.value === "ar" ?service.service_ar:service.service,
         }))
         .filter((userService) => userService.service !== service.name),
     ];
@@ -118,20 +122,15 @@ const removeService = async (service) => {
     showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   }
 };
-
 const addService = async (service) => {
   try {
-    const localizedName = getLocalizedServiceName(service);
-
     const updatedService = [
-      ...userServices.value.map((userService) => {
-        const localizedServiceName = getLocalizedServiceName(userService.service) || userService.service; // Fallback to original if not localized
-        return {
-          service: localizedServiceName,
-        };
-      }),
-      { service: localizedName },
+      ...userServices.value.map((userService) => ({
+        service: userService.service,
+      })),
+      { service: service.name },
     ];
+
     const payload = {
       service_detail: JSON.stringify(updatedService),
     };
@@ -144,7 +143,6 @@ const addService = async (service) => {
     showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   }
 };
-
 
 onIonViewDidEnter(async () => {
   await fetchGroups();
@@ -168,13 +166,13 @@ onIonViewDidLeave(() => {
             :key="serviceGroup.name"
             size="12"
           >
-          <ServiceGroupCard
-            v-model="selectedGroup"
-            :service-group="serviceGroup"
-            @open-service="(service) => goToServicePage(getLocalizedServiceName(service))"
-            @remove-service="removeService($event)"
-            @add-service="addService($event)"
-          />
+            <ServiceGroupCard
+              v-model="selectedGroup"
+              :service-group="serviceGroup"
+              @open-service="goToServicePage"
+              @remove-service="removeService($event)"
+              @add-service="addService($event)"
+            />
           </ion-col>
         </ion-row>
       </div>
