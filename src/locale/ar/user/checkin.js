@@ -16,5 +16,10 @@ export default {
     back: "عودة",
     try_again: "حاول مرة أخرى",
   },
-  apiKeyNotFound: "فشل تحميل خريطة جوجل. الخدمة غير متوفرة"
+  apiKeyNotFound: "فشل تحميل خريطة جوجل. الخدمة غير متوفرة",
+  in:"في",
+  out:"خارج",
+  employee_name:"اسم الموظف",
+  date_time:"التاريخ والوقت",
+  status:"حالة"
 };
