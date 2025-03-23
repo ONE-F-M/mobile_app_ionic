@@ -170,8 +170,8 @@ onBeforeUnmount(() => {
               >
               {{
               check.log_type  === "OUT"
-                ? $t("user.checkin.in")
-                : $t("user.checkin.out")
+                ? $t("user.checkin.out")
+                : $t("user.checkin.in")
             }}
               </div>
             </ion-col>
