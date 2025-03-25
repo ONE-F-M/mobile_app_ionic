@@ -152,7 +152,7 @@ const saveVideo = async () => {
   video.value.pause();
 
   await verifyCheckin();
-  await getSiteLocation();
+  // await getSiteLocation();
   
   cleanup();
   isOpen.value = false;
@@ -261,13 +261,12 @@ const verifyCheckin = async () => {
     }
    
     await checkin.verifyCheckin(payload);
-    await getSiteLocation();
+    // await getSiteLocation();
 
-    const type = logType.value === "OUT" ? "checkin" : "checkout";
+    const type = logType.value === "OUT" ? "checkout" : "checkin";
+
     showSuccessToast(`You have ${type} successfully`);
-    setTimeout(() => {
-      location.href = location.href;
-    }, 1000); 
+    router.push("/checkin");
   } catch (error) {
     console.error(error);
     showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
