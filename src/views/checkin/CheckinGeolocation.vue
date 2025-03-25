@@ -265,6 +265,9 @@ const verifyCheckin = async () => {
 
     const type = logType.value === "OUT" ? "checkin" : "checkout";
     showSuccessToast(`You have ${type} successfully`);
+    setTimeout(() => {
+      location.href = location.href;
+    }, 1000); 
   } catch (error) {
     console.error(error);
     showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
