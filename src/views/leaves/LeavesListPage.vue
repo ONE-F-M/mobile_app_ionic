@@ -406,29 +406,33 @@ onIonViewWillEnter(async () => {
               <p class="leaves-filter-checkbox-list-title">
                 {{ $t("user.leaves.leave_type") }}
               </p>
-              <div v-if="showTypes" class="leaves-filter-checkbox-list">
-                <ion-checkbox
-                  v-for="leaveOption in leaveOptions"
-                  :checked="selectedLeaveType === leaveOption"
-                  :key="leaveOption"
-                  :value="leaveOption"
-                  @ionChange="setLeaveType($event)"
-                >
-                  {{ leaveOption }}
-                </ion-checkbox>
-              </div>
+              <ion-radio-group @ionChange="setLeaveType" :value="selectedLeaveType">
+      <div v-if="showTypes" class="leaves-filter-list">
+        <label
+          v-for="leaveOption in leaveOptions"
+          
+          :key="leaveOption"
+          class="leaves-filter-item"
+        >
+          {{ leaveOption }}
+          <ion-radio :value="leaveOption"></ion-radio>
+        </label>
+      </div>
+    </ion-radio-group>
               <p class="leaves-filter-checkbox-list-title">Status</p>
-              <div v-if="showStatuses" class="leaves-filter-checkbox-list">
-                <ion-checkbox
-                  v-for="leaveStatus in leaveStatuses"
-                  :checked="selectedLeaveStatus === leaveStatus.value"
-                  :key="leaveStatus.value"
-                  :value="leaveStatus.value"
-                  @ionChange="setLeaveStatus($event)"
-                >
-                  {{ leaveStatus.label }}
-                </ion-checkbox>
-              </div>
+              <ion-radio-group @ionChange="setLeaveStatus" :value="selectedLeaveStatus">
+      <div v-if="showStatuses" class="leaves-filter-list">
+        <label
+          v-for="leaveStatus in leaveStatuses"
+          
+          :key="leaveStatus.value"
+          class="leaves-filter-item"
+        >
+          {{ leaveStatus.label }}
+          <ion-radio :value="leaveStatus.value"></ion-radio>
+        </label>
+      </div>
+    </ion-radio-group>
             </div>
           </div>
         </div>
@@ -640,4 +644,26 @@ onIonViewWillEnter(async () => {
     padding: 8px 0;
   }
 }
+
+.leaves-filter-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.leaves-filter-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  cursor: pointer;
+}
+
+ion-radio {
+  --color: white;
+  --color-checked: white;
+  --border-color: white;
+  --border-color-checked: white;
+}
+
 </style>
