@@ -87,7 +87,7 @@ const fetchReliever = async () => {
         }));
       }
   } catch (error) {
-    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   }
 };
 
@@ -144,13 +144,13 @@ const selectedDateDifference = computed(() => {
   const startDate = dayjs(selectedDates.from_date);
   const endDate = dayjs(selectedDates.to_date);
 
-  return endDate.diff(startDate, "day");
+  return endDate.diff(startDate, "day") + 1;
 });
 
 const formattedCurrentDate = formatDate(new Date(), "DD MMM, YYYY");
 
-const isFromDatePickerOpen = shallowRef(false);
-const isToDatePickerOpen = shallowRef(false);
+const isFromDatePickerOpen = ref(false);
+const isToDatePickerOpen = ref(false);
 
 const fileInput = ref();
 const toBase64 = (file) =>
@@ -203,6 +203,10 @@ const validateForm = () => {
     errors.toDateInvalid = selectedDates.to_date < selectedDates.from_date;
   } else {
     errors.toDateInvalid = false;
+  }
+
+  if (errors.toDateInvalid) {
+    showErrorToast("Invalid Date Range", "To Date cannot be earlier than From Date", 400);
   }
 
   if (!requiredProofDocument.value[selectedLeaveType.value]) {
@@ -380,7 +384,7 @@ onIonViewWillEnter(async () => {
               readonly
               :class="{ 'ion-touched ion-invalid': errors.fromDate }"
               :value="formatDate(selectedDates.from_date, 'DD-MM-YYYY')"
-              @ion-focus="isFromDatePickerOpen = true"
+              @click="isFromDatePickerOpen = true"
             />
             <span
               class="leaves-create-label-required leaves-create-label__required"
@@ -397,16 +401,13 @@ onIonViewWillEnter(async () => {
               {{ $t("user.leaves.detail.till") }}
             </p>
            <!-- To Date Input -->
-           <ion-text color="danger" v-if="errors.toDateInvalid">
-            To Date cannot be earlier than From Date.
-          </ion-text>
           <ion-input
             fill="outline"
             :placeholder="$t('user.leaves.to_date')"
             readonly
             :class="{ 'ion-touched ion-invalid': errors.toDate }"
             :value="formatDate(selectedDates.to_date, 'DD-MM-YYYY')"
-            @ion-focus="isToDatePickerOpen = true"
+            @click="isToDatePickerOpen = true"
           />
             <span
               class="leaves-create-label-required leaves-create-label__required"
@@ -426,6 +427,7 @@ onIonViewWillEnter(async () => {
           v-model="selectedDates.from_date"
           @cancel="isFromDatePickerOpen = false"
           @ok="isFromDatePickerOpen = false"
+          @didDismiss="isFromDatePickerOpen = false"
         />
         <!-- To Date Picker -->
         <Datepicker
@@ -434,6 +436,7 @@ onIonViewWillEnter(async () => {
           v-model="selectedDates.to_date"
           @cancel="isToDatePickerOpen = false"
           @ok="isToDatePickerOpen = false"
+          @didDismiss="isToDatePickerOpen = false"
         />
         <div class="ion-margin-top">
           <p class="leaves-create-label leaves-create-label__required">

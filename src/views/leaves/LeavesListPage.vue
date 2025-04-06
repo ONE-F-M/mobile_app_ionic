@@ -136,8 +136,8 @@ const resetFilters = () => {
   lastYear.setFullYear(today.getFullYear() - 1);
 
   selectedDates.value = {
-    start: formatDate(lastYear, 'DD-MM-YYYY'), 
-    end: formatDate(today, 'DD-MM-YYYY')
+    start: formatDate(lastYear, 'YYYY-MM-DD'), 
+    end: formatDate(today, 'YYYY-MM-DD')
   };
 
   fetchLeaves();
@@ -164,8 +164,8 @@ const selectedDates = ref({
   end: new Date(),
 });
 
-const isFromDatePickerOpen = shallowRef(false);
-const isToDatePickerOpen = shallowRef(false);
+const isFromDatePickerOpen = ref(false);
+const isToDatePickerOpen = ref(false);
 
 const fetchLeaves = async () => {
   try {
@@ -369,7 +369,7 @@ onIonViewWillEnter(async () => {
                 :placeholder="$t('user.leaves.from_date')"
                 readonly
                 :value="formatDate(selectedDates.start, 'DD-MM-YYYY')"
-                @ion-focus="isFromDatePickerOpen = true"
+                @click="isFromDatePickerOpen = true"
               />
             </ion-col>
             <ion-col size="6">
@@ -381,7 +381,7 @@ onIonViewWillEnter(async () => {
                 :placeholder="$t('user.leaves.to_date')"
                 readonly
                 :value="formatDate(selectedDates.end, 'DD-MM-YYYY')"
-                @ion-focus="isToDatePickerOpen = true"
+                @click="isToDatePickerOpen = true"
               />
             </ion-col>
           </ion-row>
@@ -392,6 +392,7 @@ onIonViewWillEnter(async () => {
           v-model="selectedDates.start"
           @cancel="isFromDatePickerOpen = false"
           @ok="isFromDatePickerOpen = false"
+          @didDismiss="isFromDatePickerOpen = false"
         />
         <!-- To Date Picker -->
         <Datepicker
@@ -400,6 +401,7 @@ onIonViewWillEnter(async () => {
           v-model="selectedDates.end"
           @cancel="isToDatePickerOpen = false"
           @ok="isToDatePickerOpen = false"
+          @didDismiss="isToDatePickerOpen = false"
         />
           <div>
             <div>
