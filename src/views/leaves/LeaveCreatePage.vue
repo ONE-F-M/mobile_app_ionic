@@ -48,6 +48,7 @@ const selectedLeaveType = ref("");
 watch(selectedLeaveType, () => {
   errors.leaveType = false;
   fetchLeaveBalance();
+  fetchReliever(selectedLeaveType);
 });
 const selectedReason = ref("");
 watch(selectedReason, () => {
@@ -57,7 +58,7 @@ const reliever_field_permission = ref(false);
 const selectedReliever = ref("");
 watch(selectedReliever, () => {
   errors.reliever = false;
-  fetchReliever();
+  fetchReliever(selectedLeaveType);
 });
 
 const leaveOptions = ref([]);
@@ -75,10 +76,10 @@ const fetchLeaveTypes = async () => {
   }
 };
 
-const fetchReliever = async () => {
+const fetchReliever = async (selectedLeaveType) => {
   try {
     const datas = await leave.getEmployee_reliever_permission({employee_id: userStore.user?.employee_id});
-    reliever_field_permission.value = datas.data.data
+    reliever_field_permission.value = Boolean(datas.data.data && selectedLeaveType.value === "Annual Leave")
     if(reliever_field_permission.value){
         const { data } = await leave.getEmployeesList({});
         relieverOptions.value = data.data.map((employee) => ({
@@ -87,7 +88,7 @@ const fetchReliever = async () => {
         }));
       }
   } catch (error) {
-    showErrorToast(`${error.data.status_code} ${error.data.message} ${error.data.error}`);
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   }
 };
 
@@ -196,7 +197,6 @@ const validateForm = () => {
   errors.fromDate = !selectedDates.from_date;
   errors.toDate = !selectedDates.to_date;
   errors.reason = !selectedReason.value;
-  errors.reliever = !selectedReliever.value;
 
   // Validate To Date is not earlier than From Date
   if (selectedDates.from_date && selectedDates.to_date) {
@@ -211,14 +211,18 @@ const validateForm = () => {
     errors.proofDocument = !attachment.value.base64;
   }
 
+  if (reliever_field_permission.value && !selectedReliever.value) {
+    showErrorToast("No Reliever Set", "Please ensure that a Reliever is set", 400);
+    return
+  }
+
   return (
     !errors.leaveType &&
     !errors.fromDate &&
     !errors.toDate &&
     !errors.toDateInvalid &&
     !errors.reason &&
-    !errors.proofDocument&&
-    !errors.reliever
+    !errors.proofDocument
     
   );
 };
@@ -280,7 +284,6 @@ onIonViewWillEnter(async () => {
   clearForm();
   clearLeaveBalance();
   await fetchLeaveTypes();
-  await fetchReliever();
 });
 </script>
 
