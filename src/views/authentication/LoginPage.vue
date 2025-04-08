@@ -52,8 +52,8 @@ const login = async () => {
    
     userStore.setUser(data.data);
     userStore.setToken(data.data.token);
-    userStore.setEndpointStatus(data.data.endpoint_state)
-    
+    userStore.setEndpointStatus(data.data.endpoint_state);
+    userStore.setEndpointStatusForEmployee(data.data.employee_endpoint_state);
     const deviceInfo = await Device.getInfo();
 
     authStore.setEmployeeIdentificator(data.data.name);
@@ -69,12 +69,14 @@ const login = async () => {
     password.value = "";
 
     isLoading.value = false;
+	// If endpoint is enabled globally and endpoint is enabled for employee 
+	if ((data.data.endpoint_state && data.data.employee_endpoint_state)) {
+		// If not enrolled, proceed to enrollment otherwise to home
+		data.data.enrolled ? router.push("/home/") : router.push("/enrollment");
+	} else {
+		router.push("/home/");	
+	}
 
-    if (data.data.enrolled) {
-      router.push("/home/");
-    } else {
-      router.push("/enrollment");
-    }
   } catch (error) {
     isIncorrectPassword.value = true;
 

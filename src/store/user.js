@@ -6,7 +6,8 @@ export const useUserStore = defineStore("user", {
     return {
       user: null,
       token: null,
-      isEndpointEnabled:1,
+      isEndpointEnabled: null,
+	  isEndpointEnabledForEmployee: null
     };
   },
   persist: true,
@@ -14,7 +15,12 @@ export const useUserStore = defineStore("user", {
     setEndpointStatus(status){
       this.isEndpointEnabled = status;
     },
-    setUser(user) {
+
+    setEndpointStatusForEmployee(status){
+		this.isEndpointEnabledForEmployee = status;
+	},
+
+	setUser(user) {
       this.user = user;
     },
 

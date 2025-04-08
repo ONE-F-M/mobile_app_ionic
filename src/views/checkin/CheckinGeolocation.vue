@@ -218,14 +218,15 @@ const loadAgainLocation = async () => {
 
 const getSiteLocation = async () => {
   try {
-
     const response = await auth.getUserFaceEnrollment({
-    employee_id: userStore.user?.employee_id,
-  });
-  if(response.data.data.enrolled===false){
-    showErrorToast(`You have not enrolled your face,Please Enroll`);
-    router.push("/enrollment");
-  }
+    	employee_id: userStore.user?.employee_id,
+	});
+	
+	if((userStore.isEndpointEnabled && userStore.isEndpointEnabledForEmployee) && response.data.data.enrolled===false){
+		showErrorToast(`You have not enrolled. Please Enroll first.`);
+		router.push("/enrollment");
+	}
+
     const { data } = await checkin.getSiteLocation({
       employee_id: userStore.user?.employee_id,
       latitude: coordinates.value?.coords?.latitude,
@@ -240,7 +241,8 @@ const getSiteLocation = async () => {
     faceRecEndpointEnabled.value = data.data.endpoint_status
     logType.value = data.data.log_type;
     shift.value = data.data.shift;
-  } catch (error) {
+  
+} catch (error) {
     showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   }
 };
@@ -256,7 +258,7 @@ const verifyCheckin = async () => {
     }
 
     
-    if(userStore.isEndpointEnabled){
+    if(userStore.isEndpointEnabled && userStore.isEndpointEnabledForEmployee){
       payload.video = verifyVideo.value
     }
    
