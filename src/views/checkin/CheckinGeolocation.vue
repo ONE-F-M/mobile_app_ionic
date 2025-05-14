@@ -107,15 +107,29 @@ const initializeStream = async () => {
     .catch((err) => console.log("media stream err:", err.name));
 
   if (!stream) return;
-
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  let recorder_options
+  if (isIOS.value) {
+  recorder_options = {
+    mimeType: 'video/mp4',
+    videoBitsPerSecond: 250000, // Lower bitrate for smaller file size
+  };
+  }
+  else{
+    recorder_options = { 
+    mimeType: 'video/webm;codecs=vp9',
+    videoBitsPerSecond: 500000, // 500 kbps for video
+    };
+  }
   video.value.srcObject = stream;
   video.value.play();
 
   let dataResolver;
   dataPromise = new Promise((resolve) => (dataResolver = resolve));
-  let recorder_options = { mimeType: 'video/webm;codecs=vp9' };
+   
   if (!MediaRecorder.isTypeSupported(recorder_options.mimeType)) {
-  recorder_options = { mimeType: 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"' }; // Fallback for browsers that don't support MP4
+  recorder_options = { mimeType: 'video/mp4; videoBitsPerSecond: 500000, // 500 kbps for video
+    codecs="avc1.42E01E, mp4a.40.2"' }; // Fallback for browsers that don't support MP4
   }
   recorder = new MediaRecorder(stream,recorder_options);
   recorder.ondataavailable = (event) => dataResolver(event.data);
