@@ -107,9 +107,9 @@ const initializeStream = async () => {
     .catch((err) => console.log("media stream err:", err.name));
 
   if (!stream) return;
-  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const isAppleDevice = /iPhone|iPad|iPod/i.test(navigator.userAgent);
   let recorder_options
-  if (isIOS.value) {
+  if (isAppleDevice) {
   recorder_options = {
     mimeType: 'video/mp4',
     videoBitsPerSecond: 250000, // Lower bitrate for smaller file size
