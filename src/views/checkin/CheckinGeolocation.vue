@@ -118,7 +118,7 @@ const initializeStream = async () => {
   else{
     recorder_options = { 
     mimeType: 'video/webm;codecs=vp9',
-    videoBitsPerSecond: 500000, // 500 kbps for video
+    videoBitsPerSecond: 250000, // 500 kbps for video
     };
   }
   video.value.srcObject = stream;
