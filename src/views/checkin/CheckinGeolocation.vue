@@ -51,6 +51,7 @@ const coordinates = ref("");
 const isOpen = ref(false);
 const isLoading = ref(false);
 const isLoadingLocation = ref(false);
+const isSubmitting = ref(false);
 
 const progress = ref(0);
 const step = 0.01;
@@ -209,6 +210,8 @@ const setCenterCamera = async () => {
 };
 
 const startVerifyPerson = async () => {
+  if (isSubmitting.value) return; // Prevent multiple clicks
+  isSubmitting.value = true;
   await initializeStream();
   setTimeout(() => {
     isOpen.value = true;
@@ -284,6 +287,9 @@ const verifyCheckin = async () => {
   } catch (error) {
     console.error(error);
     showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
+  }
+  finally {
+    isSubmitting.value = false; // Re-enable button
   }
 };
 
@@ -480,6 +486,7 @@ onIonViewDidLeave(() => {
             shape="round"
             class="checkin-button"
             :color="logType === 'IN' ? 'success' : 'danger'"
+            :disabled="isSubmitting"
           >
             {{
               logType === "IN"
