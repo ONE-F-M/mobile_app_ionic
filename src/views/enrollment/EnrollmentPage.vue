@@ -107,7 +107,8 @@ const saveVideo = async () => {
   recorder.stop();
 
   const chunks = await dataPromise;
-  
+  const fileSizeInMB = (chunks.size / (1024 * 1024)).toFixed(2);
+  console.log('Video file size:', fileSizeInMB, 'MB');
   const readerPromise = new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = () => {
