@@ -59,7 +59,7 @@ const step = 0.01;
 //in seconds
 const duration = 5;
 const instruction = ref("");
-const percent = (duration / 100) * 2000;
+const percent = (duration / 100) * 1000;
 
 const defaultSwipeHandler = ref(null);
 const site_radius = ref(100);
@@ -95,14 +95,25 @@ let stream = null;
 let dataPromise = null;
 let recorder = null;
 const initializeStream = async () => {
+  let videoConstraints = {
+    facingMode: 'user',
+    frameRate: { min: 15, ideal: 20, max: 30 }
+  };
+
+  if (window.screen.orientation && window.screen.orientation.type.includes('portrait')) {
+    // Portrait mode: height > width
+    
+    videoConstraints.width = { ideal: 360 };
+    videoConstraints.height = { ideal: 640 };
+  } else {
+    
+    // Landscape mode: width > height
+    videoConstraints.width = { ideal: 640 };
+    videoConstraints.height = { ideal: 360 };
+  }
   stream = await navigator.mediaDevices
     .getUserMedia({
-      video: {
-				width: { ideal: 640 },
-				height: { ideal: 360 },
-				frameRate: {ideal: 15},
-				facingMode: 'user'
-			},
+      video: videoConstraints,
       audio: false,
     })
     .catch((err) => console.log("media stream err:", err.name));
@@ -119,7 +130,8 @@ const initializeStream = async () => {
   else{
     recorder_options = { 
     mimeType: 'video/webm;codecs=vp9',
-    videoBitsPerSecond: 250000, // 500 kbps for video
+    videoBitsPerSecond: 250000,
+     // 500 kbps for video
     };
   }
   video.value.srcObject = stream;
@@ -747,6 +759,11 @@ onIonViewDidLeave(() => {
   background: #191c1d;
   position: relative;
   font-size: 0;
+
+  .video {
+    
+    transform: translateX(-50%) translateY(-50%) scaleX(-1);
+  }
 
   &-video-play {
     width: 100%;
