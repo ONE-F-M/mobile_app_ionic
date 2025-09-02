@@ -62,14 +62,26 @@ let stream = null;
 let dataPromise = null;
 let recorder = null;
 const initializeStream = async () => {
+  let videoConstraints = {
+    facingMode: 'user',
+    frameRate: { min: 15, ideal: 20, max: 30 }
+  };
+
+  if (window.screen.orientation && window.screen.orientation.type.includes('portrait')) {
+    // Portrait mode: height > width
+    
+    videoConstraints.width = { ideal: 360 };
+    videoConstraints.height = { ideal: 640 };
+  } else {
+    
+    // Landscape mode: width > height
+    videoConstraints.width = { ideal: 640 };
+    videoConstraints.height = { ideal: 360 };
+  }
+  
   stream = await navigator.mediaDevices
     .getUserMedia({
-      video: {
-				width: { ideal: 640 },
-				height: { ideal: 360 },
-				frameRate: {ideal: 15},//, max: 20},
-				facingMode: 'user'
-			},
+      video: videoConstraints,
       
       audio: false,
     })
@@ -83,9 +95,9 @@ const initializeStream = async () => {
   let dataResolver;
   dataPromise = new Promise((resolve) => (dataResolver = resolve));
 
-let recorder_options = { mimeType: 'video/webm;codecs=vp9' };
+let recorder_options = { mimeType: 'video/webm;codecs=vp9',videoBitsPerSecond: 250000 };
 if (!MediaRecorder.isTypeSupported(recorder_options.mimeType)) {
-  recorder_options = { mimeType: 'video/webm;codecs=vp8' }; // Fallback for browsers that don't support MP4
+  recorder_options = { mimeType: 'video/webm;codecs=vp8',videoBitsPerSecond: 250000  }; // Fallback for browsers that don't support MP4
 }
   recorder = new MediaRecorder(stream);
   recorder.ondataavailable = (event) => dataResolver(event.data);
@@ -108,7 +120,7 @@ const saveVideo = async () => {
 
   const chunks = await dataPromise;
   const fileSizeInMB = (chunks.size / (1024 * 1024)).toFixed(2);
-  console.log('Video file size:', fileSizeInMB, 'MB');
+  
   const readerPromise = new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = () => {
