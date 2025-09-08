@@ -104,11 +104,11 @@ const initializeStream = async () => {
     // Portrait mode: height > width
     
     videoConstraints.width = { ideal: 360 };
-    videoConstraints.height = { ideal: 640 };
+    videoConstraints.height = { ideal: 480 };
   } else {
     
     // Landscape mode: width > height
-    videoConstraints.width = { ideal: 640 };
+    videoConstraints.width = { ideal: 480 };
     videoConstraints.height = { ideal: 360 };
   }
   stream = await navigator.mediaDevices
@@ -124,13 +124,13 @@ const initializeStream = async () => {
   if (isAppleDevice) {
   recorder_options = {
     mimeType: 'video/mp4',
-    videoBitsPerSecond: 250000, // Lower bitrate for smaller file size
+    videoBitsPerSecond: 150000, // Lower bitrate for smaller file size
   };
   }
   else{
     recorder_options = { 
     mimeType: 'video/webm;codecs=vp9',
-    videoBitsPerSecond: 250000,
+    videoBitsPerSecond: 150000,
      // 500 kbps for video
     };
   }
@@ -141,7 +141,7 @@ const initializeStream = async () => {
   dataPromise = new Promise((resolve) => (dataResolver = resolve));
    
   if (!MediaRecorder.isTypeSupported(recorder_options.mimeType)) {
-  recorder_options = { mimeType: 'video/mp4', videoBitsPerSecond: 500000, // 500 kbps for video
+  recorder_options = { mimeType: 'video/mp4', videoBitsPerSecond: 200000, // 200 kbps for video
     codecs:'avc1.42E01E, mp4a.40.2' }; // Fallback for browsers that don't support MP4
   }
   recorder = new MediaRecorder(stream,recorder_options);
@@ -163,6 +163,10 @@ const saveVideo = async () => {
   recorder.stop();
 
   const chunks = await dataPromise;
+  console.log('Video file size:', chunks.size, 'bytes');
+  console.log('Video file size (in KB):', chunks.size / 1024, 'KB');
+  console.log('Video file size (in MB):', chunks.size / (1024 * 1024), 'MB');
+
 
   const readerPromise = new Promise((resolve) => {
     const reader = new FileReader();
