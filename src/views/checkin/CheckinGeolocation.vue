@@ -103,12 +103,13 @@ const initializeStream = async () => {
   if (window.screen.orientation && window.screen.orientation.type.includes('portrait')) {
     // Portrait mode: height > width
     
-    videoConstraints.width = { ideal: 360 };
-    videoConstraints.height = { ideal: 480 };
+    videoConstraints.width = { ideal: 640 };
+    videoConstraints.height = { ideal: 360 };
   } else {
     
     // Landscape mode: width > height
-    videoConstraints.width = { ideal: 480 };
+    
+    videoConstraints.width = { ideal: 640 };
     videoConstraints.height = { ideal: 360 };
   }
   stream = await navigator.mediaDevices
@@ -131,7 +132,7 @@ const initializeStream = async () => {
     recorder_options = { 
     mimeType: 'video/webm;codecs=vp9',
     videoBitsPerSecond: 150000,
-     // 500 kbps for video
+     // 150 kbps for video
     };
   }
   video.value.srcObject = stream;
@@ -163,9 +164,7 @@ const saveVideo = async () => {
   recorder.stop();
 
   const chunks = await dataPromise;
-  console.log('Video file size:', chunks.size, 'bytes');
-  console.log('Video file size (in KB):', chunks.size / 1024, 'KB');
-  console.log('Video file size (in MB):', chunks.size / (1024 * 1024), 'MB');
+  
 
 
   const readerPromise = new Promise((resolve) => {
