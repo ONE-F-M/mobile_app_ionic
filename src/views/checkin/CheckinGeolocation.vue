@@ -164,6 +164,8 @@ const saveVideo = async () => {
   recorder.stop();
 
   const chunks = await dataPromise;
+  const fileSizeInMB = (chunks.size / (1024 * 1024)).toFixed(2);
+  console.log(`Recorded video size: ${fileSizeInMB} MB`);
   
 
 

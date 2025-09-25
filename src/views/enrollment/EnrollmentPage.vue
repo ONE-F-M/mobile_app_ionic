@@ -99,7 +99,7 @@ let recorder_options = { mimeType: 'video/webm;codecs=vp9',videoBitsPerSecond: 2
 if (!MediaRecorder.isTypeSupported(recorder_options.mimeType)) {
   recorder_options = { mimeType: 'video/webm;codecs=vp8',videoBitsPerSecond: 250000  }; // Fallback for browsers that don't support MP4
 }
-  recorder = new MediaRecorder(stream);
+  recorder = new MediaRecorder(stream,recorder_options);
   recorder.ondataavailable = (event) => dataResolver(event.data);
   recorder.start();
   
