@@ -28,9 +28,11 @@ import utils from "@/api/utils";
 import { useI18n } from "vue-i18n";
 import { Loader } from "@googlemaps/js-api-loader";
 import auth from "@/api/authentication";
+import { useRoute } from "vue-router";
 
 
 const router = useIonRouter();
+const route = useRoute();
 
 const prevStep = () => {
   router.back();
@@ -262,6 +264,8 @@ const getSiteLocation = async () => {
       employee_id: userStore.user?.employee_id,
       latitude: coordinates.value?.coords?.latitude,
       longitude: coordinates.value?.coords?.longitude,
+      shift: route.query.shift,
+      log_type: logType.value,
     });
 
     site_radius.value = data.data.geofence_radius;
@@ -270,7 +274,6 @@ const getSiteLocation = async () => {
     userStore.setEndpointStatus(data.data.endpoint_status)
     isUserWithinGeofenceRadius.value = data.data.user_within_geofence_radius;
     faceRecEndpointEnabled.value = data.data.endpoint_status
-    logType.value = data.data.log_type;
     shift.value = data.data.shift;
   } catch (error) {
     showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
@@ -283,6 +286,7 @@ const verifyCheckin = async () => {
       employee_id: userStore.user?.employee_id,
       latitude: Number(coordinates.value?.coords?.latitude),
       longitude: Number(coordinates.value?.coords?.longitude),
+      shift: route.query.shift,
       log_type: logType.value,
       skip_attendance: 1,
     }
@@ -442,6 +446,10 @@ onBeforeUnmount(() => {
 });
 
 onIonViewDidEnter(async () => {
+  // Set logType from query parameter if available
+  if (route.query.log_type) {
+    logType.value = route.query.log_type;
+  }
   await initializeMap();
 });
 
