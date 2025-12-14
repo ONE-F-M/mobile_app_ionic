@@ -14,7 +14,7 @@ import IconPlus from "@/components/icon/Plus.vue";
 import CheckinHeader from "@/components/checkin/Header.vue";
 import checkin from "@/api/checkin";
 import { useUserStore } from "@/store/user.js";
-import { onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useCustomToast } from "@/composable/toast.js";
 import useDateHelper from "@/composable/useDateHelper";
 import { useLangStore } from "@/store/lang.js";
@@ -34,13 +34,19 @@ const { showErrorToast } = useCustomToast();
 const checkInList = ref([]);
 const isOpenDatePicker = ref(false);
 
-const logType = ref("");
+const currentShifts = ref([]);
 const coordinates = ref("");
+const isSiteLocationLoaded = ref(false);
+const availableShifts = computed(() =>
+  currentShifts.value.filter((shift) => !shift?.is_completed)
+);
+
 const printCurrentPosition = async () => {
   coordinates.value = await Geolocation.getCurrentPosition({
     enableHighAccuracy: true,
   });
 };
+
 const getSiteLocation = async () => {
   try {
     const { data } = await checkin.getSiteLocation({
@@ -48,10 +54,19 @@ const getSiteLocation = async () => {
       latitude: coordinates.value?.coords?.latitude,
       longitude: coordinates.value?.coords?.longitude,
     });
+    isSiteLocationLoaded.value = true;
+    currentShifts.value = [];
 
-    logType.value = data.data.log_type;
+    if(data.data.shift){
+      currentShifts.value.push(data.data.shift);
+    }
+    if(data.data.upcoming_shifts){
+      currentShifts.value.push(...data.data.upcoming_shifts);
+    }
   } catch (error) {
-    // do nothing, expected
+    isSiteLocationLoaded.value = false;
+    currentShifts.value = [];
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   }
 };
 
@@ -94,7 +109,7 @@ onIonViewWillEnter(async () => {
 
   try {
     await printCurrentPosition();
-  } catch (e) {
+  } catch {
     showErrorToast(t("user.checkin.geolocation.title"));
     return;
   }
@@ -187,21 +202,25 @@ onBeforeUnmount(() => {
         @ok="() => fetchCheckinList()"
       />
 
-      <ion-button
-        class="checkin-add-button"
-        @click="router.push('/checkin/geolocation')"
-      >
-        <IconPlus />
-        <ion-text>
-          <p class="checkin-add-button-label">
-            {{
-              logType === "OUT"
-                ? $t("user.checkin.checkout")
-                : $t("user.checkin.checkin")
-            }}
-          </p>
-        </ion-text>
-      </ion-button>
+      <div v-if="isSiteLocationLoaded" class="checkin-add-buttons-wrapper">
+        <ion-button
+          v-for="(shift, index) in availableShifts"
+          :key="index"
+          class="checkin-add-button"
+          @click="router.push({ path: '/checkin/geolocation', query: { shift: shift.name, log_type: shift.log_type } })"
+        >
+          <IconPlus />
+          <ion-text>
+            <p class="checkin-add-button-label">
+              {{
+                shift.log_type === "OUT"
+                  ? $t("user.checkin.checkout")
+                  : $t("user.checkin.checkin")
+              }} ({{ shift.roster_type }})
+            </p>
+          </ion-text>
+        </ion-button>
+      </div>
     </ion-content>
   </ion-page>
 </template>
@@ -290,11 +309,18 @@ p {
   }
 }
 
-.checkin-add-button {
+.checkin-add-buttons-wrapper {
   position: fixed;
   bottom: 24px;
   right: 16px;
   z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.checkin-add-button {
   --background: #004c69;
   --background-hover: #014662;
   --background-activated: #004d6c;

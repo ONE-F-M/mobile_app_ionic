@@ -9,7 +9,8 @@ export default defineConfig({
   plugins: [
     vue(),
     legacy(),
-    VitePWA({ registerType: 'autoUpdate' })
+    // Only enable PWA in production builds
+    ...(process.env.NODE_ENV === 'production' ? [VitePWA({ registerType: 'autoUpdate' })] : [])
   ],
   resolve: {
     alias: {
