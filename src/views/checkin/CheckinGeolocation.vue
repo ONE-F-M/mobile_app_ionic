@@ -302,7 +302,8 @@ const verifyCheckin = async () => {
     const type = logType.value === "OUT" ? "checkout" : "checkin";
 
     showSuccessToast(`You have ${type} successfully`);
-    router.push("/checkin");
+    
+    router.push("/dashboard");
   } catch (error) {
     console.error(error);
     showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
