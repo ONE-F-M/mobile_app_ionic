@@ -46,7 +46,7 @@ Mention Yes or No. If Yes, provide the appropriate explanation.
 ## Is patch required?
 - [] Yes
 - [] No
-    ## Was the patch test?
+    ## Was the patch tested?
 
 
 ## Which browser(s) did you use for testing?
