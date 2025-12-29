@@ -260,13 +260,18 @@ const getSiteLocation = async () => {
     showErrorToast(`You have not enrolled your face,Please Enroll`);
     router.push("/enrollment");
   }
-    const { data } = await checkin.getSiteLocation({
+    const payload = {
       employee_id: userStore.user?.employee_id,
       latitude: coordinates.value?.coords?.latitude,
       longitude: coordinates.value?.coords?.longitude,
-      shift: route.query.shift,
       log_type: logType.value,
-    });
+    }
+
+    if (route.query.shift && route.query.shift !== 'None' && route.query.shift !== 'undefined') {
+      payload.shift = route.query.shift
+    }
+
+    const { data } = await checkin.getSiteLocation(payload);
 
     site_radius.value = data.data.geofence_radius;
     site_lat.value = data.data.latitude;
@@ -286,9 +291,12 @@ const verifyCheckin = async () => {
       employee_id: userStore.user?.employee_id,
       latitude: Number(coordinates.value?.coords?.latitude),
       longitude: Number(coordinates.value?.coords?.longitude),
-      shift: route.query.shift,
       log_type: logType.value,
       skip_attendance: 1,
+    }
+
+    if (route.query.shift && route.query.shift !== 'None' && route.query.shift !== 'undefined') {
+      payload.shift = route.query.shift
     }
 
     
