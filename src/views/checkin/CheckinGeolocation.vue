@@ -28,9 +28,11 @@ import utils from "@/api/utils";
 import { useI18n } from "vue-i18n";
 import { Loader } from "@googlemaps/js-api-loader";
 import auth from "@/api/authentication";
+import { useRoute } from "vue-router";
 
 
 const router = useIonRouter();
+const route = useRoute();
 
 const prevStep = () => {
   router.back();
@@ -51,6 +53,7 @@ const coordinates = ref("");
 const isOpen = ref(false);
 const isLoading = ref(false);
 const isLoadingLocation = ref(false);
+const isSubmitting = ref(false);
 
 const progress = ref(0);
 const step = 0.01;
@@ -58,7 +61,7 @@ const step = 0.01;
 //in seconds
 const duration = 5;
 const instruction = ref("");
-const percent = (duration / 100) * 2000;
+const percent = (duration / 100) * 1000;
 
 const defaultSwipeHandler = ref(null);
 const site_radius = ref(100);
@@ -94,28 +97,55 @@ let stream = null;
 let dataPromise = null;
 let recorder = null;
 const initializeStream = async () => {
+  let videoConstraints = {
+    facingMode: 'user',
+    frameRate: { min: 15, ideal: 20, max: 30 }
+  };
+
+  if (window.screen.orientation && window.screen.orientation.type.includes('portrait')) {
+    // Portrait mode: height > width
+    
+    videoConstraints.width = { ideal: 640 };
+    videoConstraints.height = { ideal: 360 };
+  } else {
+    
+    // Landscape mode: width > height
+    
+    videoConstraints.width = { ideal: 640 };
+    videoConstraints.height = { ideal: 360 };
+  }
   stream = await navigator.mediaDevices
     .getUserMedia({
-      video: {
-				width: { ideal: 640 },
-				height: { ideal: 360 },
-				frameRate: {ideal: 15},
-				facingMode: 'user'
-			},
+      video: videoConstraints,
       audio: false,
     })
     .catch((err) => console.log("media stream err:", err.name));
 
   if (!stream) return;
-
+  const isAppleDevice = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  let recorder_options
+  if (isAppleDevice) {
+  recorder_options = {
+    mimeType: 'video/mp4',
+    videoBitsPerSecond: 150000, // Lower bitrate for smaller file size
+  };
+  }
+  else{
+    recorder_options = { 
+    mimeType: 'video/webm;codecs=vp9',
+    videoBitsPerSecond: 150000,
+     // 150 kbps for video
+    };
+  }
   video.value.srcObject = stream;
   video.value.play();
 
   let dataResolver;
   dataPromise = new Promise((resolve) => (dataResolver = resolve));
-  let recorder_options = { mimeType: 'video/webm;codecs=vp9' };
+   
   if (!MediaRecorder.isTypeSupported(recorder_options.mimeType)) {
-  recorder_options = { mimeType: 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"' }; // Fallback for browsers that don't support MP4
+  recorder_options = { mimeType: 'video/mp4', videoBitsPerSecond: 200000, // 200 kbps for video
+    codecs:'avc1.42E01E, mp4a.40.2' }; // Fallback for browsers that don't support MP4
   }
   recorder = new MediaRecorder(stream,recorder_options);
   recorder.ondataavailable = (event) => dataResolver(event.data);
@@ -136,6 +166,8 @@ const saveVideo = async () => {
   recorder.stop();
 
   const chunks = await dataPromise;
+  
+
 
   const readerPromise = new Promise((resolve) => {
     const reader = new FileReader();
@@ -195,6 +227,8 @@ const setCenterCamera = async () => {
 };
 
 const startVerifyPerson = async () => {
+  if (isSubmitting.value) return; // Prevent multiple clicks
+  isSubmitting.value = true;
   await initializeStream();
   setTimeout(() => {
     isOpen.value = true;
@@ -226,11 +260,18 @@ const getSiteLocation = async () => {
     showErrorToast(`You have not enrolled your face,Please Enroll`);
     router.push("/enrollment");
   }
-    const { data } = await checkin.getSiteLocation({
+    const payload = {
       employee_id: userStore.user?.employee_id,
       latitude: coordinates.value?.coords?.latitude,
       longitude: coordinates.value?.coords?.longitude,
-    });
+      log_type: logType.value,
+    }
+
+    if (route.query.shift && route.query.shift !== 'None' && route.query.shift !== 'undefined') {
+      payload.shift = route.query.shift
+    }
+
+    const { data } = await checkin.getSiteLocation(payload);
 
     site_radius.value = data.data.geofence_radius;
     site_lat.value = data.data.latitude;
@@ -238,7 +279,6 @@ const getSiteLocation = async () => {
     userStore.setEndpointStatus(data.data.endpoint_status)
     isUserWithinGeofenceRadius.value = data.data.user_within_geofence_radius;
     faceRecEndpointEnabled.value = data.data.endpoint_status
-    logType.value = data.data.log_type;
     shift.value = data.data.shift;
   } catch (error) {
     showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
@@ -255,6 +295,10 @@ const verifyCheckin = async () => {
       skip_attendance: 1,
     }
 
+    if (route.query.shift && route.query.shift !== 'None' && route.query.shift !== 'undefined') {
+      payload.shift = route.query.shift
+    }
+
     
     if(userStore.isEndpointEnabled){
       payload.video = verifyVideo.value
@@ -266,10 +310,14 @@ const verifyCheckin = async () => {
     const type = logType.value === "OUT" ? "checkout" : "checkin";
 
     showSuccessToast(`You have ${type} successfully`);
-    router.push("/checkin");
+    
+    router.push("/dashboard");
   } catch (error) {
     console.error(error);
     showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
+  }
+  finally {
+    isSubmitting.value = false; // Re-enable button
   }
 };
 
@@ -407,6 +455,10 @@ onBeforeUnmount(() => {
 });
 
 onIonViewDidEnter(async () => {
+  // Set logType from query parameter if available
+  if (route.query.log_type) {
+    logType.value = route.query.log_type;
+  }
   await initializeMap();
 });
 
@@ -466,6 +518,7 @@ onIonViewDidLeave(() => {
             shape="round"
             class="checkin-button"
             :color="logType === 'IN' ? 'success' : 'danger'"
+            :disabled="isSubmitting"
           >
             {{
               logType === "IN"
@@ -726,6 +779,11 @@ onIonViewDidLeave(() => {
   background: #191c1d;
   position: relative;
   font-size: 0;
+
+  .video {
+    
+    transform: translateX(-50%) translateY(-50%) scaleX(-1);
+  }
 
   &-video-play {
     width: 100%;
