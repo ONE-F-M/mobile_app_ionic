@@ -18,6 +18,7 @@ type EnrollParams = {
   proof_document: string; // { attachment_name: string, attachment: string };
   reason: string;
   to_date: string;
+  resumption_date: string;
 };
 const createLeave = async (data: EnrollParams) =>
   await http.post(`v1.leave_application.create_new_leave_application`, {
@@ -59,7 +60,7 @@ type EmployeeDetailsParams = {
 }
 
 const getEmployee_reliever_permission = async (params: EmployeeDetailsParams) =>
-    await http.post(`v1.leave_application.get_employees_role_to_display_reliever_field`, { params});
+  await http.post(`v1.leave_application.get_employees_role_to_display_reliever_field`, { params });
 
 export default {
   getLeavesList,

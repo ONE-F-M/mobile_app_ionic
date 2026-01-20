@@ -9,7 +9,7 @@ export default {
   from_date: "From Date",
   to_date: "Till Date",
   select_leave_type: "Select Leave Type",
-  select_reliever:"Select Reliever",
+  select_reliever: "Select Reliever",
   enter_reason: "Enter reason here",
   card: {
     type: {
@@ -57,7 +57,8 @@ export default {
     posting_date: "Posting Date",
     total_leaves_days: "Total Leaves Days",
     save_leaves_application: "Apply",
-    reliever:'Reliever'
+    reliever: 'Reliever',
+    resumption_date: "Resumption Date"
   },
   change_status: {
     accept_leave: "Accept Leave",
