@@ -150,7 +150,7 @@ const selectedDateDifference = computed(() => {
 
 watch(() => selectedDates.resumption_date, (newResumptionDate) => {
   if (newResumptionDate) {
-    selectedDates.to_date = dayjs(newResumptionDate).subtract(1, 'day');
+    selectedDates.to_date = dayjs(newResumptionDate).subtract(1, 'day').toDate();
     errors.resumption_date = false;
   } else {
     selectedDates.to_date = null;
@@ -197,7 +197,6 @@ const onFileUpload = async (event) => {
 const errors = reactive({
   leaveType: false,
   fromDate: false,
-  toDate: false,
   reason: false,
   proofDocument: false,
   reliever: false,
@@ -206,7 +205,6 @@ const errors = reactive({
 const validateForm = () => {
   errors.leaveType = !selectedLeaveType.value;
   errors.fromDate = !selectedDates.from_date;
-  errors.toDate = !selectedDates.to_date;
   errors.resumption_date = !selectedDates.resumption_date;
   errors.reason = !selectedReason.value;
   errors.reliever = !selectedReliever.value;
@@ -227,7 +225,6 @@ const validateForm = () => {
   return (
     !errors.leaveType &&
     !errors.fromDate &&
-    !errors.toDate &&
     !errors.resumption_date &&
     !errors.resumptionDateInvalid &&
     !errors.reason &&
@@ -416,15 +413,10 @@ onIonViewWillEnter(async () => {
             fill="outline"
             :placeholder="$t('user.leaves.to_date')"
             readonly
-            :class="{ 'ion-touched ion-invalid': errors.toDate }"
             :value="selectedDates.to_date ? formatDate(selectedDates.to_date, 'DD-MM-YYYY') : ''"
           />
             <span
               class="leaves-create-label-required leaves-create-label__required"
-              :class="{
-                'text-danger leaves-create-label__required-danger':
-                  errors.toDate,
-              }"
             >
               {{ $t("utils.required") }}
             </span>
