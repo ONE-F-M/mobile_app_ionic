@@ -1,12 +1,27 @@
-import { CapacitorConfig } from '@capacitor/cli';
+import { CapacitorConfig } from "@capacitor/cli";
+import { KeyboardResize } from '@capacitor/keyboard';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'mobile_app_ionic',
-  webDir: 'dist',
+  appId: "com.onefacilitiesmanagement.ios.apps",
+  appName: "OneFMMobile",
+  webDir: "dist",
   server: {
-    androidScheme: 'https'
-  }
+    hostname: "localhost",
+    androidScheme: "https",
+    iosScheme: "https",
+    allowNavigation: ["https://staging.one-fm.com/*"],
+  },
+  plugins: {
+    CapacitorHttp: {
+      enabled: true,
+    },
+    PushNotifications: {
+      presentationOptions: ["badge", "sound", "alert"],
+    },
+    Keyboard: {
+      resize: KeyboardResize.None,
+    }
+  },
 };
 
 export default config;

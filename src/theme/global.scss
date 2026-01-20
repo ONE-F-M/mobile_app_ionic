@@ -1,0 +1,135 @@
+.leaves-status__Approved {
+  color: #52e169 !important;
+}
+
+.leaves-status__Accepted {
+  color: #52e169 !important;
+}
+
+.leaves-status__Rejected {
+  color: #ffb4a9 !important;
+}
+
+.leaves-status__Pending {
+  color: #ffb68d !important;
+}
+
+.leaves-status__Cancelled {
+  color: #8b9298 !important;
+}
+
+.leaves-status__Open {
+  color: #E0E3E3 !important;
+}
+
+.text-danger {
+  color: #FFB4A9 !important;
+}
+
+.mb-0 {
+  margin-bottom: 0;
+}
+
+.pl-0 {
+  padding-left: 0;
+}
+.pr-0 {
+  padding-left: 0;
+}
+
+.text-dark-tint {
+  color: var(--ion-color-dark-tint)
+}
+
+.ion-select__hidden-cancel {
+  .action-sheet-group-cancel {
+    display: none
+  }
+}
+
+.action-sheet-wrapper {
+
+  .action-sheet-container {
+
+    .action-sheet-group {
+      padding: 16px;
+      border-radius: 18px 18px 0 0;
+      background: #1e2529;
+
+      button {
+        border-bottom: 1px solid #8B9298;
+      }
+    }
+  }
+}
+
+.rtl {
+  .input-label-placement-floating.sc-ion-input-md-h .label-text-wrapper.sc-ion-input-md {
+    transform: translateY(40%);
+  }
+
+  .label-floating.input-fill-outline.sc-ion-input-md-h .label-text-wrapper.sc-ion-input-md {
+    transform: translateY(-32%) scale(0.75);
+  }
+}
+
+.ios {
+  input.sc-ion-input-ios {
+    border: 1px solid #8B9298;
+    padding: 16px;
+  }
+  textarea.sc-ion-textarea-ios {
+    border: 1px solid #8B9298;
+    padding: 8px 16px !important;
+  }
+  ion-select {
+    border: 1px solid #8B9298;
+    padding: 5px 16px !important;
+    border-radius: 4px;
+
+    &::part(icon) {
+      position: absolute;
+      right: 10px;
+    }
+  }
+  .input-label-placement-floating.sc-ion-input-ios-h .label-text-wrapper.sc-ion-input-ios {
+    transform: translateY(170%) translateX(20px) scale(1);
+  }
+  .label-floating.sc-ion-input-ios-h .label-text-wrapper.sc-ion-input-ios {
+    transform: translateY(10%) scale(0.75);
+  }
+  .input-label-placement-floating.sc-ion-input-ios-h input.sc-ion-input-ios {
+    opacity: 1;
+  }
+
+  &.rtl {
+    .input-label-placement-floating.sc-ion-input-ios-h .label-text-wrapper.sc-ion-input-ios {
+      transform: translateY(155%) translateX(-20px) scale(1);
+    }
+    .label-floating.sc-ion-input-ios-h .label-text-wrapper.sc-ion-input-ios {
+      transform: translateY(10%) scale(0.75);
+    }
+  }
+}
+
+@media (orientation: portrait) {
+  .ios {
+    & > ion-router-outlet {
+      & > .ion-page {
+        padding-top: 40px;
+      }
+    }
+  }
+}
+
+.top-safe-cover {
+  height: env(safe-area-inset-top);
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 9999;
+}
+
+.safe-area-padding {
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+  0 env(safe-area-inset-left);
+}

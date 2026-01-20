@@ -1,21 +1,112 @@
-import { createRouter, createWebHistory } from '@ionic/vue-router';
-import HomePage from '../views/HomePage.vue'
+import { createRouter, createWebHistory } from "@ionic/vue-router";
+import EnrollmentStartPage from "@/views/enrollment/EnrollmentStartPage.vue";
+import { isLoggedInForbidden, isAuthenticated } from '@/middleware/loggedIn';
 
 const routes = [
   {
-    path: '/',
-    redirect: '/home'
+    path: "/",
+    component: () => import("@/views/SelectLanguage.vue"),
+    beforeEnter: isLoggedInForbidden,
   },
   {
-    path: '/home',
-    name: 'Home',
-    component: HomePage
-  }
-]
+    path: "/employee-id",
+    component: () => import("@/views/authentication/EmployeeId.vue"),
+    beforeEnter: isLoggedInForbidden,
+  },
+  {
+    path: "/login",
+    component: () => import("@/views/authentication/LoginPage.vue"),
+    beforeEnter: isLoggedInForbidden,
+  },
+  {
+    path: "/register",
+    redirect: "/register/method",
+  },
+  {
+    path: "/register/method",
+    component: () =>
+      import("@/views/authentication/VerificationMethodPage.vue"),
+  },
+  {
+    path: "/register/verify-code",
+    component: () => import("@/views/authentication/VerifyOtpCodePage.vue"),
+  },
+  {
+    path: "/register/set-password",
+    component: () => import("@/views/authentication/SetPasswordPage.vue"),
+  },
+  {
+    path: "/enrollment",
+    component: EnrollmentStartPage,
+	beforeEnter: isAuthenticated,
+  },
+  {
+    path: "/enroll-success",
+    component: () => import("@/views/enrollment/EnrollmentResult.vue"),
+    props: { type: "success", action: "/home" },
+	beforeEnter: isAuthenticated,
+  },
+  {
+    path: "/enroll-failure",
+    component: () => import("@/views/enrollment/EnrollmentResult.vue"),
+    props: { type: "failure", action: "/enrollment" },
+	beforeEnter: isAuthenticated,
+  },
+  {
+    path: "/home",
+    component: () => import("@/views/user/Tabs.vue"),
+    redirect: "/dashboard",
+	beforeEnter: isAuthenticated,
+    children: [
+      {
+        path: "/dashboard",
+        component: () => import("@/views/user/HomePage.vue"),
+      },
+      {
+        path: "/service",
+        component: () => import("@/views/user/ServicePage.vue"),
+      },
+      {
+        path: "/notification",
+        component: () => import("@/views/user/NotificationPage.vue"),
+      },
+      {
+        path: "/profile",
+        component: () => import("@/views/user/ProfilePage.vue"),
+      },
+    ],
+  },
+  {
+    path: "/checkin",
+    component: () => import("@/views/checkin/CheckinListPage.vue"),
+	beforeEnter: isAuthenticated,
+  },
+  {
+    name: "leaves-list",
+    path: "/leaves",
+    component: () => import("@/views/leaves/LeavesListPage.vue"),
+    beforeEnter: isAuthenticated,
+},
+  {
+    path: "/leaves/add",
+    component: () => import("@/views/leaves/LeaveCreatePage.vue"),
+    beforeEnter: isAuthenticated,
+  },
+  {
+    path: "/leaves/:id",
+    component: () => import("@/views/leaves/LeaveDetailsPage.vue"),
+    beforeEnter: isAuthenticated,
+  },
+  {
+    path: "/checkin/geolocation",
+    component: () => import("@/views/checkin/CheckinGeolocation.vue"),
+    beforeEnter: isAuthenticated,
+  },
+];
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes
-})
+  history: createWebHistory(import.meta.env.VITE_BASE_URL),
+  routes,
+});
 
-export default router
+export default router;

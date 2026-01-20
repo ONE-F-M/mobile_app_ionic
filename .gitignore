@@ -26,8 +26,13 @@ npm-debug.log*
 /.vscode/*
 !/.vscode/extensions.json
 /coverage
+/ios/.idea
+/android/.idea
+/android/app/.idea
 /dist
 /node_modules
 /platforms
 /plugins
 /www
+.env
+Session.vim
