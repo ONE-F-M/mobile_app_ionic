@@ -134,23 +134,34 @@ const clearLeaveBalance = () => {
 
 const selectedDates = reactive({
   from_date: new Date(),
-  to_date: new Date(),
+  to_date: null,
+  resumption_date: null,
 });
 const selectedDateDifference = computed(() => {
   if (!selectedDates.from_date || !selectedDates.to_date) {
     return null;
   }
 
-  const startDate = dayjs(selectedDates.from_date);
-  const endDate = dayjs(selectedDates.to_date);
+  const startDate = dayjs(selectedDates.from_date).startOf('day');
+  const endDate = dayjs(selectedDates.to_date).startOf('day');
 
-  return endDate.diff(startDate, "day");
+  return endDate.diff(startDate, "day") + 1; // Inclusive of end date
+});
+
+watch(() => selectedDates.resumption_date, (newResumptionDate) => {
+  if (newResumptionDate) {
+    selectedDates.to_date = dayjs(newResumptionDate).subtract(1, 'day').toDate();
+    errors.resumption_date = false;
+  } else {
+    selectedDates.to_date = null;
+  }
 });
 
 const formattedCurrentDate = formatDate(new Date(), "DD MMM, YYYY");
 
 const isFromDatePickerOpen = shallowRef(false);
 const isToDatePickerOpen = shallowRef(false);
+const isResumptionDatePickerOpen = shallowRef(false);
 
 const fileInput = ref();
 const toBase64 = (file) =>
@@ -186,23 +197,23 @@ const onFileUpload = async (event) => {
 const errors = reactive({
   leaveType: false,
   fromDate: false,
-  toDate: false,
   reason: false,
   proofDocument: false,
   reliever: false,
+  resumption_date: false,
 });
 const validateForm = () => {
   errors.leaveType = !selectedLeaveType.value;
   errors.fromDate = !selectedDates.from_date;
-  errors.toDate = !selectedDates.to_date;
+  errors.resumption_date = !selectedDates.resumption_date;
   errors.reason = !selectedReason.value;
   errors.reliever = !selectedReliever.value;
 
-  // Validate To Date is not earlier than From Date
-  if (selectedDates.from_date && selectedDates.to_date) {
-    errors.toDateInvalid = selectedDates.to_date < selectedDates.from_date;
+  // Validate Resumption Date is after From Date
+  if (selectedDates.from_date && selectedDates.resumption_date) {
+    errors.resumptionDateInvalid = dayjs(selectedDates.resumption_date).isBefore(dayjs(selectedDates.from_date).add(1, 'day'));
   } else {
-    errors.toDateInvalid = false;
+    errors.resumptionDateInvalid = false;
   }
 
   if (!requiredProofDocument.value[selectedLeaveType.value]) {
@@ -214,8 +225,8 @@ const validateForm = () => {
   return (
     !errors.leaveType &&
     !errors.fromDate &&
-    !errors.toDate &&
-    !errors.toDateInvalid &&
+    !errors.resumption_date &&
+    !errors.resumptionDateInvalid &&
     !errors.reason &&
     !errors.proofDocument&&
     !errors.reliever
@@ -225,7 +236,8 @@ const validateForm = () => {
 const clearForm = () => {
   selectedLeaveType.value = "";
   selectedDates.from_date = new Date();
-  selectedDates.to_date = new Date();
+  selectedDates.to_date = null;
+  selectedDates.resumption_date = null;
   selectedReason.value = "";
   attachment.value.name = null;
   attachment.value.base64 = null;
@@ -255,6 +267,7 @@ const onSubmit = async () => {
 
       reason: selectedReason.value,
       to_date: dayjs(selectedDates.to_date).format("YYYY-MM-DD"),
+      resumption_date: dayjs(selectedDates.resumption_date).format("YYYY-MM-DD"),
     };
 
     if (requiredProofDocument.value[selectedLeaveType.value]) {
@@ -371,7 +384,7 @@ onIonViewWillEnter(async () => {
         <ion-row class="ion-margin-top">
           <ion-col size="6">
             <p class="leaves-create-label leaves-create-label__required">
-              {{ $t("user.leaves.detail.from") }}
+              {{ $t("user.leaves.from_date") }}
             </p>
            <!-- From Date Input -->
             <ion-input
@@ -392,27 +405,45 @@ onIonViewWillEnter(async () => {
               {{ $t("utils.required") }}
             </span>
           </ion-col>
-          <ion-col size="6">
+          <ion-col size="6" v-if="selectedDates.resumption_date">
             <p class="leaves-create-label leaves-create-label__required">
-              {{ $t("user.leaves.detail.till") }}
+              {{ $t("user.leaves.to_date") }}
             </p>
-           <!-- To Date Input -->
-           <ion-text color="danger" v-if="errors.toDateInvalid">
-            To Date cannot be earlier than From Date.
-          </ion-text>
           <ion-input
             fill="outline"
             :placeholder="$t('user.leaves.to_date')"
             readonly
-            :class="{ 'ion-touched ion-invalid': errors.toDate }"
-            :value="formatDate(selectedDates.to_date, 'DD-MM-YYYY')"
-            @ion-focus="isToDatePickerOpen = true"
+            :value="selectedDates.to_date ? formatDate(selectedDates.to_date, 'DD-MM-YYYY') : ''"
           />
+            <span
+              class="leaves-create-label-required leaves-create-label__required"
+            >
+              {{ $t("utils.required") }}
+            </span>
+          </ion-col>
+        </ion-row>
+
+        <ion-row class="ion-margin-top">
+          <ion-col size="12">
+            <p class="leaves-create-label leaves-create-label__required">
+              {{ $t("user.leaves.create_leave.resumption_date") }}
+            </p>
+            <ion-text color="danger" v-if="errors.resumptionDateInvalid">
+               Resumption Date must be at least one day after From Date.
+            </ion-text>
+            <ion-input
+              fill="outline"
+              :placeholder="$t('user.leaves.create_leave.resumption_date')"
+              readonly
+              :class="{ 'ion-touched ion-invalid': errors.resumption_date }"
+              :value="selectedDates.resumption_date ? formatDate(selectedDates.resumption_date, 'DD-MM-YYYY') : ''"
+              @ion-focus="isResumptionDatePickerOpen = true"
+            />
             <span
               class="leaves-create-label-required leaves-create-label__required"
               :class="{
                 'text-danger leaves-create-label__required-danger':
-                  errors.toDate,
+                  errors.resumption_date,
               }"
             >
               {{ $t("utils.required") }}
@@ -427,13 +458,13 @@ onIonViewWillEnter(async () => {
           @cancel="isFromDatePickerOpen = false"
           @ok="isFromDatePickerOpen = false"
         />
-        <!-- To Date Picker -->
+        <!-- Resumption Date Picker -->
         <Datepicker
           :lang="langStore.lang"
-          :is-open="isToDatePickerOpen"
-          v-model="selectedDates.to_date"
-          @cancel="isToDatePickerOpen = false"
-          @ok="isToDatePickerOpen = false"
+          :is-open="isResumptionDatePickerOpen"
+          v-model="selectedDates.resumption_date"
+          @cancel="isResumptionDatePickerOpen = false"
+          @ok="isResumptionDatePickerOpen = false"
         />
         <div class="ion-margin-top">
           <p class="leaves-create-label leaves-create-label__required">

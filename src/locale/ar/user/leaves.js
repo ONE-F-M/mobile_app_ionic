@@ -56,5 +56,6 @@ export default {
     posting_date: "تاريخ النشر",
     total_leaves_days: "إجمالي أيام الإجازات",
     save_leaves_application: "حفظ طلب الإجازة",
+    resumption_date: "تاريخ العودة للعمل"
   },
 };
