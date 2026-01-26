@@ -20,6 +20,10 @@ export default {
       unpaid_leave: "إجازة بدون راتب",
       business_trip: "مهمة عمل",
       casual_leave: "إجازة عارضة",
+      compensatory_off: "إجازة تعويضية",
+      privilege_leave: "إجازة امتياز",
+      holiday_compensatory_leave: "إجازة تعويضية عن عطلة",
+      bereavement_leave: "إجازة وفاة",
     },
     status: {
       pending: "قيد الانتظار",
