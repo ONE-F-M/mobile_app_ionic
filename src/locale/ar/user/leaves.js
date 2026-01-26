@@ -17,6 +17,9 @@ export default {
       hajj: "إجازة حج",
       annual_leave: "إجازة سنوية",
       leave_without_pay: "إجازة بدون أجر",
+      unpaid_leave: "إجازة بدون راتب",
+      business_trip: "مهمة عمل",
+      casual_leave: "إجازة عارضة",
     },
     status: {
       pending: "قيد الانتظار",

@@ -323,16 +323,14 @@ onIonViewWillEnter(async () => {
         </ion-row>
       </div>
 
-      <div slot="fixed">
-        <ion-button class="leaves-add-button" @click="router.push('/leaves/add')">
-          <IconPlus />
-          <ion-text>
-            <p class="leaves-add-button-label">
-              {{ $t("user.leaves.apply_leave") }}
-            </p>
-          </ion-text>
-        </ion-button>
-      </div>
+      <ion-button class="leaves-add-button" @click="router.push('/leaves/add')">
+        <IconPlus />
+        <ion-text>
+          <p class="leaves-add-button-label">
+            {{ $t("user.leaves.apply_leave") }}
+          </p>
+        </ion-text>
+      </ion-button>
 
       <ion-modal
         :is-open="openFilter"
@@ -580,7 +578,7 @@ onIonViewWillEnter(async () => {
 }
 
 .leaves-add-button {
-  position: absolute;
+  position: fixed;
   bottom: calc(24px + env(safe-area-inset-bottom));
   right: 16px;
   z-index: 10;
