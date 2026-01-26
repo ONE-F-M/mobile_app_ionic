@@ -53,6 +53,9 @@ const selectedReason = ref("");
 watch(selectedReason, () => {
   errors.reason = false;
 });
+const isAnnualLeave = computed(() => selectedLeaveType.value?.toLowerCase() === 'annual leave');
+const isSickLeave = computed(() => selectedLeaveType.value?.toLowerCase() === 'sick leave');
+
 const reliever_field_permission = ref(false);
 const selectedReliever = ref("");
 watch(selectedReliever, () => {
@@ -211,7 +214,9 @@ const validateForm = () => {
 
   // Validate Resumption Date is after From Date
   if (selectedDates.from_date && selectedDates.resumption_date) {
-    errors.resumptionDateInvalid = dayjs(selectedDates.resumption_date).isBefore(dayjs(selectedDates.from_date).add(1, 'day'));
+    const fromDate = dayjs(selectedDates.from_date).startOf('day');
+    const resumptionDate = dayjs(selectedDates.resumption_date).startOf('day');
+    errors.resumptionDateInvalid = resumptionDate.isBefore(fromDate.add(1, 'day'));
   } else {
     errors.resumptionDateInvalid = false;
   }
@@ -228,8 +233,8 @@ const validateForm = () => {
     !errors.resumption_date &&
     !errors.resumptionDateInvalid &&
     !errors.reason &&
-    !errors.proofDocument&&
-    !errors.reliever
+    !errors.proofDocument &&
+    (isAnnualLeave.value ? !errors.reliever : true)
     
   );
 };
@@ -489,8 +494,8 @@ onIonViewWillEnter(async () => {
           </span>
         </div>
 
-        <ion-row class="ion-margin-top" v-if="reliever_field_permission">
-          <p class="leaves-create-label leaves-create-label__required" style="margin:12px 0 8px">
+        <ion-row class="ion-margin-top" v-if="reliever_field_permission && !isSickLeave">
+          <p class="leaves-create-label" :class="{'leaves-create-label__required': isAnnualLeave}" style="margin:12px 0 8px">
             {{ $t("user.leaves.create_leave.reliever") }}:
           </p>
           <ion-searchbar
@@ -525,13 +530,14 @@ onIonViewWillEnter(async () => {
               </ion-content>
             </ion-modal>
             <span
-          class="leaves-create-label-required leaves-create-label__required"
-          :class="{
-            'text-danger leaves-create-label__required-danger':
-              errors.reliever,
-          }"
-        >
-          {{ $t("utils.required") }}</span>
+              v-if="isAnnualLeave"
+              class="leaves-create-label-required leaves-create-label__required"
+              :class="{
+                'text-danger leaves-create-label__required-danger':
+                  errors.reliever,
+              }"
+            >
+              {{ $t("utils.required") }}</span>
         </ion-row>
 
         <div
