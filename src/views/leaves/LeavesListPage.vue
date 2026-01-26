@@ -579,8 +579,9 @@ onIonViewWillEnter(async () => {
 
 .leaves-add-button {
   position: fixed;
-  bottom: 24px;
+  bottom: calc(24px + env(safe-area-inset-bottom));
   right: 16px;
+  z-index: 10;
   --background: #004c69;
   --background-hover: #014662;
   --background-activated: #004d6c;

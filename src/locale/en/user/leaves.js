@@ -18,6 +18,13 @@ export default {
       hajj: "Hajj Leave",
       annual_leave: "Annual Leave",
       leave_without_pay: "Leave without pay",
+      unpaid_leave: "Unpaid Leave",
+      business_trip: "Business Trip",
+      casual_leave: "Casual Leave",
+      compensatory_off: "Compensatory Off",
+      privilege_leave: "Privilege Leave",
+      holiday_compensatory_leave: "Holiday Compensatory Leave",
+      bereavement_leave: "Bereavement Leave",
     },
     status: {
       pending: "Pending",
