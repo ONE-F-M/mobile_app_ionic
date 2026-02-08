@@ -7,6 +7,8 @@ import {
   IonSpinner,
   useIonRouter,
   onIonViewDidLeave,
+  onIonViewDidEnter,
+  toastController
 } from "@ionic/vue";
 import { setupNotifications } from '@/services/notifications.js';
 import { ref, watch } from "vue";
@@ -19,76 +21,113 @@ import { storeToRefs } from "pinia";
 import Header from "@/components/Header.vue";
 import useNotification from "@/composable/useNotification";
 
-
 const userStore = useUserStore();
 const authStore = useAuthStore();
 const { employeeId, userName } = storeToRefs(authStore);
 const router = useIonRouter();
 
-
-const step = ref(0);
 const isLoading = ref(false);
 const isIncorrectPassword = ref(false);
+const passwordInput = ref(null); // Reference for auto-focus
+const password = ref("");
 
 const { addListeners, registerNotifications } = useNotification();
 
-const password = ref("");
-
+// Simple navigation back
 const prevStep = () => {
-  if (step.value === 0) {
-    router.back();
-  } else {
-    step.value -= 1;
+  router.back();
+};
+
+const handleBackgroundTasks = async (userData) => {
+  try {
+    const deviceInfo = await Device.getInfo();
+    
+    // Logic: If on mobile, register native notifications; else web notifications
+    if (deviceInfo.platform !== "web") {
+      await addListeners();
+      await registerNotifications(); 
+    } else {
+      setupNotifications(userData);
+    }
+  } catch (err) {
+    console.warn("Background setup failed silently:", err);
   }
 };
 
 const login = async () => {
+  // Prevent double submissions
+  if (isLoading.value || !password.value) return;
+
   try {
     isLoading.value = true;
+    
+    // 1. Critical Path: Only wait for the Auth Token
     const { data } = await auth.userLogin({
       employee_id: employeeId.value,
       password: password.value,
     });
-   
+    
+    // 2. State Updates
     userStore.setUser(data.data);
     userStore.setToken(data.data.token);
-    userStore.setEndpointStatus(data.data.endpoint_state)
-    
-    const deviceInfo = await Device.getInfo();
-
+    userStore.setEndpointStatus(data.data.endpoint_state);
     authStore.setEmployeeIdentificator(data.data.name);
+    
+    userStore.prefetchCheckins(data.data.employee_id);
 
-    if (deviceInfo.platform !== "web") {
-      await addListeners();
-      await registerNotifications();
-    }
-    else{
-      setupNotifications(data)
-    }
-
-    password.value = "";
-
-    isLoading.value = false;
-
+    // 3. Navigation (Immediate)
+    // We determine where to go and leave immediately.
     if (data.data.enrolled) {
       router.push("/home/");
     } else {
       router.push("/enrollment");
     }
-  } catch (error) {
-    isIncorrectPassword.value = true;
 
-    console.error(error);
-  } finally {
+    // 4. Background Tasks (Non-blocking)
+    // We do NOT await this. We let it run while the router animates the next page.
+    handleBackgroundTasks(data);
+
+    // Reset UI state
+    password.value = "";
     isLoading.value = false;
+
+  } catch (error) {
+    isLoading.value = false;
+    console.error(error);
+
+    // Check if it's strictly a credential error (401/403) or a System/Network error
+    // Check if it's strictly a credential error (401/403) or a System/Network error.
+    // CapacitorHttp throws the response object directly (or stripped), so we check status directly.
+    const status = error.status || error.data?.status || error.response?.status;
+
+    if (status === 401 || status === 403) {
+      isIncorrectPassword.value = true;
+    } else {
+      // Show a toast for network/server errors
+      const toast = await toastController.create({
+        message: 'Unable to connect to server. Please check your internet.',
+        duration: 3000,
+        color: 'danger',
+        position: 'top'
+      });
+      await toast.present();
+    }
   }
 };
 
+// Lifecycle: Reset state when leaving
 onIonViewDidLeave(() => {
-  step.value = 0;
   isLoading.value = false;
   password.value = "";
   isIncorrectPassword.value = false;
+});
+
+// Lifecycle: Auto-focus the input when entering
+onIonViewDidEnter(() => {
+  // Small timeout ensures the animation is finished before focusing
+  setTimeout(() => {
+    passwordInput.value?.$el?.setFocus();
+  }, 150);
 });
 
 const forgotPassword = () => {
@@ -99,8 +138,8 @@ const forgotPassword = () => {
 watch(
   () => password.value,
   () => {
-    isIncorrectPassword.value = false;
-  },
+    if (isIncorrectPassword.value) isIncorrectPassword.value = false;
+  }
 );
 </script>
 
@@ -128,33 +167,39 @@ watch(
           <h1 class="login-wrapper-title ion-no-margin">
             {{ $t("login.password") }}
           </h1>
+          
           <ion-input
+            ref="passwordInput"
             v-model="password"
             fill="outline"
             type="password"
             :label="$t('login.password')"
             label-placement="floating"
+            enterkeyhint="go" 
+            @keyup.enter="login"
             :class="{
               'ion-touched ion-invalid': isIncorrectPassword,
             }"
             :error-text="$t('auth.invalid.password')"
           />
+          
           <ion-button
             @click="login"
             class="login-button"
             expand="block"
-            :disabled="!password"
+            :disabled="!password || isLoading"
             shape="round"
           >
             <ion-spinner v-if="isLoading" name="crescent"></ion-spinner>
             <span v-else>{{ $t("login.login") }}</span>
           </ion-button>
         </div>
+        
         <p class="login-description ion-text-center">
           {{ $t("login.forgotPassword") }}
           <a @click="forgotPassword" class="login-description-link">
-            {{ $t("login.clickHere") }} </a
-          >.
+            {{ $t("login.clickHere") }} 
+          </a>.
         </p>
       </div>
     </ion-content>
@@ -162,73 +207,43 @@ watch(
 </template>
 
 <style lang="scss" scoped>
-.login-header-wrapper {
-  ion-button {
-    --padding-start: 0;
-  }
-}
+// Cleaned up unused CSS and organized slightly
+.login-wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0 15px 24px;
 
-.login {
-  &-wrapper {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+  &-hello {
+    margin-top: 13px;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 500;
+    color: var(--ion-color-medium-shade);
 
-    padding: 0 15px 24px;
-
-    &-header {
-      margin: 0;
-    }
-
-    &-hello {
-      margin-top: 13px;
-      font-size: 1rem;
-      line-height: 1.5rem;
-      font-weight: 500;
-      color: var(--ion-color-medium-shade);
-
-      h5 {
-        font-size: 1.75rem;
-        line-height: 2rem;
-        font-weight: 400;
-        margin-top: 5px;
-        color: var(--ion-color-primary);
-      }
-    }
-
-    &-subtitle {
-      font-size: 1rem;
-      margin-bottom: 6px;
-      font-weight: 400;
-      color: var(--ion-color-medium-shade);
-    }
-
-    &-title {
-      font-size: 1.5rem;
+    h5 {
+      font-size: 1.75rem;
       line-height: 2rem;
       font-weight: 400;
-      margin-bottom: 17px;
-      color: var(--ion-color-dark-contrast);
-    }
-
-    &-next-button {
-      font-weight: 400;
-      font-size: 1.125rem;
-    }
-
-    &-back-button {
-      position: absolute;
-
-      z-index: 1;
-      top: 50%;
-      left: -3px;
-      transform: translateY(-50%);
+      margin-top: 5px;
+      color: var(--ion-color-primary);
     }
   }
 
-  &-header-wrapper {
-    position: relative;
+  &-subtitle {
+    font-size: 1rem;
+    margin-bottom: 6px;
+    font-weight: 400;
+    color: var(--ion-color-medium-shade);
+  }
+
+  &-title {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 400;
+    margin-bottom: 17px;
+    color: var(--ion-color-dark-contrast);
   }
 
   &-password-wrapper {
@@ -252,26 +267,10 @@ watch(
       font-weight: 500;
     }
   }
-
-  &-button {
-    margin-top: 24px;
-    height: 46px;
-  }
 }
 
-.v-enter-active,
-.v-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.v-enter-from,
-.v-leave-to {
-  opacity: 0;
-}
-
-.login-header-wrapper {
-  ion-button {
-    --padding-start: 0;
-  }
+.login-button {
+  margin-top: 24px;
+  height: 46px;
 }
 </style>
