@@ -28,7 +28,7 @@ export const useUserStore = defineStore("user", {
     },
 
     // 3. New Prefetch Action
-    // We fetch from 1970 to Today to match your CheckinPage logic
+    // Prefetch checkins from the last 6 months (from 6 months ago to today) to match your CheckinPage logic
     async prefetchCheckins(employeeId) {
       if (!employeeId) return;
 
