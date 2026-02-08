@@ -64,7 +64,8 @@ const getErrorMessage = (error) => {
 // --- OPTIMIZATION: Cache-First Strategy ---
 
 const fetchCheckinList = async (defaults = {}) => {
-  const isInitialLoad = defaults.from_date && defaults.from_date.startsWith("1970");
+  const { isInitial, ...requestParams } = defaults;
+  const isInitialLoad = isInitial;
   
   if (isInitialLoad && userStore.cachedCheckinList) {
     const CACHE_TTL = 120 * 1000; 
@@ -85,7 +86,7 @@ const fetchCheckinList = async (defaults = {}) => {
       employee_id: userStore.user?.employee_id,
       from_date: dayjs(dateRange.value.start).format("YYYY-MM-DD"),
       to_date: dayjs(dateRange.value.end).format("YYYY-MM-DD"),
-      ...defaults,
+      ...requestParams,
     });
 
     checkInList.value = data.data || [];
@@ -149,8 +150,9 @@ onIonViewWillEnter(() => {
   dateRange.value.end = new Date();
 
   fetchCheckinList({
-    from_date: dayjs(0).format("YYYY-MM-DD"),
+    from_date: dayjs().subtract(6, 'month').format("YYYY-MM-DD"),
     to_date: dayjs(new Date()).format("YYYY-MM-DD"),
+    isInitial: true
   });
   
   refreshLocationAndShifts();
@@ -160,8 +162,9 @@ onMounted(() => {
   App.addListener('appStateChange', async ({ isActive }) => {
     if (isActive) {
       fetchCheckinList({
-        from_date: dayjs(0).format("YYYY-MM-DD"),
+        from_date: dayjs().subtract(6, 'month').format("YYYY-MM-DD"),
         to_date: dayjs(new Date()).format("YYYY-MM-DD"),
+        isInitial: true
       });
       refreshLocationAndShifts();
     }

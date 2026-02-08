@@ -33,8 +33,11 @@ export const useUserStore = defineStore("user", {
       if (!employeeId) return;
 
       try {
-        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-        const start = "1970-01-01"; // Default start
+        const date = new Date();
+        const today = date.toISOString().split('T')[0]; // YYYY-MM-DD
+
+        date.setMonth(date.getMonth() - 6);
+        const start = date.toISOString().split('T')[0];
 
         const { data } = await checkin.getCheckinList({
           employee_id: employeeId,
