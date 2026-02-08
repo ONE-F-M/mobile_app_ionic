@@ -21,7 +21,10 @@ const services = ref([]);
 onMounted(() => {
   // This triggers the download of the Checkin chunk immediately
   // so it is ready in memory when the user clicks.
-  import("@/views/checkin/CheckinListPage.vue");
+  import("@/views/checkin/CheckinListPage.vue").catch((error) => {
+    // Avoid unhandled promise rejection if prefetch fails
+    console.error("Failed to prefetch CheckinListPage chunk", error);
+  });
 });
 
 const logout = () => {
