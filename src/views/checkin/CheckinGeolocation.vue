@@ -364,6 +364,7 @@ const initializeMap = async () => {
     } else { // API Key Failed
        showErrorToast(t("user.checkin.apiKeyNotFound"));
     }
+    isLoadingLocation.value = false;
     return;
   }
   
