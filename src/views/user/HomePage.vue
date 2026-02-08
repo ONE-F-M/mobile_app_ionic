@@ -8,7 +8,7 @@ import {
 import { useUserStore } from "@/store/user";
 import configuration from "@/api/configuration";
 import { useCustomToast } from "@/composable/toast";
-import { ref } from "vue";
+import { ref,onMounted } from "vue";
 import Header from "@/components/Header.vue";
 
 const router = useIonRouter();
@@ -17,6 +17,12 @@ const userStore = useUserStore();
 const { showErrorToast } = useCustomToast();
 
 const services = ref([]);
+
+onMounted(() => {
+  // This triggers the download of the Checkin chunk immediately
+  // so it is ready in memory when the user clicks.
+  import("@/views/checkin/CheckinListPage.vue");
+});
 
 const logout = () => {
   userStore.logout();

@@ -347,60 +347,74 @@ const addInitialMarker = async (map) => {
 const initializeMap = async () => {
   hasUserRejectedLocation.value = false;
   isLoadingLocation.value = true;
-  try {
-    await printCurrentPosition();
-  } catch (e) {
-    hasUserRejectedLocation.value = true;
-    return;
-  }
-  hasUserRejectedLocation.value = false;
 
   let apiKey = null;
+
   try {
-    const response = await utils.getGoogleMapApiKey();
-    apiKey = response.data?.data?.google_map_api;
+    // 1. Parallelize GPS and API Key Fetching
+    const gpsPromise = printCurrentPosition();
+    const apiKeyPromise = utils.getGoogleMapApiKey();
+
+    const [_, apiKeyResponse] = await Promise.all([gpsPromise, apiKeyPromise]);
+    apiKey = apiKeyResponse.data?.data?.google_map_api;
+
   } catch (e) {
-    showErrorToast(t("user.checkin.apiKeyNotFound"));
+    if (!coordinates.value) { // GPS Failed
+       hasUserRejectedLocation.value = true;
+    } else { // API Key Failed
+       showErrorToast(t("user.checkin.apiKeyNotFound"));
+    }
+    isLoadingLocation.value = false;
     return;
   }
+  
+  hasUserRejectedLocation.value = false;
 
-  if (isIOS.value) {
-    const loader = new Loader({
-      apiKey,
-      version: "weekly",
-    });
-    await loader.load();
-    const { Map } = await google.maps.importLibrary("maps");
-
-    googleMap = new Map(document.getElementById("map"), {
-      mapId: "my-map",
-      center: initialPosition.value,
-      panControl: false,
-      zoom: 18,
-      disableDefaultUI: true,
-    });
-  } else {
-    const mapRef = document.getElementById("map");
-    const body = document.querySelector("body.dark");
-    body.classList.add("map-transparent");
-
-    googleMap = await GoogleMap.create({
-      apiKey, // Your Google Maps API Key
-      id: "my-map", // Unique identifier for this map instance
-      element: mapRef, // reference to the capacitor-google-map element
-      config: {
-        // The initial position to be rendered by the map
+  // 2. Parallelize Map Initialization and Site Data Fetching
+  const mapInitPromise = (async () => {
+    if (isIOS.value) {
+      const loader = new Loader({ apiKey, version: "weekly" });
+      await loader.load();
+      const { Map } = await google.maps.importLibrary("maps");
+      
+      googleMap = new Map(document.getElementById("map"), {
+        mapId: "my-map",
         center: initialPosition.value,
         panControl: false,
-        zoom: 18, // The initial zoom level to be rendered by the map
-      },
-    });
-  }
+        zoom: 18,
+        disableDefaultUI: true,
+      });
+    } else {
+      const mapRef = document.getElementById("map");
+      const body = document.querySelector("body.dark");
+      body.classList.add("map-transparent");
 
-  await addInitialMarker(googleMap);
-  await getSiteLocation();
-  await addsitemarker();
-  isLoadingLocation.value = false;
+      googleMap = await GoogleMap.create({
+        apiKey,
+        id: "my-map",
+        element: mapRef,
+        config: {
+          center: initialPosition.value,
+          panControl: false,
+          zoom: 18,
+        },
+      });
+    }
+    await addInitialMarker(googleMap);
+    return googleMap;
+  })();
+
+  const siteLocationPromise = getSiteLocation();
+
+  try {
+    await Promise.all([mapInitPromise, siteLocationPromise]);
+    // 3. Add site marker only after map relies on site data
+    await addsitemarker();
+  } catch (e) {
+    console.error("Map or Site Location Error", e);
+  } finally {
+    isLoadingLocation.value = false;
+  }
 };
 
 const addsitemarker = async () =>{
