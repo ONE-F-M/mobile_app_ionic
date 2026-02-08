@@ -96,7 +96,11 @@ const login = async () => {
     console.error(error);
 
     // Check if it's strictly a credential error (401/403) or a System/Network error
-    if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+    // Check if it's strictly a credential error (401/403) or a System/Network error.
+    // CapacitorHttp throws the response object directly (or stripped), so we check status directly.
+    const status = error.status || error.data?.status || error.response?.status;
+
+    if (status === 401 || status === 403) {
       isIncorrectPassword.value = true;
     } else {
       // Show a toast for network/server errors
