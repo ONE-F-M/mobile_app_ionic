@@ -38,8 +38,6 @@ const isOpenDatePicker = ref(false);
 
 const currentShifts = ref([]);
 const isDeterminingLocation = ref(false);
-const currentCoordinates = ref(null); // NEW: Store coordinates to pass to next page
-
 const availableShifts = computed(() =>
   currentShifts.value.filter((shift) => !shift?.is_completed)
 );
@@ -51,8 +49,15 @@ const dateRange = ref({
 
 // --- HELPER: Extract API Error Message ---
 const getErrorMessage = (error) => {
-  if (error?.data?.error) return error.data.error;
-  if (error?.data?.message) return error.data.message;
+  // 1. Check for specific backend 'error' field (e.g. "No employee record found")
+  if (error?.data?.error) {
+    return error.data.error;
+  }
+  // 2. Fallback to standard message (e.g. "Resource Not Found")
+  if (error?.data?.message) {
+    return error.data.message;
+  }
+  // 3. Fallback to generic error
   return "An unexpected error occurred.";
 };
 
@@ -76,6 +81,8 @@ const fetchCheckinList = async (defaults = {}) => {
     });
 
     checkInList.value = data.data || [];
+
+    // Always update cache on successful fetch to keep it fresh
     userStore.cachedCheckinList = data.data;
     userStore.lastCheckinFetch = Date.now();
 
@@ -98,12 +105,6 @@ const refreshLocationAndShifts = async () => {
       timeout: 10000,
     });
 
-    // Save coordinates to pass to the next page
-    currentCoordinates.value = {
-        lat: coordinates.coords.latitude,
-        lng: coordinates.coords.longitude
-    };
-
     const { data } = await checkin.getSiteLocation({
       employee_id: userStore.user?.employee_id,
       latitude: coordinates.coords.latitude,
@@ -115,9 +116,11 @@ const refreshLocationAndShifts = async () => {
     if (data.data.upcoming_shifts) currentShifts.value.push(...data.data.upcoming_shifts);
 
   } catch (error) {
+    // 1. Handle Device GPS Errors
     if (error.code === 1 || error.message?.includes('location')) {
        showErrorToast(t("user.checkin.geolocation.title"));
     } 
+    // 2. Handle Backend API Errors (Logic Fix)
     else {
        const message = getErrorMessage(error);
        showErrorToast(message);
@@ -250,15 +253,7 @@ const openDatePicker = () => {
             v-for="(shift, index) in availableShifts"
             :key="index"
             class="checkin-add-button"
-            @click="router.push({ 
-                path: '/checkin/geolocation', 
-                query: { 
-                    shift: shift.name, 
-                    log_type: shift.log_type,
-                    lat: currentCoordinates?.lat, 
-                    lng: currentCoordinates?.lng 
-                } 
-            })"
+            @click="router.push({ path: '/checkin/geolocation', query: { shift: shift.name, log_type: shift.log_type } })"
           >
             <IconPlus />
             <ion-text>
@@ -276,9 +271,90 @@ const openDatePicker = () => {
 </template>
 
 <style lang="scss" scoped>
+/* Kept all your existing styles exactly as they were */
 p { margin: 0; }
 .checkin-page {
   position: relative;
   --padding-top: 0;
   --padding-bottom: 24px;
-  --padding
+  --padding-start: 15px;
+  --padding-end: 15px;
+
+  &-header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: #191c1d;
+  }
+  &-table-wrapper { margin: 22px -4px 0; }
+  &-table-content-wrapper { margin-top: 6px; }
+  &-table-content-row { margin-bottom: 2px; }
+  &-table-label {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 600;
+    color: #8b9298;
+  }
+  &-name {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: #e0e3e3;
+  }
+  &-duration {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: #8b9298;
+  }
+  &-date, &-time {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: #c0c7cd;
+  }
+  &-status {
+    width: min(55px, 100%);
+    height: max-content;
+    display: flex;
+    padding: 8px 4px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 600;
+
+    &-IN { background: #52e169; color: #00390c; }
+    &-OUT { background: #ffb3ac; color: #68000a; }
+  }
+}
+
+.checkin-add-buttons-wrapper {
+  position: fixed;
+  bottom: 24px;
+  right: 16px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.checkin-add-button {
+  --background: #004c69;
+  --background-hover: #014662;
+  --background-activated: #004d6c;
+  --background-focused: #004969;
+  --color: #c1e8ff;
+  --border-radius: 16px;
+  --padding-end: 20px;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  &-label { margin: 16px 0 16px 12px; }
+}
+
+.align-cols-end {
+  display: flex;
+  justify-content: flex-end;
+}
+</style>
