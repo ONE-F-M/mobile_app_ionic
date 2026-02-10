@@ -90,9 +90,6 @@ const fetchCheckinList = async (defaults = {}) => {
   } catch (error) {
     const message = getErrorMessage(error);
     showErrorToast(message);
-    if (checkInList.value.length === 0) {
-        checkInList.value = [];
-    }
   } finally {
     isListLoading.value = false;
     isOpenDatePicker.value = false;
