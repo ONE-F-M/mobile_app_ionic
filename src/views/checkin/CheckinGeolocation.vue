@@ -251,7 +251,7 @@ const getSiteLocation = async () => {
       employee_id: userStore.user?.employee_id,
     });
     if (response.data.data.enrolled === false) {
-      showErrorToast(`You have not enrolled your face,Please Enroll`);
+      showErrorToast(`You have not enrolled your face. Please enroll.`);
       router.push("/enrollment");
     }
     const payload = {
