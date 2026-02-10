@@ -188,6 +188,17 @@ const saveVideo = async () => {
 };
 
 const printCurrentPosition = async () => {
+  // OPTIMIZATION: Check URL params first to skip Geolocation call
+  if (route.query.lat && route.query.lng) {
+      coordinates.value = {
+        coords: {
+            latitude: Number(route.query.lat),
+            longitude: Number(route.query.lng)
+        }
+      };
+      return; 
+  }
+
   coordinates.value = await Geolocation.getCurrentPosition({
     enableHighAccuracy: true,
   });
@@ -275,7 +286,7 @@ const getSiteLocation = async () => {
     faceRecEndpointEnabled.value = data.data.endpoint_status
     shift.value = data.data.shift;
   } catch (error) {
-    // FIX APPLIED HERE
+    // Robust Error Handling
     const msg = error?.data?.message || error?.message || "Unable to retrieve site location";
     const detail = error?.data?.error || null;
     const code = error?.data?.status_code || 0;
@@ -312,7 +323,7 @@ const verifyCheckin = async () => {
     router.push("/dashboard");
   } catch (error) {
     console.error("Checkin Error:", error);
-    // FIX APPLIED HERE
+    // Robust Error Handling
     const msg = error?.data?.message || error?.message || "Checkin failed";
     const detail = error?.data?.error || null;
     const code = error?.data?.status_code || 0;
@@ -353,7 +364,7 @@ const initializeMap = async () => {
   let apiKey = null;
 
   try {
-    // 1. Parallelize GPS and API Key Fetching
+    // OPTIMIZATION: This will likely be instant because printCurrentPosition checks query params first
     const gpsPromise = printCurrentPosition();
     const apiKeyPromise = utils.getGoogleMapApiKey();
 
@@ -462,20 +473,22 @@ const enableSwipeBack = () => {
   }
 };
 
-onMounted(() => {
+// --- LIFECYCLE OPTIMIZATION ---
+
+onMounted(async () => {
   disableSwipeBack();
-});
-
-onBeforeUnmount(() => {
-  enableSwipeBack();
-});
-
-onIonViewDidEnter(async () => {
+  
   // Set logType from query parameter if available
   if (route.query.log_type) {
     logType.value = route.query.log_type;
   }
+  
+  // Start map init IMMEDIATELY (parallel with transition)
   await initializeMap();
+});
+
+onBeforeUnmount(() => {
+  enableSwipeBack();
 });
 
 onIonViewWillLeave(() => {
