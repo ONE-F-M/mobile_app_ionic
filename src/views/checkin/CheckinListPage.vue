@@ -61,26 +61,18 @@ const getErrorMessage = (error) => {
   return "An unexpected error occurred.";
 };
 
-// --- OPTIMIZATION: Cache-First Strategy ---
-
 const fetchCheckinList = async (defaults = {}) => {
   const { isInitial, ...requestParams } = defaults;
   const isInitialLoad = isInitial;
   
   if (isInitialLoad && userStore.cachedCheckinList) {
-    const CACHE_TTL = 120 * 1000; 
-    const isFresh = (Date.now() - userStore.lastCheckinFetch) < CACHE_TTL;
-
-    if (isFresh) {
-      console.log("⚡ Loading checkins from Cache");
-      checkInList.value = userStore.cachedCheckinList;
-      isListLoading.value = false;
-      isOpenDatePicker.value = false;
-      return; 
-    }
+    console.log("⚡ Instant Load from Cache");
+    checkInList.value = userStore.cachedCheckinList;
+    isListLoading.value = false;
+  } else if (checkInList.value.length === 0) {
+    isListLoading.value = true;
   }
 
-  isListLoading.value = true;
   try {
     const { data } = await checkin.getCheckinList({
       employee_id: userStore.user?.employee_id,
@@ -91,16 +83,16 @@ const fetchCheckinList = async (defaults = {}) => {
 
     checkInList.value = data.data || [];
 
-    if (isInitialLoad) {
-        userStore.cachedCheckinList = data.data;
-        userStore.lastCheckinFetch = Date.now();
-    }
+    // Always update cache on successful fetch to keep it fresh
+    userStore.cachedCheckinList = data.data;
+    userStore.lastCheckinFetch = Date.now();
 
   } catch (error) {
-    // FIX: Use the helper to get the real error message
     const message = getErrorMessage(error);
     showErrorToast(message);
-    checkInList.value = [];
+    if (checkInList.value.length === 0) {
+        checkInList.value = [];
+    }
   } finally {
     isListLoading.value = false;
     isOpenDatePicker.value = false;
