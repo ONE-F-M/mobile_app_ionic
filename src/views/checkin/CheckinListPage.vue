@@ -66,7 +66,6 @@ const fetchCheckinList = async (defaults = {}) => {
   const isInitialLoad = isInitial;
   
   if (isInitialLoad && userStore.cachedCheckinList) {
-    console.log("⚡ Instant Load from Cache");
     checkInList.value = userStore.cachedCheckinList;
     isListLoading.value = false;
   } else if (checkInList.value.length === 0) {
