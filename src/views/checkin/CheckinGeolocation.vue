@@ -30,7 +30,6 @@ import { Loader } from "@googlemaps/js-api-loader";
 import auth from "@/api/authentication";
 import { useRoute } from "vue-router";
 
-
 const router = useIonRouter();
 const route = useRoute();
 
@@ -104,13 +103,10 @@ const initializeStream = async () => {
 
   if (window.screen.orientation && window.screen.orientation.type.includes('portrait')) {
     // Portrait mode: height > width
-    
     videoConstraints.width = { ideal: 640 };
     videoConstraints.height = { ideal: 360 };
   } else {
-    
     // Landscape mode: width > height
-    
     videoConstraints.width = { ideal: 640 };
     videoConstraints.height = { ideal: 360 };
   }
@@ -125,16 +121,16 @@ const initializeStream = async () => {
   const isAppleDevice = /iPhone|iPad|iPod/i.test(navigator.userAgent);
   let recorder_options
   if (isAppleDevice) {
-  recorder_options = {
-    mimeType: 'video/mp4',
-    videoBitsPerSecond: 150000, // Lower bitrate for smaller file size
-  };
+    recorder_options = {
+      mimeType: 'video/mp4',
+      videoBitsPerSecond: 150000, // Lower bitrate for smaller file size
+    };
   }
-  else{
-    recorder_options = { 
-    mimeType: 'video/webm;codecs=vp9',
-    videoBitsPerSecond: 150000,
-     // 150 kbps for video
+  else {
+    recorder_options = {
+      mimeType: 'video/webm;codecs=vp9',
+      videoBitsPerSecond: 150000,
+      // 150 kbps for video
     };
   }
   video.value.srcObject = stream;
@@ -142,12 +138,14 @@ const initializeStream = async () => {
 
   let dataResolver;
   dataPromise = new Promise((resolve) => (dataResolver = resolve));
-   
+
   if (!MediaRecorder.isTypeSupported(recorder_options.mimeType)) {
-  recorder_options = { mimeType: 'video/mp4', videoBitsPerSecond: 200000, // 200 kbps for video
-    codecs:'avc1.42E01E, mp4a.40.2' }; // Fallback for browsers that don't support MP4
+    recorder_options = {
+      mimeType: 'video/mp4', videoBitsPerSecond: 200000, // 200 kbps for video
+      codecs: 'avc1.42E01E, mp4a.40.2'
+    }; // Fallback for browsers that don't support MP4
   }
-  recorder = new MediaRecorder(stream,recorder_options);
+  recorder = new MediaRecorder(stream, recorder_options);
   recorder.ondataavailable = (event) => dataResolver(event.data);
   recorder.start();
 
@@ -155,19 +153,15 @@ const initializeStream = async () => {
 };
 
 const cleanup = async () => {
-  
   recorder.stop();
   stream && stream.getTracks().forEach((track) => track.stop());
   stream = null;
-  
 };
 
 const saveVideo = async () => {
   recorder.stop();
 
   const chunks = await dataPromise;
-  
-
 
   const readerPromise = new Promise((resolve) => {
     const reader = new FileReader();
@@ -185,7 +179,7 @@ const saveVideo = async () => {
 
   await verifyCheckin();
   // await getSiteLocation();
-  
+
   cleanup();
   isOpen.value = false;
   isLoading.value = false;
@@ -254,12 +248,12 @@ const getSiteLocation = async () => {
   try {
 
     const response = await auth.getUserFaceEnrollment({
-    employee_id: userStore.user?.employee_id,
-  });
-  if(response.data.data.enrolled===false){
-    showErrorToast(`You have not enrolled your face,Please Enroll`);
-    router.push("/enrollment");
-  }
+      employee_id: userStore.user?.employee_id,
+    });
+    if (response.data.data.enrolled === false) {
+      showErrorToast(`You have not enrolled your face,Please Enroll`);
+      router.push("/enrollment");
+    }
     const payload = {
       employee_id: userStore.user?.employee_id,
       latitude: coordinates.value?.coords?.latitude,
@@ -281,7 +275,11 @@ const getSiteLocation = async () => {
     faceRecEndpointEnabled.value = data.data.endpoint_status
     shift.value = data.data.shift;
   } catch (error) {
-    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
+    // FIX APPLIED HERE
+    const msg = error?.data?.message || error?.message || "Unable to retrieve site location";
+    const detail = error?.data?.error || null;
+    const code = error?.data?.status_code || 0;
+    showErrorToast(msg, detail, code);
   }
 };
 
@@ -299,22 +297,26 @@ const verifyCheckin = async () => {
       payload.shift = route.query.shift
     }
 
-    
-    if(userStore.isEndpointEnabled){
+
+    if (userStore.isEndpointEnabled) {
       payload.video = verifyVideo.value
     }
-   
+
     await checkin.verifyCheckin(payload);
     // await getSiteLocation();
 
     const type = logType.value === "OUT" ? "checkout" : "checkin";
 
     showSuccessToast(`You have ${type} successfully`);
-    
+
     router.push("/dashboard");
   } catch (error) {
-    console.error(error);
-    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
+    console.error("Checkin Error:", error);
+    // FIX APPLIED HERE
+    const msg = error?.data?.message || error?.message || "Checkin failed";
+    const detail = error?.data?.error || null;
+    const code = error?.data?.status_code || 0;
+    showErrorToast(msg, detail, code);
   }
   finally {
     isSubmitting.value = false; // Re-enable button
@@ -360,14 +362,14 @@ const initializeMap = async () => {
 
   } catch (e) {
     if (!coordinates.value) { // GPS Failed
-       hasUserRejectedLocation.value = true;
+      hasUserRejectedLocation.value = true;
     } else { // API Key Failed
-       showErrorToast(t("user.checkin.apiKeyNotFound"));
+      showErrorToast(t("user.checkin.apiKeyNotFound"));
     }
     isLoadingLocation.value = false;
     return;
   }
-  
+
   hasUserRejectedLocation.value = false;
 
   // 2. Parallelize Map Initialization and Site Data Fetching
@@ -376,7 +378,7 @@ const initializeMap = async () => {
       const loader = new Loader({ apiKey, version: "weekly" });
       await loader.load();
       const { Map } = await google.maps.importLibrary("maps");
-      
+
       googleMap = new Map(document.getElementById("map"), {
         mapId: "my-map",
         center: initialPosition.value,
@@ -417,25 +419,25 @@ const initializeMap = async () => {
   }
 };
 
-const addsitemarker = async () =>{
+const addsitemarker = async () => {
   if (isIOS.value) {
     new google.maps.Circle({
       strokeColor: "#FF0000",
       fillColor: 'red',
       fillOpacity: 0.35,
-      map:googleMap,
-      center: {lat: site_lat.value, lng: site_long.value},
+      map: googleMap,
+      center: { lat: site_lat.value, lng: site_long.value },
       radius: site_radius.value,
     });
   }
-  else{
+  else {
     googleMap.addCircles([{
-        center: { lat: site_lat.value, lng: site_long.value },
-        radius: site_radius.value,
-        strokeWidth: 3, 
-        strokeColor: '#FF0000', 
-        fillColor: 'red',
-      }])
+      center: { lat: site_lat.value, lng: site_long.value },
+      radius: site_radius.value,
+      strokeWidth: 3,
+      strokeColor: '#FF0000',
+      fillColor: 'red',
+    }])
   }
 
 }
@@ -447,8 +449,8 @@ const disableSwipeBack = () => {
 
     ionRouterOutlet.swipeHandler = {
       canStart: () => false,
-      onStart: () => {},
-      onEnd: () => {},
+      onStart: () => { },
+      onEnd: () => { },
     }
   }
 };
@@ -508,32 +510,20 @@ onIonViewDidLeave(() => {
       </div>
       <div style="height: calc(100% - 70px); width: 100%" id="map"></div>
 
-      <div
-        class="location-currentLocation"
-        :class="{
-          'location-currentLocation-shift': shift,
-        }"
-        @click="setCenterCamera"
-      >
+      <div class="location-currentLocation" :class="{
+        'location-currentLocation-shift': shift,
+      }" @click="setCenterCamera">
         <MyLocation />
       </div>
 
       <div v-if="shift" class="location-wrapper">
-        <ion-row
-          class="ion-align-items-center ion-justify-content-between location-wrapper-row"
-        >
+        <ion-row class="ion-align-items-center ion-justify-content-between location-wrapper-row">
           <div class="checkin-location-wrapper">
             <p class="checkin-location">Checkin location</p>
             <p class="checkin-shift">{{ shift.shift }}</p>
           </div>
-          <ion-button
-            v-if="logType"
-            @click="startVerifyPerson"
-            shape="round"
-            class="checkin-button"
-            :color="logType === 'IN' ? 'success' : 'danger'"
-            :disabled="isSubmitting"
-          >
+          <ion-button v-if="logType" @click="startVerifyPerson" shape="round" class="checkin-button"
+            :color="logType === 'IN' ? 'success' : 'danger'" :disabled="isSubmitting">
             {{
               logType === "IN"
                 ? $t("user.checkin.checkin")
@@ -544,10 +534,7 @@ onIonViewDidLeave(() => {
       </div>
 
       <div v-if="isLoadingLocation" class="loader">
-        <ion-spinner
-          class="loader-spinner"
-          name="crescent"
-        />
+        <ion-spinner class="loader-spinner" name="crescent" />
       </div>
     </ion-content>
 
@@ -559,12 +546,7 @@ onIonViewDidLeave(() => {
 
         <div class="video-verify-progress-wrapper">
           <div>
-            <ion-spinner
-              v-if="isLoading"
-              class="video-verify-loading"
-              name="crescent"
-              color="primary"
-            />
+            <ion-spinner v-if="isLoading" class="video-verify-loading" name="crescent" color="primary" />
           </div>
 
           <Transition>
@@ -583,9 +565,7 @@ onIonViewDidLeave(() => {
     </ion-modal>
 
     <ion-modal :is-open="!isUserWithinGeofenceRadius">
-      <ion-row
-        class="geolocation-page-outside-location ion-align-items-center ion-justify-content-center"
-      >
+      <ion-row class="geolocation-page-outside-location ion-align-items-center ion-justify-content-center">
         <div class="geolocation-page-outside-card">
           <div class="geolocation-page-outside-card-icon-wrapper">
             <IconClose />
@@ -597,19 +577,11 @@ onIonViewDidLeave(() => {
             {{ $t("user.checkin.outside.description") }}
           </p>
           <ion-row class="ion-justify-content-end">
-            <ion-button
-              @click="clickBack"
-              class="geolocation-page-outside-card-back"
-              fill="clear"
-            >
+            <ion-button @click="clickBack" class="geolocation-page-outside-card-back" fill="clear">
               {{ $t("user.checkin.outside.back") }}
             </ion-button>
-            <ion-button
-              class="geolocation-page-outside-card-try-again"
-              fill="clear"
-              :disabled="isLoadingLocation"
-              @click="loadAgainLocation"
-            >
+            <ion-button class="geolocation-page-outside-card-try-again" fill="clear" :disabled="isLoadingLocation"
+              @click="loadAgainLocation">
               {{ $t("user.checkin.outside.try_again") }}
             </ion-button>
           </ion-row>
@@ -618,9 +590,7 @@ onIonViewDidLeave(() => {
     </ion-modal>
 
     <ion-modal :is-open="hasUserRejectedLocation">
-      <ion-row
-        class="geolocation-page-outside-location ion-align-items-center ion-justify-content-center"
-      >
+      <ion-row class="geolocation-page-outside-location ion-align-items-center ion-justify-content-center">
         <div class="geolocation-page-outside-card">
           <div class="geolocation-page-outside-card-icon-wrapper">
             <IconClose />
@@ -632,18 +602,10 @@ onIonViewDidLeave(() => {
             {{ $t("user.checkin.geolocation.description") }}
           </p>
           <ion-row class="ion-justify-content-end">
-            <ion-button
-              @click="clickBack"
-              class="geolocation-page-outside-card-back"
-              fill="clear"
-            >
+            <ion-button @click="clickBack" class="geolocation-page-outside-card-back" fill="clear">
               {{ $t("user.checkin.geolocation.back") }}
             </ion-button>
-            <ion-button
-              class="geolocation-page-outside-card-try-again"
-              fill="clear"
-              @click="initializeMap"
-            >
+            <ion-button class="geolocation-page-outside-card-try-again" fill="clear" @click="initializeMap">
               {{ $t("user.checkin.geolocation.try_again") }}
             </ion-button>
           </ion-row>
@@ -778,6 +740,7 @@ onIonViewDidLeave(() => {
   .checkin-button {
     margin-bottom: 0;
   }
+
   .checkin-button::part(native) {
     padding: 8px 35px;
     font-weight: 600;
@@ -795,7 +758,7 @@ onIonViewDidLeave(() => {
   font-size: 0;
 
   .video {
-    
+
     transform: translateX(-50%) translateY(-50%) scaleX(-1);
   }
 
@@ -853,6 +816,7 @@ onIonViewDidLeave(() => {
     line-height: 1.5rem;
     letter-spacing: 0.25px;
   }
+
   &-progress {
     margin-top: 16px;
   }

@@ -13,7 +13,16 @@ export const useCustomToast = () => {
   const { t } = useI18n();
 
   const showErrorToast = async (message, error, statusCode) => {
-    const errorMessage = error ? error : getStatusMessage(statusCode);
+    // 1. Determine the Body Message
+    let errorMessage = error ? error : getStatusMessage(statusCode);
+
+    // SAFETY NET: If both 'error' and 'getStatusMessage' failed to produce text,
+    // fallback to a generic network/server error message.
+    if (!errorMessage) {
+      errorMessage = "An unexpected error occurred. Please check your connection.";
+    }
+
+    // 2. Determine the Title
     const errorTitle = message ? message : t("utils.toast.error");
 
     const errorToast = await toastController.create({
@@ -40,6 +49,8 @@ export const useCustomToast = () => {
   };
 
   const getStatusMessage = (statusCode) => {
+    if (!statusCode) return null; // Handle undefined/null status
+
     if (statusCode >= 100 && statusCode < 200) {
       return "Informational response received.";
     } else if (statusCode >= 200 && statusCode < 300) {
@@ -51,6 +62,7 @@ export const useCustomToast = () => {
     } else if (statusCode >= 500 && statusCode < 600) {
       return "Server error occurred. Please try again later.";
     }
+    return null;
   };
 
   return {
