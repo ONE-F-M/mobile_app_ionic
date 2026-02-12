@@ -210,7 +210,9 @@ const validateForm = () => {
   errors.fromDate = !selectedDates.from_date;
   errors.resumption_date = !selectedDates.resumption_date;
   errors.reason = !selectedReason.value;
-  errors.reliever = !selectedReliever.value;
+  if(!userStore.shift_working){
+    errors.reliever = !selectedReliever.value;
+  }
 
   // Validate Resumption Date is after From Date
   if (selectedDates.from_date && selectedDates.resumption_date) {

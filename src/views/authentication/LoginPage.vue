@@ -71,6 +71,8 @@ const login = async () => {
     userStore.setUser(data.data);
     userStore.setToken(data.data.token);
     userStore.setEndpointStatus(data.data.endpoint_state);
+    userStore.setShiftWorking(data.data.shift_working);
+    
     authStore.setEmployeeIdentificator(data.data.name);
     
     userStore.prefetchCheckins(data.data.employee_id);
