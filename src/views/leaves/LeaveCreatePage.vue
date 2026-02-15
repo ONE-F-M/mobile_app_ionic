@@ -55,6 +55,7 @@ watch(selectedReason, () => {
 });
 const isAnnualLeave = computed(() => selectedLeaveType.value?.toLowerCase() === 'annual leave');
 const isSickLeave = computed(() => selectedLeaveType.value?.toLowerCase() === 'sick leave');
+const relieverRequired = computed(() => isAnnualLeave.value && !userStore.shift_working);
 
 const reliever_field_permission = ref(false);
 const selectedReliever = ref("");
@@ -210,9 +211,7 @@ const validateForm = () => {
   errors.fromDate = !selectedDates.from_date;
   errors.resumption_date = !selectedDates.resumption_date;
   errors.reason = !selectedReason.value;
-  if(!userStore.shift_working){
-    errors.reliever = !selectedReliever.value;
-  }
+  errors.reliever = relieverRequired.value && !selectedReliever.value;
 
   // Validate Resumption Date is after From Date
   if (selectedDates.from_date && selectedDates.resumption_date) {
@@ -236,7 +235,7 @@ const validateForm = () => {
     !errors.resumptionDateInvalid &&
     !errors.reason &&
     !errors.proofDocument &&
-    (isAnnualLeave.value ? !errors.reliever : true)
+    !errors.reliever
     
   );
 };
@@ -497,7 +496,7 @@ onIonViewWillEnter(async () => {
         </div>
 
         <ion-row class="ion-margin-top" v-if="reliever_field_permission && !isSickLeave">
-          <p class="leaves-create-label" :class="{'leaves-create-label__required': isAnnualLeave}" style="margin:12px 0 8px">
+          <p class="leaves-create-label" :class="{'leaves-create-label__required': relieverRequired}" style="margin:12px 0 8px">
             {{ $t("user.leaves.create_leave.reliever") }}:
           </p>
           <ion-searchbar
@@ -532,7 +531,7 @@ onIonViewWillEnter(async () => {
               </ion-content>
             </ion-modal>
             <span
-              v-if="isAnnualLeave"
+              v-if="relieverRequired"
               class="leaves-create-label-required leaves-create-label__required"
               :class="{
                 'text-danger leaves-create-label__required-danger':
