@@ -12,7 +12,7 @@ export const useUserStore = defineStore("user", {
       // 2. New State for Caching
       cachedCheckinList: null,
       lastCheckinFetch: 0,
-      shift_working: null,
+      shiftWorking: null,
     };
   },
   persist: true,
@@ -21,7 +21,7 @@ export const useUserStore = defineStore("user", {
       this.isEndpointEnabled = status;
     },
     setShiftWorking(value) {
-      this.shift_working = value;
+      this.shiftWorking = value;
     },
     setUser(user) {
       this.user = user;
@@ -72,7 +72,7 @@ export const useUserStore = defineStore("user", {
       // Clear cache on logout
       this.cachedCheckinList = null;
       this.lastCheckinFetch = 0;
-      this.shift_working = null;
+      this.shiftWorking = null;
     },
   },
 });

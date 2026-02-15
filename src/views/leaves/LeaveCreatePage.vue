@@ -210,7 +210,7 @@ const validateForm = () => {
   errors.fromDate = !selectedDates.from_date;
   errors.resumption_date = !selectedDates.resumption_date;
   errors.reason = !selectedReason.value;
-  if(!userStore.shift_working){
+  if(!userStore.shiftWorking){
     errors.reliever = !selectedReliever.value;
   }
 
