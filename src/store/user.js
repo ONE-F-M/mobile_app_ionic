@@ -12,15 +12,25 @@ export const useUserStore = defineStore("user", {
       // 2. New State for Caching
       cachedCheckinList: null,
       lastCheckinFetch: 0,
+      shiftWorking: null,
     };
   },
   persist: true,
+  getters: {
+    isShiftWorking: (state) => !!(state.shiftWorking ?? state.user?.shift_working),
+  },
   actions: {
     setEndpointStatus(status) {
       this.isEndpointEnabled = status;
     },
+    setShiftWorking(value) {
+      this.shiftWorking = value ? 1 : 0;
+    },
     setUser(user) {
       this.user = user;
+      if (user && user.shift_working !== undefined) {
+        this.shiftWorking = user.shift_working ? 1 : 0;
+      }
     },
 
     setToken(token) {
@@ -68,6 +78,7 @@ export const useUserStore = defineStore("user", {
       // Clear cache on logout
       this.cachedCheckinList = null;
       this.lastCheckinFetch = 0;
+      this.shiftWorking = null;
     },
   },
 });
