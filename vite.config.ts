@@ -17,9 +17,22 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Separate heavy vendor libraries into independently-cached chunks.
+          // Each chunk is only re-downloaded when its specific dependency version changes.
+          'ionic-core': ['@ionic/vue', '@ionic/vue-router'],
+          'vendor': ['vue', 'vue-router', 'pinia', 'axios', 'dayjs'],
+          // Note: firebase is already dynamically imported via await import() — no chunk needed
+          'v-calendar': ['v-calendar'],
+        }
+      }
+    }
+  },
   test: {
     globals: true,
     environment: 'jsdom'
-  },
-  filenameHashing: false
+  }
 })

@@ -30,6 +30,7 @@
     "@ionic/vue": "^7.0.0",
     "@ionic/vue-router": "^7.0.0",
     "@mdi/font": "^7.4.47",
+    "@mdi/js": "^7.4.47",
     "@popperjs/core": "^2.11.8",
     "axios": "^1.6.8",
     "dayjs": "^1.11.10",

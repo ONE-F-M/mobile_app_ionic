@@ -13,6 +13,7 @@ import {
   onIonViewWillEnter,
   IonInput,
   IonCol,
+  IonCheckbox,
 } from "@ionic/vue";
 import LeavesHeader from "@/components/leaves/Header.vue";
 import { computed, nextTick, ref, shallowRef, watch } from "vue";
@@ -167,7 +168,25 @@ const selectedDates = ref({
 const isFromDatePickerOpen = shallowRef(false);
 const isToDatePickerOpen = shallowRef(false);
 
-const fetchLeaves = async () => {
+// Cache TTL — skip API call if data is < 5 minutes old
+const CACHE_TTL = 5 * 60 * 1000;
+
+const fetchLeaves = async ({ isInitial } = {}) => {
+  const isCacheFresh = Date.now() - userStore.lastLeavesFetch < CACHE_TTL;
+
+  // If cache is fresh, use it and skip the network call entirely
+  if (isInitial && userStore.cachedLeavesList && isCacheFresh) {
+    myLeaves.value = userStore.cachedLeavesList.my_leaves || [];
+    leavesReportsTo.value = userStore.cachedLeavesList.reports_to || [];
+    return;
+  }
+
+  // Show cached data immediately while fetching fresh data in background
+  if (isInitial && userStore.cachedLeavesList) {
+    myLeaves.value = userStore.cachedLeavesList.my_leaves || [];
+    leavesReportsTo.value = userStore.cachedLeavesList.reports_to || [];
+  }
+
   try {
     const { data } = await leave.getLeavesList({
       employee_id: userStore.user?.employee_id,
@@ -179,6 +198,10 @@ const fetchLeaves = async () => {
 
     myLeaves.value = data.data.my_leaves || [];
     leavesReportsTo.value = data.data.reports_to || [];
+
+    // Update cache on successful fetch
+    userStore.cachedLeavesList = data.data;
+    userStore.lastLeavesFetch = Date.now();
   } catch (error) {
     showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
     myLeaves.value = [];
@@ -189,7 +212,7 @@ const fetchLeaves = async () => {
 };
 
 onIonViewWillEnter(async () => {
-  await Promise.all([fetchLeaves(), fetchLeaveTypes()]);
+  await Promise.all([fetchLeaves({ isInitial: true }), fetchLeaveTypes()]);
 });
 </script>
 

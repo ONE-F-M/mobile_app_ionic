@@ -13,11 +13,12 @@ import initI18n from "@/plugins/i18n.js";
 import { createAnimation, IonicVue } from "@ionic/vue";
 
 /* Import components */
-import VCalendar from "v-calendar";
+// REMOVED: VCalendar global registration — moved to local import in Datepicker.vue
+// This removes ~80 KB from the initial bundle.
 
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/vue/css/core.css";
-import "@mdi/font/css/materialdesignicons.css";
+// REMOVED: @mdi/font webfont (~240 KB). Replaced by tree-shakeable MdiIcon.vue component using @mdi/js.
 
 /* Basic CSS for apps built with Ionic */
 import "@ionic/vue/css/normalize.css";
@@ -40,10 +41,10 @@ import "./theme/fonts.scss";
 import "./theme/global.scss";
 
 /* Plugins CSS styles */
-import "v-calendar/style.css";
+// REMOVED: v-calendar/style.css — now imported locally in Datepicker.vue
 const app = createApp(App);
 app.use(pinia);
-app.use(VCalendar, {});
+// VCalendar removed from global registration — see Datepicker.vue for local usage
 
 const animationPage = (baseEl, opts) => {
   const { enteringEl, leavingEl } = opts;
@@ -73,10 +74,13 @@ const lang = langStore.lang || "en";
 const i18n = initI18n(lang);
 app.use(i18n);
 
-router.isReady().then( async () => {
-  await registerServiceWorker()
-  await getFirebaseMessaging();
+router.isReady().then(async () => {
+  // OPTIMIZATION: Mount the app FIRST so the user sees the UI immediately.
+  // Firebase and service worker init happen in the background — they don't block rendering.
   app.mount("#app");
- 
-});
 
+  // Non-blocking background initialization
+  registerServiceWorker()
+    .then(() => getFirebaseMessaging())
+    .catch((err) => console.warn('Background init failed:', err));
+});

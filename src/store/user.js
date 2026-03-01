@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { useAuthStore } from "@/store/auth.js";
-import checkin from "@/api/checkin"; // 1. Import the API
+import checkin from "@/api/checkin";
+import leave from "@/api/leave";
 
 export const useUserStore = defineStore("user", {
   state: () => {
@@ -12,6 +13,8 @@ export const useUserStore = defineStore("user", {
       // 2. New State for Caching
       cachedCheckinList: null,
       lastCheckinFetch: 0,
+      cachedLeavesList: null,
+      lastLeavesFetch: 0,
       shiftWorking: null,
     };
   },
@@ -66,6 +69,33 @@ export const useUserStore = defineStore("user", {
       }
     },
 
+    // Prefetch leaves from the last year (matching LeavesListPage default range)
+    async prefetchLeaves(employeeId) {
+      if (!employeeId) return;
+
+      try {
+        const date = new Date();
+        const today = date.toISOString().split('T')[0];
+
+        date.setFullYear(date.getFullYear() - 1);
+        const start = date.toISOString().split('T')[0];
+
+        const { data } = await leave.getLeavesList({
+          employee_id: employeeId,
+          from_date: start,
+          to_date: today,
+          leave_type: '',
+          status: '',
+        });
+
+        this.cachedLeavesList = data.data;
+        this.lastLeavesFetch = Date.now();
+
+      } catch (error) {
+        console.warn("Prefetch leaves failed:", error);
+      }
+    },
+
     logout() {
       const authStore = useAuthStore();
 
@@ -78,6 +108,8 @@ export const useUserStore = defineStore("user", {
       // Clear cache on logout
       this.cachedCheckinList = null;
       this.lastCheckinFetch = 0;
+      this.cachedLeavesList = null;
+      this.lastLeavesFetch = 0;
       this.shiftWorking = null;
     },
   },

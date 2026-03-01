@@ -10,6 +10,7 @@ import configuration from "@/api/configuration";
 import { useCustomToast } from "@/composable/toast";
 import { ref,onMounted } from "vue";
 import Header from "@/components/Header.vue";
+import MdiIcon from "@/components/base/MdiIcon.vue";
 
 const router = useIonRouter();
 const userStore = useUserStore();
@@ -80,7 +81,7 @@ onIonViewDidEnter(() => {
           @click="goToServicePage(service.service)"
         >
           <div class="services-item-icon-wrapper">
-            <span class="mdi" :class="`mdi-${service.service_icon}`" />
+            <MdiIcon :name="service.service_icon" :size="24" />
           </div>
           <div class="services-item-label">
             {{ $i18n.locale === 'ar' ? service.service_ar : service.service }}
