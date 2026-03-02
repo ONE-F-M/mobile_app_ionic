@@ -64,8 +64,27 @@ const fetchServices = async () => {
   }
 };
 
+const refreshDataIfNeeded = async () => {
+  const employeeId = userStore.user?.employee_id;
+  if (!employeeId) return;
+
+  const now = Date.now();
+  const fiveMinutes = 5 * 60 * 1000;
+
+  // Check age of checkin fetch
+  if (now - userStore.lastCheckinFetch > fiveMinutes) {
+    userStore.prefetchCheckins(employeeId);
+  }
+
+  // Check age of leaves fetch
+  if (now - userStore.lastLeavesFetch > fiveMinutes) {
+    userStore.prefetchLeaves(employeeId);
+  }
+};
+
 onIonViewDidEnter(() => {
   fetchServices();
+  refreshDataIfNeeded();
 });
 </script>
 

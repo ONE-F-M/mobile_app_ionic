@@ -172,17 +172,28 @@ const isToDatePickerOpen = shallowRef(false);
 const CACHE_TTL = 5 * 60 * 1000;
 
 const fetchLeaves = async ({ isInitial } = {}) => {
-  const isCacheFresh = Date.now() - userStore.lastLeavesFetch < CACHE_TTL;
+  const fromDate = dayjs(selectedDates.value.start).format("YYYY-MM-DD");
+  const toDate = dayjs(selectedDates.value.end).format("YYYY-MM-DD");
+  const leaveType = selectedLeaveType.value;
+  const leaveStatus = selectedLeaveStatus.value;
 
-  // If cache is fresh, use it and skip the network call entirely
-  if (isInitial && userStore.cachedLeavesList && isCacheFresh) {
+  const isCacheFresh = Date.now() - userStore.lastLeavesFetch < CACHE_TTL;
+  const isRangeMatch = userStore.cachedLeavesFrom === fromDate && userStore.cachedLeavesTo === toDate;
+  // Note: prefetchLeaves always uses empty strings for type/status.
+  // We can add them to the store if we want to support caching filtered views,
+  // but for now let's at least check they are empty if we're using prefetch.
+  const isFilterMatch = (userStore.cachedLeavesType ?? '') === leaveType && (userStore.cachedLeavesStatus ?? '') === leaveStatus;
+
+  // If cache is fresh and everything matches, use it and skip the network call entirely
+  if (isInitial && userStore.cachedLeavesList && isCacheFresh && isRangeMatch && isFilterMatch) {
     myLeaves.value = userStore.cachedLeavesList.my_leaves || [];
     leavesReportsTo.value = userStore.cachedLeavesList.reports_to || [];
     return;
   }
 
   // Show cached data immediately while fetching fresh data in background
-  if (isInitial && userStore.cachedLeavesList) {
+  // only if the range/filters match to avoid showing wrong data.
+  if (isInitial && userStore.cachedLeavesList && isRangeMatch && isFilterMatch) {
     myLeaves.value = userStore.cachedLeavesList.my_leaves || [];
     leavesReportsTo.value = userStore.cachedLeavesList.reports_to || [];
   }
@@ -190,17 +201,21 @@ const fetchLeaves = async ({ isInitial } = {}) => {
   try {
     const { data } = await leave.getLeavesList({
       employee_id: userStore.user?.employee_id,
-      from_date: dayjs(selectedDates.value.start).format("YYYY-MM-DD"),
-      to_date: dayjs(selectedDates.value.end).format("YYYY-MM-DD"),
-      leave_type: selectedLeaveType.value,
-      status: selectedLeaveStatus.value,
+      from_date: fromDate,
+      to_date: toDate,
+      leave_type: leaveType,
+      status: leaveStatus,
     });
 
     myLeaves.value = data.data.my_leaves || [];
     leavesReportsTo.value = data.data.reports_to || [];
 
-    // Update cache on successful fetch
+    // Update cache and its parameters on successful fetch
     userStore.cachedLeavesList = data.data;
+    userStore.cachedLeavesFrom = fromDate;
+    userStore.cachedLeavesTo = toDate;
+    userStore.cachedLeavesType = leaveType;
+    userStore.cachedLeavesStatus = leaveStatus;
     userStore.lastLeavesFetch = Date.now();
   } catch (error) {
     showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);

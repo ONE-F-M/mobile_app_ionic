@@ -55,7 +55,7 @@ const selectedDate = computed({
             <!--                </ion-button>-->
           </ion-row>
         </div>
-        <v-date-picker
+        <VDatePicker
           v-model="selectedDate"
           class="datepicker-range"
           :locale="lang"

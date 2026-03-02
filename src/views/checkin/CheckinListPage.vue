@@ -75,10 +75,15 @@ const getErrorMessage = (error) => {
 const fetchCheckinList = async (defaults = {}) => {
   const { isInitial, ...requestParams } = defaults;
   const isInitialLoad = isInitial;
-  const isCacheFresh = Date.now() - userStore.lastCheckinFetch < CACHE_TTL;
 
-  // OPTIMIZATION: If cache is fresh, use it and skip the network call entirely
-  if (isInitialLoad && userStore.cachedCheckinList && isCacheFresh) {
+  const fromDate = dayjs(dateRange.value.start).format("YYYY-MM-DD");
+  const toDate = dayjs(dateRange.value.end).format("YYYY-MM-DD");
+
+  const isCacheFresh = Date.now() - userStore.lastCheckinFetch < CACHE_TTL;
+  const isRangeMatch = userStore.cachedCheckinFrom === fromDate && userStore.cachedCheckinTo === toDate;
+
+  // OPTIMIZATION: If cache is fresh and range matches, use it and skip the network call entirely
+  if (isInitialLoad && userStore.cachedCheckinList && isCacheFresh && isRangeMatch) {
     checkInList.value = userStore.cachedCheckinList;
     visibleCount.value = ITEMS_PER_PAGE;
     isListLoading.value = false;
@@ -86,7 +91,8 @@ const fetchCheckinList = async (defaults = {}) => {
   }
 
   // Show cached data immediately while fetching fresh data in background
-  if (isInitialLoad && userStore.cachedCheckinList) {
+  // only if the range matches to avoid showing wrong data.
+  if (isInitialLoad && userStore.cachedCheckinList && isRangeMatch) {
     checkInList.value = userStore.cachedCheckinList;
     visibleCount.value = ITEMS_PER_PAGE;
     isListLoading.value = false;
@@ -97,16 +103,18 @@ const fetchCheckinList = async (defaults = {}) => {
   try {
     const { data } = await checkin.getCheckinList({
       employee_id: userStore.user?.employee_id,
-      from_date: dayjs(dateRange.value.start).format("YYYY-MM-DD"),
-      to_date: dayjs(dateRange.value.end).format("YYYY-MM-DD"),
+      from_date: fromDate,
+      to_date: toDate,
       ...requestParams,
     });
 
     checkInList.value = data.data || [];
     visibleCount.value = ITEMS_PER_PAGE;
 
-    // Always update cache on successful fetch to keep it fresh
+    // Always update cache and its range on successful fetch to keep it fresh
     userStore.cachedCheckinList = data.data;
+    userStore.cachedCheckinFrom = fromDate;
+    userStore.cachedCheckinTo = toDate;
     userStore.lastCheckinFetch = Date.now();
 
   } catch (error) {
