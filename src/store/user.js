@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { useAuthStore } from "@/store/auth.js";
-import checkin from "@/api/checkin"; // 1. Import the API
+import checkin from "@/api/checkin";
+import leave from "@/api/leave";
 
 export const useUserStore = defineStore("user", {
   state: () => {
@@ -11,7 +12,17 @@ export const useUserStore = defineStore("user", {
 
       // 2. New State for Caching
       cachedCheckinList: null,
+      cachedCheckinFrom: null,
+      cachedCheckinTo: null,
       lastCheckinFetch: 0,
+
+      cachedLeavesList: null,
+      cachedLeavesFrom: null,
+      cachedLeavesTo: null,
+      cachedLeavesType: null,
+      cachedLeavesStatus: null,
+      lastLeavesFetch: 0,
+
       shiftWorking: null,
     };
   },
@@ -38,7 +49,7 @@ export const useUserStore = defineStore("user", {
     },
 
     // 3. New Prefetch Action
-    // Prefetch checkins from the last 6 months (from 6 months ago to today) to match your CheckinPage logic
+    // Prefetch checkins from the last month (aligning with CheckinPage default)
     async prefetchCheckins(employeeId) {
       if (!employeeId) return;
 
@@ -46,7 +57,7 @@ export const useUserStore = defineStore("user", {
         const date = new Date();
         const today = date.toISOString().split('T')[0]; // YYYY-MM-DD
 
-        date.setMonth(date.getMonth() - 6);
+        date.setMonth(date.getMonth() - 1);
         const start = date.toISOString().split('T')[0];
 
         const { data } = await checkin.getCheckinList({
@@ -55,14 +66,47 @@ export const useUserStore = defineStore("user", {
           to_date: today,
         });
 
-        // Store the result and the timestamp
+        // Store the result, range and the timestamp
         this.cachedCheckinList = data.data;
+        this.cachedCheckinFrom = start;
+        this.cachedCheckinTo = today;
         this.lastCheckinFetch = Date.now();
 
       } catch (error) {
         // Silently fail - this is just a prefetch optimization.
         // If it fails, the actual page will retry and handle the error UI.
         console.warn("Prefetch checkins failed:", error);
+      }
+    },
+
+    // Prefetch leaves from the last year (matching LeavesListPage default range)
+    async prefetchLeaves(employeeId) {
+      if (!employeeId) return;
+
+      try {
+        const date = new Date();
+        const today = date.toISOString().split('T')[0];
+
+        date.setFullYear(date.getFullYear() - 1);
+        const start = date.toISOString().split('T')[0];
+
+        const { data } = await leave.getLeavesList({
+          employee_id: employeeId,
+          from_date: start,
+          to_date: today,
+          leave_type: '',
+          status: '',
+        });
+
+        this.cachedLeavesList = data.data;
+        this.cachedLeavesFrom = start;
+        this.cachedLeavesTo = today;
+        this.cachedLeavesType = '';
+        this.cachedLeavesStatus = '';
+        this.lastLeavesFetch = Date.now();
+
+      } catch (error) {
+        console.warn("Prefetch leaves failed:", error);
       }
     },
 
@@ -77,7 +121,17 @@ export const useUserStore = defineStore("user", {
 
       // Clear cache on logout
       this.cachedCheckinList = null;
+      this.cachedCheckinFrom = null;
+      this.cachedCheckinTo = null;
       this.lastCheckinFetch = 0;
+
+      this.cachedLeavesList = null;
+      this.cachedLeavesFrom = null;
+      this.cachedLeavesTo = null;
+      this.cachedLeavesType = null;
+      this.cachedLeavesStatus = null;
+      this.lastLeavesFetch = 0;
+
       this.shiftWorking = null;
     },
   },

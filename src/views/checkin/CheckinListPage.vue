@@ -43,9 +43,20 @@ const availableShifts = computed(() =>
 );
 
 const dateRange = ref({
-  start: new Date(),
+  start: dayjs().subtract(1, 'month').toDate(),
   end: new Date(),
 });
+
+// OPTIMIZATION: Incremental rendering — only show 30 items initially,
+// then load more on demand. Avoids rendering 500+ DOM nodes on first paint.
+const ITEMS_PER_PAGE = 30;
+const visibleCount = ref(ITEMS_PER_PAGE);
+const visibleList = computed(() => checkInList.value.slice(0, visibleCount.value));
+const hasMore = computed(() => visibleCount.value < checkInList.value.length);
+const loadMore = () => { visibleCount.value += ITEMS_PER_PAGE; };
+
+// OPTIMIZATION: Cache TTL — skip API call if data is < 5 minutes old
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 // --- HELPER: Extract API Error Message ---
 const getErrorMessage = (error) => {
@@ -64,9 +75,26 @@ const getErrorMessage = (error) => {
 const fetchCheckinList = async (defaults = {}) => {
   const { isInitial, ...requestParams } = defaults;
   const isInitialLoad = isInitial;
-  
-  if (isInitialLoad && userStore.cachedCheckinList) {
+
+  const fromDate = dayjs(dateRange.value.start).format("YYYY-MM-DD");
+  const toDate = dayjs(dateRange.value.end).format("YYYY-MM-DD");
+
+  const isCacheFresh = Date.now() - userStore.lastCheckinFetch < CACHE_TTL;
+  const isRangeMatch = userStore.cachedCheckinFrom === fromDate && userStore.cachedCheckinTo === toDate;
+
+  // OPTIMIZATION: If cache is fresh and range matches, use it and skip the network call entirely
+  if (isInitialLoad && userStore.cachedCheckinList && isCacheFresh && isRangeMatch) {
     checkInList.value = userStore.cachedCheckinList;
+    visibleCount.value = ITEMS_PER_PAGE;
+    isListLoading.value = false;
+    return;
+  }
+
+  // Show cached data immediately while fetching fresh data in background
+  // only if the range matches to avoid showing wrong data.
+  if (isInitialLoad && userStore.cachedCheckinList && isRangeMatch) {
+    checkInList.value = userStore.cachedCheckinList;
+    visibleCount.value = ITEMS_PER_PAGE;
     isListLoading.value = false;
   } else if (checkInList.value.length === 0) {
     isListLoading.value = true;
@@ -75,15 +103,18 @@ const fetchCheckinList = async (defaults = {}) => {
   try {
     const { data } = await checkin.getCheckinList({
       employee_id: userStore.user?.employee_id,
-      from_date: dayjs(dateRange.value.start).format("YYYY-MM-DD"),
-      to_date: dayjs(dateRange.value.end).format("YYYY-MM-DD"),
+      from_date: fromDate,
+      to_date: toDate,
       ...requestParams,
     });
 
     checkInList.value = data.data || [];
+    visibleCount.value = ITEMS_PER_PAGE;
 
-    // Always update cache on successful fetch to keep it fresh
+    // Always update cache and its range on successful fetch to keep it fresh
     userStore.cachedCheckinList = data.data;
+    userStore.cachedCheckinFrom = fromDate;
+    userStore.cachedCheckinTo = toDate;
     userStore.lastCheckinFetch = Date.now();
 
   } catch (error) {
@@ -134,27 +165,29 @@ const refreshLocationAndShifts = async () => {
 // --- Lifecycle ---
 
 onIonViewWillEnter(() => {
-  dateRange.value.start = new Date();
+  dateRange.value.start = dayjs().subtract(1, 'month').toDate();
   dateRange.value.end = new Date();
 
   fetchCheckinList({
-    from_date: dayjs().subtract(6, 'month').format("YYYY-MM-DD"),
+    from_date: dayjs().subtract(1, 'month').format("YYYY-MM-DD"),
     to_date: dayjs(new Date()).format("YYYY-MM-DD"),
     isInitial: true
   });
-  
-  refreshLocationAndShifts();
+
+  // OPTIMIZATION: Defer geolocation — let the list render first,
+  // then determine location for shift buttons (which are at the bottom anyway)
+  setTimeout(() => refreshLocationAndShifts(), 300);
 });
 
 onMounted(() => {
   App.addListener('appStateChange', async ({ isActive }) => {
     if (isActive) {
       fetchCheckinList({
-        from_date: dayjs().subtract(6, 'month').format("YYYY-MM-DD"),
+        from_date: dayjs().subtract(1, 'month').format("YYYY-MM-DD"),
         to_date: dayjs(new Date()).format("YYYY-MM-DD"),
         isInitial: true
       });
-      refreshLocationAndShifts();
+      setTimeout(() => refreshLocationAndShifts(), 300);
     }
   });
 });
@@ -197,8 +230,9 @@ const openDatePicker = () => {
           </div>
 
           <template v-else>
+            <!-- OPTIMIZATION: Render only visibleList (30 at a time) instead of all records -->
             <ion-row
-              v-for="check in checkInList"
+              v-for="check in visibleList"
               :key="check.name"
               class="checkin-page-table-content-row"
             >
@@ -227,6 +261,13 @@ const openDatePicker = () => {
                 </div>
               </ion-col>
             </ion-row>
+
+            <!-- Load More button for incremental rendering -->
+            <div v-if="hasMore" class="ion-text-center ion-padding">
+              <ion-button fill="clear" size="small" @click="loadMore" class="checkin-load-more-btn">
+                {{ $t('user.checkin.load_more') || 'Load More' }} ({{ checkInList.length - visibleCount }} remaining)
+              </ion-button>
+            </div>
 
             <div v-if="checkInList.length === 0" class="ion-text-center ion-padding">
               <p class="checkin-page-duration">No records found.</p>
