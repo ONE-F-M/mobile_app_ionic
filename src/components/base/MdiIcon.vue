@@ -114,6 +114,8 @@ import {
   mdiPhoneOutline,
   mdiEmail,
   mdiEmailOutline,
+  mdiMapMarkerDistance,
+  mdiSwapHorizontalCircle,
 } from '@mdi/js'
 
 // Map from kebab-case icon name (as returned by the API) to SVG path data.
@@ -200,6 +202,7 @@ const iconMap = {
   'phone-outline': mdiPhoneOutline,
   'email': mdiEmail,
   'email-outline': mdiEmailOutline,
+  'swap_horizontal_circle': mdiSwapHorizontalCircle,
 }
 
 const props = defineProps({
