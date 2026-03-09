@@ -12,7 +12,7 @@ export const useCustomToast = () => {
 
   const { t } = useI18n();
 
-  const showErrorToast = async (message, error, statusCode) => {
+  const showErrorToast = async (message, error, statusCode, duration = null) => {
     // 1. Start with the specific error from the backend (if any)
     let errorMessage = error;
 
@@ -44,22 +44,33 @@ export const useCustomToast = () => {
       header: errorTitle,
       message: errorMessage, // If this is null, Ionic simply hides the body area
       ...commonConfig,
+      duration: duration || commonConfig.duration,
       icon: closeOutline,
     });
 
     return await errorToast.present();
   };
 
-  const showSuccessToast = async (message) => {
+  const showSuccessToast = async (message, duration = null) => {
     const successToast = await toastController.create({
       cssClass: "toast-success",
       header: t("utils.toast.success"),
       message,
       ...commonConfig,
+      duration: duration || commonConfig.duration,
       icon: checkmarkOutline,
     });
 
     return await successToast.present();
+  };
+
+  const showToast = async (options = {}) => {
+    const toast = await toastController.create({
+      ...commonConfig,
+      ...options,
+      duration: options.duration || commonConfig.duration,
+    });
+    return await toast.present();
   };
 
   const getStatusMessage = (statusCode) => {
@@ -82,5 +93,6 @@ export const useCustomToast = () => {
   return {
     showErrorToast,
     showSuccessToast,
+    showToast,
   };
 };

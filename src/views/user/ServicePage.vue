@@ -42,6 +42,9 @@ const goToServicePage = (service) => {
     case "New Leave Application":
       router.push("/leaves/add");
       break;
+    case "Shift Request":
+      router.push("/shifts");
+      break;
     default:
       break;
   }

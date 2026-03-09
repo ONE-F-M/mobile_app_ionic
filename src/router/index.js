@@ -113,6 +113,23 @@ const routes = [
     component: () => import("@/views/leaves/LeaveDetailsPage.vue"),
     meta: { requiresAuth: true }
   },
+
+  // Shift Request Flow
+  {
+    path: "/shifts",
+    component: () => import("@/views/shifts/ShiftRequestListPage.vue"),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: "/shifts/add",
+    component: () => import("@/views/shifts/ShiftRequestCreatePage.vue"),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: "/shifts/:id",
+    component: () => import("@/views/shifts/ShiftRequestDetailsPage.vue"),
+    meta: { requiresAuth: true }
+  },
 ];
 
 const router = createRouter({

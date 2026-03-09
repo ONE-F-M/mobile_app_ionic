@@ -12,4 +12,5 @@ export default {
   back: "عودة",
   confirm: "تأكيد",
   view: "عرض",
+  apply: "تطبيق",
 };

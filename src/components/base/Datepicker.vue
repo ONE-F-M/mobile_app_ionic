@@ -23,6 +23,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  minDate: {
+    type: [Date, String],
+    default: null,
+  },
 });
 const emit = defineEmits(["update:model-value", "cancel", "ok"]);
 
@@ -60,6 +64,7 @@ const selectedDate = computed({
           class="datepicker-range"
           :locale="lang"
           mode="date"
+          :min-date="minDate"
           expanded
           title-position="left"
         />
