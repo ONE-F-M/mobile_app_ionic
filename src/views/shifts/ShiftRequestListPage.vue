@@ -62,29 +62,55 @@ const selectedPurposes = ref([]);
 const myShifts = ref([]);
 const shiftsReportsTo = ref([]);
 
-const fetchShiftRequests = async () => {
-  try {
-    isLoading.value = true;
-    const { data } = await shiftsApi.getShiftsList({
-      employee_id: userStore.user?.employee_id,
-      from_date: dayjs(selectedDates.value.start).format("YYYY-MM-DD"),
-      to_date: dayjs(selectedDates.value.end).format("YYYY-MM-DD"),
-    });
+const fetchShiftRequests = async (force = false) => {
+	const employeeId = userStore.user?.employee_id;
+	if (!employeeId) return;
 
-    if (data && data.status_code === 200) {
-      myShifts.value = data.data.my_shifts || [];
-      shiftsReportsTo.value = data.data.reports_to || [];
-    }
-  } catch (error) {
-    const errorData = error?.data || {};
-    showErrorToast(
-      errorData.message || "Failed to fetch shift requests",
-      errorData.error,
-      errorData.status_code
-    );
-  } finally {
-    isLoading.value = false;
-  }
+	const fromDate = dayjs(selectedDates.value.start).format("YYYY-MM-DD");
+	const toDate = dayjs(selectedDates.value.end).format("YYYY-MM-DD");
+
+	// 1. Check Cache
+	const now = Date.now();
+	const fiveMinutes = 5 * 60 * 1000;
+	const isCacheFresh = now - userStore.lastShiftsFetch < fiveMinutes;
+	const isSameRange =
+		userStore.cachedShiftsFrom === fromDate &&
+		userStore.cachedShiftsTo === toDate;
+
+	if (!force && isCacheFresh && isSameRange && userStore.cachedShiftsList) {
+		myShifts.value = userStore.cachedShiftsList.my_shifts || [];
+		shiftsReportsTo.value = userStore.cachedShiftsList.reports_to || [];
+		return;
+	}
+
+	try {
+		isLoading.value = true;
+		const { data } = await shiftsApi.getShiftsList({
+			employee_id: employeeId,
+			from_date: fromDate,
+			to_date: toDate,
+		});
+
+		if (data && data.status_code === 200) {
+			myShifts.value = data.data.my_shifts || [];
+			shiftsReportsTo.value = data.data.reports_to || [];
+
+			// Update Cache
+			userStore.cachedShiftsList = data.data;
+			userStore.cachedShiftsFrom = fromDate;
+			userStore.cachedShiftsTo = toDate;
+			userStore.lastShiftsFetch = Date.now();
+		}
+	} catch (error) {
+		const errorData = error?.data || {};
+		showErrorToast(
+			errorData.message || "Failed to fetch shift requests",
+			errorData.error,
+			errorData.status_code
+		);
+	} finally {
+		isLoading.value = false;
+	}
 };
 
 const shifts = computed(() => {

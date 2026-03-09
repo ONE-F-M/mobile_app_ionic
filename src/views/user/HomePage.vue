@@ -83,6 +83,11 @@ const refreshDataIfNeeded = async () => {
   if (now - userStore.lastLeavesFetch > fiveMinutes) {
     userStore.prefetchLeaves(employeeId);
   }
+
+  // Check age of shifts fetch
+  if (now - userStore.lastShiftsFetch > fiveMinutes) {
+    userStore.prefetchShifts(employeeId);
+  }
 };
 
 onIonViewDidEnter(() => {

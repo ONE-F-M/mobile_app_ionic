@@ -18,14 +18,14 @@ export default defineConfig({
     },
   },
   build: {
+    // Suppress the "Some chunks are larger than 500 kB" warning
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
         manualChunks: {
           // Separate heavy vendor libraries into independently-cached chunks.
-          // Each chunk is only re-downloaded when its specific dependency version changes.
-          'ionic-core': ['@ionic/vue', '@ionic/vue-router'],
+          // Note: We deliberately leave Ionic out of this so its internal lazy-loading doesn't break.
           'vendor': ['vue', 'vue-router', 'pinia', 'axios', 'dayjs'],
-          // Note: firebase is already dynamically imported via await import() — no chunk needed
           'v-calendar': ['v-calendar'],
         }
       }

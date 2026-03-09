@@ -86,5 +86,5 @@ const selectedDate = computed({
 </template>
 
 <style scoped lang="scss">
-@import "../../theme/datepicker.scss";
+@use "../../theme/datepicker.scss";
 </style>
