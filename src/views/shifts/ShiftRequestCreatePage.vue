@@ -19,9 +19,8 @@ import {
 import LeavesHeader from "@/components/leaves/Header.vue";
 import { chevronDownOutline } from "ionicons/icons";
 import Datepicker from "@/components/base/Datepicker.vue";
-import IconAccountClock from "@/components/icon/AccountClock.vue";
 import { useLangStore } from "@/store/lang.js";
-import { ref, reactive, computed, shallowRef, watch } from "vue";
+import { ref, computed, shallowRef } from "vue";
 import useDateHelper from "@/composable/useDateHelper";
 import { useUserStore } from "@/store/user.js";
 import shiftsApi from "@/api/shifts.ts";
@@ -35,8 +34,8 @@ const { formatDate, dayjs } = useDateHelper();
 const { showSuccessToast, showErrorToast } = useCustomToast();
 const { t } = useI18n();
 
-const isLoading = ref(false);
-const employeeName = computed(() => userStore.user?.employee_name || "N/A");
+
+
 
 const form = ref({
   purpose: "",
@@ -59,15 +58,7 @@ const triggerBack = () => {
   router.back();
 };
 
-const showToast = async (message, color = "dark", duration = 2000) => {
-  const toast = await toastController.create({
-    message,
-    duration,
-    color,
-    position: "bottom",
-  });
-  await toast.present();
-};
+
 
 const validateForm = () => {
   errors.value.purpose = !form.value.purpose;
@@ -75,7 +66,7 @@ const validateForm = () => {
   errors.value.to_date = !form.value.to_date;
 
   if (errors.value.purpose || errors.value.from_date || errors.value.to_date) {
-    showErrorToast(t("user.shifts.create_shift.validation_error"));
+    showErrorToast(t("user.shifts.create_shift.validation_error"),null,null,3000);
     return false;
   }
 
@@ -103,13 +94,18 @@ const submitForm = async () => {
     });
 
     if (data && data.status_code === 201) {
-      showSuccessToast(t("user.shifts.create_shift.success_msg"));
+      showSuccessToast(t("user.shifts.create_shift.success_msg"),4000);
       router.push(`/shifts/${data.data.name}`);
     }
   } catch (error) {
-    showErrorToast(error?.data?.error || "Failed to create shift request");
+    const errorData = error?.data || {};
+    showErrorToast(
+      errorData.message || "Failed to create shift request",
+      errorData.error,
+      errorData.status_code
+    );
   } finally {
-    isLoading.value = false;
+    isSubmitting.value = false;
   }
 };
 

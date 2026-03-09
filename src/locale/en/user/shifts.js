@@ -51,4 +51,13 @@ export default {
         validation_error: "Please fill in all required fields.",
         date_error: "To Date cannot be earlier than From Date.",
     },
+    approve: "Approve",
+    reject: "Reject",
+    confirm_approve_title: "Approve Shift Request",
+    confirm_approve_desc: "Are you sure you want to approve this shift request?",
+    confirm_reject_title: "Reject Shift Request",
+    confirm_reject_desc: "Are you sure you want to reject this shift request?",
+    approve_success: "Shift Request approved successfully",
+    reject_success: "Shift Request rejected successfully",
+    enter_rejection_reason: "Please provide a reason for rejection.",
 };

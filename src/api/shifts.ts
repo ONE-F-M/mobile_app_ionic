@@ -33,6 +33,7 @@ const details = async (params: ShiftDetailsParams) =>
 export interface ShiftActionParams {
     shift_request_id: string;
     action: string;
+    reason?: string;
 }
 
 const updateShiftStatus = async (data: ShiftActionParams) =>

@@ -51,4 +51,13 @@ export default {
         validation_error: "يرجى ملء جميع الحقول المطلوبة.",
         date_error: "لا يمكن أن يكون تاريخ النهاية قبل تاريخ البداية.",
     },
+    approve: "موافقة",
+    reject: "رفض",
+    confirm_approve_title: "الموافقة على طلب الوردية",
+    confirm_approve_desc: "هل أنت متأكد أنك تريد الموافقة على طلب الوردية هذا؟",
+    confirm_reject_title: "رفض طلب الوردية",
+    confirm_reject_desc: "هل أنت متأكد أنك تريد رفض طلب الوردية هذا؟",
+    approve_success: "تمت الموافقة على طلب الوردية بنجاح",
+    reject_success: "تم رفض طلب الوردية بنجاح",
+    enter_rejection_reason: "يرجى تقديم سبب للرفض.",
 };

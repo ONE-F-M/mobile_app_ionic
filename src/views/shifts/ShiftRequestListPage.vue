@@ -14,6 +14,7 @@ import {
   IonInput,
   IonCol,
   IonCheckbox,
+  IonSpinner,
 } from "@ionic/vue";
 import LeavesHeader from "@/components/leaves/Header.vue";
 import { computed, ref, shallowRef } from "vue";
@@ -75,7 +76,12 @@ const fetchShiftRequests = async () => {
       shiftsReportsTo.value = data.data.reports_to || [];
     }
   } catch (error) {
-    showErrorToast(error?.data?.error || "Failed to fetch shift requests");
+    const errorData = error?.data || {};
+    showErrorToast(
+      errorData.message || "Failed to fetch shift requests",
+      errorData.error,
+      errorData.status_code
+    );
   } finally {
     isLoading.value = false;
   }
@@ -182,7 +188,7 @@ onIonViewWillEnter(async () => {
             <ion-col size="3">
               <div class="shifts-icon-wrapper">
                 <IconAccountClock
-                  v-if="shift.workflow_state === 'Draft' || shift.workflow_state === 'Open'"
+                  v-if="['Draft', 'Open', 'Pending', 'Pending Approval'].includes(shift.workflow_state)"
                   class="shifts-icon shifts-status__Open"
                 />
                 <IconCheck
@@ -460,7 +466,7 @@ onIonViewWillEnter(async () => {
   }
 }
 
-.shifts-status__Open, .shifts-status__Draft {
+.shifts-status__Open, .shifts-status__Draft, .shifts-status__Pending {
   color: #76d1ff;
 }
 .shifts-status__Approved {
