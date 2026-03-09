@@ -65,5 +65,8 @@
     "vite-plugin-pwa": "^0.21.0",
     "vitest": "^0.34.6"
   },
+  "resolutions": {
+    "@stencil/core": "4.38.0"
+  },
   "description": "An Ionic project for One Facilities Management"
 }

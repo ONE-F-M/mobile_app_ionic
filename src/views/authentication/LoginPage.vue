@@ -77,6 +77,7 @@ const login = async () => {
     
     userStore.prefetchCheckins(data.data.employee_id);
     userStore.prefetchLeaves(data.data.employee_id);
+    userStore.prefetchShifts(data.data.employee_id);
 
     // 3. Navigation (Immediate)
     // We determine where to go and leave immediately.

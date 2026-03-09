@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { useAuthStore } from "@/store/auth.js";
 import checkin from "@/api/checkin";
 import leave from "@/api/leave";
+import shifts from "@/api/shifts";
 
 export const useUserStore = defineStore("user", {
   state: () => {
@@ -22,6 +23,11 @@ export const useUserStore = defineStore("user", {
       cachedLeavesType: null,
       cachedLeavesStatus: null,
       lastLeavesFetch: 0,
+
+      cachedShiftsList: null,
+      cachedShiftsFrom: null,
+      cachedShiftsTo: null,
+      lastShiftsFetch: 0,
 
       shiftWorking: null,
     };
@@ -110,6 +116,35 @@ export const useUserStore = defineStore("user", {
       }
     },
 
+    // Prefetch shifts for the last year/next year (matching ShiftRequestListPage default range)
+    async prefetchShifts(employeeId) {
+      if (!employeeId) return;
+
+      try {
+        const date = new Date();
+        const start = new Date(date);
+        start.setFullYear(start.getFullYear() - 1);
+        const end = new Date(date);
+        end.setFullYear(end.getFullYear() + 1);
+
+        const from_date = start.toISOString().split("T")[0];
+        const to_date = end.toISOString().split("T")[0];
+
+        const { data } = await shifts.getShiftsList({
+          employee_id: employeeId,
+          from_date: from_date,
+          to_date: to_date,
+        });
+
+        this.cachedShiftsList = data.data;
+        this.cachedShiftsFrom = from_date;
+        this.cachedShiftsTo = to_date;
+        this.lastShiftsFetch = Date.now();
+      } catch (error) {
+        console.warn("Prefetch shifts failed:", error);
+      }
+    },
+
     logout() {
       const authStore = useAuthStore();
 
@@ -131,6 +166,11 @@ export const useUserStore = defineStore("user", {
       this.cachedLeavesType = null;
       this.cachedLeavesStatus = null;
       this.lastLeavesFetch = 0;
+
+      this.cachedShiftsList = null;
+      this.cachedShiftsFrom = null;
+      this.cachedShiftsTo = null;
+      this.lastShiftsFetch = 0;
 
       this.shiftWorking = null;
     },
