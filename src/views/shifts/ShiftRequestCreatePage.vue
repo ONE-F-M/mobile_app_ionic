@@ -95,6 +95,7 @@ const submitForm = async () => {
 
     if (data && data.status_code === 201) {
       showSuccessToast(t("user.shifts.create_shift.success_msg"),4000);
+      userStore.prefetchShifts(userStore.user?.employee_id);
       router.push(`/shifts/${data.data.name}`);
     }
   } catch (error) {

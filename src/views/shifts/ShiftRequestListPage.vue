@@ -71,8 +71,8 @@ const fetchShiftRequests = async (force = false) => {
 
 	// 1. Check Cache
 	const now = Date.now();
-	const fiveMinutes = 5 * 60 * 1000;
-	const isCacheFresh = now - userStore.lastShiftsFetch < fiveMinutes;
+	const cacheTimeout = 2 * 60 * 1000;
+	const isCacheFresh = now - userStore.lastShiftsFetch < cacheTimeout;
 	const isSameRange =
 		userStore.cachedShiftsFrom === fromDate &&
 		userStore.cachedShiftsTo === toDate;
