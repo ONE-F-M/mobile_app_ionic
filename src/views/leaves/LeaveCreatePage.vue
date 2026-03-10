@@ -284,6 +284,7 @@ const onSubmit = async () => {
 
     await leave.createLeave(data);
 
+    userStore.prefetchLeaves(userStore.user?.employee_id);
     clearForm();
     triggerBack();
   } catch (error) {

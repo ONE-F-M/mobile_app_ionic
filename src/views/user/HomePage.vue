@@ -76,25 +76,25 @@ const refreshDataIfNeeded = async () => {
   if (!employeeId) return;
 
   const now = Date.now();
-  const fiveMinutes = 5 * 60 * 1000;
+  const cacheTimeout = 2 * 60 * 1000;
 
   // Check age of checkin fetch
-  if (now - userStore.lastCheckinFetch > fiveMinutes) {
+  if (now - userStore.lastCheckinFetch > cacheTimeout) {
     userStore.prefetchCheckins(employeeId);
   }
 
   // Check age of leaves fetch
-  if (now - userStore.lastLeavesFetch > fiveMinutes) {
+  if (now - userStore.lastLeavesFetch > cacheTimeout) {
     userStore.prefetchLeaves(employeeId);
   }
 
   // Check age of shifts fetch
-  if (now - userStore.lastShiftsFetch > fiveMinutes) {
+  if (now - userStore.lastShiftsFetch > cacheTimeout) {
     userStore.prefetchShifts(employeeId);
   }
 
   // Check age of geolocation fetch
-  if (now - userStore.lastGeolocationFetch > fiveMinutes) {
+  if (now - userStore.lastGeolocationFetch > cacheTimeout) {
     userStore.prefetchGeolocation(employeeId);
   }
 };

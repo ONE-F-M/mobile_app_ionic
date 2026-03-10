@@ -258,8 +258,8 @@ const loadAgainLocation = async () => {
 const getSiteLocation = async () => {
   try {
     const now = Date.now();
-    const fiveMinutes = 5 * 60 * 1000;
-    const isCacheFresh = now - userStore.lastGeolocationFetch < fiveMinutes;
+    const cacheTimeout = 2 * 60 * 1000;
+    const isCacheFresh = now - userStore.lastGeolocationFetch < cacheTimeout;
 
     // 1. Check Face Enrollment Cache
     let enrollmentData = null;
@@ -339,6 +339,8 @@ const verifyCheckin = async () => {
     }
 
     await checkin.verifyCheckin(payload);
+    userStore.prefetchCheckins(userStore.user?.employee_id);
+    userStore.prefetchGeolocation(userStore.user?.employee_id);
     // await getSiteLocation();
 
     const type = logType.value === "OUT" ? "checkout" : "checkin";
