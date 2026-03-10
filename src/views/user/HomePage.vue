@@ -26,6 +26,10 @@ onMounted(() => {
     // Avoid unhandled promise rejection if prefetch fails
     console.error("Failed to prefetch CheckinListPage chunk", error);
   });
+  
+  import("@/views/checkin/CheckinGeolocation.vue").catch((error) => {
+    console.error("Failed to prefetch CheckinGeolocation chunk", error);
+  });
 });
 
 const logout = () => {
@@ -87,6 +91,11 @@ const refreshDataIfNeeded = async () => {
   // Check age of shifts fetch
   if (now - userStore.lastShiftsFetch > fiveMinutes) {
     userStore.prefetchShifts(employeeId);
+  }
+
+  // Check age of geolocation fetch
+  if (now - userStore.lastGeolocationFetch > fiveMinutes) {
+    userStore.prefetchGeolocation(employeeId);
   }
 };
 
