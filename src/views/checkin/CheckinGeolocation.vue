@@ -257,34 +257,59 @@ const loadAgainLocation = async () => {
 
 const getSiteLocation = async () => {
   try {
+    const now = Date.now();
+    const fiveMinutes = 5 * 60 * 1000;
+    const isCacheFresh = now - userStore.lastGeolocationFetch < fiveMinutes;
 
-    const response = await auth.getUserFaceEnrollment({
-      employee_id: userStore.user?.employee_id,
-    });
-    if (response.data.data.enrolled === false) {
+    // 1. Check Face Enrollment Cache
+    let enrollmentData = null;
+    if (isCacheFresh && userStore.cachedFaceEnrollment) {
+      enrollmentData = userStore.cachedFaceEnrollment;
+    } else {
+      const response = await auth.getUserFaceEnrollment({
+        employee_id: userStore.user?.employee_id,
+      });
+      enrollmentData = response.data.data;
+    }
+
+    if (enrollmentData?.enrolled === false) {
       showErrorToast(`You have not enrolled your face. Please enroll.`);
       router.push("/enrollment");
-    }
-    const payload = {
-      employee_id: userStore.user?.employee_id,
-      latitude: coordinates.value?.coords?.latitude,
-      longitude: coordinates.value?.coords?.longitude,
-      log_type: logType.value,
+      return;
     }
 
-    if (route.query.shift && route.query.shift !== 'None' && route.query.shift !== 'undefined') {
-      payload.shift = route.query.shift
+    // 2. Check Site Location Cache
+    if (isCacheFresh && userStore.cachedGeolocationData) {
+      const data = userStore.cachedGeolocationData;
+      site_radius.value = data.geofence_radius;
+      site_lat.value = data.latitude;
+      site_long.value = data.longitude;
+      userStore.setEndpointStatus(data.endpoint_status);
+      isUserWithinGeofenceRadius.value = data.user_within_geofence_radius;
+      faceRecEndpointEnabled.value = data.endpoint_status;
+      shift.value = data.shift;
+    } else {
+      const payload = {
+        employee_id: userStore.user?.employee_id,
+        latitude: coordinates.value?.coords?.latitude,
+        longitude: coordinates.value?.coords?.longitude,
+        log_type: logType.value || "IN",
+      };
+
+      if (route.query.shift && route.query.shift !== 'None' && route.query.shift !== 'undefined') {
+        payload.shift = route.query.shift;
+      }
+
+      const { data } = await checkin.getSiteLocation(payload);
+
+      site_radius.value = data.data.geofence_radius;
+      site_lat.value = data.data.latitude;
+      site_long.value = data.data.longitude;
+      userStore.setEndpointStatus(data.data.endpoint_status);
+      isUserWithinGeofenceRadius.value = data.data.user_within_geofence_radius;
+      faceRecEndpointEnabled.value = data.data.endpoint_status;
+      shift.value = data.data.shift;
     }
-
-    const { data } = await checkin.getSiteLocation(payload);
-
-    site_radius.value = data.data.geofence_radius;
-    site_lat.value = data.data.latitude;
-    site_long.value = data.data.longitude;
-    userStore.setEndpointStatus(data.data.endpoint_status)
-    isUserWithinGeofenceRadius.value = data.data.user_within_geofence_radius;
-    faceRecEndpointEnabled.value = data.data.endpoint_status
-    shift.value = data.data.shift;
   } catch (error) {
     // Robust Error Handling
     const msg = error?.data?.message || error?.message || "Unable to retrieve site location";

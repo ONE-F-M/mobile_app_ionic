@@ -30,6 +30,11 @@ export const useUserStore = defineStore("user", {
       lastShiftsFetch: 0,
 
       shiftWorking: null,
+
+      // Geolocation Caching
+      cachedGeolocationData: null,
+      cachedFaceEnrollment: null,
+      lastGeolocationFetch: 0,
     };
   },
   persist: true,
@@ -145,6 +150,49 @@ export const useUserStore = defineStore("user", {
       }
     },
 
+    // Prefetch Geolocation data and Face Enrollment
+    async prefetchGeolocation(employeeId) {
+      if (!employeeId) return;
+
+      try {
+        // 1. Get GPS coordinates (silently)
+        const { Geolocation } = await import("@capacitor/geolocation");
+        const position = await Geolocation.getCurrentPosition({
+          enableHighAccuracy: true,
+          timeout: 5000,
+        }).catch(() => null);
+
+        if (!position) return;
+
+        // 2. Parallelize API calls
+        const auth = (await import("@/api/authentication")).default;
+        const checkinApi = (await import("@/api/checkin")).default;
+
+        const enrollmentPromise = auth.getUserFaceEnrollment({ employee_id: employeeId });
+
+        const siteLocationPromise = checkinApi.getSiteLocation({
+          employee_id: employeeId,
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          log_type: "IN", // Default to IN for prefetch
+        });
+
+        const [enrollmentResponse, siteLocationResponse] = await Promise.all([
+          enrollmentPromise,
+          siteLocationPromise
+        ]);
+
+        // 3. Store results
+        this.cachedFaceEnrollment = enrollmentResponse.data.data;
+        this.cachedGeolocationData = siteLocationResponse.data.data;
+        this.lastGeolocationFetch = Date.now();
+
+      } catch (error) {
+        // Silently fail prefetch
+        console.warn("Prefetch geolocation failed:", error);
+      }
+    },
+
     logout() {
       const authStore = useAuthStore();
 
@@ -173,6 +221,10 @@ export const useUserStore = defineStore("user", {
       this.lastShiftsFetch = 0;
 
       this.shiftWorking = null;
+
+      this.cachedGeolocationData = null;
+      this.cachedFaceEnrollment = null;
+      this.lastGeolocationFetch = 0;
     },
   },
 });
