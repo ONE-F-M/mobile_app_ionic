@@ -117,6 +117,7 @@ import {
   mdiMapMarkerDistance,
   mdiSwapHorizontalCircle,
   mdiCalendarRange,
+  mdiPackageVariant,
 } from '@mdi/js'
 
 // Map from kebab-case icon name (as returned by the API) to SVG path data.
@@ -205,6 +206,7 @@ const iconMap = {
   'email-outline': mdiEmailOutline,
   'swap_horizontal_circle': mdiSwapHorizontalCircle,
   'calendar-range': mdiCalendarRange,
+  'inventory_2': mdiPackageVariant,
 }
 
 const props = defineProps({

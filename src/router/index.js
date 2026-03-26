@@ -130,6 +130,13 @@ const routes = [
     component: () => import("@/views/shifts/ShiftRequestDetailsPage.vue"),
     meta: { requiresAuth: true }
   },
+
+  // Stock Entry Flow
+  {
+    path: "/stock-entry",
+    component: () => import("@/views/stock_entry/StockEntryListPage.vue"),
+    meta: { requiresAuth: true }
+  },
 ];
 
 const router = createRouter({

@@ -193,6 +193,18 @@ export const useUserStore = defineStore("user", {
       }
     },
 
+    // Prefetch Stock Entries for the last month
+    async prefetchStockEntries(employeeId) {
+      if (!employeeId) return;
+
+      try {
+        const stockEntryStore = (await import("@/store/stock_entry")).useStockEntryStore();
+        await stockEntryStore.fetchStockEntries();
+      } catch (error) {
+        console.warn("Prefetch stock entries failed:", error);
+      }
+    },
+
     logout() {
       const authStore = useAuthStore();
 

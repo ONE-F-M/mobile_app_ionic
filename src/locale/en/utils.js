@@ -13,4 +13,6 @@ export default {
   confirm: "Confirm",
   view: "View",
   apply: "Apply",
+  error_fetching_data: "Error fetching data",
+  loading: "Loading",
 };

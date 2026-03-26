@@ -1,0 +1,15 @@
+export default {
+	title: "إدخالات المخزون",
+	no_records_found: "لا توجد سجلات",
+	type: "النوع",
+	source_warehouse: "مستودع المصدر",
+	target_warehouse: "مستودع الهدف",
+	stock_entry_type: "نوع إدخال المخزون",
+	select_type: "اختر النوع",
+	from_date: "من تاريخ",
+	to_date: "إلى تاريخ",
+	material_transfer: "نقل المواد",
+	material_issue: "صرف المواد",
+	all: "الكل",
+	date: "التاريخ",
+};

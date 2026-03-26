@@ -13,4 +13,6 @@ export default {
   confirm: "تأكيد",
   view: "عرض",
   apply: "تطبيق",
+  error_fetching_data: "خطأ في جلب البيانات",
+  loading: "جاري التحميل",
 };
