@@ -54,6 +54,7 @@ const fetchStockEntries = async () => {
 
 onIonViewWillEnter(async () => {
   await fetchStockEntries();
+  stockEntryStore.fetchStockItems(); // Prefetch items for search cache
 });
 
 const triggerBack = () => {
@@ -117,6 +118,7 @@ const formatDateToDisplay = (date, format = "DD-MM-YYYY") => {
             v-for="entry in stockEntries"
             :key="entry.name"
             class="stock-entry ion-align-items-center ion-justify-content-between"
+            @click="router.push(`/stock-entry/${entry.name}`)"
           >
             <ion-row class="stock-entry-content ion-align-items-center">
               <ion-col size="3">
@@ -152,7 +154,7 @@ const formatDateToDisplay = (date, format = "DD-MM-YYYY") => {
                 </p>
               </div>
             </ion-row>
-            <ion-button fill="clear" class="stock-entry-redirect-button">
+            <ion-button fill="clear" class="stock-entry-redirect-button" @click.stop="router.push(`/stock-entry/${entry.name}`)">
               <ArrowRight />
             </ion-button>
           </ion-row>

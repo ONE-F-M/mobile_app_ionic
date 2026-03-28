@@ -14,6 +14,12 @@ export const useStockEntryStore = defineStore("stockEntry", {
 				from_date: dayjs().subtract(1, "year").format("YYYY-MM-DD"),
 				to_date: dayjs().format("YYYY-MM-DD"),
 			},
+			items: [],
+			isItemsLoading: false,
+			warehouses: [],
+			isWarehousesLoading: false,
+			uoms: [],
+			isUomsLoading: false,
 		};
 	},
 	actions: {
@@ -49,5 +55,45 @@ export const useStockEntryStore = defineStore("stockEntry", {
 				to_date: dayjs().format("YYYY-MM-DD"),
 			};
 		},
+		async fetchStockItems() {
+			if (this.items.length > 0) return;
+			this.isItemsLoading = true;
+			try {
+				const { data } = await stockEntryApi.getStockItems();
+				this.items = data.message || [];
+			} catch (error) {
+				console.error("Failed to fetch stock items:", error);
+			} finally {
+				this.isItemsLoading = false;
+			}
+		},
+		clearItems() {
+			this.items = [];
+		},
+		async fetchWarehouses() {
+			if (this.warehouses.length > 0) return;
+			this.isWarehousesLoading = true;
+			try {
+				const { data } = await stockEntryApi.getWarehouses();
+				this.warehouses = data.message || [];
+			} catch (error) {
+				console.error("Failed to fetch warehouses:", error);
+			} finally {
+				this.isWarehousesLoading = false;
+			}
+		},
+		async fetchUoms() {
+			if (this.uoms.length > 0) return;
+			this.isUomsLoading = true;
+			try {
+				const { data } = await stockEntryApi.getUoms();
+				this.uoms = data.message || [];
+			} catch (error) {
+				console.error("Failed to fetch uoms:", error);
+			} finally {
+				this.isUomsLoading = false;
+			}
+		},
 	},
+	persist: true,
 });

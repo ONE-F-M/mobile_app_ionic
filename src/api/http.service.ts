@@ -38,8 +38,7 @@ export const httpService = {
         ...DEFAULT_HEADERS(method),
         ...options?.headers,
       },
-
-      url: `${BASE_URL}${API_PREFIX}${url}`,
+      url: url.startsWith('/') ? `${BASE_URL}${url}` : `${BASE_URL}${API_PREFIX}${url}`,
     });
 
     // Handle 401 Unauthorized — session expired or invalid token

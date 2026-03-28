@@ -234,9 +234,15 @@ export const useUserStore = defineStore("user", {
 
       this.shiftWorking = null;
 
-      this.cachedGeolocationData = null;
       this.cachedFaceEnrollment = null;
+      this.cachedGeolocationData = null;
       this.lastGeolocationFetch = 0;
+
+      // Clear search items cache
+      import("@/store/stock_entry").then((m) => {
+        const stockEntryStore = m.useStockEntryStore();
+        stockEntryStore.clearItems();
+      });
     },
   },
 });

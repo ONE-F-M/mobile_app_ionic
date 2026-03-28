@@ -12,4 +12,10 @@ export default {
 	material_issue: "Material Issue",
 	all: "All",
 	date: "Date",
+	site_supervisor: "Site Supervisor",
+	items: "Items",
+	available: "Available",
+	insufficient_stock: "Insufficient Stock",
+	select_item: "Select Item",
+	search_item_placeholder: "Search by item code or name...",
 };
