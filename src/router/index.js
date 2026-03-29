@@ -137,6 +137,11 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: "/stock-entry/add",
+    component: () => import("@/views/stock_entry/StockEntryCreatePage.vue"),
+    meta: { requiresAuth: true }
+  },
+  {
     path: "/stock-entry/:id",
     component: () => import("@/views/stock_entry/StockEntryDetailPage.vue"),
     meta: { requiresAuth: true }

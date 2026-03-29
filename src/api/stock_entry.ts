@@ -48,6 +48,12 @@ const updateStockEntry = async (name: string, data: any) =>
 		headers: { "Content-Type": "application/json" }
 	});
 
+const createStockEntry = async (data: any) =>
+	await http.post(`/api/resource/Stock Entry`, {
+		data,
+		headers: { "Content-Type": "application/json" }
+	});
+
 const submitStockEntry = async (docObj: any) =>
 	await http.post(`/api/method/frappe.client.submit`, {
 		data: { doc: JSON.stringify(docObj) },
@@ -60,6 +66,7 @@ export default {
 	getStockItems,
 	getWarehouses,
 	getUoms,
+	createStockEntry,
 	updateStockEntry,
 	submitStockEntry,
 };
