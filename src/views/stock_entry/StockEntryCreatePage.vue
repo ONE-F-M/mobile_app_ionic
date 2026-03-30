@@ -57,6 +57,10 @@ const isUomModalOpen = ref(false);
 const uomSearchQuery = ref("");
 const activeUomIndex = ref(-1);
 
+const isWarehouseModalOpen = ref(false);
+const warehouseSearchQuery = ref("");
+const activeWarehouseField = ref(""); // 'from_warehouse' or 'to_warehouse'
+
 const itemOptions = computed(() => {
   if (!itemSearchQuery.value || itemSearchQuery.value.trim() === "") {
     return stockEntryStore.items.slice(0, 20);
@@ -76,6 +80,24 @@ const uomOptions = computed(() => {
   return stockEntryStore.uoms.filter(uom => 
     uom.name.toLowerCase().includes(query)
   ).slice(0, 20); // Limit results for performance
+});
+
+const warehouseOptions = computed(() => {
+  let list = stockEntryStore.warehouses;
+  // Filter out the other warehouse to prevent picking same for from/to
+  if (activeWarehouseField.value === "from_warehouse") {
+    list = list.filter(w => w.name !== stockEntry.value.to_warehouse);
+  } else if (activeWarehouseField.value === "to_warehouse") {
+    list = list.filter(w => w.name !== stockEntry.value.from_warehouse);
+  }
+
+  if (!warehouseSearchQuery.value || warehouseSearchQuery.value.trim() === "") {
+    return list.slice(0, 20);
+  }
+  const query = warehouseSearchQuery.value.toLowerCase();
+  return list.filter(w => 
+    w.name.toLowerCase().includes(query)
+  ).slice(0, 20);
 });
 
 const isMaterialTransfer = computed(() => stockEntry.value.stock_entry_type === "Material Transfer");
@@ -231,6 +253,21 @@ const handleTypeChange = (e) => {
   }
 };
 
+const openWarehouseSelector = (fieldName) => {
+  if (fieldName === "to_warehouse" && !stockEntry.value.from_warehouse) {
+    showToast("Please select Source Warehouse first", "warning");
+    return;
+  }
+  activeWarehouseField.value = fieldName;
+  isWarehouseModalOpen.value = true;
+  warehouseSearchQuery.value = "";
+};
+
+const selectWarehouse = (warehouse) => {
+  stockEntry.value[activeWarehouseField.value] = warehouse.name;
+  isWarehouseModalOpen.value = false;
+};
+
 watch(() => stockEntry.value.from_warehouse, async (newVal, oldVal) => {
   if (!newVal || newVal === oldVal) return;
   const itemCodes = stockEntry.value.items.filter(i => i.item_code).map(i => i.item_code);
@@ -292,40 +329,26 @@ onMounted(fetchData);
           <ion-row class="info-row">
             <ion-col :size="isMaterialTransfer ? 6 : 12">
               <ion-text color="medium" class="label">{{ t("user.stock_entry.source_warehouse", "Source") }}</ion-text>
-              <ion-select
-                v-model="stockEntry.from_warehouse"
-                fill="outline"
-                class="warehouse-input"
-                interface="alert"
-              >
-                <ion-select-option
-                  v-for="wh in stockEntryStore.warehouses"
-                  :key="wh.name"
-                  :value="wh.name"
-                  :disabled="wh.name === stockEntry.to_warehouse"
-                >
-                  {{ wh.name }}
-                </ion-select-option>
-              </ion-select>
+              <div class="input-wrapper clickable-input-wrapper" @click="openWarehouseSelector('from_warehouse')">
+                <ion-input
+                  :value="stockEntry.from_warehouse || 'Select Warehouse'"
+                  readonly
+                  class="warehouse-input clickable-input"
+                  fill="outline"
+                ></ion-input>
+              </div>
             </ion-col>
             <ion-col v-if="isMaterialTransfer" size="6">
               <ion-text color="medium" class="label">{{ t("user.stock_entry.target_warehouse", "Target") }}</ion-text>
-              <ion-select
-                v-model="stockEntry.to_warehouse"
-                fill="outline"
-                class="warehouse-input"
-                interface="alert"
-                :disabled="!stockEntry.from_warehouse"
-              >
-                <ion-select-option
-                  v-for="wh in stockEntryStore.warehouses"
-                  :key="wh.name"
-                  :value="wh.name"
-                  :disabled="wh.name === stockEntry.from_warehouse"
-                >
-                  {{ wh.name }}
-                </ion-select-option>
-              </ion-select>
+              <div class="input-wrapper clickable-input-wrapper" @click="openWarehouseSelector('to_warehouse')">
+                <ion-input
+                  :value="stockEntry.to_warehouse || 'Select Warehouse'"
+                  readonly
+                  class="warehouse-input clickable-input"
+                  fill="outline"
+                  :disabled="!stockEntry.from_warehouse"
+                ></ion-input>
+              </div>
             </ion-col>
           </ion-row>
 
@@ -475,6 +498,37 @@ onMounted(fetchData);
         </ion-content>
       </ion-modal>
 
+      <!-- Warehouse Selection Modal -->
+      <ion-modal :is-open="isWarehouseModalOpen" @did-dismiss="isWarehouseModalOpen = false">
+        <ion-header>
+          <ion-toolbar>
+            <ion-title>{{ t("user.stock_entry.select_warehouse", "Select Warehouse") }}</ion-title>
+            <ion-button slot="end" fill="clear" @click="isWarehouseModalOpen = false">
+              {{ t("utils.cancel", "Cancel") }}
+            </ion-button>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content>
+          <ion-searchbar
+            v-model="warehouseSearchQuery"
+            :placeholder="t('user.stock_entry.search_warehouse_placeholder', 'Search warehouse...')"
+            debounce="300"
+          />
+          <ion-list>
+            <ion-item
+              v-for="wh in warehouseOptions"
+              :key="wh.name"
+              button
+              @click="selectWarehouse(wh)"
+            >
+              <ion-label>
+                <h2>{{ wh.name }}</h2>
+              </ion-label>
+            </ion-item>
+          </ion-list>
+        </ion-content>
+      </ion-modal>
+
       <!-- Action Buttons -->
       <div class="footer-actions">
         <ion-row>
@@ -533,6 +587,10 @@ onMounted(fetchData);
     --color: #e0e3e3;
     font-size: 0.9rem;
     margin-top: 4px;
+  }
+
+  .clickable-input-wrapper {
+    cursor: pointer;
   }
 }
 
