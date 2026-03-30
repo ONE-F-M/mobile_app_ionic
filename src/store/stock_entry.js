@@ -70,6 +70,19 @@ export const useStockEntryStore = defineStore("stockEntry", {
 		clearItems() {
 			this.items = [];
 		},
+		reset() {
+			const { dayjs } = useDateHelper();
+			this.stockEntries = [];
+			this.lastFetch = null;
+			this.filters = {
+				stock_entry_type: ["Material Transfer", "Material Issue"],
+				from_date: dayjs().subtract(1, "year").format("YYYY-MM-DD"),
+				to_date: dayjs().format("YYYY-MM-DD"),
+			};
+			this.items = [];
+			this.warehouses = [];
+			this.uoms = [];
+		},
 		async fetchWarehouses() {
 			if (this.warehouses.length > 0) return;
 			this.isWarehousesLoading = true;

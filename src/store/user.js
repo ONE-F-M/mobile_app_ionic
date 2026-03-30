@@ -238,10 +238,10 @@ export const useUserStore = defineStore("user", {
       this.cachedGeolocationData = null;
       this.lastGeolocationFetch = 0;
 
-      // Clear search items cache
+      // Reset entire stock entry store to avoid leaking data to the next user
       import("@/store/stock_entry").then((m) => {
         const stockEntryStore = m.useStockEntryStore();
-        stockEntryStore.clearItems();
+        stockEntryStore.reset();
       });
     },
   },
