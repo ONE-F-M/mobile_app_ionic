@@ -35,7 +35,7 @@ export const useStockEntryStore = defineStore("stockEntry", {
 					from_date: dayjs(this.filters.from_date).format("YYYY-MM-DD"),
 					to_date: dayjs(this.filters.to_date).format("YYYY-MM-DD"),
 				});
-				this.stockEntries = data.message || [];
+				this.stockEntries = data.data || [];
 				this.lastFetch = Date.now();
 			} catch (error) {
 				console.error("Failed to fetch stock entries:", error);
@@ -60,7 +60,7 @@ export const useStockEntryStore = defineStore("stockEntry", {
 			this.isItemsLoading = true;
 			try {
 				const { data } = await stockEntryApi.getStockItems();
-				this.items = data.message || [];
+				this.items = data.data || [];
 			} catch (error) {
 				console.error("Failed to fetch stock items:", error);
 			} finally {
@@ -88,7 +88,7 @@ export const useStockEntryStore = defineStore("stockEntry", {
 			this.isWarehousesLoading = true;
 			try {
 				const { data } = await stockEntryApi.getWarehouses();
-				this.warehouses = data.message || [];
+				this.warehouses = data.data || [];
 			} catch (error) {
 				console.error("Failed to fetch warehouses:", error);
 			} finally {
@@ -100,7 +100,7 @@ export const useStockEntryStore = defineStore("stockEntry", {
 			this.isUomsLoading = true;
 			try {
 				const { data } = await stockEntryApi.getUoms();
-				this.uoms = data.message || [];
+				this.uoms = data.data || [];
 			} catch (error) {
 				console.error("Failed to fetch uoms:", error);
 			} finally {

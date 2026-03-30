@@ -196,7 +196,7 @@ const selectItem = async (item) => {
     if (stockEntry.value.to_warehouse) warehouses.push(stockEntry.value.to_warehouse);
     
     const { data } = await stockEntryApi.getWarehouseStockBalances([item.item_code], warehouses);
-    const newBalances = data.message || {};
+    const newBalances = data.data || {};
     
     for (const wh in newBalances) {
       if (!stockBalances.value[wh]) stockBalances.value[wh] = {};
@@ -237,7 +237,7 @@ watch(() => stockEntry.value.from_warehouse, async (newVal, oldVal) => {
   if (!itemCodes.length) return;
   try {
     const { data } = await stockEntryApi.getWarehouseStockBalances(itemCodes, [newVal]);
-    const newBalances = data.message || {};
+    const newBalances = data.data || {};
     for (const wh in newBalances) {
       if (!stockBalances.value[wh]) stockBalances.value[wh] = {};
       for (const itemCode in newBalances[wh]) {
