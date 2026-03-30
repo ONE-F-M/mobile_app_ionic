@@ -30,6 +30,10 @@ onMounted(() => {
   import("@/views/checkin/CheckinGeolocation.vue").catch((error) => {
     console.error("Failed to prefetch CheckinGeolocation chunk", error);
   });
+
+  import("@/views/stock_entry/StockEntryListPage.vue").catch((error) => {
+    console.error("Failed to prefetch StockEntryListPage chunk", error);
+  });
 });
 
 const logout = () => {
@@ -54,6 +58,9 @@ const goToServicePage = (service) => {
       break;
     case "Shift Request":
       router.push("/shifts");
+      break;
+    case "Stock Entry":
+      router.push("/stock-entry");
       break;
     default:
       break;
@@ -96,6 +103,12 @@ const refreshDataIfNeeded = async () => {
   // Check age of geolocation fetch
   if (now - userStore.lastGeolocationFetch > cacheTimeout) {
     userStore.prefetchGeolocation(employeeId);
+  }
+
+  // Stock Entry Prefetch (Last fetch timestamp is in its own store)
+  const stockEntryStore = (await import("@/store/stock_entry")).useStockEntryStore();
+  if (!stockEntryStore.lastFetch || now - stockEntryStore.lastFetch > cacheTimeout) {
+    userStore.prefetchStockEntries(employeeId);
   }
 };
 

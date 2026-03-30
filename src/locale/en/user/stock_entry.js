@@ -1,0 +1,15 @@
+export default {
+	title: "Stock Entries",
+	no_records_found: "No records found",
+	type: "Type",
+	source_warehouse: "Source Warehouse",
+	target_warehouse: "Target Warehouse",
+	stock_entry_type: "Stock Entry Type",
+	select_type: "Select Type",
+	from_date: "From Date",
+	to_date: "To Date",
+	material_transfer: "Material Transfer",
+	material_issue: "Material Issue",
+	all: "All",
+	date: "Date",
+};
