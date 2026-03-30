@@ -85,7 +85,7 @@ const fetchData = async () => {
     stockEntryStore.fetchStockItems();
     stockEntryStore.fetchUoms();
     const { data: detailData } = await stockEntryApi.getStockEntryDetail(stockEntryId);
-    stockEntry.value = detailData.message;
+    stockEntry.value = detailData.data;
 
     // Prefetch stock balances
     const itemCodes = stockEntry.value.items.map((i) => i.item_code);
@@ -96,7 +96,7 @@ const fetchData = async () => {
     
     if (itemCodes.length > 0 && warehouses.length > 0) {
       const { data: balanceData } = await stockEntryApi.getWarehouseStockBalances(itemCodes, warehouses);
-      stockBalances.value = balanceData.message || {};
+      stockBalances.value = balanceData.data || {};
     }
   } catch (error) {
     console.error("Failed to fetch stock entry details:", error);
@@ -218,7 +218,7 @@ const selectItem = async (item) => {
     if (stockEntry.value.to_warehouse) warehouses.push(stockEntry.value.to_warehouse);
     
     const { data } = await stockEntryApi.getWarehouseStockBalances([item.item_code], warehouses);
-    const newBalances = data.message || {};
+    const newBalances = data.data || {};
     
     // Merge into existing balances
     for (const wh in newBalances) {
@@ -261,7 +261,7 @@ watch(() => stockEntry.value?.from_warehouse, async (newVal, oldVal) => {
   if (!itemCodes.length) return;
   try {
     const { data } = await stockEntryApi.getWarehouseStockBalances(itemCodes, [newVal]);
-    const newBalances = data.message || {};
+    const newBalances = data.data || {};
     for (const wh in newBalances) {
       if (!stockBalances.value[wh]) stockBalances.value[wh] = {};
       for (const itemCode in newBalances[wh]) {
