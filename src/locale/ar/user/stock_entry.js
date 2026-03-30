@@ -12,4 +12,10 @@ export default {
 	material_issue: "صرف المواد",
 	all: "الكل",
 	date: "التاريخ",
+	site_supervisor: "مشرف الموقع",
+	items: "العناصر",
+	available: "المتاح",
+	insufficient_stock: "المخزون غير كافٍ",
+	select_item: "اختر الصنف",
+	search_item_placeholder: "ابحث عن طريق كود الصنف أو الاسم...",
 };

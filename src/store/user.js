@@ -234,9 +234,15 @@ export const useUserStore = defineStore("user", {
 
       this.shiftWorking = null;
 
-      this.cachedGeolocationData = null;
       this.cachedFaceEnrollment = null;
+      this.cachedGeolocationData = null;
       this.lastGeolocationFetch = 0;
+
+      // Reset entire stock entry store to avoid leaking data to the next user
+      import("@/store/stock_entry").then((m) => {
+        const stockEntryStore = m.useStockEntryStore();
+        stockEntryStore.reset();
+      });
     },
   },
 });

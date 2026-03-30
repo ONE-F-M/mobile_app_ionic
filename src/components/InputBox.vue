@@ -22,7 +22,7 @@
 
     <slot />
   </div>
-</template>
+</template> 
 
 <style lang="scss" scoped>
 .input-subtitle {

@@ -131,10 +131,19 @@ const routes = [
     meta: { requiresAuth: true }
   },
 
-  // Stock Entry Flow
   {
     path: "/stock-entry",
     component: () => import("@/views/stock_entry/StockEntryListPage.vue"),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: "/stock-entry/add",
+    component: () => import("@/views/stock_entry/StockEntryCreatePage.vue"),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: "/stock-entry/:id",
+    component: () => import("@/views/stock_entry/StockEntryDetailPage.vue"),
     meta: { requiresAuth: true }
   },
 ];

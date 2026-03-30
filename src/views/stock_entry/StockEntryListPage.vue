@@ -53,7 +53,13 @@ const fetchStockEntries = async () => {
 };
 
 onIonViewWillEnter(async () => {
+  // Always freshen the date range — persisted state may be stale from a prior day
+  stockEntryStore.setFilters({
+    to_date: dayjs().format("YYYY-MM-DD"),
+    from_date: dayjs().subtract(1, "year").format("YYYY-MM-DD"),
+  });
   await fetchStockEntries();
+  stockEntryStore.fetchStockItems(); // Prefetch items for search cache
 });
 
 const triggerBack = () => {
@@ -117,6 +123,7 @@ const formatDateToDisplay = (date, format = "DD-MM-YYYY") => {
             v-for="entry in stockEntries"
             :key="entry.name"
             class="stock-entry ion-align-items-center ion-justify-content-between"
+            @click="router.push(`/stock-entry/${entry.name}`)"
           >
             <ion-row class="stock-entry-content ion-align-items-center">
               <ion-col size="3">
@@ -152,7 +159,7 @@ const formatDateToDisplay = (date, format = "DD-MM-YYYY") => {
                 </p>
               </div>
             </ion-row>
-            <ion-button fill="clear" class="stock-entry-redirect-button">
+            <ion-button fill="clear" class="stock-entry-redirect-button" @click.stop="router.push(`/stock-entry/${entry.name}`)">
               <ArrowRight />
             </ion-button>
           </ion-row>
@@ -239,6 +246,16 @@ const formatDateToDisplay = (date, format = "DD-MM-YYYY") => {
           </ion-button>
         </div>
       </ion-modal>
+
+      <!-- Create New Stock Entry -->
+      <ion-button class="stock-entry-add-button" @click="router.push('/stock-entry/add')">
+        <IconPlus />
+        <ion-text>
+          <p class="stock-entry-add-button-label">
+            {{ t("user.stock_entry.new_entry", "New Stock Entry") }}
+          </p>
+        </ion-text>
+      </ion-button>
     </ion-content>
   </ion-page>
 </template>
@@ -358,11 +375,25 @@ const formatDateToDisplay = (date, format = "DD-MM-YYYY") => {
   }
 }
 
-.apply-btn {
-  --background: #364955;
-  --color: #d1e5f3;
-  --border-radius: 100px;
-  font-weight: 600;
-  margin-top: 32px;
+.stock-entry-add-button {
+  position: fixed;
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  right: 16px;
+  z-index: 10;
+  --background: #004c69;
+  --background-hover: #014662;
+  --background-activated: #004d6c;
+  --background-focused: #004969;
+  --color: #c1e8ff;
+  --border-radius: 16px;
+  --padding-end: 20px;
+
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+
+  &-label {
+    margin: 16px 0 16px 12px;
+  }
 }
 </style>

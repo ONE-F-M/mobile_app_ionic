@@ -15,4 +15,11 @@ export default {
   apply: "تطبيق",
   error_fetching_data: "خطأ في جلب البيانات",
   loading: "جاري التحميل",
+  add: "إضافة",
+  save: "حفظ",
+  save_success: "تم الحفظ بنجاح",
+  save_error: "خطأ في الحفظ",
+  submit: "إرسال",
+  submit_success: "تم الإرسال بنجاح",
+  submit_error: "خطأ في الإرسال",
 };
