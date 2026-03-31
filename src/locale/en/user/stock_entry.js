@@ -18,4 +18,9 @@ export default {
 	insufficient_stock: "Insufficient Stock",
 	select_item: "Select Item",
 	search_item_placeholder: "Search by item code or name...",
+	new_entry: "New Stock Entry",
+	select_warehouse: "Select Warehouse",
+	search_warehouse_placeholder: "Search warehouse...",
+	confirm_submit_msg: "Are you sure you want to submit?",
+	select_source_first: "Please select Source Warehouse first",
 };

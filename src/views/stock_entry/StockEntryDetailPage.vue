@@ -22,6 +22,7 @@ import {
   IonSearchbar,
   useIonRouter,
   toastController,
+  alertController,
 } from "@ionic/vue";
 import { useI18n } from "vue-i18n";
 import dayjs from "dayjs";
@@ -181,6 +182,28 @@ const handleSubmit = async () => {
     showToast(t("user.stock_entry.insufficient_stock"), "danger");
     return;
   }
+
+  const alert = await alertController.create({
+    header: t("utils.confirm_submit", "Confirm Submission"),
+    message: t("user.stock_entry.confirm_submit_msg", "Are you sure you want to submit?"),
+    buttons: [
+      {
+        text: t("utils.cancel", "Cancel"),
+        role: "cancel",
+      },
+      {
+        text: t("utils.submit", "Submit"),
+        handler: async () => {
+          await executeSubmit();
+        },
+      },
+    ],
+  });
+
+  await alert.present();
+};
+
+const executeSubmit = async () => {
   isSubmitting.value = true;
   try {
     const payload = { ...stockEntry.value };
@@ -424,7 +447,7 @@ onMounted(fetchData);
                   </div>
                 </ion-col>
                 <ion-col size="2" class="ion-text-right">
-                  <ion-button v-if="isDraft && item.is_new" fill="clear" color="danger" @click="removeItem(index)">
+                  <ion-button v-if="isDraft" fill="clear" color="danger" @click="removeItem(index)">
                     <IconClose />
                   </ion-button>
                 </ion-col>

@@ -28,20 +28,22 @@ import LeavesHeader from "@/components/leaves/Header.vue";
 import stockEntryApi from "@/api/stock_entry";
 import { useStockEntryStore } from "@/store/stock_entry";
 import { useUserStore } from "@/store/user.js";
+import { useAuthStore } from "@/store/auth.js";
 import IconClose from "@/components/icon/Close.vue";
 
 const { t } = useI18n();
 const ionRouter = useIonRouter();
 const stockEntryStore = useStockEntryStore();
 const userStore = useUserStore();
+const authStore = useAuthStore();
 
 const stockEntry = ref({
   doctype: "Stock Entry",
   stock_entry_type: "Material Transfer",
   from_warehouse: "",
   to_warehouse: "",
-  custom_site_supervisor: userStore.user?.name || "",
-  custom_site_supervisor_name: userStore.user?.full_name || "",
+  custom_site_supervisor: "",
+  custom_site_supervisor_name: "",
   items: [],
 });
 
@@ -285,6 +287,13 @@ watch(() => stockEntry.value.from_warehouse, async (newVal, oldVal) => {
     console.error("Failed to fetch balance for new warehouse", err);
   }
 });
+
+watch(() => userStore.user, (newUser) => {
+  if (newUser && !stockEntry.value.custom_site_supervisor) {
+    stockEntry.value.custom_site_supervisor = newUser.name || "";
+    stockEntry.value.custom_site_supervisor_name = newUser.full_name || authStore.userName || "";
+  }
+}, { immediate: true });
 
 onMounted(fetchData);
 </script>

@@ -18,4 +18,9 @@ export default {
 	insufficient_stock: "المخزون غير كافٍ",
 	select_item: "اختر الصنف",
 	search_item_placeholder: "ابحث عن طريق كود الصنف أو الاسم...",
+	new_entry: "إدخال مخزون جديد",
+	select_warehouse: "اختر المستودع",
+	search_warehouse_placeholder: "ابحث عن المستودع...",
+	confirm_submit_msg: "لا يمكن التراجع عن هذا الإجراء. هل أنت متأكد أنك تريد الإرسال؟",
+	select_source_first: "يرجى اختيار مستودع المصدر أولاً",
 };
