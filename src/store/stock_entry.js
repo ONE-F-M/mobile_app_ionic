@@ -55,11 +55,13 @@ export const useStockEntryStore = defineStore("stockEntry", {
 				to_date: dayjs().format("YYYY-MM-DD"),
 			};
 		},
-		async fetchStockItems() {
-			if (this.items.length > 0) return;
+		async fetchStockItems(warehouse) {
+			// If no warehouse provided and we already have items, we don't need to re-fetch
+			if (!warehouse && this.items.length > 0) return;
+			
 			this.isItemsLoading = true;
 			try {
-				const { data } = await stockEntryApi.getStockItems();
+				const { data } = await stockEntryApi.getStockItems(warehouse);
 				this.items = data.data || [];
 			} catch (error) {
 				console.error("Failed to fetch stock items:", error);

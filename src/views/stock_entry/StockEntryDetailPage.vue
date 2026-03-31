@@ -36,7 +36,6 @@ import ArrowRight from "@/components/icon/ArrowRight.vue";
 const { t } = useI18n();
 const route = useRoute();
 const ionRouter = useIonRouter();
-const langStore = useLangStore();
 const stockEntryStore = useStockEntryStore();
 
 const stockEntryId = route.params.id;
@@ -49,16 +48,30 @@ const isSubmitting = ref(false);
 const isItemModalOpen = ref(false);
 const itemSearchQuery = ref("");
 const activeItemIndex = ref(-1);
+const modalItemsQty = ref({}); // { item_code: quantity }
 
 const itemOptions = computed(() => {
+  let items = stockEntryStore.items;
+  
+  // Filter out items with 0 or missing available quantity
+  items = items.filter(item => item.available_qty > 0);
+
+  // Filter out items already in the stock entry list to avoid duplicates
+  const existingItems = new Set(stockEntry.value?.items.map(i => i.item_code) || []);
+  items = items.filter(item => !existingItems.has(item.item_code));
+
   if (!itemSearchQuery.value || itemSearchQuery.value.trim() === "") {
-    return stockEntryStore.items.slice(0, 20);
+    return items.slice(0, 30);
   }
   const query = itemSearchQuery.value.toLowerCase();
-  return stockEntryStore.items.filter(item => 
+  return items.filter(item => 
     item.item_code.toLowerCase().includes(query) || 
     item.item_name.toLowerCase().includes(query)
-  ).slice(0, 20); // Limit results for performance
+  ).slice(0, 30); // Limit results for performance
+});
+
+const selectedCount = computed(() => {
+  return Object.values(modalItemsQty.value).filter(qty => qty && parseFloat(qty) > 0).length;
 });
 
 const isUomModalOpen = ref(false);
@@ -100,17 +113,21 @@ const warehouseOptions = computed(() => {
 });
 
 const isDraft = computed(() => stockEntry.value?.docstatus === 0);
-const isSubmitted = computed(() => stockEntry.value?.docstatus === 1);
 const isMaterialTransfer = computed(() => stockEntry.value?.stock_entry_type === "Material Transfer");
 
 const fetchData = async () => {
   isLoading.value = true;
   try {
     stockEntryStore.fetchWarehouses();
-    stockEntryStore.fetchStockItems();
-    stockEntryStore.fetchUoms();
     const { data: detailData } = await stockEntryApi.getStockEntryDetail(stockEntryId);
     stockEntry.value = detailData.data;
+
+    if (stockEntry.value.from_warehouse) {
+      stockEntryStore.fetchStockItems(stockEntry.value.from_warehouse);
+    } else {
+      stockEntryStore.fetchStockItems();
+    }
+    stockEntryStore.fetchUoms();
 
     // Prefetch stock balances
     const itemCodes = stockEntry.value.items.map((i) => i.item_code);
@@ -162,6 +179,7 @@ const handleSave = async () => {
   try {
     const payload = { ...stockEntry.value };
     payload.items = payload.items.map(item => {
+      // eslint-disable-next-line no-unused-vars
       const { is_new, ...rest } = item;
       return rest;
     });
@@ -208,6 +226,7 @@ const executeSubmit = async () => {
   try {
     const payload = { ...stockEntry.value };
     payload.items = payload.items.map(item => {
+      // eslint-disable-next-line no-unused-vars
       const { is_new, ...rest } = item;
       return rest;
     });
@@ -248,36 +267,60 @@ const removeItem = (index) => {
 
 const openItemSelector = (index) => {
   activeItemIndex.value = index;
+  modalItemsQty.value = {};
   isItemModalOpen.value = true;
   itemSearchQuery.value = "";
 };
 
-const selectItem = async (item) => {
-  const targetItem = stockEntry.value.items[activeItemIndex.value];
-  targetItem.item_code = item.item_code;
-  targetItem.item_name = item.item_name;
-  targetItem.stock_uom = item.stock_uom;
-  targetItem.uom = item.stock_uom;
-  
-  // Fetch stock balance for new item
-  try {
-    const warehouses = [stockEntry.value.from_warehouse];
-    if (stockEntry.value.to_warehouse) warehouses.push(stockEntry.value.to_warehouse);
-    
-    const { data } = await stockEntryApi.getWarehouseStockBalances([item.item_code], warehouses);
-    const newBalances = data.data || {};
-    
-    // Merge into existing balances
-    for (const wh in newBalances) {
-      if (!stockBalances.value[wh]) stockBalances.value[wh] = {};
-      stockBalances.value[wh][item.item_code] = newBalances[wh][item.item_code];
-    }
-  } catch (error) {
-    console.error("Failed to fetch balance for selected item:", error);
+const addSelectedItems = () => {
+  const selectedItems = Object.entries(modalItemsQty.value)
+    // eslint-disable-next-line no-unused-vars
+    .filter(([_, qty]) => qty && parseFloat(qty) > 0)
+    .map(([itemCode, qty]) => {
+      const item = stockEntryStore.items.find(i => i.item_code === itemCode);
+      return {
+        item_code: item.item_code,
+        item_name: item.item_name,
+        qty: parseFloat(qty),
+        uom: item.stock_uom,
+        stock_uom: item.stock_uom,
+        is_new: true,
+      };
+    });
+
+  if (selectedItems.length === 0) {
+    showToast(t("user.stock_entry.select_at_least_one", "Please enter quantity for at least one item"), "warning");
+    return;
+  }
+
+  // Update local stock balances for the added items
+  const fromWh = stockEntry.value.from_warehouse;
+  if (fromWh) {
+    if (!stockBalances.value[fromWh]) stockBalances.value[fromWh] = {};
+    selectedItems.forEach(si => {
+      const storeItem = stockEntryStore.items.find(i => i.item_code === si.item_code);
+      if (storeItem && storeItem.available_qty !== undefined) {
+        stockBalances.value[fromWh][si.item_code] = storeItem.available_qty;
+      }
+    });
+  }
+
+  // If we opened this for a specific blank row, replace it. Otherwise append.
+  if (activeItemIndex.value !== -1 && !stockEntry.value.items[activeItemIndex.value].item_code) {
+    stockEntry.value.items.splice(activeItemIndex.value, 1, ...selectedItems);
+  } else {
+    stockEntry.value.items.push(...selectedItems);
   }
 
   isItemModalOpen.value = false;
+  modalItemsQty.value = {};
 };
+
+// // const selectItem = async (item) => {
+//   // Keeping this for compatibility or single selection if needed
+//   modalItemsQty.value[item.item_code] = 1;
+// };
+// };
 
 const openUomSelector = (index) => {
   activeUomIndex.value = index;
@@ -325,6 +368,9 @@ watch(() => stockEntry.value?.from_warehouse, async (newVal, oldVal) => {
   const itemCodes = stockEntry.value.items.filter(i => i.item_code).map(i => i.item_code);
   if (!itemCodes.length) return;
   try {
+    // Refresh item list for this warehouse
+    stockEntryStore.fetchStockItems(newVal);
+
     const { data } = await stockEntryApi.getWarehouseStockBalances(itemCodes, [newVal]);
     const newBalances = data.data || {};
     for (const wh in newBalances) {
@@ -498,35 +544,59 @@ onMounted(fetchData);
         </div>
       </div>
 
-      <!-- Item Selection Modal -->
-      <ion-modal :is-open="isItemModalOpen" @did-dismiss="isItemModalOpen = false">
+      <ion-modal :is-open="isItemModalOpen" @did-dismiss="isItemModalOpen = false" class="multi-item-modal">
         <ion-header>
           <ion-toolbar>
-            <ion-title>{{ t("user.stock_entry.select_item") }}</ion-title>
-            <ion-button slot="end" fill="clear" @click="isItemModalOpen = false">
-              {{ t("utils.cancel") }}
-            </ion-button>
+            <ion-title>
+              {{ t("user.stock_entry.select_items", "Select Items") }}
+              <ion-badge v-if="selectedCount > 0" color="primary" class="selected-badge">
+                {{ selectedCount }}
+              </ion-badge>
+            </ion-title>
+            <ion-buttons slot="start">
+              <ion-button @click="isItemModalOpen = false">{{ t("utils.cancel", "Cancel") }}</ion-button>
+            </ion-buttons>
+            <ion-buttons slot="end">
+              <ion-button strong @click="addSelectedItems" color="primary">{{ t("utils.add", "Add") }}</ion-button>
+            </ion-buttons>
           </ion-toolbar>
         </ion-header>
         <ion-content>
           <ion-searchbar
             v-model="itemSearchQuery"
-            :placeholder="t('user.stock_entry.search_item_placeholder')"
+            :placeholder="t('user.stock_entry.search_item_placeholder', 'Search item...')"
             debounce="300"
           />
-          <ion-list>
-            <ion-item
-              v-for="item in itemOptions"
-              :key="item.item_code"
-              button
-              @click="selectItem(item)"
-            >
-              <ion-label>
-                <h2>{{ item.item_name }}</h2>
-                <p>{{ item.item_code }}</p>
-              </ion-label>
-            </ion-item>
-          </ion-list>
+          <div class="modal-items-list">
+            <div v-for="item in itemOptions" :key="item.item_code" class="modal-item-row">
+              <ion-row class="ion-align-items-center">
+                <ion-col size="7">
+                  <p class="modal-item-name">{{ item.item_name }}</p>
+                  <p class="modal-item-code">{{ item.item_code }}</p>
+                  <p class="modal-item-available">
+                    {{ t("user.stock_entry.available", "Available") }}: 
+                    <span class="stock-qty">{{ item.available_qty || 0 }}</span>
+                  </p>
+                </ion-col>
+                <ion-col size="5">
+                  <div class="modal-qty-input-wrapper">
+                    <ion-input
+                      type="number"
+                      v-model="modalItemsQty[item.item_code]"
+                      placeholder="0"
+                      class="modal-qty-input"
+                      fill="outline"
+                      min="0"
+                      :max="item.available_qty"
+                    ></ion-input>
+                  </div>
+                </ion-col>
+              </ion-row>
+            </div>
+            <div v-if="itemOptions.length === 0" class="ion-padding ion-text-center">
+              <ion-text color="medium">{{ t("user.stock_entry.no_items_found", "No available items found") }}</ion-text>
+            </div>
+          </div>
         </ion-content>
       </ion-modal>
 
@@ -758,12 +828,62 @@ onMounted(fetchData);
   }
 }
 
-.footer-actions {
-  position: sticky;
-  bottom: 0;
-  background: #191c1d;
-  padding: 16px 0;
-  z-index: 10;
-  border-top: 1px solid #2c353a;
+.modal-items-list {
+  padding: 8px;
+
+  .modal-item-row {
+    background: #232a2e;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 8px;
+    border: 1px solid #364955;
+
+    .modal-item-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin: 0;
+      color: #e0e3e3;
+    }
+
+    .modal-item-code {
+      font-size: 0.8rem;
+      color: #8b9298;
+      margin: 2px 0;
+    }
+
+    .modal-item-available {
+      font-size: 0.75rem;
+      color: #8b9298;
+      margin: 4px 0 0;
+      
+      .stock-qty {
+        color: var(--ion-color-primary);
+        font-weight: 600;
+      }
+    }
+
+    .modal-qty-input-wrapper {
+      .modal-qty-input {
+        --padding-start: 8px;
+        --padding-end: 8px;
+        --background: #191c1d;
+        --color: #e0e3e3;
+        font-size: 1rem;
+        text-align: right;
+        height: 38px;
+      }
+    }
+  }
+}
+
+.multi-item-modal {
+  --height: 90%;
+  --border-radius: 16px 16px 0 0;
+
+  .selected-badge {
+    margin-left: 8px;
+    font-size: 0.8rem;
+    vertical-align: middle;
+  }
 }
 </style>
