@@ -20,8 +20,11 @@ const getWarehouseStockBalances = async (items: string[], warehouses: string[]) 
 		},
 	});
 
-const getStockItems = async () =>
-	await http.get(`v1.stock_entry.get_stock_items`);
+const getStockItems = async (warehouse?: string) => {
+	const params: any = {};
+	if (warehouse) params.warehouse = warehouse;
+	return await http.get(`v1.stock_entry.get_stock_items`, { params });
+};
 
 const getWarehouses = async () =>
 	await http.get(`v1.stock_entry.get_warehouses`);
