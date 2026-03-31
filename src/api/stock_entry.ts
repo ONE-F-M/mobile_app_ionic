@@ -24,23 +24,10 @@ const getStockItems = async () =>
 	await http.get(`v1.stock_entry.get_stock_items`);
 
 const getWarehouses = async () =>
-	await http.get(`/api/method/frappe.client.get_list`, {
-		params: {
-			doctype: "Warehouse",
-			fields: JSON.stringify(["name", "warehouse_name"]),
-			filters: JSON.stringify([["is_group", "=", 0]]),
-			limit_page_length: "1000",
-		},
-	});
+	await http.get(`v1.stock_entry.get_warehouses`);
 
 const getUoms = async () =>
-	await http.get(`/api/method/frappe.client.get_list`, {
-		params: {
-			doctype: "UOM",
-			fields: JSON.stringify(["name"]),
-			limit_page_length: "1000",
-		},
-	});
+	await http.get(`v1.stock_entry.get_uoms`);
 
 const updateStockEntry = async (name: string, data: any) =>
 	await http.put(`/api/resource/Stock Entry/${name}`, { 

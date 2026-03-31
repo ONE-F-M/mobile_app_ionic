@@ -22,6 +22,7 @@ import {
   IonSearchbar,
   useIonRouter,
   toastController,
+  alertController,
 } from "@ionic/vue";
 import { useI18n } from "vue-i18n";
 import dayjs from "dayjs";
@@ -64,6 +65,10 @@ const isUomModalOpen = ref(false);
 const uomSearchQuery = ref("");
 const activeUomIndex = ref(-1);
 
+const isWarehouseModalOpen = ref(false);
+const warehouseSearchQuery = ref("");
+const activeWarehouseField = ref(""); // 'from_warehouse' or 'to_warehouse'
+
 const uomOptions = computed(() => {
   if (!uomSearchQuery.value || uomSearchQuery.value.trim() === "") {
     return stockEntryStore.uoms.slice(0, 20);
@@ -72,6 +77,26 @@ const uomOptions = computed(() => {
   return stockEntryStore.uoms.filter(uom => 
     uom.name.toLowerCase().includes(query)
   ).slice(0, 20); // Limit results for performance
+});
+
+const warehouseOptions = computed(() => {
+  let list = stockEntryStore.warehouses;
+  // Filter out the other warehouse to prevent picking same for from/to
+  if (stockEntry.value) {
+    if (activeWarehouseField.value === "from_warehouse") {
+      list = list.filter(w => w.name !== stockEntry.value.to_warehouse);
+    } else if (activeWarehouseField.value === "to_warehouse") {
+      list = list.filter(w => w.name !== stockEntry.value.from_warehouse);
+    }
+  }
+
+  if (!warehouseSearchQuery.value || warehouseSearchQuery.value.trim() === "") {
+    return list.slice(0, 20);
+  }
+  const query = warehouseSearchQuery.value.toLowerCase();
+  return list.filter(w => 
+    w.name.toLowerCase().includes(query)
+  ).slice(0, 20);
 });
 
 const isDraft = computed(() => stockEntry.value?.docstatus === 0);
@@ -157,6 +182,28 @@ const handleSubmit = async () => {
     showToast(t("user.stock_entry.insufficient_stock"), "danger");
     return;
   }
+
+  const alert = await alertController.create({
+    header: t("utils.confirm_submit", "Confirm Submission"),
+    message: t("user.stock_entry.confirm_submit_msg", "Are you sure you want to submit?"),
+    buttons: [
+      {
+        text: t("utils.cancel", "Cancel"),
+        role: "cancel",
+      },
+      {
+        text: t("utils.submit", "Submit"),
+        handler: async () => {
+          await executeSubmit();
+        },
+      },
+    ],
+  });
+
+  await alert.present();
+};
+
+const executeSubmit = async () => {
   isSubmitting.value = true;
   try {
     const payload = { ...stockEntry.value };
@@ -254,6 +301,24 @@ const handleTypeChange = (e) => {
   }
 };
 
+const openWarehouseSelector = (fieldName) => {
+  if (!isDraft.value) return;
+  if (fieldName === "to_warehouse" && !stockEntry.value.from_warehouse) {
+    showToast(t("user.stock_entry.select_source_first", "Please select Source Warehouse first"), "warning");
+    return;
+  }
+  activeWarehouseField.value = fieldName;
+  isWarehouseModalOpen.value = true;
+  warehouseSearchQuery.value = "";
+};
+
+const selectWarehouse = (warehouse) => {
+  if (stockEntry.value) {
+    stockEntry.value[activeWarehouseField.value] = warehouse.name;
+    isWarehouseModalOpen.value = false;
+  }
+};
+
 watch(() => stockEntry.value?.from_warehouse, async (newVal, oldVal) => {
   if (!newVal || newVal === oldVal) return;
   if (!stockEntry.value?.items?.length) return;
@@ -318,43 +383,31 @@ onMounted(fetchData);
           <ion-row class="info-row">
             <ion-col :size="isMaterialTransfer ? 6 : 12">
               <ion-text color="medium" class="label">{{ t("user.stock_entry.source_warehouse") }}</ion-text>
-              <ion-select
-                v-if="isDraft"
-                v-model="stockEntry.from_warehouse"
-                fill="outline"
-                class="warehouse-input"
-                interface="alert"
-              >
-                <ion-select-option
-                  v-for="wh in stockEntryStore.warehouses"
-                  :key="wh.name"
-                  :value="wh.name"
-                  :disabled="wh.name === stockEntry.to_warehouse"
-                >
-                  {{ wh.name }}
-                </ion-select-option>
-              </ion-select>
+              <template v-if="isDraft">
+                <div class="input-wrapper clickable-input-wrapper" @click="openWarehouseSelector('from_warehouse')">
+                  <ion-input
+                    :value="stockEntry.from_warehouse || 'Select Warehouse'"
+                    readonly
+                    class="warehouse-input clickable-input"
+                    fill="outline"
+                  ></ion-input>
+                </div>
+              </template>
               <p v-else class="value">{{ stockEntry.from_warehouse }}</p>
             </ion-col>
             <ion-col v-if="isMaterialTransfer" size="6">
               <ion-text color="medium" class="label">{{ t("user.stock_entry.target_warehouse") }}</ion-text>
-              <ion-select
-                v-if="isDraft"
-                v-model="stockEntry.to_warehouse"
-                fill="outline"
-                class="warehouse-input"
-                interface="alert"
-                :disabled="!stockEntry.from_warehouse"
-              >
-                <ion-select-option
-                  v-for="wh in stockEntryStore.warehouses"
-                  :key="wh.name"
-                  :value="wh.name"
-                  :disabled="wh.name === stockEntry.from_warehouse"
-                >
-                  {{ wh.name }}
-                </ion-select-option>
-              </ion-select>
+              <template v-if="isDraft">
+                <div class="input-wrapper clickable-input-wrapper" @click="openWarehouseSelector('to_warehouse')">
+                  <ion-input
+                    :value="stockEntry.to_warehouse || 'Select Warehouse'"
+                    readonly
+                    class="warehouse-input clickable-input"
+                    fill="outline"
+                    :disabled="!stockEntry.from_warehouse"
+                  ></ion-input>
+                </div>
+              </template>
               <p v-else class="value">{{ stockEntry.to_warehouse }}</p>
             </ion-col>
           </ion-row>
@@ -394,7 +447,7 @@ onMounted(fetchData);
                   </div>
                 </ion-col>
                 <ion-col size="2" class="ion-text-right">
-                  <ion-button v-if="isDraft && item.is_new" fill="clear" color="danger" @click="removeItem(index)">
+                  <ion-button v-if="isDraft" fill="clear" color="danger" @click="removeItem(index)">
                     <IconClose />
                   </ion-button>
                 </ion-col>
@@ -508,6 +561,37 @@ onMounted(fetchData);
         </ion-content>
       </ion-modal>
 
+      <!-- Warehouse Selection Modal -->
+      <ion-modal :is-open="isWarehouseModalOpen" @did-dismiss="isWarehouseModalOpen = false">
+        <ion-header>
+          <ion-toolbar>
+            <ion-title>{{ t("user.stock_entry.select_warehouse", "Select Warehouse") }}</ion-title>
+            <ion-button slot="end" fill="clear" @click="isWarehouseModalOpen = false">
+              {{ t("utils.cancel") }}
+            </ion-button>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content>
+          <ion-searchbar
+            v-model="warehouseSearchQuery"
+            :placeholder="t('user.stock_entry.search_warehouse_placeholder', 'Search warehouse...')"
+            debounce="300"
+          />
+          <ion-list>
+            <ion-item
+              v-for="wh in warehouseOptions"
+              :key="wh.name"
+              button
+              @click="selectWarehouse(wh)"
+            >
+              <ion-label>
+                <h2>{{ wh.name }}</h2>
+              </ion-label>
+            </ion-item>
+          </ion-list>
+        </ion-content>
+      </ion-modal>
+
       <!-- Action Buttons -->
       <div v-if="isDraft" class="footer-actions">
         <ion-row>
@@ -572,6 +656,10 @@ onMounted(fetchData);
     --color: #e0e3e3;
     font-size: 0.9rem;
     margin-top: 4px;
+  }
+
+  .clickable-input-wrapper {
+    cursor: pointer;
   }
 }
 
