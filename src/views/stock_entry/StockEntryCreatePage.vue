@@ -313,14 +313,17 @@ const selectWarehouse = (warehouse) => {
   isWarehouseModalOpen.value = false;
 };
 
-watch(() => stockEntry.value.from_warehouse, async (newVal, oldVal) => {
+watch(() => stockEntry.value?.from_warehouse, async (newVal, oldVal) => {
   if (!newVal || newVal === oldVal) return;
+  
+  // Always refresh the modal items list for the new warehouse
+  stockEntryStore.fetchStockItems(newVal);
+
+  if (!stockEntry.value?.items?.length) return;
   const itemCodes = stockEntry.value.items.filter(i => i.item_code).map(i => i.item_code);
   if (!itemCodes.length) return;
+  
   try {
-    // Refresh item list for this warehouse
-    stockEntryStore.fetchStockItems(newVal);
-
     const { data } = await stockEntryApi.getWarehouseStockBalances(itemCodes, [newVal]);
     const newBalances = data.data || {};
     for (const wh in newBalances) {
