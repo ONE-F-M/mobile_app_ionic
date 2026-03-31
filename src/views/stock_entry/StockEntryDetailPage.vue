@@ -415,7 +415,7 @@ onMounted(fetchData);
           <ion-row class="info-row">
             <ion-col size="12">
               <ion-text color="medium" class="label">{{ t("user.stock_entry.site_supervisor") }}</ion-text>
-              <p class="value">{{ stockEntry.custom_site_supervisor_name || stockEntry.custom_site_supervisor || '-' }}</p>
+              <p class="value">{{ stockEntry.custom_site_supervisor_name || '-' }}</p>
             </ion-col>
           </ion-row>
         </div>

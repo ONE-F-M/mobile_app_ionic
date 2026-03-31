@@ -42,7 +42,6 @@ const stockEntry = ref({
   stock_entry_type: "Material Transfer",
   from_warehouse: "",
   to_warehouse: "",
-  custom_site_supervisor: "",
   custom_site_supervisor_name: "",
   items: [],
 });
@@ -289,8 +288,7 @@ watch(() => stockEntry.value.from_warehouse, async (newVal, oldVal) => {
 });
 
 watch(() => userStore.user, (newUser) => {
-  if (newUser && !stockEntry.value.custom_site_supervisor) {
-    stockEntry.value.custom_site_supervisor = newUser.name || "";
+  if (newUser && !stockEntry.value.custom_site_supervisor_name) {
     stockEntry.value.custom_site_supervisor_name = newUser.full_name || authStore.userName || "";
   }
 }, { immediate: true });
