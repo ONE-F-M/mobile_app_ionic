@@ -130,8 +130,8 @@ const fetchData = async () => {
     stockEntryStore.fetchUoms();
 
     // Prefetch stock balances
-    const itemCodes = stockEntry.value.items.map((i) => i.item_code);
-    const warehouses = [stockEntry.value.from_warehouse];
+    const itemCodes = stockEntry.value.items.filter(i => i.item_code).map((i) => i.item_code);
+    const warehouses = [stockEntry.value.from_warehouse].filter(w => w);
     if (stockEntry.value.to_warehouse) {
       warehouses.push(stockEntry.value.to_warehouse);
     }
@@ -364,13 +364,15 @@ const selectWarehouse = (warehouse) => {
 
 watch(() => stockEntry.value?.from_warehouse, async (newVal, oldVal) => {
   if (!newVal || newVal === oldVal) return;
+
+  // Always refresh the modal items list for the new warehouse
+  stockEntryStore.fetchStockItems(newVal);
+
   if (!stockEntry.value?.items?.length) return;
   const itemCodes = stockEntry.value.items.filter(i => i.item_code).map(i => i.item_code);
   if (!itemCodes.length) return;
+  
   try {
-    // Refresh item list for this warehouse
-    stockEntryStore.fetchStockItems(newVal);
-
     const { data } = await stockEntryApi.getWarehouseStockBalances(itemCodes, [newVal]);
     const newBalances = data.data || {};
     for (const wh in newBalances) {
@@ -379,12 +381,15 @@ watch(() => stockEntry.value?.from_warehouse, async (newVal, oldVal) => {
         stockBalances.value[wh][itemCode] = newBalances[wh][itemCode];
       }
     }
-  } catch (err) {
-    console.error("Failed to fetch balance for new warehouse", err);
+    fetchStockBalances();
+  } catch (error) {
+    console.error("Failed to refresh items for new warehouse:", error);
   }
 });
 
-onMounted(fetchData);
+onMounted(() => {
+  fetchData();
+});
 </script>
 
 <template>
