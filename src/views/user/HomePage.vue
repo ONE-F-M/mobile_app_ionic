@@ -8,8 +8,9 @@ import {
 import { useUserStore } from "@/store/user";
 import configuration from "@/api/configuration";
 import { useCustomToast } from "@/composable/toast";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import Header from "@/components/Header.vue";
+import { getServiceRoute } from "@/utils/serviceRouteMap";
 
 const router = useIonRouter();
 const userStore = useUserStore();
@@ -17,6 +18,10 @@ const userStore = useUserStore();
 const { showErrorToast } = useCustomToast();
 
 const services = ref([]);
+
+const filteredServices = computed(() => {
+  return services.value.filter(s => s.service !== "Resignation Withdrawal");
+});
 
 const logout = () => {
   userStore.logout();
@@ -28,18 +33,9 @@ if (!userStore.user || !userStore.token) {
 }
 
 const goToServicePage = (service) => {
-  switch (service) {
-    case "Checkin Checkout":
-      router.push("/checkin");
-      break;
-    case "Leaves":
-      router.push("/leaves");
-      break;
-    case "New Leave Application":
-      router.push("/leaves/add");
-      break;
-    default:
-      break;
+  const route = getServiceRoute(service);
+  if (route !== "/service") {
+    router.push(route);
   }
 };
 
@@ -49,7 +45,7 @@ const fetchServices = async () => {
 
     services.value = data.data.service_detail;
   } catch (error) {
-    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
+    showErrorToast(error?.data?.message, error, error?.status || error?.data?.status_code);
     services.value = [];
   }
 };
@@ -63,9 +59,10 @@ onIonViewDidEnter(() => {
   <ion-page>
     <ion-content class="ion-padding user-home-page">
       <Header>{{ $t("user.home.title") }}</Header>
+      
       <div class="services">
         <div
-          v-for="service in services"
+          v-for="service in filteredServices"
           class="services-item"
           :key="service.service"
           @click="goToServicePage(service.service)"

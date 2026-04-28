@@ -13,7 +13,16 @@ export const useCustomToast = () => {
   const { t } = useI18n();
 
   const showErrorToast = async (message, error, statusCode) => {
-    const errorMessage = error ? error : getStatusMessage(statusCode);
+    let errStr = null;
+    if (typeof error === 'string') {
+      errStr = error;
+    } else if (error?.data?.error) {
+      errStr = typeof error.data.error === 'string' ? error.data.error : JSON.stringify(error.data.error);
+    } else if (error?.message) {
+      errStr = error.message;
+    }
+    
+    const errorMessage = errStr || getStatusMessage(statusCode);
     const errorTitle = message ? message : t("utils.toast.error");
 
     const errorToast = await toastController.create({

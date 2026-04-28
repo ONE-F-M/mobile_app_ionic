@@ -536,3 +536,39 @@ html {
 body.map-transparent {
   --ion-background-color: transparent !important;
 }
+
+/* Global CSS block required to override Ionic Overlay Shadow DOMs */
+ion-alert.bright-md3-alert {
+  --background: #ffffff;
+  --backdrop-opacity: 0.65;
+}
+
+ion-alert.bright-md3-alert .alert-wrapper {
+  background: #ffffff !important;
+  border-radius: 28px !important;
+  box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.3) !important;
+}
+
+ion-alert.bright-md3-alert .alert-title {
+  color: #1c1b1f !important;
+  font-size: 22px !important;
+  font-weight: 500 !important;
+  font-family: inherit !important;
+}
+
+ion-alert.bright-md3-alert .alert-message {
+  color: #49454f !important;
+  font-size: 15px !important;
+  line-height: 1.5 !important;
+}
+
+ion-alert.bright-md3-alert .alert-button {
+  color: #0b57d0 !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  font-size: 16px !important;
+}
+
+ion-alert.bright-md3-alert .alert-button.alert-button-role-cancel {
+  color: #747474 !important;
+}
