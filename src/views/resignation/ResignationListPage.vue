@@ -16,6 +16,7 @@
           v-for="resig in myResignations"
           :key="resig.name"
           class="leaves ion-align-items-center ion-justify-content-between"
+          @click="goToDetail(resig.name)"
         >
           <ion-row class="leaves-content ion-align-items-center">
             <div class="leaves-content-wrapper">
@@ -37,6 +38,9 @@
               </p>
             </div>
           </ion-row>
+          <ion-button fill="clear" class="leaves-redirect-button">
+            <ArrowRight />
+          </ion-button>
         </ion-row>
 
         <p v-if="!myResignations.length && !isLoading" class="empty-state">
@@ -74,6 +78,7 @@ import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 import IconPlus from "@/components/icon/Plus.vue";
+import ArrowRight from "@/components/icon/ArrowRight.vue";
 import resignation from "@/api/resignation";
 import { useUserStore } from "@/store/user.js";
 import { useCustomToast } from "@/composable/toast.js";
@@ -110,6 +115,10 @@ const formatDateToDisplay = (date, format = "DD-MM-YYYY") => {
 
 const triggerBack = () => {
   router.push("/home");
+};
+
+const goToDetail = (id) => {
+  router.push(`/resignation/add`);
 };
 
 const fetchResignations = async () => {

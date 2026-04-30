@@ -61,7 +61,7 @@ const getStateClass = (state) => {
 
 <style scoped lang="scss">
 .resignation-tracker {
-  background: var(--ion-color-step-850, #2a2d32);
+  background: #2a2d32;
   border-radius: 16px;
   padding: 20px;
   margin-block-start: 10px;
@@ -74,7 +74,7 @@ const getStateClass = (state) => {
     align-items: center;
     gap: 8px;
     margin-block-end: 8px;
-    color: var(--ion-color-primary, #62c3e2);
+    color: #62c3e2;
     
     .tracker-icon {
       width: 24px;
@@ -90,7 +90,7 @@ const getStateClass = (state) => {
 
   .tracker-info {
     font-size: 13px;
-    color: var(--ion-color-step-600, #a0a4a8);
+    color: #a0a4a8;
     margin-block-start: 0;
     margin-block-end: 16px;
     line-height: 1.4;
@@ -111,7 +111,7 @@ const getStateClass = (state) => {
     .date-row:last-child { border-bottom: none; }
     
     .label { color: #ffffff; font-size: 15px; }
-    .value { color: var(--ion-color-primary, #62c3e2); font-size: 15px; font-weight: 500; }
+    .value { color: #62c3e2; font-size: 15px; font-weight: 500; }
     
     .badge {
       padding-block: 6px;

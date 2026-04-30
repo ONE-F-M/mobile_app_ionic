@@ -2,7 +2,7 @@
   <ion-page>
     <ion-content class="ion-padding leaves-page">
       <LeavesHeader
-        :title="$t('resignation.extension.title', 'Resignation Extension')"
+        :title="$t('resignation.extension.title', 'Extend / Reduce Resignation')"
         class="leaves-page-header"
         @click-back="triggerBack"
       />
@@ -14,7 +14,7 @@
       <template v-else>
         <ResignationTracker 
           :resignation="resignationStore.activeResignation" 
-          :description="$t('resignation.extension.tracker_description', 'You are requesting to extend the following active resignation:')"
+          :description="$t('resignation.extension.tracker_description', 'You are requesting to adjust the relieving date of the following active resignation:')"
         />
 
       <div v-if="resignationStore.activeResignation" class="leaves-create" :class="{'with-margin': resignationStore.activeResignation}">
@@ -40,7 +40,7 @@
 
           <ion-col size="12">
             <p class="leaves-create-label leaves-create-label__required" :class="{ 'text-danger': errors.extendedDate }">
-              {{ $t('resignation.extended_relieving_date', 'Extended Relieving Date') }}
+              {{ $t('resignation.extended_relieving_date', 'New Relieving Date (Extension / Reduction)') }}
             </p>
             <div id="open-extended-modal" class="date-selector">
               <ion-input fill="outline" readonly :value="formattedExtendedDate || $t('resignation.click_to_select', 'Click to select date')" class="readonly-input">
@@ -48,7 +48,7 @@
               </ion-input>
             </div>
             <ion-popover trigger="open-extended-modal" :keep-contents-mounted="true" class="custom-calendar-popover">
-              <ion-datetime presentation="date" v-model="extendedDate" class="brighter-calendar" color="primary" show-default-buttons="true"></ion-datetime>
+              <ion-datetime presentation="date" v-model="extendedDate" :min="minDate" class="brighter-calendar" color="primary" show-default-buttons="true"></ion-datetime>
             </ion-popover>
           </ion-col>
         </ion-row>
@@ -70,7 +70,7 @@
         <ion-row class="form-row">
           <ion-col size="12">
             <p class="leaves-create-label leaves-create-label__required" :class="{ 'text-danger': errors.reason }">
-              {{ $t('resignation.extension.reason', 'Reason for Extension') }}
+              {{ $t('resignation.extension.reason', 'Reason for Date Change') }}
             </p>
             <ion-input
               :placeholder="$t('resignation.detailed_reason', 'Detailed reason...')"
@@ -83,21 +83,21 @@
         <ion-row class="form-row">
           <ion-col size="12">
             <p class="leaves-create-label leaves-create-label__required" :class="{ 'text-danger': errors.proofDocument }">
-              {{ $t('resignation.extension.proof', 'Extension Letter/Proof (Required)') }}
+              {{ $t('resignation.extension.proof', 'New Signed Letter/Proof (Required)') }}
             </p>
-            <input type="file" ref="fileInput" accept=".pdf,.jpg,.jpeg,.png" @change="onFileUpload" class="hidden-input" />
+            <input type="file" :ref="(el) => extensionFile.fileInput.value = el" accept=".pdf,.jpg,.jpeg,.png" @change="extensionFile.onFileUpload" class="hidden-input" />
             
             <div class="upload-container">
-              <ion-button fill="outline" color="primary" @click="triggerFileUpload" class="upload-btn">
+              <ion-button fill="outline" color="primary" @click="extensionFile.triggerFileUpload" class="upload-btn">
                 <ion-icon slot="start" :icon="attachOutline"></ion-icon>
-                {{ attachment.name ? attachment.name : $t('resignation.attach_document', 'Attach Document') }}
+                {{ extensionFile.attachment.value.name ? extensionFile.attachment.value.name : $t('resignation.attach_document', 'Attach Document') }}
               </ion-button>
             </div>
           </ion-col>
         </ion-row>
 
         <div class="form-row">
-            <p class="legal-notice">{{ $t('resignation.extension.legal_notice', 'By clicking submit, you are officially registering an intent to extend any active resignation applications on file.') }}</p>
+            <p class="legal-notice">{{ $t('resignation.extension.legal_notice', 'By clicking submit, you are officially registering an intent to adjust the relieving date for any active resignation applications on file.') }}</p>
         </div>
 
         <ion-button
@@ -107,7 +107,7 @@
           @click="onSubmit"
         >
           <ion-spinner v-if="isLoading" name="crescent"></ion-spinner>
-          <span v-else>{{ $t('resignation.extension.submit', 'Submit Extension Request') }}</span>
+          <span v-else>{{ $t('resignation.extension.submit', 'Submit Date Adjustment') }}</span>
         </ion-button>
       </div>
       </template>
@@ -157,11 +157,12 @@ const triggerBack = () => {
   router.push("/service");
 };
 
-const { fileInput, attachment, onFileUpload, triggerFileUpload, clearAttachment } = useFileAttachment();
+const extensionFile = useFileAttachment();
 
 const reason = ref("");
 
 const { dayjs } = useDateHelper();
+const minDate = new Date().toISOString().split('T')[0];
 const extendedDate = ref(new Date().toISOString().split('T')[0]);
 const formattedExtendedDate = computed(() => {
   if (!extendedDate.value) return "";
@@ -192,7 +193,7 @@ const fetchSupervisor = async (empId) => {
 };
 
 const clearForm = () => {
-  clearAttachment();
+  extensionFile.clearAttachment();
   selectedSupervisor.value = "";
   reason.value = "";
   extendedDate.value = new Date().toISOString().split('T')[0];
@@ -201,7 +202,7 @@ const clearForm = () => {
 const validateForm = () => {
   errors.supervisor = !selectedSupervisor.value;
   errors.reason = !reason.value;
-  errors.proofDocument = !attachment.value.base64;
+  errors.proofDocument = !extensionFile.attachment.value.base64;
   errors.extendedDate = !extendedDate.value;
   return !errors.supervisor && !errors.reason && !errors.proofDocument && !errors.extendedDate;
 };
@@ -216,8 +217,8 @@ const submitData = async () => {
       extended_date: extendedDate.value,
       resignation_id: resignationStore.activeResignation?.name,
       attachment: JSON.stringify({
-        attachment_name: attachment.value.name,
-        attachment: attachment.value.base64,
+        attachment_name: extensionFile.attachment.value.name,
+        attachment: extensionFile.attachment.value.base64,
       }),
     };
     await resignation.extendResignation(data);

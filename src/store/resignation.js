@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { resignation } from '@/api/resignation';
+import resignation from '@/api/resignation';
 import { useUserStore } from '@/store/user';
 
 export const useResignationStore = defineStore('resignation', {

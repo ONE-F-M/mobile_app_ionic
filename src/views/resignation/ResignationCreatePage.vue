@@ -45,13 +45,13 @@
                   </ion-input>
                 </div>
                 <ion-popover trigger="open-new-relieving-modal" :keep-contents-mounted="true" class="custom-calendar-popover">
-                  <ion-datetime presentation="date" v-model="newRelievingDate" class="brighter-calendar" color="primary" @ionChange="closeCalendarPopover"></ion-datetime>
+                  <ion-datetime presentation="date" v-model="newRelievingDate" :min="minDate" class="brighter-calendar" color="primary" @ionChange="closeCalendarPopover"></ion-datetime>
                 </ion-popover>
               </ion-col>
 
               <ion-col size="12">
                 <p class="leaves-create-label leaves-create-label__required">{{ $t('resignation.new_signed_letter', 'New Signed Letter (PDF, JPG, PNG)') }}</p>
-                <input type="file" ref="correctionFileInput" accept=".pdf,.jpg,.jpeg,.png" @change="correctionFile.onFileUpload" class="hidden-input" />
+                <input type="file" :ref="(el) => correctionFile.fileInput.value = el" accept=".pdf,.jpg,.jpeg,.png" @change="correctionFile.onFileUpload" class="hidden-input" />
                 
                 <div class="upload-container">
                   <ion-button fill="outline" color="primary" @click="correctionFile.triggerFileUpload" class="upload-btn">
@@ -75,8 +75,8 @@
         </div>
 
         <div class="tracker-actions" v-if="resignationStore.activeResignation.workflow_state === 'Approved'">
-          <ion-button expand="block" shape="round" @click="goToExtension" class="action-btn">
-            {{ $t('resignation.action.extend', 'Extend Resignation') }}
+          <ion-button expand="block" shape="round" color="warning" @click="goToExtension" class="action-btn">
+            {{ $t('resignation.action.extend', 'Extend / Reduce Resignation') }}
           </ion-button>
           
           <ion-button expand="block" shape="round" color="danger" @click="goToWithdrawal" class="action-btn-danger">
@@ -159,6 +159,7 @@
               <ion-datetime
                 presentation="date"
                 v-model="relievingDate"
+                :min="minDate"
                 class="brighter-calendar"
                 color="primary"
                 @ionChange="closeCalendarPopover"
@@ -183,7 +184,7 @@
             {{ $t('resignation.upload_resignation_letter', 'Upload Resignation Letter') }}
           </ion-button>
           <input
-            ref="createFileInput"
+            :ref="(el) => createFile.fileInput.value = el"
             class="hidden-input"
             type="file"
             accept=".pdf,.jpg,.jpeg,.png"
@@ -232,6 +233,7 @@ import { useUserStore } from "@/store/user.js";
 import { useResignationStore } from "@/store/resignation.js";
 import { useFileAttachment } from "@/composable/useFileAttachment.js";
 import { useNoticePeriod } from "@/composable/useNoticePeriod";
+import { useI18n } from "vue-i18n";
 
 const userStore = useUserStore();
 const resignationStore = useResignationStore();
@@ -257,14 +259,6 @@ const goToExtension = () => {
 const createFile = useFileAttachment();
 const correctionFile = useFileAttachment();
 
-const createFileInput = ref();
-const correctionFileInput = ref();
-
-onMounted(() => {
-  createFile.fileInput.value = createFileInput.value;
-  correctionFile.fileInput.value = correctionFileInput.value;
-});
-
 const newRelievingDate = ref("");
 const newInitiationDate = ref("");
 
@@ -275,9 +269,9 @@ const closeCalendarPopover = async () => {
   }
 };
 
+const minDate = new Date().toISOString().split('T')[0];
 const resignationInitiationDate = ref(new Date().toISOString().split('T')[0]);
 const relievingDate = ref(new Date().toISOString().split('T')[0]);
-
 
 const formattedNewInitiationDate = computed(() => {
   if (!newInitiationDate.value) return "";
