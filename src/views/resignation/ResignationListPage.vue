@@ -21,8 +21,8 @@
           <ion-row class="leaves-content ion-align-items-center">
             <div class="leaves-content-wrapper">
               <p class="leaves-label-white">
-                <span :class="`leaves-status__${getStateClass(resig.workflow_state)}`">{{
-                  resig.workflow_state
+                <span :class="`leaves-status__${getStateClass(getDisplayState(resig))}`">{{
+                  getDisplayState(resig)
                 }}</span>
                 - {{ resig.name }}
               </p>
@@ -96,12 +96,22 @@ const isLoading = ref(false);
 const STATE_CLASSES = {
   'Approved': 'approved',
   'Pending Supervisor': 'pending-supervisor',
+  'Pending Line Manager': 'pending-supervisor', // same color
   'Pending Operations Manager': 'pending-operations-manager',
   'Requires Adjustment': 'requires-adjustment',
   'Pending Employee Update': 'pending-employee-update',
   'Rejected': 'rejected',
   'Cancelled': 'cancelled',
   'Withdrawn': 'withdrawn'
+};
+
+const getDisplayState = (resig) => {
+  if (!resig) return '';
+  const state = resig.workflow_state;
+  if (state === 'Pending Supervisor' && resig.is_corporate) {
+    return 'Pending Line Manager';
+  }
+  return state;
 };
 
 const getStateClass = (state) => {
