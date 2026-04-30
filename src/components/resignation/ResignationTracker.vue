@@ -8,8 +8,8 @@
     <div class="tracker-body">
       <div class="status-row">
         <span class="label">{{ $t('resignation.status', 'Status:') }}</span>
-        <span class="badge" :class="getStateClass(resignation.workflow_state)">
-          {{ resignation.workflow_state }}
+        <span class="badge" :class="getStateClass(displayState)">
+          {{ displayState }}
         </span>
       </div>
       <div class="date-row" v-if="resignation.relieving_date">
@@ -25,8 +25,12 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { IonIcon } from '@ionic/vue';
 import { documentTextOutline } from 'ionicons/icons';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
   resignation: {
@@ -46,6 +50,7 @@ const props = defineProps({
 const STATE_CLASSES = {
   'Approved': 'approved',
   'Pending Supervisor': 'pending-supervisor',
+  'Pending Line Manager': 'pending-supervisor', // Shares the same color as supervisor
   'Pending Operations Manager': 'pending-operations-manager',
   'Requires Adjustment': 'requires-adjustment',
   'Pending Employee Update': 'pending-employee-update',
@@ -53,6 +58,15 @@ const STATE_CLASSES = {
   'Cancelled': 'cancelled',
   'Withdrawn': 'withdrawn'
 };
+
+const displayState = computed(() => {
+  if (!props.resignation) return '';
+  const state = props.resignation.workflow_state;
+  if (state === 'Pending Supervisor' && props.resignation.is_corporate) {
+    return 'Pending Line Manager';
+  }
+  return state;
+});
 
 const getStateClass = (state) => {
   return STATE_CLASSES[state] || 'default-state';
