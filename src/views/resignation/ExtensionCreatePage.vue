@@ -143,6 +143,7 @@ import { useUserStore } from "@/store/user.js";
 import { useResignationStore } from "@/store/resignation.ts";
 import { useFileAttachment } from "@/composable/useFileAttachment.ts";
 import { useNoticePeriod } from "@/composable/useNoticePeriod";
+import { useConfirmAlert } from "@/composable/useConfirmAlert.ts";
 import { useI18n } from 'vue-i18n';
 
 const userStore = useUserStore();

@@ -16,7 +16,6 @@ export function useFileAttachment() {
 ];
 
 const onFileUpload = async (event) => {
-  const { showErrorToast } = useCustomToast();
   const uploadFile = event.target.files[0];
   if (!uploadFile) return;
 

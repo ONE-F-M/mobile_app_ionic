@@ -114,6 +114,7 @@ import resignation from "@/api/resignation";
 import { useUserStore } from "@/store/user.js";
 import { useResignationStore } from "@/store/resignation.ts";
 import { useFileAttachment } from "@/composable/useFileAttachment.ts";
+import { useConfirmAlert } from "@/composable/useConfirmAlert.ts";
 import { useI18n } from 'vue-i18n';
 
 const userStore = useUserStore();

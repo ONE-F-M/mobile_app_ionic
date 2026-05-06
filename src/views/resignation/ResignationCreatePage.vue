@@ -26,7 +26,15 @@
           </ion-button>
         </div>
 
-        <div class="tracker-actions" v-if="resignationStore.activeResignation.workflow_state === 'Approved'">
+        <!-- Pending Action Banners -->
+        <div v-if="resignationStore.activeResignation.has_pending_withdrawal" class="ion-padding" style="text-align: center; color: var(--ion-color-danger); font-weight: 500;">
+          {{ $t('resignation.pending_withdrawal_msg', 'Your resignation withdrawal is currently under review.') }}
+        </div>
+        <div v-else-if="resignationStore.activeResignation.has_pending_extension" class="ion-padding" style="text-align: center; color: var(--ion-color-warning); font-weight: 500;">
+          {{ $t('resignation.pending_extension_msg', 'Your resignation date adjustment is currently under review.') }}
+        </div>
+
+        <div class="tracker-actions" v-else-if="resignationStore.activeResignation.workflow_state === 'Approved'">
           <ion-button expand="block" shape="round" color="warning" @click="goToExtension" class="action-btn">
             {{ $t('resignation.action.extend', 'Extend / Reduce Resignation') }}
           </ion-button>
@@ -327,8 +335,8 @@ onIonViewWillEnter(async () => {
     await fetchSupervisor(userStore.user.employee_id);
 
     if (resignationStore.activeResignation) {
-      newInitiationDate.value = resignationStore.activeResignation.resignation_initiation_date || "";
-      newRelievingDate.value = resignationStore.activeResignation.relieving_date || "";
+      resignationInitiationDate.value = resignationStore.activeResignation.resignation_initiation_date || new Date().toISOString().split('T')[0];
+      relievingDate.value = resignationStore.activeResignation.relieving_date || new Date().toISOString().split('T')[0];
     }
   }
 });
