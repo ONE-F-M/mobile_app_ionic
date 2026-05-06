@@ -350,10 +350,10 @@ const submitData = async () => {
       supervisor: selectedSupervisor.value,
       resignation_initiation_date: resignationInitiationDate.value ? resignationInitiationDate.value.split('T')[0] : "",
       relieving_date: relievingDate.value ? relievingDate.value.split('T')[0] : "",
-      attachment: JSON.stringify({
+      attachment: {
         attachment_name: createFile.attachment.value.name,
         attachment: createFile.attachment.value.base64,
-      }),
+      },
     };
     await resignation.createResignation(data);
     
@@ -388,7 +388,7 @@ const executeCorrection = async () => {
     employee_id: userStore.user.employee_id,
     new_date: normalizeDateOnly(newRelievingDate.value),
     new_initiation_date: normalizeDateOnly(newInitiationDate.value),
-    attachment: JSON.stringify({
+    attachment: {
       attachment_name: correctionFile.attachment.value.name,
       attachment: correctionFile.attachment.value.base64,
     }),
@@ -616,9 +616,7 @@ onIonViewWillEnter(async () => {
   margin-block-end: 15px;
 }
 
-.action-btn-danger {
-  // Use color attribute from component instead of inline styles
-}
+
 
 .submit-btn {
   margin-block-start: 16px;

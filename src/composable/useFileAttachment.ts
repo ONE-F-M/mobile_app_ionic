@@ -8,20 +8,34 @@ export function useFileAttachment() {
   const maxFileSize = 5 * 1024 * 1024; // 5MB
   const { showErrorToast } = useCustomToast();
 
-  const onFileUpload = async (event) => {
-    const uploadFile = event.target.files[0];
-    if (!uploadFile) return;
+  const ALLOWED_TYPES = [
+  "application/pdf",
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+];
 
-    if (uploadFile.size > maxFileSize) {
-      showErrorToast("File size exceeds 5MB limit.");
-      if (fileInput.value) fileInput.value.value = null;
-      return;
-    }
+const onFileUpload = async (event) => {
+  const uploadFile = event.target.files[0];
+  if (!uploadFile) return;
 
-    const base64Data = await toBase64(uploadFile);
-    attachment.value.name = uploadFile.name;
-    attachment.value.base64 = base64Data;
-  };
+  if (!ALLOWED_TYPES.includes(uploadFile.type)) {
+    // Basic fallback error if showErrorToast isn't imported
+    console.error("Invalid file type.");
+    if (fileInput.value) fileInput.value.value = null;
+    return;
+  }
+
+  if (uploadFile.size > maxFileSize) {
+    console.error("File size exceeds 5MB limit.");
+    if (fileInput.value) fileInput.value.value = null;
+    return;
+  }
+
+  const base64Data = await toBase64(uploadFile);
+  attachment.value.name = uploadFile.name;
+  attachment.value.base64 = base64Data;
+};
 
   const toBase64 = (file) =>
     new Promise((resolve, reject) => {

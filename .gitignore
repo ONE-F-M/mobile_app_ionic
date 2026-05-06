@@ -39,5 +39,3 @@ Session.vim
 
 # Build generated
 public/sw-env.js
-.agents/
-GEMINI.md

@@ -82,6 +82,7 @@ router.isReady().then( async () => {
       console.warn("Dev mode: Skipping Firebase/SW initialization due to missing environment keys.");
     } else {
       console.warn("Firebase/SW initialization failed:", e);
+  window.__PUSH_NOTIFICATIONS_DISABLED__ = true;
     }
   } finally {
     // ALWAYS mount the app, even if Firebase fails

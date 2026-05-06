@@ -130,17 +130,8 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
-  const userStore = useUserStore();
-  const isAuthenticated = !!userStore.user;
+import { authGuard } from "@/middleware/loggedIn";
 
-  if (to.meta.requiresAuth && !isAuthenticated) {
-    next({ path: "/" });
-  } else if (to.meta.isGuest && isAuthenticated) {
-    next({ path: "/home" });
-  } else {
-    next();
-  }
-});
+router.beforeEach(authGuard);
 
 export default router;

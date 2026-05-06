@@ -2,11 +2,11 @@ import { setActivePinia, createPinia } from 'pinia';
 import { describe, expect, it, beforeEach, vi } from 'vitest';
 import { useResignationStore } from '@/store/resignation';
 import { useUserStore } from '@/store/user';
-import { resignation } from '@/api/resignation';
+import resignation from '@/api/resignation';
 
 // Mock the API and User store dependencies
 vi.mock('@/api/resignation', () => ({
-  resignation: {
+  default: {
     getMyActiveResignation: vi.fn(),
   },
 }));

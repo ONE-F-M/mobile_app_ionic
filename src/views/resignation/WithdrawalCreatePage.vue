@@ -61,7 +61,7 @@
             <p class="leaves-create-label leaves-create-label__required" :class="{ 'text-danger': errors.proofDocument }">
               {{ $t('resignation.withdrawal.proof', 'Withdrawal Letter/Proof (Required)') }}
             </p>
-            <input type="file" ref="fileInput" accept=".pdf,.jpg,.jpeg,.png" @change="onFileUpload" class="hidden-input" />
+            <input type="file" :ref="(el) => fileInput = el" accept=".pdf,.jpg,.jpeg,.png" @change="onFileUpload" class="hidden-input" />
             
             <div class="upload-container">
               <ion-button fill="outline" color="primary" @click="triggerFileUpload" class="upload-btn">
@@ -176,7 +176,7 @@ const onSubmit = async () => {
       employee_id: userStore.user?.employee_id,
       supervisor: selectedSupervisor.value,
       reason: reason.value,
-      attachment: JSON.stringify({
+      attachment: {
         attachment_name: attachment.value.name,
         attachment: attachment.value.base64,
       }),

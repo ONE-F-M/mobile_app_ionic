@@ -216,10 +216,10 @@ const submitData = async () => {
       reason: reason.value,
       extended_date: extendedDate.value,
       resignation_id: resignationStore.activeResignation?.name,
-      attachment: JSON.stringify({
+      attachment: {
         attachment_name: extensionFile.attachment.value.name,
         attachment: extensionFile.attachment.value.base64,
-      }),
+      },
     };
     await resignation.extendResignation(data);
     
