@@ -16,18 +16,18 @@ export function useFileAttachment() {
 ];
 
 const onFileUpload = async (event) => {
+  const { showErrorToast } = useCustomToast();
   const uploadFile = event.target.files[0];
   if (!uploadFile) return;
 
   if (!ALLOWED_TYPES.includes(uploadFile.type)) {
-    // Basic fallback error if showErrorToast isn't imported
-    console.error("Invalid file type.");
+    showErrorToast("Invalid file type. Only PDF, JPG, and PNG files are allowed.");
     if (fileInput.value) fileInput.value.value = null;
     return;
   }
 
   if (uploadFile.size > maxFileSize) {
-    console.error("File size exceeds 5MB limit.");
+    showErrorToast("File size exceeds 5MB limit.");
     if (fileInput.value) fileInput.value.value = null;
     return;
   }

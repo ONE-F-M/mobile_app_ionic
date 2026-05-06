@@ -105,6 +105,7 @@
           class="submit-btn"
           expand="block"
           @click="onSubmit"
+          :disabled="isLoading || supervisorLoading"
         >
           <ion-spinner v-if="isLoading" name="crescent"></ion-spinner>
           <span v-else>{{ $t('resignation.extension.submit', 'Submit Date Adjustment') }}</span>
@@ -152,9 +153,10 @@ const { checkNoticePeriod } = useNoticePeriod();
 const router = useIonRouter();
 
 const isLoading = ref(false);
+const supervisorLoading = ref(false);
 
 const triggerBack = () => {
-  router.push("/service");
+  router.canGoBack() ? router.back() : router.push("/resignation");
 };
 
 const extensionFile = useFileAttachment();
@@ -179,6 +181,7 @@ const selectedSupervisor = ref("");
 const supervisorSearch = ref("");
 
 const fetchSupervisor = async (empId) => {
+  supervisorLoading.value = true;
   try {
     if (!empId) return;
     const res = await resignation.getEmployeeSupervisor(empId);
@@ -189,6 +192,8 @@ const fetchSupervisor = async (empId) => {
     }
   } catch (error) {
     console.error("Failed to load supervisor", error);
+  } finally {
+    supervisorLoading.value = false;
   }
 };
 
