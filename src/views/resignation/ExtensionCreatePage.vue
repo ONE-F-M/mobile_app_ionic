@@ -140,8 +140,8 @@ import useDateHelper from "@/composable/useDateHelper";
 import { useCustomToast } from "@/composable/toast.js";
 import resignation from "@/api/resignation";
 import { useUserStore } from "@/store/user.js";
-import { useResignationStore } from "@/store/resignation.js";
-import { useFileAttachment } from "@/composable/useFileAttachment.js";
+import { useResignationStore } from "@/store/resignation.ts";
+import { useFileAttachment } from "@/composable/useFileAttachment.ts";
 import { useNoticePeriod } from "@/composable/useNoticePeriod";
 import { useI18n } from 'vue-i18n';
 
