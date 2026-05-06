@@ -148,6 +148,7 @@ import { useI18n } from 'vue-i18n';
 const userStore = useUserStore();
 const resignationStore = useResignationStore();
 const { t } = useI18n();
+const { showAcknowledge } = useConfirmAlert();
 const { showErrorToast } = useCustomToast();
 const { checkNoticePeriod } = useNoticePeriod();
 const router = useIonRouter();
@@ -228,22 +229,13 @@ const submitData = async () => {
     };
     await resignation.extendResignation(data);
     
-    const alert = await alertController.create({
-      header: t('resignation.extension.submit_success_title', 'Extension Submitted'),
-      message: t('resignation.extension.submit_success_msg', 'Employee resignation extension submitted successfully. Please submit the updated signed letter to the Camp Boss.'),
-      cssClass: 'bright-md3-alert',
-      backdropDismiss: false,
-      buttons: [
-        {
-          text: t('resignation.acknowledge', 'Acknowledge'),
-          handler: () => {
-             clearForm();
-             triggerBack();
-          }
-        }
-      ]
-    });
-    await alert.present();
+    await showAcknowledge(
+      t('resignation.extension_success_title', 'Extension Submitted'),
+      t('resignation.extension_success_msg', 'Resignation extension has been submitted successfully.'),
+      t('resignation.acknowledge', 'Acknowledge')
+    );
+    clearForm();
+    triggerBack();
     
   } catch (error) {
     console.error(error);

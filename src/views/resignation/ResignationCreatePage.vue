@@ -176,6 +176,7 @@ import {
   IonDatetime,
   IonIcon
 } from "@ionic/vue";
+import { useConfirmAlert } from "@/composable/useConfirmAlert.ts";
 import { calendarOutline, attachOutline } from "ionicons/icons";
 import PageHeader from "@/components/common/PageHeader.vue";
 import ResignationTracker from "@/components/resignation/ResignationTracker.vue";
@@ -193,6 +194,7 @@ import { useI18n } from "vue-i18n";
 const userStore = useUserStore();
 const resignationStore = useResignationStore();
 const { t } = useI18n();
+const { showAcknowledge } = useConfirmAlert();
 const { showErrorToast } = useCustomToast();
 const { checkNoticePeriod } = useNoticePeriod();
 const { dayjs } = useDateHelper();
@@ -289,22 +291,13 @@ const submitData = async () => {
     };
     await resignation.createResignation(data);
     
-    const alert = await alertController.create({
-      header: t('resignation.submit_success_title', 'Resignation Submitted'),
-      message: t('resignation.submit_success_msg', 'Employee resignation submitted successfully. Please submit the signed resignation letter to the Camp Boss.'),
-      cssClass: 'bright-md3-alert',
-      backdropDismiss: false,
-      buttons: [
-        {
-          text: t('resignation.acknowledge', 'Acknowledge'),
-          handler: () => {
-            clearForm();
-            triggerBack();
-          }
-        }
-      ]
-    });
-    await alert.present();
+    await showAcknowledge(
+      t('resignation.submit_success_title', 'Resignation Submitted'),
+      t('resignation.submit_success_msg', 'Employee resignation submitted successfully. Please submit the signed resignation letter to the Camp Boss.'),
+      t('resignation.acknowledge', 'Acknowledge')
+    );
+    clearForm();
+    triggerBack();
     
   } catch (error) {
     console.error(error);

@@ -95,10 +95,12 @@ import { useResignationStore } from "@/store/resignation.ts";
 import { useFileAttachment } from "@/composable/useFileAttachment.ts";
 import { useNoticePeriod } from "@/composable/useNoticePeriod.ts";
 import { useI18n } from "vue-i18n";
+import { useConfirmAlert } from "@/composable/useConfirmAlert.ts";
 
 const userStore = useUserStore();
 const resignationStore = useResignationStore();
 const { t } = useI18n();
+const { showAcknowledge } = useConfirmAlert();
 const { showErrorToast } = useCustomToast();
 const { checkNoticePeriod } = useNoticePeriod();
 const router = useIonRouter();
@@ -165,22 +167,13 @@ const executeCorrection = async () => {
     isSubmitting.value = true;
     await resignation.correctResignationDate(payload);
     
-    const alert = await alertController.create({
-      header: t('resignation.correction_success_title', 'Correction Submitted'),
-      message: t('resignation.correction_success_msg', 'Employee resignation corrected successfully. Please submit the updated signed resignation letter to the Camp Boss.'),
-      cssClass: 'bright-md3-alert',
-      backdropDismiss: false,
-      buttons: [
-        {
-          text: t('resignation.acknowledge', 'Acknowledge'),
-          handler: () => {
-            clearForm();
-            triggerBack();
-          }
-        }
-      ]
-    });
-    await alert.present();
+    await showAcknowledge(
+      t('resignation.correction_success_title', 'Correction Submitted'),
+      t('resignation.correction_success_msg', 'Employee resignation corrected successfully. Please submit the updated signed resignation letter to the Camp Boss.'),
+      t('resignation.acknowledge', 'Acknowledge')
+    );
+    clearForm();
+    triggerBack();
     
     await resignationStore.fetchActiveResignation();
   } catch (error) {

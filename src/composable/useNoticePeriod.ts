@@ -3,10 +3,12 @@ import { alertController } from "@ionic/vue";
 const NOTICE_PERIOD_DAYS = 90;
 import { useCustomToast } from "@/composable/toast.js";
 import { useI18n } from "vue-i18n";
+import { useConfirmAlert } from "@/composable/useConfirmAlert.ts";
 
 export const useNoticePeriod = () => {
   const { showErrorToast } = useCustomToast();
   const { t } = useI18n();
+  const { showConfirm } = useConfirmAlert();
 
   /**
    * Validates the notice period between initiation and relieving date.
@@ -26,17 +28,14 @@ export const useNoticePeriod = () => {
     }
 
     if (diffDays < NOTICE_PERIOD_DAYS) {
-      const alert = await alertController.create({
-        header: t('resignation.notice_period_header', 'Notice Period'),
-        message: t('resignation.notice_period_warning', 'The requested relieving date does not satisfy the 90 days notice period policy. If approved, the unserved notice period days will be recovered from your final settlement.'),
-        buttons: [
-          { text: t('resignation.action.cancel', 'Cancel'), role: "cancel" },
-          { text: t('resignation.action.acknowledge', 'Acknowledge & Proceed'), role: "confirm" }
-        ],
-        cssClass: "custom-alert-danger",
-      });
-      await alert.present();
-      const { role } = await alert.onDidDismiss();
+      const isConfirmed = await showConfirm(
+        t('resignation.notice_period_header', 'Notice Period'),
+        t('resignation.notice_period_warning', 'The requested relieving date does not satisfy the 90 days notice period policy. If approved, the unserved notice period days will be recovered from your final settlement.'),
+        t('resignation.action.acknowledge', 'Acknowledge & Proceed'),
+        t('resignation.action.cancel', 'Cancel'),
+        "custom-alert-danger"
+      );
+      const role = isConfirmed ? "confirm" : "cancel";
       
       if (role !== "confirm") {
         return false;
