@@ -25,6 +25,7 @@
 </template>
 
 <script setup>
+import { STATE_CLASSES, getDisplayState, getStateClass } from "@/utils/resignationConstants.js";
 import { computed } from 'vue';
 import { IonIcon } from '@ionic/vue';
 import { documentTextOutline } from 'ionicons/icons';
@@ -47,17 +48,6 @@ const props = defineProps({
   }
 });
 
-const STATE_CLASSES = {
-  'Approved': 'approved',
-  'Pending Supervisor': 'pending-supervisor',
-  'Pending Line Manager': 'pending-supervisor', // Shares the same color as supervisor
-  'Pending Operations Manager': 'pending-operations-manager',
-  'Requires Adjustment': 'requires-adjustment',
-  'Pending Employee Update': 'pending-employee-update',
-  'Rejected': 'rejected',
-  'Cancelled': 'cancelled',
-  'Withdrawn': 'withdrawn'
-};
 
 const displayState = computed(() => {
   if (!props.resignation) return '';
@@ -68,14 +58,11 @@ const displayState = computed(() => {
   return state;
 });
 
-const getStateClass = (state) => {
-  return STATE_CLASSES[state] || 'default-state';
-};
 </script>
 
 <style scoped lang="scss">
 .resignation-tracker {
-  background: #2a2d32;
+  background: var(--ion-card-background, #2a2d32);
   border-radius: 16px;
   padding: 20px;
   margin-block-start: 10px;
@@ -88,7 +75,7 @@ const getStateClass = (state) => {
     align-items: center;
     gap: 8px;
     margin-block-end: 8px;
-    color: #62c3e2;
+    color: var(--ion-color-primary, #62c3e2);
     
     .tracker-icon {
       width: 24px;
@@ -104,7 +91,7 @@ const getStateClass = (state) => {
 
   .tracker-info {
     font-size: 13px;
-    color: #a0a4a8;
+    color: var(--ion-color-step-450, #a0a4a8);
     margin-block-start: 0;
     margin-block-end: 16px;
     line-height: 1.4;
@@ -125,7 +112,7 @@ const getStateClass = (state) => {
     .date-row:last-child { border-bottom: none; }
     
     .label { color: #ffffff; font-size: 15px; }
-    .value { color: #62c3e2; font-size: 15px; font-weight: 500; }
+    .value { color: var(--ion-color-primary, #62c3e2); font-size: 15px; font-weight: 500; }
     
     .badge {
       padding-block: 6px;

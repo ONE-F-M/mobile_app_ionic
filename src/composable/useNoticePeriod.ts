@@ -1,4 +1,6 @@
 import { alertController } from "@ionic/vue";
+
+const NOTICE_PERIOD_DAYS = 90;
 import { useCustomToast } from "@/composable/toast.js";
 import { useI18n } from "vue-i18n";
 
@@ -23,7 +25,7 @@ export const useNoticePeriod = () => {
       return false;
     }
 
-    if (diffDays < 90) {
+    if (diffDays < NOTICE_PERIOD_DAYS) {
       const alert = await alertController.create({
         header: t('resignation.notice_period_header', 'Notice Period'),
         message: t('resignation.notice_period_warning', 'The requested relieving date does not satisfy the 90 days notice period policy. If approved, the unserved notice period days will be recovered from your final settlement.'),

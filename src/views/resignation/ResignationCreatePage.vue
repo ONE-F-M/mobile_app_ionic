@@ -1,7 +1,7 @@
 <template>
   <ion-page>
     <ion-content class="ion-padding leaves-page">
-      <LeavesHeader
+      <PageHeader
         :title="$t('resignation.title', 'Employee Resignation')"
         class="leaves-page-header"
         @click-back="triggerBack"
@@ -149,6 +149,7 @@
           class="submit-btn"
           expand="block"
           @click="onSubmit"
+          :disabled="isLoading || supervisorLoading"
         >
           <ion-spinner v-if="isLoading" name="crescent"></ion-spinner>
           <span v-else>{{ $t('resignation.submit_resignation', 'Submit Resignation') }}</span>
@@ -176,15 +177,17 @@ import {
   IonIcon
 } from "@ionic/vue";
 import { calendarOutline, attachOutline } from "ionicons/icons";
-import LeavesHeader from "@/components/leaves/Header.vue";
+import PageHeader from "@/components/common/PageHeader.vue";
 import ResignationTracker from "@/components/resignation/ResignationTracker.vue";
-import { ref, reactive, computed, watch, onMounted } from "vue";
+import { ref, reactive, computed } from "vue";
 import { useCustomToast } from "@/composable/toast.js";
 import resignation from "@/api/resignation";
 import { useUserStore } from "@/store/user.js";
 import { useResignationStore } from "@/store/resignation.js";
 import { useFileAttachment } from "@/composable/useFileAttachment.js";
-import { useNoticePeriod } from "@/composable/useNoticePeriod";
+import { useNoticePeriod } from "@/composable/useNoticePeriod.ts";
+import useDateHelper from "@/composable/useDateHelper.ts";
+ from "@/composable/useNoticePeriod";
 import { useI18n } from "vue-i18n";
 
 const userStore = useUserStore();
@@ -192,12 +195,14 @@ const resignationStore = useResignationStore();
 const { t } = useI18n();
 const { showErrorToast } = useCustomToast();
 const { checkNoticePeriod } = useNoticePeriod();
+const { dayjs } = useDateHelper();
 const router = useIonRouter();
 
 const isLoading = ref(false);
+const supervisorLoading = ref(false);
 
 const triggerBack = () => {
-  router.push("/service");
+  router.canGoBack() ? router.back() : router.push("/resignation");
 };
 
 const goToWithdrawal = () => {
@@ -224,19 +229,9 @@ const relievingDate = ref(new Date().toISOString().split('T')[0]);
 
 
 
-const formattedInitiationDate = computed(() => {
-  if (!resignationInitiationDate.value) return "";
-  const iso = resignationInitiationDate.value.split('T')[0];
-  const [year, month, day] = iso.split('-');
-  return `${day}/${month}/${year}`;
-});
+const formattedInitiationDate = computed(() => { if (!resignationInitiationDate.value) return ""; return dayjs(resignationInitiationDate.value.split("T")[0], "YYYY-MM-DD").format("DD-MM-YYYY"); });
 
-const formattedRelievingDate = computed(() => {
-  if (!relievingDate.value) return "";
-  const iso = relievingDate.value.split('T')[0];
-  const [year, month, day] = iso.split('-');
-  return `${day}/${month}/${year}`;
-});
+const formattedRelievingDate = computed(() => { if (!relievingDate.value) return ""; return dayjs(relievingDate.value.split("T")[0], "YYYY-MM-DD").format("DD-MM-YYYY"); });
 
 const errors = reactive({
   proofDocument: false,
@@ -248,6 +243,7 @@ const selectedSupervisor = ref("");
 const supervisorSearch = ref("");
 
 const fetchSupervisor = async (empId) => {
+  supervisorLoading.value = true;
   try {
     if (!empId) return;
     const res = await resignation.getEmployeeSupervisor(empId);
@@ -258,6 +254,8 @@ const fetchSupervisor = async (empId) => {
     }
   } catch (error) {
     console.error("Failed to load supervisor", error);
+  } finally {
+    supervisorLoading.value = false;
   }
 };
 

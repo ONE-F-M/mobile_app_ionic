@@ -1,7 +1,7 @@
 <template>
   <ion-page>
     <ion-content class="ion-padding leaves-page">
-      <LeavesHeader
+      <PageHeader
         :title="$t('resignation.title_correction', 'Resignation Correction')"
         class="leaves-page-header"
         @click-back="triggerBack"
@@ -86,7 +86,7 @@ import {
   IonIcon
 } from "@ionic/vue";
 import { calendarOutline, attachOutline } from "ionicons/icons";
-import LeavesHeader from "@/components/leaves/Header.vue";
+import PageHeader from "@/components/common/PageHeader.vue";
 import { ref, computed } from "vue";
 import { useCustomToast } from "@/composable/toast.js";
 import resignation from "@/api/resignation";

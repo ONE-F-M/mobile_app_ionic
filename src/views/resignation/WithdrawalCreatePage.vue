@@ -1,7 +1,7 @@
 <template>
   <ion-page>
     <ion-content class="ion-padding leaves-page">
-      <LeavesHeader
+      <PageHeader
         :title="$t('resignation.withdrawal.title', 'Resignation Withdrawal')"
         class="leaves-page-header"
         @click-back="triggerBack"
@@ -104,7 +104,7 @@ import {
   IonCol,
   onIonViewWillEnter,
 } from "@ionic/vue";
-import LeavesHeader from "@/components/leaves/Header.vue";
+import PageHeader from "@/components/common/PageHeader.vue";
 import ResignationTracker from "@/components/resignation/ResignationTracker.vue";
 import { ref, reactive } from "vue";
 import { attachOutline } from "ionicons/icons";

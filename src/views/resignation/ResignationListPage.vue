@@ -5,7 +5,7 @@
         <ion-refresher-content></ion-refresher-content>
       </ion-refresher>
 
-      <LeavesHeader
+      <PageHeader
         class="leaves-page-header"
         :title="$t('resignation.my_resignations', 'My Resignations')"
         @click-back="triggerBack"
@@ -73,8 +73,9 @@ import {
   IonRefresher,
   IonRefresherContent,
 } from "@ionic/vue";
-import LeavesHeader from "@/components/leaves/Header.vue";
+import PageHeader from "@/components/common/PageHeader.vue";
 import { ref } from "vue";
+import { STATE_CLASSES, getDisplayState, getStateClass } from "@/utils/resignationConstants.js";
 import { useI18n } from "vue-i18n";
 
 import IconPlus from "@/components/icon/Plus.vue";
@@ -93,17 +94,6 @@ const { dayjs } = useDateHelper();
 const myResignations = ref([]);
 const isLoading = ref(false);
 
-const STATE_CLASSES = {
-  'Approved': 'approved',
-  'Pending Supervisor': 'pending-supervisor',
-  'Pending Line Manager': 'pending-supervisor', // same color
-  'Pending Operations Manager': 'pending-operations-manager',
-  'Requires Adjustment': 'requires-adjustment',
-  'Pending Employee Update': 'pending-employee-update',
-  'Rejected': 'rejected',
-  'Cancelled': 'cancelled',
-  'Withdrawn': 'withdrawn'
-};
 
 const getDisplayState = (resig) => {
   if (!resig) return '';
@@ -114,9 +104,6 @@ const getDisplayState = (resig) => {
   return state;
 };
 
-const getStateClass = (state) => {
-  return STATE_CLASSES[state] || 'default-state';
-};
 
 const formatDateToDisplay = (date, format = "DD-MM-YYYY") => {
   if (!date) return "";
@@ -124,10 +111,11 @@ const formatDateToDisplay = (date, format = "DD-MM-YYYY") => {
 };
 
 const triggerBack = () => {
-  router.push("/home");
+  router.canGoBack() ? router.back() : router.push("/home");
 };
 
 const goToDetail = (id) => {
+  // TODO: Create ResignationDetailPage.vue
   router.push(`/resignation/add`);
 };
 
