@@ -21,57 +21,9 @@
 
         <!-- Correction Flow Container -->
         <div v-if="resignationStore.activeResignation.workflow_state === 'Pending Relieving Date Correction'" class="correction-container">
-          <div class="correction-form">
-            <ion-row class="form-row">
-              <!-- Corrected Initiation Date -->
-              <ion-col size="12">
-                <p class="leaves-create-label leaves-create-label__required">{{ $t('resignation.corrected_initiation_date', 'Corrected Initiation Date') }}</p>
-                <div id="open-new-initiation-modal" class="date-selector">
-                  <ion-input fill="outline" readonly :value="formattedNewInitiationDate || $t('resignation.click_to_select', 'Click to select date')" class="readonly-input">
-                    <ion-icon slot="start" :icon="calendarOutline"></ion-icon>
-                  </ion-input>
-                </div>
-                <ion-popover trigger="open-new-initiation-modal" :keep-contents-mounted="true" class="custom-calendar-popover">
-                  <ion-datetime presentation="date" v-model="newInitiationDate" class="brighter-calendar" color="primary" @ionChange="closeCalendarPopover"></ion-datetime>
-                </ion-popover>
-              </ion-col>
-              
-              <!-- Corrected Relieving Date -->
-              <ion-col size="12">
-                <p class="leaves-create-label leaves-create-label__required">{{ $t('resignation.corrected_relieving_date', 'Corrected Relieving Date') }}</p>
-                <div id="open-new-relieving-modal" class="date-selector">
-                  <ion-input fill="outline" readonly :value="formattedNewRelievingDate || $t('resignation.click_to_select', 'Click to select date')" class="readonly-input">
-                    <ion-icon slot="start" :icon="calendarOutline"></ion-icon>
-                  </ion-input>
-                </div>
-                <ion-popover trigger="open-new-relieving-modal" :keep-contents-mounted="true" class="custom-calendar-popover">
-                  <ion-datetime presentation="date" v-model="newRelievingDate" :min="minDate" class="brighter-calendar" color="primary" @ionChange="closeCalendarPopover"></ion-datetime>
-                </ion-popover>
-              </ion-col>
-
-              <ion-col size="12">
-                <p class="leaves-create-label leaves-create-label__required">{{ $t('resignation.new_signed_letter', 'New Signed Letter (PDF, JPG, PNG)') }}</p>
-                <input type="file" :ref="(el) => correctionFile.fileInput.value = el" accept=".pdf,.jpg,.jpeg,.png" @change="correctionFile.onFileUpload" class="hidden-input" />
-                
-                <div class="upload-container">
-                  <ion-button fill="outline" color="primary" @click="correctionFile.triggerFileUpload" class="upload-btn">
-                    <ion-icon slot="start" :icon="attachOutline"></ion-icon>
-                    {{ correctionFile.attachment.value.name ? correctionFile.attachment.value.name : $t('resignation.attach_document', 'Attach Document') }}
-                  </ion-button>
-                </div>
-              </ion-col>
-            </ion-row>
-            
-            <ion-button 
-              class="submit-correction-btn" 
-              expand="block" 
-              shape="round"
-              @click="submitCorrection" 
-            >
-              <ion-spinner v-if="isLoading" name="crescent"></ion-spinner>
-              <span v-else>{{ $t('resignation.resubmit_correction', 'Resubmit Corrected Details') }}</span>
-            </ion-button>
-          </div>
+          <ion-button expand="block" shape="round" color="warning" @click="router.push('/resignation/correct')" class="action-btn" style="margin-inline: 16px;">
+            {{ $t('resignation.action.correct', 'Submit Date Correction') }}
+          </ion-button>
         </div>
 
         <div class="tracker-actions" v-if="resignationStore.activeResignation.workflow_state === 'Approved'">
@@ -257,10 +209,7 @@ const goToExtension = () => {
 };
 
 const createFile = useFileAttachment();
-const correctionFile = useFileAttachment();
 
-const newRelievingDate = ref("");
-const newInitiationDate = ref("");
 
 const closeCalendarPopover = async () => {
   const topPopover = await popoverController.getTop();
@@ -273,21 +222,7 @@ const minDate = new Date().toISOString().split('T')[0];
 const resignationInitiationDate = ref(new Date().toISOString().split('T')[0]);
 const relievingDate = ref(new Date().toISOString().split('T')[0]);
 
-const formattedNewInitiationDate = computed(() => {
-  if (!newInitiationDate.value) return "";
-  const iso = newInitiationDate.value.split('T')[0];
-  if (!iso || !iso.includes('-')) return iso;
-  const [year, month, day] = iso.split('-');
-  return `${day}/${month}/${year}`;
-});
 
-const formattedNewRelievingDate = computed(() => {
-  if (!newRelievingDate.value) return "";
-  const iso = newRelievingDate.value.split('T')[0];
-  if (!iso || !iso.includes('-')) return iso;
-  const [year, month, day] = iso.split('-');
-  return `${day}/${month}/${year}`;
-});
 
 const formattedInitiationDate = computed(() => {
   if (!resignationInitiationDate.value) return "";
@@ -336,8 +271,7 @@ const validateForm = () => {
 
 const clearForm = () => {
   createFile.clearAttachment();
-  correctionFile.clearAttachment();
-  const baseIso = new Date().toISOString().split('T')[0];
+    const baseIso = new Date().toISOString().split('T')[0];
   resignationInitiationDate.value = baseIso;
   relievingDate.value = baseIso;
 };
@@ -382,89 +316,6 @@ const submitData = async () => {
   }
 };
 
-const normalizeDateOnly = (value) => value ? value.split('T')[0] : "";
-const executeCorrection = async () => {
-  const payload = {
-    employee_id: userStore.user.employee_id,
-    new_date: normalizeDateOnly(newRelievingDate.value),
-    new_initiation_date: normalizeDateOnly(newInitiationDate.value),
-    attachment: {
-      attachment_name: correctionFile.attachment.value.name,
-      attachment: correctionFile.attachment.value.base64,
-    }),
-    resignation_id: resignationStore.activeResignation?.name
-  };
-
-  try {
-    isLoading.value = true;
-    await resignation.correctResignationDate(payload);
-    
-    const alert = await alertController.create({
-      header: t('resignation.correction_success_title', 'Correction Submitted'),
-      message: t('resignation.correction_success_msg', 'Employee resignation corrected successfully. Please submit the updated signed resignation letter to the Camp Boss.'),
-      cssClass: 'bright-md3-alert',
-      backdropDismiss: false,
-      buttons: [
-        {
-          text: t('resignation.acknowledge', 'Acknowledge'),
-          handler: () => {
-            clearForm();
-            triggerBack();
-          }
-        }
-      ]
-    });
-    await alert.present();
-    
-    await resignationStore.fetchActiveResignation();
-  } catch (error) {
-    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
-  } finally {
-    isLoading.value = false;
-  }
-};
-
-const submitCorrection = async () => {
-  if (!newRelievingDate.value || !newInitiationDate.value || !correctionFile.attachment.value.base64) {
-    showErrorToast(t("resignation.validation_error", "Validation Error"), t("resignation.validation_missing", "Please select dates and attach your corrected signed letter."));
-    return;
-  }
-
-  const initStr = newInitiationDate.value.split('T')[0];
-  const relStr = newRelievingDate.value.split('T')[0];
-  const initDate = new Date(initStr);
-  const relDate = new Date(relStr);
-  const diffTime = relDate - initDate;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-  if (diffDays < 0) {
-    showErrorToast(t("resignation.validation_error", "Validation Error"), t("resignation.date_error", "Relieving date cannot be earlier than initiation date."));
-    return;
-  }
-
-  if (diffDays < 90) {
-    const alert = await alertController.create({
-      header: t('resignation.notice_shortfall_title', 'Notice Period Shortfall'),
-      message: t('resignation.notice_shortfall_msg', 'According to Labour Law, you must serve a 90-day notice period. The shortfall will be adjusted from your leave balance/indemnity, or must be paid out-of-pocket.'),
-      cssClass: 'bright-md3-alert',
-      buttons: [
-        {
-          text: t('resignation.edit', 'Edit'),
-          role: 'cancel'
-        },
-        {
-          text: t('resignation.proceed', 'Proceed'),
-          handler: () => {
-            executeCorrection();
-          }
-        }
-      ]
-    });
-    await alert.present();
-  } else {
-    executeCorrection();
-  }
-};
 
 const onSubmit = async () => {
   const isValidForm = validateForm();
@@ -472,38 +323,11 @@ const onSubmit = async () => {
 
   const initStr = resignationInitiationDate.value.split('T')[0];
   const relStr = relievingDate.value.split('T')[0];
-  const initDate = new Date(initStr);
-  const relDate = new Date(relStr);
-  const diffTime = relDate - initDate;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-  if (diffDays < 0) {
-    showErrorToast(t("resignation.validation_error", "Validation Error"), t("resignation.date_error", "Relieving date cannot be earlier than initiation date."));
-    return;
-  }
+  const isPeriodValid = await checkNoticePeriod(initStr, relStr);
+  if (!isPeriodValid) return;
 
-  if (diffDays < 90) {
-    const alert = await alertController.create({
-      header: t('resignation.notice_shortfall_title', 'Notice Period Shortfall'),
-      message: t('resignation.notice_shortfall_msg', 'According to Labour Law, you must serve a 90-day notice period. The shortfall will be adjusted from your leave balance/indemnity, or must be paid out-of-pocket.'),
-      cssClass: 'bright-md3-alert',
-      buttons: [
-        {
-          text: t('resignation.edit', 'Edit'),
-          role: 'cancel'
-        },
-        {
-          text: t('resignation.proceed', 'Proceed'),
-          handler: () => {
-            submitData();
-          }
-        }
-      ]
-    });
-    await alert.present();
-  } else {
-    submitData();
-  }
+  await submitData();
 };
 
 onIonViewWillEnter(async () => {
