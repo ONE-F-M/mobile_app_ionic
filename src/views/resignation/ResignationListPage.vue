@@ -75,7 +75,7 @@ import {
 } from "@ionic/vue";
 import PageHeader from "@/components/common/PageHeader.vue";
 import { ref } from "vue";
-import { STATE_CLASSES, getDisplayState, getStateClass } from "@/utils/resignationConstants.js";
+import { getDisplayState, getStateClass } from "@/utils/resignationConstants.js";
 import { useI18n } from "vue-i18n";
 
 import IconPlus from "@/components/icon/Plus.vue";
@@ -105,7 +105,7 @@ const triggerBack = () => {
 };
 
 const goToDetail = (id) => {
-  // TODO: Create ResignationDetailPage.vue
+  // The create page acts as a dashboard for the active resignation
   router.push(`/resignation/add`);
 };
 

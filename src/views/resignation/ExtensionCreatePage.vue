@@ -118,7 +118,6 @@
 
 <script setup>
 import {
-  alertController,
   IonContent,
   IonPage,
   IonButton,

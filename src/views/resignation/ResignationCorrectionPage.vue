@@ -79,7 +79,6 @@ import {
   IonSpinner,
   IonRow,
   IonCol,
-  alertController,
   popoverController,
   IonPopover,
   IonDatetime,

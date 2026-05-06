@@ -178,7 +178,6 @@ import {
   IonSpinner,
   IonRow,
   IonCol,
-  alertController,
   popoverController,
   IonPopover,
   IonDatetime,
@@ -333,11 +332,6 @@ onIonViewWillEnter(async () => {
   if (userStore.user?.employee_id && userStore.token) {
     await resignationStore.fetchActiveResignation();
     await fetchSupervisor(userStore.user.employee_id);
-
-    if (resignationStore.activeResignation) {
-      resignationInitiationDate.value = resignationStore.activeResignation.resignation_initiation_date || new Date().toISOString().split('T')[0];
-      relievingDate.value = resignationStore.activeResignation.relieving_date || new Date().toISOString().split('T')[0];
-    }
   }
 });
 </script>

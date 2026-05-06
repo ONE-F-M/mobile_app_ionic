@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from "@ionic/vue-router";
+import { authGuard } from "@/middleware/loggedIn";
 import EnrollmentStartPage from "@/views/enrollment/EnrollmentStartPage.vue";
 import { useUserStore } from "@/store/user";
 
@@ -134,8 +135,6 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.VITE_BASE_URL),
   routes,
 });
-
-import { authGuard } from "@/middleware/loggedIn";
 
 router.beforeEach(authGuard);
 
