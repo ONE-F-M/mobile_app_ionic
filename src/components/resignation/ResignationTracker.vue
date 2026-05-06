@@ -8,8 +8,8 @@
     <div class="tracker-body">
       <div class="status-row">
         <span class="label">{{ $t('resignation.status', 'Status:') }}</span>
-        <span class="badge" :class="getStateClass(displayState)">
-          {{ displayState }}
+        <span class="badge" :class="getStateClass(getDisplayState(resignation))">
+          {{ getDisplayState(resignation) }}
         </span>
       </div>
       <div class="date-row" v-if="resignation.relieving_date">
@@ -48,15 +48,6 @@ const props = defineProps({
   }
 });
 
-
-const displayState = computed(() => {
-  if (!props.resignation) return '';
-  const state = props.resignation.workflow_state;
-  if (state === 'Pending Supervisor' && props.resignation.is_corporate) {
-    return 'Pending Line Manager';
-  }
-  return state;
-});
 
 </script>
 

@@ -95,16 +95,6 @@ const myResignations = ref([]);
 const isLoading = ref(false);
 
 
-const getDisplayState = (resig) => {
-  if (!resig) return '';
-  const state = resig.workflow_state;
-  if (state === 'Pending Supervisor' && resig.is_corporate) {
-    return 'Pending Line Manager';
-  }
-  return state;
-};
-
-
 const formatDateToDisplay = (date, format = "DD-MM-YYYY") => {
   if (!date) return "";
   return dayjs(date, "YYYY-MM-DD").format(format);
