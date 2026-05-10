@@ -101,7 +101,7 @@ const formatDateToDisplay = (date, format = "DD-MM-YYYY") => {
 };
 
 const triggerBack = () => {
-  router.canGoBack() ? router.back() : router.push("/home");
+  router.push("/home");
 };
 
 const goToDetail = (id) => {
