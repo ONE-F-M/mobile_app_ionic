@@ -1,22 +1,23 @@
 import { createRouter, createWebHistory } from "@ionic/vue-router";
+import { authGuard } from "@/middleware/loggedIn";
 import EnrollmentStartPage from "@/views/enrollment/EnrollmentStartPage.vue";
-import { isLoggedInForbidden, isAuthenticated } from '@/middleware/loggedIn';
+import { useUserStore } from "@/store/user";
 
 const routes = [
   {
     path: "/",
     component: () => import("@/views/SelectLanguage.vue"),
-    beforeEnter: isLoggedInForbidden,
+    meta: { isGuest: true },
   },
   {
     path: "/employee-id",
     component: () => import("@/views/authentication/EmployeeId.vue"),
-    beforeEnter: isLoggedInForbidden,
+    meta: { isGuest: true },
   },
   {
     path: "/login",
     component: () => import("@/views/authentication/LoginPage.vue"),
-    beforeEnter: isLoggedInForbidden,
+    meta: { isGuest: true },
   },
   {
     path: "/register",
@@ -38,25 +39,25 @@ const routes = [
   {
     path: "/enrollment",
     component: EnrollmentStartPage,
-	beforeEnter: isAuthenticated,
+    meta: { requiresAuth: true },
   },
   {
     path: "/enroll-success",
     component: () => import("@/views/enrollment/EnrollmentResult.vue"),
     props: { type: "success", action: "/home" },
-	beforeEnter: isAuthenticated,
+    meta: { requiresAuth: true },
   },
   {
     path: "/enroll-failure",
     component: () => import("@/views/enrollment/EnrollmentResult.vue"),
     props: { type: "failure", action: "/enrollment" },
-	beforeEnter: isAuthenticated,
+    meta: { requiresAuth: true },
   },
   {
     path: "/home",
     component: () => import("@/views/user/Tabs.vue"),
     redirect: "/dashboard",
-	beforeEnter: isAuthenticated,
+    meta: { requiresAuth: true },
     children: [
       {
         path: "/dashboard",
@@ -79,28 +80,54 @@ const routes = [
   {
     path: "/checkin",
     component: () => import("@/views/checkin/CheckinListPage.vue"),
-	beforeEnter: isAuthenticated,
+    meta: { requiresAuth: true },
   },
   {
     name: "leaves-list",
     path: "/leaves",
     component: () => import("@/views/leaves/LeavesListPage.vue"),
-    beforeEnter: isAuthenticated,
-},
+    meta: { requiresAuth: true },
+  },
   {
     path: "/leaves/add",
     component: () => import("@/views/leaves/LeaveCreatePage.vue"),
-    beforeEnter: isAuthenticated,
+    meta: { requiresAuth: true },
   },
   {
     path: "/leaves/:id",
     component: () => import("@/views/leaves/LeaveDetailsPage.vue"),
-    beforeEnter: isAuthenticated,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/resignation",
+    component: () => import("@/views/resignation/ResignationListPage.vue"),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/resignation/add",
+    component: () => import("@/views/resignation/ResignationCreatePage.vue"),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/resignation/withdraw",
+    component: () => import("@/views/resignation/WithdrawalCreatePage.vue"),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/resignation/correct",
+    component: () => import("@/views/resignation/ResignationCorrectionPage.vue"),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/resignation/extend',
+    name: 'resignation_extension',
+    component: () => import('@/views/resignation/ExtensionCreatePage.vue'),
+    meta: { requiresAuth: true },
   },
   {
     path: "/checkin/geolocation",
     component: () => import("@/views/checkin/CheckinGeolocation.vue"),
-    beforeEnter: isAuthenticated,
+    meta: { requiresAuth: true },
   },
 ];
 
@@ -108,5 +135,7 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.VITE_BASE_URL),
   routes,
 });
+
+router.beforeEach(authGuard);
 
 export default router;

@@ -74,9 +74,19 @@ const i18n = initI18n(lang);
 app.use(i18n);
 
 router.isReady().then( async () => {
-  await registerServiceWorker()
-  await getFirebaseMessaging();
-  app.mount("#app");
- 
+  try {
+    await registerServiceWorker();
+    await getFirebaseMessaging();
+  } catch (e) {
+    if (e?.message?.includes?.('apiKey')) {
+      console.warn("Dev mode: Skipping Firebase/SW initialization due to missing environment keys.");
+    } else {
+      console.warn("Firebase/SW initialization failed:", e);
+      window.__PUSH_NOTIFICATIONS_DISABLED__ = true;
+    }
+  } finally {
+    // ALWAYS mount the app, even if Firebase fails
+    app.mount("#app");
+  }
 });
 
