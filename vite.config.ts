@@ -17,9 +17,22 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    // Suppress the "Some chunks are larger than 500 kB" warning
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Separate heavy vendor libraries into independently-cached chunks.
+          // Note: We deliberately leave Ionic out of this so its internal lazy-loading doesn't break.
+          'vendor': ['vue', 'vue-router', 'pinia', 'axios', 'dayjs'],
+          'v-calendar': ['v-calendar'],
+        }
+      }
+    }
+  },
   test: {
     globals: true,
     environment: 'jsdom'
-  },
-  filenameHashing: false
+  }
 })

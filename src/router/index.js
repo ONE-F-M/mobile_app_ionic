@@ -3,6 +3,8 @@ import { authGuard } from "@/middleware/loggedIn";
 import EnrollmentStartPage from "@/views/enrollment/EnrollmentStartPage.vue";
 import { useUserStore } from "@/store/user";
 
+// OPTIMIZATION 1: Removed static import of EnrollmentStartPage to reduce initial bundle size.
+
 const routes = [
   {
     path: "/",
@@ -19,14 +21,14 @@ const routes = [
     component: () => import("@/views/authentication/LoginPage.vue"),
     meta: { isGuest: true },
   },
+  // Auth Flow Group
   {
     path: "/register",
     redirect: "/register/method",
   },
   {
     path: "/register/method",
-    component: () =>
-      import("@/views/authentication/VerificationMethodPage.vue"),
+    component: () => import("@/views/authentication/VerificationMethodPage.vue"),
   },
   {
     path: "/register/verify-code",
@@ -36,6 +38,8 @@ const routes = [
     path: "/register/set-password",
     component: () => import("@/views/authentication/SetPasswordPage.vue"),
   },
+
+  // OPTIMIZATION 2: Enrollment Flow
   {
     path: "/enrollment",
     component: EnrollmentStartPage,
@@ -53,6 +57,8 @@ const routes = [
     props: { type: "failure", action: "/enrollment" },
     meta: { requiresAuth: true },
   },
+
+  // Main App Flow
   {
     path: "/home",
     component: () => import("@/views/user/Tabs.vue"),
@@ -77,11 +83,21 @@ const routes = [
       },
     ],
   },
+
+  // Checkin Flow
   {
     path: "/checkin",
     component: () => import("@/views/checkin/CheckinListPage.vue"),
     meta: { requiresAuth: true },
   },
+  {
+    path: "/checkin/geolocation",
+    component: () => import("@/views/checkin/CheckinGeolocation.vue"),
+    meta: { requiresAuth: true }
+  },
+
+  // Leaves Flow 
+  // OPTIMIZATION 3: Grouped logical features
   {
     name: "leaves-list",
     path: "/leaves",
@@ -124,6 +140,8 @@ const routes = [
     component: () => import('@/views/resignation/ExtensionCreatePage.vue'),
     meta: { requiresAuth: true },
   },
+
+  // Shift Request Flow
   {
     path: "/checkin/geolocation",
     component: () => import("@/views/checkin/CheckinGeolocation.vue"),

@@ -50,8 +50,43 @@ const fetchServices = async () => {
   }
 };
 
+const refreshDataIfNeeded = async () => {
+  const employeeId = userStore.user?.employee_id;
+  if (!employeeId) return;
+
+  const now = Date.now();
+  const cacheTimeout = 2 * 60 * 1000;
+
+  // Check age of checkin fetch
+  if (now - userStore.lastCheckinFetch > cacheTimeout) {
+    userStore.prefetchCheckins(employeeId);
+  }
+
+  // Check age of leaves fetch
+  if (now - userStore.lastLeavesFetch > cacheTimeout) {
+    userStore.prefetchLeaves(employeeId);
+  }
+
+  // Check age of shifts fetch
+  if (now - userStore.lastShiftsFetch > cacheTimeout) {
+    userStore.prefetchShifts(employeeId);
+  }
+
+  // Check age of geolocation fetch
+  if (now - userStore.lastGeolocationFetch > cacheTimeout) {
+    userStore.prefetchGeolocation(employeeId);
+  }
+
+  // Stock Entry Prefetch (Last fetch timestamp is in its own store)
+  const stockEntryStore = (await import("@/store/stock_entry")).useStockEntryStore();
+  if (!stockEntryStore.lastFetch || now - stockEntryStore.lastFetch > cacheTimeout) {
+    userStore.prefetchStockEntries(employeeId);
+  }
+};
+
 onIonViewDidEnter(() => {
   fetchServices();
+  refreshDataIfNeeded();
 });
 </script>
 
@@ -68,7 +103,7 @@ onIonViewDidEnter(() => {
           @click="goToServicePage(service.service)"
         >
           <div class="services-item-icon-wrapper">
-            <span class="mdi" :class="`mdi-${service.service_icon}`" />
+            <MdiIcon :name="service.service_icon" :size="24" />
           </div>
           <div class="services-item-label">
             {{ $i18n.locale === 'ar' ? service.service_ar : service.service }}

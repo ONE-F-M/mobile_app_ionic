@@ -30,7 +30,6 @@ import { Loader } from "@googlemaps/js-api-loader";
 import auth from "@/api/authentication";
 import { useRoute } from "vue-router";
 
-
 const router = useIonRouter();
 const route = useRoute();
 
@@ -104,13 +103,10 @@ const initializeStream = async () => {
 
   if (window.screen.orientation && window.screen.orientation.type.includes('portrait')) {
     // Portrait mode: height > width
-    
     videoConstraints.width = { ideal: 640 };
     videoConstraints.height = { ideal: 360 };
   } else {
-    
     // Landscape mode: width > height
-    
     videoConstraints.width = { ideal: 640 };
     videoConstraints.height = { ideal: 360 };
   }
@@ -125,16 +121,16 @@ const initializeStream = async () => {
   const isAppleDevice = /iPhone|iPad|iPod/i.test(navigator.userAgent);
   let recorder_options
   if (isAppleDevice) {
-  recorder_options = {
-    mimeType: 'video/mp4',
-    videoBitsPerSecond: 150000, // Lower bitrate for smaller file size
-  };
+    recorder_options = {
+      mimeType: 'video/mp4',
+      videoBitsPerSecond: 150000, // Lower bitrate for smaller file size
+    };
   }
-  else{
-    recorder_options = { 
-    mimeType: 'video/webm;codecs=vp9',
-    videoBitsPerSecond: 150000,
-     // 150 kbps for video
+  else {
+    recorder_options = {
+      mimeType: 'video/webm;codecs=vp9',
+      videoBitsPerSecond: 150000,
+      // 150 kbps for video
     };
   }
   video.value.srcObject = stream;
@@ -142,12 +138,14 @@ const initializeStream = async () => {
 
   let dataResolver;
   dataPromise = new Promise((resolve) => (dataResolver = resolve));
-   
+
   if (!MediaRecorder.isTypeSupported(recorder_options.mimeType)) {
-  recorder_options = { mimeType: 'video/mp4', videoBitsPerSecond: 200000, // 200 kbps for video
-    codecs:'avc1.42E01E, mp4a.40.2' }; // Fallback for browsers that don't support MP4
+    recorder_options = {
+      mimeType: 'video/mp4', videoBitsPerSecond: 200000, // 200 kbps for video
+      codecs: 'avc1.42E01E, mp4a.40.2'
+    }; // Fallback for browsers that don't support MP4
   }
-  recorder = new MediaRecorder(stream,recorder_options);
+  recorder = new MediaRecorder(stream, recorder_options);
   recorder.ondataavailable = (event) => dataResolver(event.data);
   recorder.start();
 
@@ -155,19 +153,15 @@ const initializeStream = async () => {
 };
 
 const cleanup = async () => {
-  
   recorder.stop();
   stream && stream.getTracks().forEach((track) => track.stop());
   stream = null;
-  
 };
 
 const saveVideo = async () => {
   recorder.stop();
 
   const chunks = await dataPromise;
-  
-
 
   const readerPromise = new Promise((resolve) => {
     const reader = new FileReader();
@@ -185,7 +179,7 @@ const saveVideo = async () => {
 
   await verifyCheckin();
   // await getSiteLocation();
-  
+
   cleanup();
   isOpen.value = false;
   isLoading.value = false;
@@ -194,6 +188,17 @@ const saveVideo = async () => {
 };
 
 const printCurrentPosition = async () => {
+  // OPTIMIZATION: Check URL params first to skip Geolocation call
+  if (route.query.lat && route.query.lng) {
+      coordinates.value = {
+        coords: {
+            latitude: Number(route.query.lat),
+            longitude: Number(route.query.lng)
+        }
+      };
+      return; 
+  }
+
   coordinates.value = await Geolocation.getCurrentPosition({
     enableHighAccuracy: true,
   });
@@ -252,36 +257,65 @@ const loadAgainLocation = async () => {
 
 const getSiteLocation = async () => {
   try {
+    const now = Date.now();
+    const cacheTimeout = 2 * 60 * 1000;
+    const isCacheFresh = now - userStore.lastGeolocationFetch < cacheTimeout;
 
-    const response = await auth.getUserFaceEnrollment({
-    employee_id: userStore.user?.employee_id,
-  });
-  if(response.data.data.enrolled===false){
-    showErrorToast(`You have not enrolled your face,Please Enroll`);
-    router.push("/enrollment");
-  }
-    const payload = {
-      employee_id: userStore.user?.employee_id,
-      latitude: coordinates.value?.coords?.latitude,
-      longitude: coordinates.value?.coords?.longitude,
-      log_type: logType.value,
+    // 1. Check Face Enrollment Cache
+    let enrollmentData = null;
+    if (isCacheFresh && userStore.cachedFaceEnrollment) {
+      enrollmentData = userStore.cachedFaceEnrollment;
+    } else {
+      const response = await auth.getUserFaceEnrollment({
+        employee_id: userStore.user?.employee_id,
+      });
+      enrollmentData = response.data.data;
     }
 
-    if (route.query.shift && route.query.shift !== 'None' && route.query.shift !== 'undefined') {
-      payload.shift = route.query.shift
+    if (enrollmentData?.enrolled === false) {
+      showErrorToast(`You have not enrolled your face. Please enroll.`);
+      router.push("/enrollment");
+      return;
     }
 
-    const { data } = await checkin.getSiteLocation(payload);
+    // 2. Check Site Location Cache
+    if (isCacheFresh && userStore.cachedGeolocationData) {
+      const data = userStore.cachedGeolocationData;
+      site_radius.value = data.geofence_radius;
+      site_lat.value = data.latitude;
+      site_long.value = data.longitude;
+      userStore.setEndpointStatus(data.endpoint_status);
+      isUserWithinGeofenceRadius.value = data.user_within_geofence_radius;
+      faceRecEndpointEnabled.value = data.endpoint_status;
+      shift.value = data.shift;
+    } else {
+      const payload = {
+        employee_id: userStore.user?.employee_id,
+        latitude: coordinates.value?.coords?.latitude,
+        longitude: coordinates.value?.coords?.longitude,
+        log_type: logType.value || "IN",
+      };
 
-    site_radius.value = data.data.geofence_radius;
-    site_lat.value = data.data.latitude;
-    site_long.value = data.data.longitude;
-    userStore.setEndpointStatus(data.data.endpoint_status)
-    isUserWithinGeofenceRadius.value = data.data.user_within_geofence_radius;
-    faceRecEndpointEnabled.value = data.data.endpoint_status
-    shift.value = data.data.shift;
+      if (route.query.shift && route.query.shift !== 'None' && route.query.shift !== 'undefined') {
+        payload.shift = route.query.shift;
+      }
+
+      const { data } = await checkin.getSiteLocation(payload);
+
+      site_radius.value = data.data.geofence_radius;
+      site_lat.value = data.data.latitude;
+      site_long.value = data.data.longitude;
+      userStore.setEndpointStatus(data.data.endpoint_status);
+      isUserWithinGeofenceRadius.value = data.data.user_within_geofence_radius;
+      faceRecEndpointEnabled.value = data.data.endpoint_status;
+      shift.value = data.data.shift;
+    }
   } catch (error) {
-    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
+    // Robust Error Handling
+    const msg = error?.data?.message || error?.message || "Unable to retrieve site location";
+    const detail = error?.data?.error || null;
+    const code = error?.data?.status_code || 0;
+    showErrorToast(msg, detail, code);
   }
 };
 
@@ -299,22 +333,28 @@ const verifyCheckin = async () => {
       payload.shift = route.query.shift
     }
 
-    
-    if(userStore.isEndpointEnabled){
+
+    if (userStore.isEndpointEnabled) {
       payload.video = verifyVideo.value
     }
-   
+
     await checkin.verifyCheckin(payload);
+    userStore.prefetchCheckins(userStore.user?.employee_id);
+    userStore.prefetchGeolocation(userStore.user?.employee_id);
     // await getSiteLocation();
 
     const type = logType.value === "OUT" ? "checkout" : "checkin";
 
     showSuccessToast(`You have ${type} successfully`);
-    
+
     router.push("/dashboard");
   } catch (error) {
-    console.error(error);
-    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
+    console.error("Checkin Error:", error);
+    // Robust Error Handling
+    const msg = error?.data?.message || error?.message || "Checkin failed";
+    const detail = error?.data?.error || null;
+    const code = error?.data?.status_code || 0;
+    showErrorToast(msg, detail, code);
   }
   finally {
     isSubmitting.value = false; // Re-enable button
@@ -347,81 +387,95 @@ const addInitialMarker = async (map) => {
 const initializeMap = async () => {
   hasUserRejectedLocation.value = false;
   isLoadingLocation.value = true;
-  try {
-    await printCurrentPosition();
-  } catch (e) {
-    hasUserRejectedLocation.value = true;
-    return;
-  }
-  hasUserRejectedLocation.value = false;
 
   let apiKey = null;
+
   try {
-    const response = await utils.getGoogleMapApiKey();
-    apiKey = response.data?.data?.google_map_api;
+    // OPTIMIZATION: This will likely be instant because printCurrentPosition checks query params first
+    const gpsPromise = printCurrentPosition();
+    const apiKeyPromise = utils.getGoogleMapApiKey();
+
+    const [_, apiKeyResponse] = await Promise.all([gpsPromise, apiKeyPromise]);
+    apiKey = apiKeyResponse.data?.data?.google_map_api;
+
   } catch (e) {
-    showErrorToast(t("user.checkin.apiKeyNotFound"));
+    if (!coordinates.value) { // GPS Failed
+      hasUserRejectedLocation.value = true;
+    } else { // API Key Failed
+      showErrorToast(t("user.checkin.apiKeyNotFound"));
+    }
+    isLoadingLocation.value = false;
     return;
   }
 
-  if (isIOS.value) {
-    const loader = new Loader({
-      apiKey,
-      version: "weekly",
-    });
-    await loader.load();
-    const { Map } = await google.maps.importLibrary("maps");
+  hasUserRejectedLocation.value = false;
 
-    googleMap = new Map(document.getElementById("map"), {
-      mapId: "my-map",
-      center: initialPosition.value,
-      panControl: false,
-      zoom: 18,
-      disableDefaultUI: true,
-    });
-  } else {
-    const mapRef = document.getElementById("map");
-    const body = document.querySelector("body.dark");
-    body.classList.add("map-transparent");
+  // 2. Parallelize Map Initialization and Site Data Fetching
+  const mapInitPromise = (async () => {
+    if (isIOS.value) {
+      const loader = new Loader({ apiKey, version: "weekly" });
+      await loader.load();
+      const { Map } = await google.maps.importLibrary("maps");
 
-    googleMap = await GoogleMap.create({
-      apiKey, // Your Google Maps API Key
-      id: "my-map", // Unique identifier for this map instance
-      element: mapRef, // reference to the capacitor-google-map element
-      config: {
-        // The initial position to be rendered by the map
+      googleMap = new Map(document.getElementById("map"), {
+        mapId: "my-map",
         center: initialPosition.value,
         panControl: false,
-        zoom: 18, // The initial zoom level to be rendered by the map
-      },
-    });
-  }
+        zoom: 18,
+        disableDefaultUI: true,
+      });
+    } else {
+      const mapRef = document.getElementById("map");
+      const body = document.querySelector("body.dark");
+      body.classList.add("map-transparent");
 
-  await addInitialMarker(googleMap);
-  await getSiteLocation();
-  await addsitemarker();
-  isLoadingLocation.value = false;
+      googleMap = await GoogleMap.create({
+        apiKey,
+        id: "my-map",
+        element: mapRef,
+        config: {
+          center: initialPosition.value,
+          panControl: false,
+          zoom: 18,
+        },
+      });
+    }
+    await addInitialMarker(googleMap);
+    return googleMap;
+  })();
+
+  const siteLocationPromise = getSiteLocation();
+
+  try {
+    await Promise.all([mapInitPromise, siteLocationPromise]);
+    // 3. Add site marker only after map relies on site data
+    await addsitemarker();
+  } catch (e) {
+    console.error("Map or Site Location Error", e);
+  } finally {
+    isLoadingLocation.value = false;
+  }
 };
 
-const addsitemarker = async () =>{
+const addsitemarker = async () => {
   if (isIOS.value) {
     new google.maps.Circle({
       strokeColor: "#FF0000",
       fillColor: 'red',
       fillOpacity: 0.35,
-      map:googleMap,
-      center: {lat: site_lat.value, lng: site_long.value},
+      map: googleMap,
+      center: { lat: site_lat.value, lng: site_long.value },
       radius: site_radius.value,
     });
   }
-  else{
+  else {
     googleMap.addCircles([{
-        center: { lat: site_lat.value, lng: site_long.value },
-        radius: site_radius.value,
-        strokeWidth: 3, 
-        strokeColor: '#FF0000', 
-        fillColor: 'red',
-      }])
+      center: { lat: site_lat.value, lng: site_long.value },
+      radius: site_radius.value,
+      strokeWidth: 3,
+      strokeColor: '#FF0000',
+      fillColor: 'red',
+    }])
   }
 
 }
@@ -433,8 +487,8 @@ const disableSwipeBack = () => {
 
     ionRouterOutlet.swipeHandler = {
       canStart: () => false,
-      onStart: () => {},
-      onEnd: () => {},
+      onStart: () => { },
+      onEnd: () => { },
     }
   }
 };
@@ -446,20 +500,22 @@ const enableSwipeBack = () => {
   }
 };
 
-onMounted(() => {
+// --- LIFECYCLE OPTIMIZATION ---
+
+onMounted(async () => {
   disableSwipeBack();
-});
-
-onBeforeUnmount(() => {
-  enableSwipeBack();
-});
-
-onIonViewDidEnter(async () => {
+  
   // Set logType from query parameter if available
   if (route.query.log_type) {
     logType.value = route.query.log_type;
   }
+  
+  // Start map init IMMEDIATELY (parallel with transition)
   await initializeMap();
+});
+
+onBeforeUnmount(() => {
+  enableSwipeBack();
 });
 
 onIonViewWillLeave(() => {
@@ -494,32 +550,20 @@ onIonViewDidLeave(() => {
       </div>
       <div style="height: calc(100% - 70px); width: 100%" id="map"></div>
 
-      <div
-        class="location-currentLocation"
-        :class="{
-          'location-currentLocation-shift': shift,
-        }"
-        @click="setCenterCamera"
-      >
+      <div class="location-currentLocation" :class="{
+        'location-currentLocation-shift': shift,
+      }" @click="setCenterCamera">
         <MyLocation />
       </div>
 
       <div v-if="shift" class="location-wrapper">
-        <ion-row
-          class="ion-align-items-center ion-justify-content-between location-wrapper-row"
-        >
+        <ion-row class="ion-align-items-center ion-justify-content-between location-wrapper-row">
           <div class="checkin-location-wrapper">
             <p class="checkin-location">Checkin location</p>
             <p class="checkin-shift">{{ shift.shift }}</p>
           </div>
-          <ion-button
-            v-if="logType"
-            @click="startVerifyPerson"
-            shape="round"
-            class="checkin-button"
-            :color="logType === 'IN' ? 'success' : 'danger'"
-            :disabled="isSubmitting"
-          >
+          <ion-button v-if="logType" @click="startVerifyPerson" shape="round" class="checkin-button"
+            :color="logType === 'IN' ? 'success' : 'danger'" :disabled="isSubmitting">
             {{
               logType === "IN"
                 ? $t("user.checkin.checkin")
@@ -530,10 +574,7 @@ onIonViewDidLeave(() => {
       </div>
 
       <div v-if="isLoadingLocation" class="loader">
-        <ion-spinner
-          class="loader-spinner"
-          name="crescent"
-        />
+        <ion-spinner class="loader-spinner" name="crescent" />
       </div>
     </ion-content>
 
@@ -545,12 +586,7 @@ onIonViewDidLeave(() => {
 
         <div class="video-verify-progress-wrapper">
           <div>
-            <ion-spinner
-              v-if="isLoading"
-              class="video-verify-loading"
-              name="crescent"
-              color="primary"
-            />
+            <ion-spinner v-if="isLoading" class="video-verify-loading" name="crescent" color="primary" />
           </div>
 
           <Transition>
@@ -569,9 +605,7 @@ onIonViewDidLeave(() => {
     </ion-modal>
 
     <ion-modal :is-open="!isUserWithinGeofenceRadius">
-      <ion-row
-        class="geolocation-page-outside-location ion-align-items-center ion-justify-content-center"
-      >
+      <ion-row class="geolocation-page-outside-location ion-align-items-center ion-justify-content-center">
         <div class="geolocation-page-outside-card">
           <div class="geolocation-page-outside-card-icon-wrapper">
             <IconClose />
@@ -583,19 +617,11 @@ onIonViewDidLeave(() => {
             {{ $t("user.checkin.outside.description") }}
           </p>
           <ion-row class="ion-justify-content-end">
-            <ion-button
-              @click="clickBack"
-              class="geolocation-page-outside-card-back"
-              fill="clear"
-            >
+            <ion-button @click="clickBack" class="geolocation-page-outside-card-back" fill="clear">
               {{ $t("user.checkin.outside.back") }}
             </ion-button>
-            <ion-button
-              class="geolocation-page-outside-card-try-again"
-              fill="clear"
-              :disabled="isLoadingLocation"
-              @click="loadAgainLocation"
-            >
+            <ion-button class="geolocation-page-outside-card-try-again" fill="clear" :disabled="isLoadingLocation"
+              @click="loadAgainLocation">
               {{ $t("user.checkin.outside.try_again") }}
             </ion-button>
           </ion-row>
@@ -604,9 +630,7 @@ onIonViewDidLeave(() => {
     </ion-modal>
 
     <ion-modal :is-open="hasUserRejectedLocation">
-      <ion-row
-        class="geolocation-page-outside-location ion-align-items-center ion-justify-content-center"
-      >
+      <ion-row class="geolocation-page-outside-location ion-align-items-center ion-justify-content-center">
         <div class="geolocation-page-outside-card">
           <div class="geolocation-page-outside-card-icon-wrapper">
             <IconClose />
@@ -618,18 +642,10 @@ onIonViewDidLeave(() => {
             {{ $t("user.checkin.geolocation.description") }}
           </p>
           <ion-row class="ion-justify-content-end">
-            <ion-button
-              @click="clickBack"
-              class="geolocation-page-outside-card-back"
-              fill="clear"
-            >
+            <ion-button @click="clickBack" class="geolocation-page-outside-card-back" fill="clear">
               {{ $t("user.checkin.geolocation.back") }}
             </ion-button>
-            <ion-button
-              class="geolocation-page-outside-card-try-again"
-              fill="clear"
-              @click="initializeMap"
-            >
+            <ion-button class="geolocation-page-outside-card-try-again" fill="clear" @click="initializeMap">
               {{ $t("user.checkin.geolocation.try_again") }}
             </ion-button>
           </ion-row>
@@ -764,6 +780,7 @@ onIonViewDidLeave(() => {
   .checkin-button {
     margin-bottom: 0;
   }
+
   .checkin-button::part(native) {
     padding: 8px 35px;
     font-weight: 600;
@@ -781,7 +798,7 @@ onIonViewDidLeave(() => {
   font-size: 0;
 
   .video {
-    
+
     transform: translateX(-50%) translateY(-50%) scaleX(-1);
   }
 
@@ -839,6 +856,7 @@ onIonViewDidLeave(() => {
     line-height: 1.5rem;
     letter-spacing: 0.25px;
   }
+
   &-progress {
     margin-top: 16px;
   }

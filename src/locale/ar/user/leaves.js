@@ -17,6 +17,13 @@ export default {
       hajj: "إجازة حج",
       annual_leave: "إجازة سنوية",
       leave_without_pay: "إجازة بدون أجر",
+      unpaid_leave: "إجازة بدون راتب",
+      business_trip: "مهمة عمل",
+      casual_leave: "إجازة عارضة",
+      compensatory_off: "إجازة تعويضية",
+      privilege_leave: "إجازة امتياز",
+      holiday_compensatory_leave: "إجازة تعويضية عن عطلة",
+      bereavement_leave: "إجازة وفاة",
     },
     status: {
       pending: "قيد الانتظار",
@@ -56,5 +63,6 @@ export default {
     posting_date: "تاريخ النشر",
     total_leaves_days: "إجمالي أيام الإجازات",
     save_leaves_application: "حفظ طلب الإجازة",
+    resumption_date: "تاريخ العودة للعمل"
   },
 };

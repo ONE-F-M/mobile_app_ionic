@@ -61,6 +61,21 @@ export const httpService = {
       url: `${BASE_URL}${API_PREFIX}${url}`,
     });
 
+    // Handle 401 Unauthorized — session expired or invalid token
+    if (response.status === 401) {
+      const userStore = useUserStore();
+      userStore.logout();
+
+      // Redirect to login page
+      // Using window.location ensures a full navigation even if the router isn't available
+      window.location.href = '/employee-id';
+
+      // Attach a user-friendly message before throwing
+      if (!response.data) response.data = {};
+      response.data.message = 'Your session has expired. Please log in again.';
+      throw response;
+    }
+
     if (response.status >= 400) {
       throw response;
     }

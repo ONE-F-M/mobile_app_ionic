@@ -17,9 +17,10 @@ export default {
     try_again: "Try Again",
   },
   apiKeyNotFound: "Failed to load Google Map. Service unavailable",
-  in:"IN",
-  out:"OUT",
-  employee_name:"Employee Name",
-  date_time:"Date/Time",
-  status:"Status"
+  in: "IN",
+  out: "OUT",
+  employee_name: "Employee Name",
+  date_time: "Date/Time",
+  status: "Status",
+  load_more: "Load More"
 };
