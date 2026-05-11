@@ -74,10 +74,22 @@ const lang = langStore.lang || "en";
 const i18n = initI18n(lang);
 app.use(i18n);
 
-router.isReady().then(async () => {
-  // OPTIMIZATION: Mount the app FIRST so the user sees the UI immediately.
-  // Firebase and service worker init happen in the background — they don't block rendering.
-  app.mount("#app");
+router.isReady().then( async () => {
+  try {
+    await registerServiceWorker();
+    await getFirebaseMessaging();
+  } catch (e) {
+    if (e?.message?.includes?.('apiKey')) {
+      console.warn("Dev mode: Skipping Firebase/SW initialization due to missing environment keys.");
+    } else {
+      console.warn("Firebase/SW initialization failed:", e);
+      window.__PUSH_NOTIFICATIONS_DISABLED__ = true;
+    }
+  } finally {
+    // ALWAYS mount the app, even if Firebase fails
+    app.mount("#app");
+  }
+});
 
   // Non-blocking background initialization
   registerServiceWorker()

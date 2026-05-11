@@ -403,7 +403,7 @@ ion-button {
   --ion-safe-area-top: 60px;
   --max-width: 92%;
   --border-radius: 12px;
-  --ion-color-base: #25353d !important;
+  --ion-color-base: #25353d ;
 }
 
 ion-toast.toast-success::part(message) {
@@ -440,7 +440,7 @@ ion-toast.toast-success::part(icon) {
   --ion-safe-area-top: 60px;
   --max-width: 92%;
   --border-radius: 12px;
-  --ion-color-base: #25353d !important;
+  --ion-color-base: #25353d ;
 }
 
 ion-toast.toast-error::part(message) {
@@ -474,9 +474,9 @@ ion-toast.toast-error::part(icon) {
 }
 
 .vc-popover-content {
-  background: #233036 !important;
-  border: none !important;
-  box-shadow: none !important;
+  background: #233036 ;
+  border: none ;
+  box-shadow: none ;
 
   .vc-nav-arrow {
     background: transparent;
@@ -534,5 +534,41 @@ html {
 }
 
 body.map-transparent {
-  --ion-background-color: transparent !important;
+  --ion-background-color: transparent ;
+}
+
+/* Global CSS block required to override Ionic Overlay Shadow DOMs */
+ion-alert.bright-md3-alert {
+  --background: #ffffff;
+  --backdrop-opacity: 0.65;
+}
+
+ion-alert.bright-md3-alert .alert-wrapper {
+  background: #ffffff ;
+  border-radius: 28px ;
+  box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.3) ;
+}
+
+ion-alert.bright-md3-alert .alert-title {
+  color: #1c1b1f ;
+  font-size: 22px ;
+  font-weight: 500 ;
+  font-family: inherit ;
+}
+
+ion-alert.bright-md3-alert .alert-message {
+  color: #49454f ;
+  font-size: 15px ;
+  line-height: 1.5 ;
+}
+
+ion-alert.bright-md3-alert .alert-button {
+  color: #0b57d0 ;
+  font-weight: 600 ;
+  text-transform: none ;
+  font-size: 16px ;
+}
+
+ion-alert.bright-md3-alert .alert-button.alert-button-role-cancel {
+  color: #747474 ;
 }

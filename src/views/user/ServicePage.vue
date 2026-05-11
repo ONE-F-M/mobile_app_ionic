@@ -9,6 +9,7 @@ import {
   useIonRouter,
 } from "@ionic/vue";
 import configuration from "@/api/configuration";
+import { getServiceRoute } from "@/utils/serviceRouteMap";
 import { useCustomToast } from "@/composable/toast";
 import { ref } from "vue";
 import ServiceGroupCard from "@/components/service/GroupCard.vue";
@@ -31,22 +32,9 @@ const router = useIonRouter();
 const selectedGroup = ref("");
 
 const goToServicePage = (service) => {
-
-  switch (service) {
-    case "Checkin Checkout":
-      router.push("/checkin");
-      break;
-    case "Leaves":
-      router.push("/leaves");
-      break;
-    case "New Leave Application":
-      router.push("/leaves/add");
-      break;
-    case "Shift Request":
-      router.push("/shifts");
-      break;
-    default:
-      break;
+  const route = getServiceRoute(service);
+  if (route !== "/service") {
+    router.push(route);
   }
 };
 

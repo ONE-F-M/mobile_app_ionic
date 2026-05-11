@@ -12,12 +12,17 @@ export const useCustomToast = () => {
 
   const { t } = useI18n();
 
-  const showErrorToast = async (message, error, statusCode, duration = null) => {
-    // 1. Start with the specific error from the backend (if any)
-    let errorMessage = error;
-
-    // 2. Determine the Title (Header)
-    // If backend provided a 'message', use it. Otherwise use generic "Error!"
+  const showErrorToast = async (message, error, statusCode) => {
+    let errStr = null;
+    if (typeof error === 'string') {
+      errStr = error;
+    } else if (error?.data?.error) {
+      errStr = typeof error.data.error === 'string' ? error.data.error : JSON.stringify(error.data.error);
+    } else if (error?.message) {
+      errStr = error.message;
+    }
+    
+    const errorMessage = errStr || getStatusMessage(statusCode);
     const errorTitle = message ? message : t("utils.toast.error");
 
     // 3. Fallback Logic (Refined)

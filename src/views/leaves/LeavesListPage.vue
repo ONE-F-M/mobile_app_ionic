@@ -15,7 +15,7 @@ import {
   IonCol,
   IonCheckbox,
 } from "@ionic/vue";
-import LeavesHeader from "@/components/leaves/Header.vue";
+import PageHeader from "@/components/common/PageHeader.vue";
 import { computed, nextTick, ref, shallowRef, watch } from "vue";
 
 import IconPlus from "@/components/icon/Plus.vue";
@@ -234,7 +234,7 @@ onIonViewWillEnter(async () => {
 <template>
   <ion-page>
     <ion-content class="ion-padding leaves-page">
-      <LeavesHeader
+      <PageHeader
         class="leaves-page-header"
         :title="$t('user.leaves.leaves')"
         show-filter-button

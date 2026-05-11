@@ -8,9 +8,9 @@ import {
 import { useUserStore } from "@/store/user";
 import configuration from "@/api/configuration";
 import { useCustomToast } from "@/composable/toast";
-import { ref,onMounted } from "vue";
+import { ref, computed } from "vue";
 import Header from "@/components/Header.vue";
-import MdiIcon from "@/components/base/MdiIcon.vue";
+import { getServiceRoute } from "@/utils/serviceRouteMap";
 
 const router = useIonRouter();
 const userStore = useUserStore();
@@ -19,21 +19,8 @@ const { showErrorToast } = useCustomToast();
 
 const services = ref([]);
 
-onMounted(() => {
-  // This triggers the download of the Checkin chunk immediately
-  // so it is ready in memory when the user clicks.
-  import("@/views/checkin/CheckinListPage.vue").catch((error) => {
-    // Avoid unhandled promise rejection if prefetch fails
-    console.error("Failed to prefetch CheckinListPage chunk", error);
-  });
-  
-  import("@/views/checkin/CheckinGeolocation.vue").catch((error) => {
-    console.error("Failed to prefetch CheckinGeolocation chunk", error);
-  });
-
-  import("@/views/stock_entry/StockEntryListPage.vue").catch((error) => {
-    console.error("Failed to prefetch StockEntryListPage chunk", error);
-  });
+const filteredServices = computed(() => {
+  return services.value.filter(s => s.service !== "Resignation Withdrawal");
 });
 
 const logout = () => {
@@ -46,24 +33,9 @@ if (!userStore.user || !userStore.token) {
 }
 
 const goToServicePage = (service) => {
-  switch (service) {
-    case "Checkin Checkout":
-      router.push("/checkin");
-      break;
-    case "Leaves":
-      router.push("/leaves");
-      break;
-    case "New Leave Application":
-      router.push("/leaves/add");
-      break;
-    case "Shift Request":
-      router.push("/shifts");
-      break;
-    case "Stock Entry":
-      router.push("/stock-entry");
-      break;
-    default:
-      break;
+  const route = getServiceRoute(service);
+  if (route !== "/service") {
+    router.push(route);
   }
 };
 
@@ -73,7 +45,7 @@ const fetchServices = async () => {
 
     services.value = data.data.service_detail;
   } catch (error) {
-    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
+    showErrorToast(error?.data?.message, error, error?.status || error?.data?.status_code);
     services.value = [];
   }
 };
@@ -122,9 +94,10 @@ onIonViewDidEnter(() => {
   <ion-page>
     <ion-content class="ion-padding user-home-page">
       <Header>{{ $t("user.home.title") }}</Header>
+      
       <div class="services">
         <div
-          v-for="service in services"
+          v-for="service in filteredServices"
           class="services-item"
           :key="service.service"
           @click="goToServicePage(service.service)"

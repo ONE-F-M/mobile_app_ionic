@@ -9,7 +9,7 @@ import {
   onIonViewWillEnter,
   useIonRouter,
 } from "@ionic/vue";
-import LeavesHeader from "@/components/leaves/Header.vue";
+import PageHeader from "@/components/common/PageHeader.vue";
 import { useRoute } from "vue-router";
 import { computed, ref } from "vue";
 import { useUserStore } from "@/store/user";
@@ -175,7 +175,7 @@ onIonViewWillEnter(async () => {
 <template>
   <ion-page>
     <ion-content class="ion-padding leaves-page">
-      <LeavesHeader
+      <PageHeader
         :title="$t('user.leaves.leave_details')"
         class="leaves-page-header"
         @click-back="triggerBack"
