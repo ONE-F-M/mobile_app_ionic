@@ -91,8 +91,3 @@ router.isReady().then( async () => {
   }
 });
 
-  // Non-blocking background initialization
-  registerServiceWorker()
-    .then(() => getFirebaseMessaging())
-    .catch((err) => console.warn('Background init failed:', err));
-});
