@@ -22,7 +22,7 @@ export const useCustomToast = () => {
       errStr = error.message;
     }
     
-    const errorMessage = errStr || getStatusMessage(statusCode);
+    let errorMessage = errStr || getStatusMessage(statusCode);
     const errorTitle = message ? message : t("utils.toast.error");
 
     // 3. Fallback Logic (Refined)
@@ -49,7 +49,7 @@ export const useCustomToast = () => {
       header: errorTitle,
       message: errorMessage, // If this is null, Ionic simply hides the body area
       ...commonConfig,
-      duration: duration || commonConfig.duration,
+      duration: commonConfig.duration,
       icon: closeOutline,
     });
 
