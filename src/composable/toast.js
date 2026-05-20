@@ -12,7 +12,7 @@ export const useCustomToast = () => {
 
   const { t } = useI18n();
 
-  const showErrorToast = async (message, error, statusCode) => {
+  const showErrorToast = async (message, error, statusCode, duration = null) => {
     let errStr = null;
     if (typeof error === 'string') {
       errStr = error;
@@ -49,7 +49,7 @@ export const useCustomToast = () => {
       header: errorTitle,
       message: errorMessage, // If this is null, Ionic simply hides the body area
       ...commonConfig,
-      duration: commonConfig.duration,
+      duration: duration || commonConfig.duration,
       icon: closeOutline,
     });
 
