@@ -12,7 +12,7 @@ export const useCustomToast = () => {
 
   const { t } = useI18n();
 
-  const showErrorToast = async (message, error, statusCode) => {
+  const showErrorToast = async (message, error, statusCode, duration = null) => {
     let errStr = null;
     if (typeof error === 'string') {
       errStr = error;
@@ -22,7 +22,7 @@ export const useCustomToast = () => {
       errStr = error.message;
     }
     
-    const errorMessage = errStr || getStatusMessage(statusCode);
+    let errorMessage = errStr || getStatusMessage(statusCode);
     const errorTitle = message ? message : t("utils.toast.error");
 
     // 3. Fallback Logic (Refined)
