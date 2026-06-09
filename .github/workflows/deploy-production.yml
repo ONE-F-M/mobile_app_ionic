@@ -6,6 +6,10 @@ on:
     branches:
       - version-15
 
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -22,8 +26,10 @@ jobs:
           command_timeout: 30m
           script_stop: true
           script: |
-            set -x
+            set -euxo pipefail
             cd /home/frappe/mobile_app_ionic
-            git pull upstream version-15
-            yarn install
+            git fetch upstream version-15
+            git checkout version-15
+            git reset --hard upstream/version-15
+            yarn install --frozen-lockfile
             yarn build
