@@ -1,0 +1,29 @@
+name: Deploy to Production
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - version-15
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Deploy to Production
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRODUCTION_KEY }}
+          port: 22
+          command_timeout: 30m
+          script_stop: true
+          script: |
+            set -x
+            cd /home/frappe/mobile_app_ionic
+            git pull upstream version-15
+            yarn install
+            yarn build
