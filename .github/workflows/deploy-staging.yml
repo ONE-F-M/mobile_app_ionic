@@ -5,6 +5,10 @@ on:
     branches:
       - staging
 
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -21,13 +25,16 @@ jobs:
           command_timeout: 30m
           script_stop: true
           script: |
+            set -euxo pipefail
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
             node -v
             cd /home/frappe/mobile_ionic_app/mobile_app_ionic
-            git pull origin staging
+            git fetch origin staging
+            git checkout staging
+            git reset --hard origin/staging
             sudo chown -R $(whoami):$(whoami) node_modules dist 2>/dev/null || true
             rm -rf dist
-            yarn install
+            yarn install --frozen-lockfile
             export NODE_OPTIONS="--max-old-space-size=4096"
             yarn build
