@@ -10,6 +10,7 @@ import configuration from "@/api/configuration";
 import { useCustomToast } from "@/composable/toast";
 import { ref, computed } from "vue";
 import Header from "@/components/Header.vue";
+import MdiIcon from "@/components/base/MdiIcon.vue";
 import { getServiceRoute } from "@/utils/serviceRouteMap";
 
 const router = useIonRouter();

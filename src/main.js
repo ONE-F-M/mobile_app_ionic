@@ -81,8 +81,10 @@ router.isReady().then(async () => {
     await registerServiceWorker();
     await getFirebaseMessaging();
   } catch (e) {
-    if (e?.message?.includes?.('apiKey')) {
-      console.warn("Dev mode: Skipping Firebase/SW initialization due to missing environment keys.");
+    if (e?.message?.includes?.("apiKey")) {
+      console.warn(
+        "Dev mode: Skipping Firebase/SW initialization due to missing environment keys.",
+      );
     } else {
       console.warn("Firebase/SW initialization failed:", e);
       window.__PUSH_NOTIFICATIONS_DISABLED__ = true;
@@ -92,9 +94,3 @@ router.isReady().then(async () => {
     app.mount("#app");
   }
 });
-
-// Non-blocking background initialization
-registerServiceWorker()
-  .then(() => getFirebaseMessaging())
-  .catch((err) => console.warn('Background init failed:', err));
-
