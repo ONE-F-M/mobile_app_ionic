@@ -17,7 +17,7 @@ import VCalendar from "v-calendar";
 
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/vue/css/core.css";
-import "@mdi/font/css/materialdesignicons.css";
+// REMOVED: @mdi/font webfont (~240 KB). Replaced by tree-shakeable MdiIcon.vue component using @mdi/js.
 
 /* Basic CSS for apps built with Ionic */
 import "@ionic/vue/css/normalize.css";

@@ -9,6 +9,7 @@ import {
   IonText,
 } from "@ionic/vue";
 import IconChevronDown from "@/components/icon/ChevronDown.vue";
+import MdiIcon from "@/components/base/MdiIcon.vue";
 
 const props = defineProps({
   serviceGroup: {
@@ -65,10 +66,11 @@ watch(
         @click="showContent = !showContent"
       >
         <div class="group-card-title-wrapper">
-          <span
-            class="mdi group-card-title-icon"
-            :class="`mdi-${serviceGroup.icon}`"
-          ></span>
+          <MdiIcon
+            :name="serviceGroup.icon"
+            :size="24"
+            class="group-card-title-icon"
+          />
           <ion-text>
             <p class="group-card-title">{{ serviceGroup.name }}</p>
           </ion-text>
@@ -87,7 +89,7 @@ watch(
               @click="$emit('open-service', service.name)"
             >
               <div class="services-item-icon-wrapper">
-                <span class="mdi" :class="`mdi-${service.icon}`" />
+                <MdiIcon :name="service.icon" :size="24" />
               </div>
               <p class="services-item-label">
                 {{ service.name }}
