@@ -152,6 +152,19 @@
           />
         </div>
 
+        <ion-row class="form-row">
+          <ion-col size="12">
+            <p class="leaves-create-label">
+              {{ $t('resignation.reason_for_exit', 'Reason for Exit') }}
+            </p>
+            <ion-input
+              :placeholder="$t('resignation.detailed_reason', 'Detailed reason...')"
+              fill="outline"
+              v-model="reasonForExit"
+            ></ion-input>
+          </ion-col>
+        </ion-row>
+
         <ion-button
           shape="round"
           class="submit-btn"
@@ -234,6 +247,7 @@ const closeCalendarPopover = async () => {
 const minDate = new Date().toISOString().split('T')[0];
 const resignationInitiationDate = ref(new Date().toISOString().split('T')[0]);
 const relievingDate = ref(new Date().toISOString().split('T')[0]);
+const reasonForExit = ref("");
 
 
 
@@ -280,6 +294,7 @@ const clearForm = () => {
     const baseIso = new Date().toISOString().split('T')[0];
   resignationInitiationDate.value = baseIso;
   relievingDate.value = baseIso;
+  reasonForExit.value = "";
 };
 
 const submitData = async () => {
@@ -290,6 +305,7 @@ const submitData = async () => {
       supervisor: selectedSupervisor.value,
       resignation_initiation_date: resignationInitiationDate.value ? resignationInitiationDate.value.split('T')[0] : "",
       relieving_date: relievingDate.value ? relievingDate.value.split('T')[0] : "",
+      reason_for_exit: reasonForExit.value,
       attachment: {
         attachment_name: createFile.attachment.value.name,
         attachment: createFile.attachment.value.base64,
