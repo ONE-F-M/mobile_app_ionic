@@ -56,7 +56,7 @@
         <ion-row class="form-row">
           <ion-col size="12">
             <p class="leaves-create-label leaves-create-label__required" :class="{ 'text-danger': errors.supervisor }">
-              {{ $t('resignation.supervisor_name', 'Supervisor Name') }}
+              {{ supervisorLabel }}
             </p>
             <ion-input
               :placeholder="$t('resignation.fetching_supervisor', 'Fetching assigned supervisor...')"
@@ -180,6 +180,7 @@ const errors = reactive({
 });
 const selectedSupervisor = ref("");
 const supervisorSearch = ref("");
+const supervisorLabel = ref(t('resignation.supervisor_name', 'Supervisor Name'));
 
 const fetchSupervisor = async (empId) => {
   supervisorLoading.value = true;
@@ -187,6 +188,11 @@ const fetchSupervisor = async (empId) => {
     if (!empId) return;
     const res = await resignation.getEmployeeSupervisor(empId);
     const superData = res.data?.message || {};
+    // Corporate hires have no Operations Manager step -- their "Supervisor"
+    // is really their Line Manager (matches the ERP desk's own relabeling).
+    supervisorLabel.value = superData.shift_working
+      ? t('resignation.supervisor_name', 'Supervisor Name')
+      : t('resignation.line_manager_name', 'Line Manager Name');
     if (superData.user_id) {
       selectedSupervisor.value = superData.user_id;
       supervisorSearch.value = superData.full_name;
@@ -201,6 +207,7 @@ const fetchSupervisor = async (empId) => {
 const clearForm = () => {
   extensionFile.clearAttachment();
   selectedSupervisor.value = "";
+  supervisorLabel.value = t('resignation.supervisor_name', 'Supervisor Name');
   reason.value = "";
   extendedDate.value = new Date().toISOString().split('T')[0];
 };
