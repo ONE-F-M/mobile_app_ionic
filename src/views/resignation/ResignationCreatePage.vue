@@ -301,6 +301,7 @@ const clearForm = () => {
   resignationInitiationDate.value = baseIso;
   relievingDate.value = baseIso;
   reasonForExit.value = "";
+  supervisorLabel.value = t('resignation.supervisor_name', 'Supervisor Name');
 };
 
 const submitData = async () => {
