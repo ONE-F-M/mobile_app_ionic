@@ -13,6 +13,7 @@ import {
 
 import IconPlus from "@/components/icon/Plus.vue";
 import CheckinHeader from "@/components/checkin/Header.vue";
+import CheckinBanner from "@/components/checkin/CheckinBanner.vue";
 import checkin from "@/api/checkin";
 import { useUserStore } from "@/store/user.js";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
@@ -38,6 +39,8 @@ const isOpenDatePicker = ref(false);
 
 const currentShifts = ref([]);
 const isDeterminingLocation = ref(false);
+// Why check-in is unavailable, shown for as long as the check-in button is hidden.
+const blockerMessage = ref("");
 const availableShifts = computed(() =>
   currentShifts.value.filter((shift) => !shift?.is_completed)
 );
@@ -143,18 +146,22 @@ const refreshLocationAndShifts = async () => {
     });
 
     currentShifts.value = [];
+    blockerMessage.value = "";
     if (data.data.shift) currentShifts.value.push(data.data.shift);
     if (data.data.upcoming_shifts) currentShifts.value.push(...data.data.upcoming_shifts);
 
   } catch (error) {
+    // A banner rather than a toast: the check-in button stays hidden until this is
+    // resolved, so the reason has to stay on screen with it. The server sends the
+    // sentence to show - a closed window, an upcoming shift, a status to clear.
     // 1. Handle Device GPS Errors
     if (error.code === 1 || error.message?.includes('location')) {
        showErrorToast(t("user.checkin.geolocation.title"));
-    } 
+       blockerMessage.value = t("user.checkin.banner.fallback");
+    }
     // 2. Handle Backend API Errors (Logic Fix)
     else {
-       const message = getErrorMessage(error);
-       showErrorToast(message);
+       blockerMessage.value = error?.data?.error || t("user.checkin.banner.fallback");
     }
     currentShifts.value = [];
   } finally {
@@ -208,6 +215,8 @@ const openDatePicker = () => {
         class="checkin-page-header"
         @open-date-picker="openDatePicker"
       />
+
+      <CheckinBanner :message="blockerMessage" />
 
       <div class="checkin-page-table-wrapper">
         <ion-row>

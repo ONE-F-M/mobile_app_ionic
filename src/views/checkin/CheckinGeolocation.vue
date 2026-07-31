@@ -16,6 +16,7 @@ import {
 import { Geolocation } from "@capacitor/geolocation";
 import { Capacitor } from "@capacitor/core";
 import Header from "@/components/Header.vue";
+import CheckinBanner from "@/components/checkin/CheckinBanner.vue";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { GoogleMap } from "@capacitor/google-maps";
 import IconScan from "@/components/icon/Scan.vue";
@@ -49,6 +50,8 @@ const shift = ref(null);
 const verifyVideo = ref("");
 
 const coordinates = ref("");
+// Why check-in is unavailable, shown for as long as the check-in button is hidden.
+const blockerMessage = ref("");
 const isOpen = ref(false);
 const isLoading = ref(false);
 const isLoadingLocation = ref(false);
@@ -310,12 +313,12 @@ const getSiteLocation = async () => {
       faceRecEndpointEnabled.value = data.data.endpoint_status;
       shift.value = data.data.shift;
     }
+    blockerMessage.value = "";
   } catch (error) {
-    // Robust Error Handling
-    const msg = error?.data?.message || error?.message || "Unable to retrieve site location";
-    const detail = error?.data?.error || null;
-    const code = error?.data?.status_code || 0;
-    showErrorToast(msg, detail, code);
+    // A banner rather than a toast: without a shift the check-in button is hidden,
+    // so the reason has to stay on screen with it. The server sends the sentence to
+    // show - a closed window, an upcoming shift, a status to clear.
+    blockerMessage.value = error?.data?.error || t("user.checkin.banner.fallback");
   }
 };
 
@@ -527,6 +530,7 @@ onIonViewWillLeave(() => {
   isUserWithinGeofenceRadius.value = true;
   logType.value = "";
   shift.value = null;
+  blockerMessage.value = "";
 });
 
 onIonViewDidLeave(() => {
@@ -547,6 +551,8 @@ onIonViewDidLeave(() => {
             }}
           </slot>
         </Header>
+
+        <CheckinBanner :message="blockerMessage" />
       </div>
       <div style="height: calc(100% - 70px); width: 100%" id="map"></div>
 
