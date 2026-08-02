@@ -20,7 +20,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useCustomToast } from "@/composable/toast.js";
 import useDateHelper from "@/composable/useDateHelper";
 import { useLangStore } from "@/store/lang.js";
-import { Geolocation } from "@capacitor/geolocation";
+import { getCurrentPositionSafe } from "@/utils/geolocation.js";
 import { useI18n } from "vue-i18n";
 import Datepicker from "@/components/base/Datepicker.vue";
 import { App } from '@capacitor/app';
@@ -134,10 +134,9 @@ const refreshLocationAndShifts = async () => {
   isDeterminingLocation.value = true;
   
   try {
-    const coordinates = await Geolocation.getCurrentPosition({
-      enableHighAccuracy: true,
-      timeout: 10000,
-    });
+    // Bounded acquisition with cached-fix reuse + retry so the "Locating..."
+    // button state always resolves quickly instead of blocking on a cold fix.
+    const coordinates = await getCurrentPositionSafe();
 
     const { data } = await checkin.getSiteLocation({
       employee_id: userStore.user?.employee_id,
@@ -151,13 +150,10 @@ const refreshLocationAndShifts = async () => {
     if (data.data.upcoming_shifts) currentShifts.value.push(...data.data.upcoming_shifts);
 
   } catch (error) {
-    // A banner rather than a toast: the check-in button stays hidden until this is
-    // resolved, so the reason has to stay on screen with it. The server sends the
-    // sentence to show - a closed window, an upcoming shift, a status to clear.
-    // 1. Handle Device GPS Errors
-    if (error.code === 1 || error.message?.includes('location')) {
+    // 1. Handle Device GPS Errors (string codes come from getCurrentPositionSafe)
+    if (["PERMISSION_DENIED", "TIMEOUT", "UNAVAILABLE"].includes(error.code)
+        || error.code === 1 || error.message?.includes('location')) {
        showErrorToast(t("user.checkin.geolocation.title"));
-       blockerMessage.value = t("user.checkin.banner.fallback");
     }
     // 2. Handle Backend API Errors (Logic Fix)
     else {
