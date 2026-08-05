@@ -1,10 +1,14 @@
 import { PushNotifications } from "@capacitor/push-notifications";
+import { Haptics, NotificationType } from "@capacitor/haptics";
 import { useAuthStore } from "./../store/auth";
 import profile from "./../api/profile";
 import { Device } from "@capacitor/device";
+import { useConfirmAlert } from "@/composable/useConfirmAlert.ts";
+import { playNotificationSound } from "@/utils/notificationSound";
 
 export default function useNotification() {
   const authStore = useAuthStore();
+  const { showAcknowledge } = useConfirmAlert();
 
   const addListeners = async () => {
     await PushNotifications.addListener("registration", async (token) => {
@@ -27,8 +31,20 @@ export default function useNotification() {
 
     await PushNotifications.addListener(
       "pushNotificationReceived",
-      (notification) => {
+      async (notification) => {
+        // The OS only shows a banner + plays a sound automatically when the
+        // app is backgrounded -- while it's open (which is when this fires),
+        // nothing appears unless we show it ourselves.
         console.log("Push notification received: ", notification);
+        if (!notification.title && !notification.body) return;
+
+        await playNotificationSound();
+        Haptics.notification({ type: NotificationType.Success }).catch(() => {});
+
+        await showAcknowledge(
+          notification.title || "",
+          notification.body || "",
+        );
       },
     );
 
