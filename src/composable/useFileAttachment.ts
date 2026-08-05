@@ -11,6 +11,7 @@ export function useFileAttachment() {
     try {
       const photo = await Camera.getPhoto({
         quality: 80,
+        width: 1600,
         resultType: CameraResultType.DataUrl,
         source: CameraSource.Camera,
       });
