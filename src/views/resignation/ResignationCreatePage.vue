@@ -12,43 +12,49 @@
       </div>
 
       <!-- Live Dashboard Tracker Banner -->
-      <div v-else-if="resignationStore.activeResignation">
-        <ResignationTracker 
-          :resignation="resignationStore.activeResignation" 
-          :description="$t('resignation.active_description', 'You currently have an active resignation. You cannot submit another one until this workflow completes.')"
+      <div v-else-if="displayResignation">
+        <ResignationTracker
+          :resignation="displayResignation"
+          :description="isTerminalView ? '' : $t('resignation.active_description', 'You currently have an active resignation. You cannot submit another one until this workflow completes.')"
           :showInitiated="true"
         />
 
-        <!-- Correction Flow Container -->
-        <div v-if="resignationStore.activeResignation.workflow_state === 'Pending Relieving Date Correction'" class="correction-container">
-          <ion-button expand="block" shape="round" color="warning" @click="router.push('/resignation/correct')" class="action-btn" style="margin-inline: 16px;">
-            {{ $t('resignation.action.correct', 'Submit Date Correction') }}
-          </ion-button>
-        </div>
+        <template v-if="!isTerminalView">
+          <!-- Correction Flow Container -->
+          <div v-if="displayResignation.workflow_state === 'Pending Relieving Date Correction'" class="correction-container">
+            <ion-button expand="block" shape="round" color="warning" @click="router.push('/resignation/correct')" class="action-btn" style="margin-inline: 16px;">
+              <BilingualText tag="span" tKey="resignation.action.correct" fallback="Submit Date Correction" />
+            </ion-button>
+          </div>
 
-        <!-- Pending Action Banners -->
-        <div v-if="resignationStore.activeResignation.has_pending_withdrawal" class="ion-padding" style="text-align: center; color: var(--ion-color-danger); font-weight: 500;">
-          {{ $t('resignation.pending_withdrawal_msg', 'Your resignation withdrawal is currently under review.') }}
-        </div>
-        <div v-else-if="resignationStore.activeResignation.has_pending_extension" class="ion-padding" style="text-align: center; color: var(--ion-color-warning); font-weight: 500;">
-          {{ $t('resignation.pending_extension_msg', 'Your resignation date adjustment is currently under review.') }}
-        </div>
+          <!-- Pending Action Banners -->
+          <div v-if="hasPendingWithdrawal" class="ion-padding" style="text-align: center; color: var(--ion-color-danger); font-weight: 500;">
+            <BilingualText tKey="resignation.pending_withdrawal_msg" fallback="Your resignation withdrawal is currently under review." />
+          </div>
+          <div v-else-if="hasPendingExtension" class="ion-padding" style="text-align: center; color: var(--ion-color-warning); font-weight: 500;">
+            <BilingualText tKey="resignation.pending_extension_msg" fallback="Your resignation date adjustment is currently under review." />
+          </div>
 
-        <div class="tracker-actions" v-else-if="resignationStore.activeResignation.workflow_state === 'Approved'">
-          <ion-button expand="block" shape="round" color="warning" @click="goToExtension" class="action-btn">
-            {{ $t('resignation.action.extend', 'Extend / Reduce Resignation') }}
-          </ion-button>
-          
-          <ion-button expand="block" shape="round" color="danger" @click="goToWithdrawal" class="action-btn-danger">
-            {{ $t('resignation.action.withdraw', 'Withdraw Resignation') }}
-          </ion-button>
-        </div>
+          <div class="tracker-actions" v-else-if="displayResignation.workflow_state === 'Approved'">
+            <ion-button expand="block" shape="round" color="warning" @click="goToExtension" class="action-btn">
+              <BilingualText tag="span" tKey="resignation.action.extend" fallback="Extend / Reduce Resignation" />
+            </ion-button>
+
+            <ion-button expand="block" shape="round" color="danger" @click="goToWithdrawal" class="action-btn-danger">
+              <BilingualText tag="span" tKey="resignation.action.withdraw" fallback="Withdraw Resignation" />
+            </ion-button>
+          </div>
+        </template>
+      </div>
+
+      <div v-else-if="viewedId" class="ion-padding ion-text-center loading-container">
+        <BilingualText tKey="resignation.not_found" fallback="Resignation record not found." />
       </div>
 
       <div class="leaves-create" v-else>
         <ion-row class="form-row">
           <ion-col size="12">
-            <p class="leaves-create-label">{{ $t('resignation.employee_id', 'Employee ID') }}</p>
+            <BilingualText tag="p" class="leaves-create-label" tKey="resignation.employee_id" fallback="Employee ID" />
             <ion-input
               fill="outline"
               readonly
@@ -59,9 +65,13 @@
 
         <ion-row class="form-row">
           <ion-col size="12">
-            <p class="leaves-create-label leaves-create-label__required" :class="{ 'text-danger': errors.supervisor }">
-              {{ supervisorLabel }}
-            </p>
+            <BilingualText
+              tag="p"
+              class="leaves-create-label leaves-create-label__required"
+              :class="{ 'text-danger': errors.supervisor }"
+              :tKey="supervisorLabelKey"
+              :fallback="supervisorLabelFallback"
+            />
             <ion-input
               :placeholder="$t('resignation.fetching_supervisor', 'Fetching assigned supervisor...')"
               fill="outline"
@@ -73,9 +83,13 @@
 
         <ion-row class="form-row">
           <ion-col size="12">
-            <p class="leaves-create-label leaves-create-label__required" :class="{ 'text-danger': errors.resignationInitiationDate }">
-              {{ $t('resignation.resignation_initiation_date', 'Resignation Initiation Date') }}
-            </p>
+            <BilingualText
+              tag="p"
+              class="leaves-create-label leaves-create-label__required"
+              :class="{ 'text-danger': errors.resignationInitiationDate }"
+              tKey="resignation.resignation_initiation_date"
+              fallback="Resignation Initiation Date"
+            />
             <div id="open-initiation-modal" class="date-selector">
               <ion-input
                 fill="outline"
@@ -101,9 +115,13 @@
 
         <ion-row class="form-row">
           <ion-col size="12">
-            <p class="leaves-create-label leaves-create-label__required" :class="{ 'text-danger': errors.relievingDate }">
-              {{ $t('resignation.requested_relieving_date', 'Requested Relieving Date') }}
-            </p>
+            <BilingualText
+              tag="p"
+              class="leaves-create-label leaves-create-label__required"
+              :class="{ 'text-danger': errors.relievingDate }"
+              tKey="resignation.requested_relieving_date"
+              fallback="Requested Relieving Date"
+            />
             <div id="open-relieving-modal" class="date-selector">
               <ion-input
                 fill="outline"
@@ -129,34 +147,32 @@
         </ion-row>
 
         <div class="form-row">
-          <p class="leaves-create-label leaves-create-label__required" :class="{ 'text-danger': errors.proofDocument }">
-            {{ $t('resignation.proof_letter', 'Resignation Letter (PDF, JPG, PNG)') }}
-          </p>
-          <span v-if="createFile.attachment.value.name" class="title-medium leaves-create-proof-document-name">
-            {{ createFile.attachment.value.name }}
-          </span>
+          <BilingualText
+            tag="p"
+            class="leaves-create-label leaves-create-label__required"
+            :class="{ 'text-danger': errors.proofDocument }"
+            tKey="resignation.proof_letter"
+            fallback="Resignation Letter (Photo)"
+          />
+          <img
+            v-if="createFile.attachment.value.base64"
+            :src="createFile.attachment.value.base64"
+            class="proof-photo-preview"
+            alt=""
+          />
           <ion-button
             shape="round"
             class="leaves-create-upload-button"
             expand="block"
-            @click="createFile.triggerFileUpload"
+            @click="createFile.takePhoto"
           >
-            {{ $t('resignation.upload_resignation_letter', 'Upload Resignation Letter') }}
+            <BilingualText tag="span" tKey="resignation.upload_resignation_letter" fallback="Take Photo of Resignation Letter" />
           </ion-button>
-          <input
-            :ref="(el) => createFile.fileInput.value = el"
-            class="hidden-input"
-            type="file"
-            accept=".pdf,.jpg,.jpeg,.png"
-            @change="createFile.onFileUpload"
-          />
         </div>
 
         <ion-row class="form-row">
           <ion-col size="12">
-            <p class="leaves-create-label">
-              {{ $t('resignation.reason_for_exit', 'Reason for Exit') }}
-            </p>
+            <BilingualText tag="p" class="leaves-create-label" tKey="resignation.reason_for_exit" fallback="Reason for Exit" />
             <ion-input
               :placeholder="$t('resignation.detailed_reason', 'Detailed reason...')"
               fill="outline"
@@ -173,7 +189,7 @@
           :disabled="isLoading || supervisorLoading"
         >
           <ion-spinner v-if="isLoading" name="crescent"></ion-spinner>
-          <span v-else>{{ $t('resignation.submit_resignation', 'Submit Resignation') }}</span>
+          <BilingualText v-else tag="span" tKey="resignation.submit_resignation" fallback="Submit Resignation" />
         </ion-button>
       </div>
     </ion-content>
@@ -200,6 +216,7 @@ import { useConfirmAlert } from "@/composable/useConfirmAlert.ts";
 import { calendarOutline, attachOutline } from "ionicons/icons";
 import PageHeader from "@/components/common/PageHeader.vue";
 import ResignationTracker from "@/components/resignation/ResignationTracker.vue";
+import BilingualText from "@/components/base/BilingualText.vue";
 import { ref, reactive, computed } from "vue";
 import { useCustomToast } from "@/composable/toast.js";
 import resignation from "@/api/resignation";
@@ -209,10 +226,14 @@ import { useFileAttachment } from "@/composable/useFileAttachment.ts";
 import { useNoticePeriod } from "@/composable/useNoticePeriod.ts";
 import useDateHelper from "@/composable/useDateHelper.ts";
 import { useI18n } from "vue-i18n";
+import { useSecondaryLanguage } from "@/composable/useSecondaryLanguage";
+import { useRoute } from "vue-router";
 
 const userStore = useUserStore();
 const resignationStore = useResignationStore();
+const route = useRoute();
 const { t } = useI18n();
+const { bilingual, bilingualInline } = useSecondaryLanguage();
 const { showAcknowledge } = useConfirmAlert();
 const { showErrorToast } = useCustomToast();
 const { checkNoticePeriod } = useNoticePeriod();
@@ -221,6 +242,36 @@ const router = useIonRouter();
 
 const isLoading = ref(false);
 const supervisorLoading = ref(false);
+
+// Set when this page was opened by tapping a specific resignation from the
+// list, rather than via the "your active resignation" dashboard entry point.
+const viewedId = computed(() => route.params.id || null);
+const displayResignation = computed(() =>
+  viewedId.value ? resignationStore.viewedResignation : resignationStore.activeResignation
+);
+
+// Whether to show it read-only. Tapping a row in the list can land on either
+// a genuinely finished resignation OR the employee's own current one (it's
+// in that same list) -- only the former should be read-only, so this checks
+// the actual state rather than just "was a specific id given".
+const RESIGNATION_TERMINAL_STATES = ["Resigned", "Cancelled", "Resignation Withdrawn", "Withdrawn"];
+const isTerminalView = computed(() =>
+  RESIGNATION_TERMINAL_STATES.includes(displayResignation.value?.workflow_state)
+);
+
+// The backend returns the linked Withdrawal/Extension sub-document's own
+// state (even once terminal), not a boolean -- derive "is one currently in
+// progress" from that here, so the dashboard actually hides Withdraw/Extend
+// while one is already pending instead of letting the employee walk all the
+// way to a submit screen that the backend then rejects.
+const hasPendingWithdrawal = computed(() => {
+  const state = displayResignation.value?.withdrawal_state;
+  return !!state && !["Approved", "Rejected"].includes(state);
+});
+const hasPendingExtension = computed(() => {
+  const state = displayResignation.value?.extension_state;
+  return !!state && state !== "Approved";
+});
 
 const triggerBack = () => {
   router.canGoBack() ? router.back() : router.push("/resignation");
@@ -263,7 +314,13 @@ const errors = reactive({
 });
 const selectedSupervisor = ref("");
 const supervisorSearch = ref("");
-const supervisorLabel = ref(t('resignation.supervisor_name', 'Supervisor Name'));
+const isLineManager = ref(false);
+const supervisorLabelKey = computed(() =>
+  isLineManager.value ? 'resignation.line_manager_name' : 'resignation.supervisor_name'
+);
+const supervisorLabelFallback = computed(() =>
+  isLineManager.value ? 'Line Manager Name' : 'Supervisor Name'
+);
 
 const fetchSupervisor = async (empId) => {
   supervisorLoading.value = true;
@@ -273,9 +330,7 @@ const fetchSupervisor = async (empId) => {
     const superData = res.data?.message || {};
     // Corporate hires have no Operations Manager step -- their "Supervisor"
     // is really their Line Manager (matches the ERP desk's own relabeling).
-    supervisorLabel.value = superData.shift_working
-      ? t('resignation.supervisor_name', 'Supervisor Name')
-      : t('resignation.line_manager_name', 'Line Manager Name');
+    isLineManager.value = !superData.shift_working;
     if (superData.user_id) {
       selectedSupervisor.value = superData.user_id;
       supervisorSearch.value = superData.full_name;
@@ -301,7 +356,7 @@ const clearForm = () => {
   resignationInitiationDate.value = baseIso;
   relievingDate.value = baseIso;
   reasonForExit.value = "";
-  supervisorLabel.value = t('resignation.supervisor_name', 'Supervisor Name');
+  isLineManager.value = false;
 };
 
 const submitData = async () => {
@@ -319,18 +374,18 @@ const submitData = async () => {
       },
     };
     await resignation.createResignation(data);
-    
+
     await showAcknowledge(
-      t('resignation.submit_success_title', 'Resignation Submitted'),
-      t('resignation.submit_success_msg', 'Employee resignation submitted successfully. Please submit the signed resignation letter to the Camp Boss.'),
-      t('resignation.acknowledge', 'Acknowledge')
+      bilingual(t('resignation.submit_success_title', 'Resignation Submitted'), 'resignation.submit_success_title'),
+      bilingual(t('resignation.submit_success_msg', 'Employee resignation submitted successfully. Please submit the signed resignation letter to the Camp Boss.'), 'resignation.submit_success_msg'),
+      bilingualInline(t('resignation.acknowledge', 'Acknowledge'), 'resignation.acknowledge')
     );
     clearForm();
     triggerBack();
     
   } catch (error) {
     console.error(error);
-    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
+    showErrorToast(error?.data?.message, error?.data?.error || error?.message, error?.data?.status_code);
   } finally {
     isLoading.value = false;
   }
@@ -344,13 +399,27 @@ const onSubmit = async () => {
   const initStr = resignationInitiationDate.value.split('T')[0];
   const relStr = relievingDate.value.split('T')[0];
 
-  const isPeriodValid = await checkNoticePeriod(initStr, relStr);
+  let isPeriodValid;
+  try {
+    isPeriodValid = await checkNoticePeriod(initStr, relStr);
+  } catch (error) {
+    console.error("Notice period check failed:", error);
+    showErrorToast(null, error?.message);
+    return;
+  }
   if (!isPeriodValid) return;
 
   await submitData();
 };
 
 onIonViewWillEnter(async () => {
+  if (viewedId.value) {
+    if (userStore.user?.employee_id && userStore.token) {
+      await resignationStore.fetchResignationById(viewedId.value);
+    }
+    return;
+  }
+
   clearForm();
   if (userStore.user?.employee_id && userStore.token) {
     await resignationStore.fetchActiveResignation();
@@ -418,8 +487,13 @@ onIonViewWillEnter(async () => {
   opacity: 0.7;
 }
 
-.hidden-input {
-  display: none;
+.proof-photo-preview {
+  display: block;
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-block-start: 8px;
 }
 
 .upload-container {
@@ -465,12 +539,16 @@ ion-popover.custom-calendar-popover {
   --background: #2a2d32;
   --box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   --border-radius: 12px;
+  --width: min(340px, 92vw);
 }
 
 ion-datetime.brighter-calendar {
   --background: #2a2d32;
+  --background-rgb: 42, 45, 50;
   --title-color: #ffffff;
   --color: #ffffff;
+  --wheel-fade-background-rgb: 42, 45, 50;
+  --wheel-highlight-background: rgba(255, 255, 255, 0.08);
   border-radius: 12px;
 }
 </style>

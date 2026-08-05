@@ -21,19 +21,26 @@
           <ion-row class="leaves-content ion-align-items-center">
             <div class="leaves-content-wrapper">
               <p class="leaves-label-white">
-                <span :class="`leaves-status__${getStateClass(getDisplayState(resig))}`">{{
+                <BilingualText
+                  v-if="getStateI18nKey(getDisplayState(resig))"
+                  tag="span"
+                  :class="`leaves-status__${getStateClass(getDisplayState(resig))}`"
+                  :tKey="getStateI18nKey(getDisplayState(resig))"
+                  :fallback="getDisplayState(resig)"
+                />
+                <span v-else :class="`leaves-status__${getStateClass(getDisplayState(resig))}`">{{
                   getDisplayState(resig)
                 }}</span>
                 - {{ resig.name }}
               </p>
               <p class="leaves-label-white">
-                <span class="leaves-label">{{ $t('resignation.initiation_date', 'Initiation Date:') }}</span>
+                <BilingualText tag="span" class="leaves-label" tKey="resignation.initiation_date" fallback="Initiation Date:" />
                 {{ formatDateToDisplay(resig.resignation_initiation_date) }}
-                <span class="leaves-label">{{ $t('resignation.relieving_date', 'Relieving Date:') }}</span>
+                <BilingualText tag="span" class="leaves-label" tKey="resignation.relieving_date" fallback="Relieving Date:" />
                 {{ formatDateToDisplay(resig.relieving_date) }}
               </p>
               <p class="leaves-label-white">
-                <span class="leaves-label">{{ $t('resignation.requested_on', 'Requested On:') }}</span>
+                <BilingualText tag="span" class="leaves-label" tKey="resignation.requested_on" fallback="Requested On:" />
                 {{ formatDateToDisplay(resig.creation, "DD MMM, YYYY") }}
               </p>
             </div>
@@ -43,17 +50,13 @@
           </ion-button>
         </ion-row>
 
-        <p v-if="!myResignations.length && !isLoading" class="empty-state">
-          {{ $t('resignation.no_records', 'No resignation records found.') }}
-        </p>
+        <BilingualText v-if="!myResignations.length && !isLoading" tag="p" class="empty-state" tKey="resignation.no_records" fallback="No resignation records found." />
       </div>
 
       <ion-button class="leaves-add-button" @click="router.push('/resignation/add')">
         <IconPlus />
         <ion-text>
-          <p class="leaves-add-button-label">
-            {{ $t('resignation.initiate_resignation', 'Initiate Resignation') }}
-          </p>
+          <BilingualText tag="p" class="leaves-add-button-label" tKey="resignation.initiate_resignation" fallback="Initiate Resignation" />
         </ion-text>
       </ion-button>
 
@@ -74,9 +77,9 @@ import {
   IonRefresherContent,
 } from "@ionic/vue";
 import PageHeader from "@/components/common/PageHeader.vue";
+import BilingualText from "@/components/base/BilingualText.vue";
 import { ref } from "vue";
-import { getDisplayState, getStateClass } from "@/utils/resignationConstants.js";
-import { useI18n } from "vue-i18n";
+import { getDisplayState, getStateClass, getStateI18nKey } from "@/utils/resignationConstants.js";
 
 import IconPlus from "@/components/icon/Plus.vue";
 import ArrowRight from "@/components/icon/ArrowRight.vue";
@@ -85,7 +88,6 @@ import { useUserStore } from "@/store/user.js";
 import { useCustomToast } from "@/composable/toast.js";
 import useDateHelper from "@/composable/useDateHelper";
 
-const { t } = useI18n();
 const router = useIonRouter();
 const userStore = useUserStore();
 const { showErrorToast } = useCustomToast();
@@ -105,8 +107,7 @@ const triggerBack = () => {
 };
 
 const goToDetail = (id) => {
-  // The create page acts as a dashboard for the active resignation
-  router.push(`/resignation/add`);
+  router.push(`/resignation/add/${id}`);
 };
 
 const fetchResignations = async () => {

@@ -2,22 +2,28 @@
   <div v-if="resignation" class="resignation-tracker">
     <div class="tracker-header">
       <ion-icon :icon="documentTextOutline" class="tracker-icon"></ion-icon>
-      <h3>{{ $t('resignation.trackerTitle', 'Active Resignation Track') }}</h3>
+      <BilingualText tag="h3" tKey="resignation.trackerTitle" fallback="Active Resignation Track" />
     </div>
     <p v-if="description" class="tracker-info">{{ description }}</p>
     <div class="tracker-body">
       <div class="status-row">
-        <span class="label">{{ $t('resignation.status', 'Status:') }}</span>
-        <span class="badge" :class="getStateClass(getDisplayState(resignation))">
-          {{ getDisplayState(resignation) }}
-        </span>
+        <BilingualText tag="span" class="label" tKey="resignation.status" fallback="Status:" />
+        <BilingualText
+          v-if="displayStateKey"
+          tag="span"
+          class="badge"
+          :class="getStateClass(displayState)"
+          :tKey="displayStateKey"
+          :fallback="displayState"
+        />
+        <span v-else class="badge" :class="getStateClass(displayState)">{{ displayState }}</span>
       </div>
       <div class="date-row" v-if="resignation.relieving_date">
-        <span class="label">{{ $t('resignation.relievingDate', 'Relieving Date:') }}</span>
+        <BilingualText tag="span" class="label" tKey="resignation.relievingDate" fallback="Relieving Date:" />
         <span class="value">{{ resignation.relieving_date }}</span>
       </div>
       <div class="date-row" v-if="resignation.resignation_date && showInitiated">
-        <span class="label">{{ $t('resignation.initiatedDate', 'Initiated:') }}</span>
+        <BilingualText tag="span" class="label" tKey="resignation.initiatedDate" fallback="Initiated:" />
         <span class="value">{{ resignation.resignation_date }}</span>
       </div>
     </div>
@@ -25,13 +31,11 @@
 </template>
 
 <script setup>
-import { STATE_CLASSES, getDisplayState, getStateClass } from "@/utils/resignationConstants.js";
+import { getDisplayState, getStateClass, getStateI18nKey } from "@/utils/resignationConstants.js";
 import { computed } from 'vue';
 import { IonIcon } from '@ionic/vue';
 import { documentTextOutline } from 'ionicons/icons';
-import { useI18n } from 'vue-i18n';
-
-const { t } = useI18n();
+import BilingualText from "@/components/base/BilingualText.vue";
 
 const props = defineProps({
   resignation: {
@@ -48,6 +52,8 @@ const props = defineProps({
   }
 });
 
+const displayState = computed(() => getDisplayState(props.resignation));
+const displayStateKey = computed(() => getStateI18nKey(displayState.value));
 
 </script>
 

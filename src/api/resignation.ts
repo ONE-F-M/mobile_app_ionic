@@ -35,6 +35,11 @@ const getMyActiveResignation = async (employee_id?: string) =>
     params: { employee_id },
   });
 
+const getResignationByName = async (resignation_id: string, employee_id?: string) =>
+  await http.get(`v1.resignation.get_resignation_by_name`, {
+    params: { resignation_id, employee_id },
+  });
+
 const getAllMyResignations = async (employee_id?: string) =>
   await http.get(`v1.resignation.get_all_my_resignations`, {
     params: { employee_id },
@@ -77,6 +82,7 @@ export default {
   getSupervisorDropdown,
   getEmployeeSupervisor,
   getMyActiveResignation,
+  getResignationByName,
   getAllMyResignations,
   extendResignation,
   correctResignationDate,
