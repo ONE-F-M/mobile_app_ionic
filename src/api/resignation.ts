@@ -3,6 +3,7 @@ import { httpService as http } from "./http.service";
 type ResignationParams = {
   employee_id: string;
   reason?: string;
+  reason_for_exit?: string;
   attachment?: string; // JSON string with attachment_name and base64
   supervisor?: string;
   resignation_initiation_date?: string;
@@ -32,6 +33,11 @@ const getEmployeeSupervisor = async (employee_id: string) =>
 const getMyActiveResignation = async (employee_id?: string) =>
   await http.get(`v1.resignation.get_my_active_resignation`, {
     params: { employee_id },
+  });
+
+const getResignationByName = async (resignation_id: string, employee_id?: string) =>
+  await http.get(`v1.resignation.get_resignation_by_name`, {
+    params: { resignation_id, employee_id },
   });
 
 const getAllMyResignations = async (employee_id?: string) =>
@@ -76,6 +82,7 @@ export default {
   getSupervisorDropdown,
   getEmployeeSupervisor,
   getMyActiveResignation,
+  getResignationByName,
   getAllMyResignations,
   extendResignation,
   correctResignationDate,

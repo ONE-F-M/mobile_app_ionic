@@ -16,7 +16,7 @@
           <ion-row class="form-row">
             <!-- Corrected Initiation Date -->
             <ion-col size="12">
-              <p class="leaves-create-label leaves-create-label__required">{{ $t('resignation.corrected_initiation_date', 'Corrected Initiation Date') }}</p>
+              <BilingualText tag="p" class="leaves-create-label leaves-create-label__required" tKey="resignation.corrected_initiation_date" fallback="Corrected Initiation Date" />
               <div id="open-new-initiation-modal" class="date-selector">
                 <ion-input fill="outline" readonly :value="formattedNewInitiationDate || $t('resignation.click_to_select', 'Click to select date')" class="readonly-input">
                   <ion-icon slot="start" :icon="calendarOutline"></ion-icon>
@@ -29,7 +29,7 @@
             
             <!-- Corrected Relieving Date -->
             <ion-col size="12">
-              <p class="leaves-create-label leaves-create-label__required">{{ $t('resignation.corrected_relieving_date', 'Corrected Relieving Date') }}</p>
+              <BilingualText tag="p" class="leaves-create-label leaves-create-label__required" tKey="resignation.corrected_relieving_date" fallback="Corrected Relieving Date" />
               <div id="open-new-relieving-modal" class="date-selector">
                 <ion-input fill="outline" readonly :value="formattedNewRelievingDate || $t('resignation.click_to_select', 'Click to select date')" class="readonly-input">
                   <ion-icon slot="start" :icon="calendarOutline"></ion-icon>
@@ -41,26 +41,26 @@
             </ion-col>
 
             <ion-col size="12">
-              <p class="leaves-create-label leaves-create-label__required">{{ $t('resignation.new_signed_letter', 'New Signed Letter (PDF, JPG, PNG)') }}</p>
-              <input type="file" :ref="(el) => correctionFile.fileInput.value = el" accept=".pdf,.jpg,.jpeg,.png" @change="correctionFile.onFileUpload" class="hidden-input" />
-              
+              <BilingualText tag="p" class="leaves-create-label leaves-create-label__required" tKey="resignation.new_signed_letter" fallback="New Signed Letter (Photo)" />
+              <img v-if="correctionFile.attachment.value.base64" :src="correctionFile.attachment.value.base64" class="proof-photo-preview" alt="" />
+
               <div class="upload-container">
-                <ion-button fill="outline" color="primary" @click="correctionFile.triggerFileUpload" class="upload-btn">
+                <ion-button fill="outline" color="primary" @click="correctionFile.takePhoto" class="upload-btn">
                   <ion-icon slot="start" :icon="attachOutline"></ion-icon>
-                  {{ correctionFile.attachment.value.name ? correctionFile.attachment.value.name : $t('resignation.attach_document', 'Attach Document') }}
+                  <BilingualText tag="span" tKey="resignation.attach_document" fallback="Take Photo" />
                 </ion-button>
               </div>
             </ion-col>
           </ion-row>
-          
-          <ion-button 
-            class="submit-correction-btn" 
-            expand="block" 
+
+          <ion-button
+            class="submit-correction-btn"
+            expand="block"
             shape="round"
-            @click="submitCorrection" 
+            @click="submitCorrection"
           >
             <ion-spinner v-if="isSubmitting" name="crescent"></ion-spinner>
-            <span v-else>{{ $t('resignation.resubmit_correction', 'Resubmit Corrected Details') }}</span>
+            <BilingualText v-else tag="span" tKey="resignation.resubmit_correction" fallback="Resubmit Corrected Details" />
           </ion-button>
         </div>
       </div>
@@ -86,6 +86,7 @@ import {
 } from "@ionic/vue";
 import { calendarOutline, attachOutline } from "ionicons/icons";
 import PageHeader from "@/components/common/PageHeader.vue";
+import BilingualText from "@/components/base/BilingualText.vue";
 import { ref, computed } from "vue";
 import { useCustomToast } from "@/composable/toast.js";
 import resignation from "@/api/resignation";
@@ -95,10 +96,12 @@ import { useFileAttachment } from "@/composable/useFileAttachment.ts";
 import { useNoticePeriod } from "@/composable/useNoticePeriod.ts";
 import { useI18n } from "vue-i18n";
 import { useConfirmAlert } from "@/composable/useConfirmAlert.ts";
+import { useSecondaryLanguage } from "@/composable/useSecondaryLanguage";
 
 const userStore = useUserStore();
 const resignationStore = useResignationStore();
 const { t } = useI18n();
+const { bilingual, bilingualInline } = useSecondaryLanguage();
 const { showAcknowledge } = useConfirmAlert();
 const { showErrorToast } = useCustomToast();
 const { checkNoticePeriod } = useNoticePeriod();
@@ -167,16 +170,17 @@ const executeCorrection = async () => {
     await resignation.correctResignationDate(payload);
     
     await showAcknowledge(
-      t('resignation.correction_success_title', 'Correction Submitted'),
-      t('resignation.correction_success_msg', 'Employee resignation corrected successfully. Please submit the updated signed resignation letter to the Camp Boss.'),
-      t('resignation.acknowledge', 'Acknowledge')
+      bilingual(t('resignation.correction_success_title', 'Correction Submitted'), 'resignation.correction_success_title'),
+      bilingual(t('resignation.correction_success_msg', 'Employee resignation corrected successfully. Please submit the updated signed resignation letter to the Camp Boss.'), 'resignation.correction_success_msg'),
+      bilingualInline(t('resignation.acknowledge', 'Acknowledge'), 'resignation.acknowledge')
     );
     clearForm();
     triggerBack();
     
     await resignationStore.fetchActiveResignation();
   } catch (error) {
-    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
+    console.error("Correction submit failed:", error);
+    showErrorToast(error?.data?.message, error?.data?.error || error?.message, error?.data?.status_code);
   } finally {
     isSubmitting.value = false;
   }
@@ -191,8 +195,14 @@ const submitCorrection = async () => {
   const initStr = newInitiationDate.value.split('T')[0];
   const relStr = newRelievingDate.value.split('T')[0];
 
-  const isPeriodValid = await checkNoticePeriod(initStr, relStr);
-  if (!isPeriodValid) return;
+  try {
+    const isPeriodValid = await checkNoticePeriod(initStr, relStr);
+    if (!isPeriodValid) return;
+  } catch (error) {
+    console.error("Notice period check failed:", error);
+    showErrorToast(null, error?.message);
+    return;
+  }
 
   await executeCorrection();
 };
@@ -261,8 +271,13 @@ onIonViewWillEnter(async () => {
   opacity: 0.7;
 }
 
-.hidden-input {
-  display: none;
+.proof-photo-preview {
+  display: block;
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-block-start: 8px;
 }
 
 .upload-container {
@@ -295,12 +310,16 @@ ion-popover.custom-calendar-popover {
   --background: #2a2d32;
   --box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   --border-radius: 12px;
+  --width: min(340px, 92vw);
 }
 
 ion-datetime.brighter-calendar {
   --background: #2a2d32;
+  --background-rgb: 42, 45, 50;
   --title-color: #ffffff;
   --color: #ffffff;
+  --wheel-fade-background-rgb: 42, 45, 50;
+  --wheel-highlight-background: rgba(255, 255, 255, 0.08);
   border-radius: 12px;
 }
 </style>

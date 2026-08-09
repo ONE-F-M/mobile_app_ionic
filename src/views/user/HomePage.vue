@@ -11,7 +11,7 @@ import { useCustomToast } from "@/composable/toast";
 import { ref, computed } from "vue";
 import Header from "@/components/Header.vue";
 import MdiIcon from "@/components/base/MdiIcon.vue";
-import { getServiceRoute } from "@/utils/serviceRouteMap";
+import { getServiceRoute, RESIGNATION_SUB_SERVICES } from "@/utils/serviceRouteMap";
 
 const router = useIonRouter();
 const userStore = useUserStore();
@@ -20,9 +20,9 @@ const { showErrorToast } = useCustomToast();
 
 const services = ref([]);
 
-const filteredServices = computed(() => {
-  return services.value.filter(s => s.service !== "Resignation Withdrawal");
-});
+const visibleServices = computed(() =>
+  services.value.filter(s => !RESIGNATION_SUB_SERVICES.includes(s.service))
+);
 
 const logout = () => {
   userStore.logout();
@@ -98,7 +98,7 @@ onIonViewDidEnter(() => {
       
       <div class="services">
         <div
-          v-for="service in filteredServices"
+          v-for="service in visibleServices"
           class="services-item"
           :key="service.service"
           @click="goToServicePage(service.service)"
