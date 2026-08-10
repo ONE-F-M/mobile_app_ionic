@@ -3,6 +3,7 @@ import { httpService as http } from "./http.service";
 type ResignationParams = {
   employee_id: string;
   reason?: string;
+  reason_for_exit?: string;
   attachment?: string; // JSON string with attachment_name and base64
   supervisor?: string;
   resignation_initiation_date?: string;
