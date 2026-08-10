@@ -17,6 +17,12 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    // Tunnelled hosts must be allow-listed or Vite rejects the request as a DNS-rebind risk.
+    allowedHosts: [
+      '3c1d-223-178-208-149.ngrok-free.app',
+    ],
+  },
   build: {
     // Suppress the "Some chunks are larger than 500 kB" warning
     chunkSizeWarningLimit: 1000,
