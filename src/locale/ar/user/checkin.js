@@ -17,6 +17,7 @@ export default {
     try_again: "حاول مرة أخرى",
   },
   apiKeyNotFound: "فشل تحميل خريطة جوجل. الخدمة غير متوفرة",
+  staticMapFailed: "تعذر تحميل الخريطة. لا يزال يتم التحقق من موقعك",
   in: "في",
   out: "خارج",
   employee_name: "اسم الموظف",

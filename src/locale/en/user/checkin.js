@@ -17,6 +17,7 @@ export default {
     try_again: "Try Again",
   },
   apiKeyNotFound: "Failed to load Google Map. Service unavailable",
+  staticMapFailed: "Unable to load the map. Your location is still being checked",
   in: "IN",
   out: "OUT",
   employee_name: "Employee Name",
