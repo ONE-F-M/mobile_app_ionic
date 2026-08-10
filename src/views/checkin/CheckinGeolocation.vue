@@ -13,7 +13,7 @@ import {
   useIonRouter,
   onIonViewDidLeave,
 } from "@ionic/vue";
-import { Geolocation } from "@capacitor/geolocation";
+import { getCurrentPositionSafe } from "@/utils/geolocation.js";
 import { Capacitor } from "@capacitor/core";
 import Header from "@/components/Header.vue";
 import CheckinBanner from "@/components/checkin/CheckinBanner.vue";
@@ -69,6 +69,7 @@ const defaultSwipeHandler = ref(null);
 const site_radius = ref(100);
 const site_lat = ref(0);
 const site_long = ref(0);
+const siteName = ref("");
 
 const { showErrorToast, showSuccessToast } = useCustomToast();
 const { t } = useI18n();
@@ -202,9 +203,9 @@ const printCurrentPosition = async () => {
       return; 
   }
 
-  coordinates.value = await Geolocation.getCurrentPosition({
-    enableHighAccuracy: true,
-  });
+  // Bounded, retrying acquisition — this call previously had no timeout and could
+  // spin on "Locating..." indefinitely on weak GPS.
+  coordinates.value = await getCurrentPositionSafe();
 };
 
 const setCenterCamera = async () => {
@@ -285,6 +286,7 @@ const getSiteLocation = async () => {
     if (isCacheFresh && userStore.cachedGeolocationData) {
       const data = userStore.cachedGeolocationData;
       site_radius.value = data.geofence_radius;
+      siteName.value = data.site_name || "";
       site_lat.value = data.latitude;
       site_long.value = data.longitude;
       userStore.setEndpointStatus(data.endpoint_status);
@@ -306,6 +308,7 @@ const getSiteLocation = async () => {
       const { data } = await checkin.getSiteLocation(payload);
 
       site_radius.value = data.data.geofence_radius;
+      siteName.value = data.data.site_name || "";
       site_lat.value = data.data.latitude;
       site_long.value = data.data.longitude;
       userStore.setEndpointStatus(data.data.endpoint_status);
@@ -566,7 +569,7 @@ onIonViewDidLeave(() => {
         <ion-row class="ion-align-items-center ion-justify-content-between location-wrapper-row">
           <div class="checkin-location-wrapper">
             <p class="checkin-location">Checkin location</p>
-            <p class="checkin-shift">{{ shift.shift }}</p>
+            <p class="checkin-shift">{{ siteName || shift.shift }}</p>
           </div>
           <ion-button v-if="logType" @click="startVerifyPerson" shape="round" class="checkin-button"
             :color="logType === 'IN' ? 'success' : 'danger'" :disabled="isSubmitting">

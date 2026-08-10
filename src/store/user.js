@@ -9,6 +9,7 @@ export const useUserStore = defineStore("user", {
     return {
       user: null,
       token: null,
+      refreshToken: null,
       isEndpointEnabled: 1,
 
       // 2. New State for Caching
@@ -57,6 +58,10 @@ export const useUserStore = defineStore("user", {
 
     setToken(token) {
       this.token = token;
+    },
+
+    setRefreshToken(refreshToken) {
+      this.refreshToken = refreshToken;
     },
 
     // 3. New Prefetch Action
@@ -212,6 +217,7 @@ export const useUserStore = defineStore("user", {
 
       this.user = null;
       this.token = null;
+      this.refreshToken = null;
       this.isEndpointEnabled = null;
 
       // Clear cache on logout
