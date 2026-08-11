@@ -2133,13 +2133,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@googlemaps/js-api-loader@npm:^1.16.6":
-  version: 1.16.10
-  resolution: "@googlemaps/js-api-loader@npm:1.16.10"
-  checksum: f8d529ae6294b9c3646a650ec009aac6014098a26c12002773f026a1683a0807dd4ff8dbdcfaa5ef21a75c142ae35993aca5583e08a08d2b3891c375142db4d2
-  languageName: node
-  linkType: hard
-
 "@googlemaps/js-api-loader@npm:~1.13.7":
   version: 1.13.11
   resolution: "@googlemaps/js-api-loader@npm:1.13.11"
@@ -4142,7 +4135,6 @@ __metadata:
     "@capacitor/push-notifications": ^6.0.0
     "@capacitor/status-bar": 6.0.0
     "@eslint/js": ^9.0.0
-    "@googlemaps/js-api-loader": ^1.16.6
     "@ionic/vue": ^7.0.0
     "@ionic/vue-router": ^7.0.0
     "@mdi/font": ^7.4.47
