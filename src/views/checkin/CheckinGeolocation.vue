@@ -38,16 +38,6 @@ const isMapVisible = ref(false);
 const mapContainer = ref(null);
 const mapSize = ref({ width: 0, height: 0 });
 
-// TEMPORARY: audits how often this screen requests an image. Delete once volume is confirmed.
-// A logged request was initiated, not necessarily billed — images are HTTP-cacheable.
-const DEBUG_STATIC_MAP = true;
-let staticMapRequests = 0;
-let staticMapStartedAt = 0;
-
-const debugMap = (...args) => {
-  if (DEBUG_STATIC_MAP) console.log("[static-map]", ...args);
-};
-
 const userStore = useUserStore();
 const isUserWithinGeofenceRadius = ref(true);
 const hasUserRejectedLocation = ref(false);
@@ -235,11 +225,8 @@ const clickBack = () => {
   router.back();
 };
 
-const loadAgainLocation = async (reason = "refresh") => {
-  if (isLoadingLocation.value) {
-    debugMap(`refresh ignored (${reason}) — one already running`);
-    return;
-  }
+const loadAgainLocation = async () => {
+  if (isLoadingLocation.value) return;
 
   try {
     isLoadingLocation.value = true;
@@ -247,7 +234,7 @@ const loadAgainLocation = async (reason = "refresh") => {
     await getSiteLocation();
 
     // User may have moved inside the geofence — show the map that was withheld.
-    revealMap(reason);
+    revealMap();
   } catch (error) {
     console.error("Location refresh failed", error);
     // Only GPS failures toast here; getSiteLocation surfaces its own backend errors.
@@ -379,7 +366,7 @@ const initialPosition = computed(() => ({
 // times — aborting each in-flight load and billing a request for every one.
 const staticMapUrl = ref("");
 
-const renderStaticMap = (reason = "unknown") => {
+const renderStaticMap = () => {
   const canRender =
     isMapVisible.value &&
     mapApiKey.value &&
@@ -401,29 +388,7 @@ const renderStaticMap = (reason = "unknown") => {
     : "";
 
   // An identical value doesn't re-render, so no request is made.
-  if (next === staticMapUrl.value) {
-    debugMap(`no change (${reason}) — no new request`);
-    return;
-  }
-
-  if (!next) {
-    debugMap(`cleared (${reason})`);
-    staticMapUrl.value = "";
-    return;
-  }
-
-  staticMapRequests += 1;
-  staticMapStartedAt = Date.now();
-
-  if (DEBUG_STATIC_MAP) {
-    const params = new URL(next).searchParams;
-    debugMap(
-      `request #${staticMapRequests} (${reason})`,
-      `zoom=${params.get("zoom")} size=${params.get("size")} scale=${params.get("scale")}`,
-      `radius=${site_radius.value}m`,
-      next,
-    );
-  }
+  if (next === staticMapUrl.value) return;
 
   staticMapUrl.value = next;
 };
@@ -480,40 +445,19 @@ const measureMapSize = () => {
 
 // Shows or hides the map once eligibility is known — the retry paths use it too, so someone
 // who moves inside the geofence gets the map that was withheld.
-const revealMap = (reason = "unknown") => {
+const revealMap = () => {
   measureMapSize();
   isMapVisible.value = canUseMap();
 
-  if (!isMapVisible.value) {
-    debugMap(
-      `map withheld (${reason}) — inGeofence=${isUserWithinGeofenceRadius.value} shift=${!!shift.value}`,
-    );
-  }
-
   // Built once here, after position, site data and size have all settled.
-  renderStaticMap(reason);
-};
-
-const handleStaticMapLoad = (event) => {
-  if (event?.target?.src !== staticMapUrl.value) {
-    debugMap("superseded load settled — ignored");
-    return;
-  }
-
-  debugMap(`loaded #${staticMapRequests} in ${Date.now() - staticMapStartedAt}ms`);
+  renderStaticMap();
 };
 
 const handleStaticMapError = (event) => {
   // A load superseded by a newer src reports as an error — only surface the current one.
-  if (event?.target?.src && event.target.src !== staticMapUrl.value) {
-    debugMap("superseded load aborted — toast suppressed", event.target.src);
-    return;
-  }
+  if (event?.target?.src && event.target.src !== staticMapUrl.value) return;
 
-  console.error(
-    `[static-map] FAILED #${staticMapRequests} after ${Date.now() - staticMapStartedAt}ms`,
-    staticMapUrl.value,
-  );
+  console.error("Static map failed to load", staticMapUrl.value);
   showErrorToast(t("user.checkin.staticMapFailed"));
 };
 
@@ -532,7 +476,7 @@ const initializeMap = async () => {
     const hasSiteLocation = await getSiteLocation();
     if (!hasSiteLocation) return;
 
-    revealMap("initial-load");
+    revealMap();
   } catch (e) {
     console.error("Map or Site Location Error", e);
   } finally {
@@ -552,7 +496,7 @@ const retryLocation = async () => {
     mapApiKey.value = apiKey;
 
     await getSiteLocation();
-    revealMap("permission-retry");
+    revealMap();
   } catch (e) {
     console.error("Map or Site Location Error", e);
   } finally {
@@ -606,8 +550,6 @@ onIonViewWillLeave(() => {
 });
 
 onIonViewDidLeave(() => {
-  debugMap(`SESSION TOTAL: ${staticMapRequests} image request(s) for this visit`);
-
   isMapVisible.value = false;
   staticMapUrl.value = "";
 });
@@ -629,13 +571,13 @@ onIonViewDidLeave(() => {
       </div>
       <div ref="mapContainer" class="map-wrapper">
         <img v-if="isMapVisible && staticMapUrl" :src="staticMapUrl" class="map-static" alt=""
-          @load="handleStaticMapLoad" @error="handleStaticMapError" />
+          @error="handleStaticMapError" />
       </div>
 
       <div class="location-currentLocation" :class="{
         'location-currentLocation-shift': shift,
         'location-currentLocation-busy': isLoadingLocation,
-      }" @click="loadAgainLocation('recenter-button')">
+      }" @click="loadAgainLocation">
         <MyLocation />
       </div>
 
@@ -704,7 +646,7 @@ onIonViewDidLeave(() => {
               {{ $t("user.checkin.outside.back") }}
             </ion-button>
             <ion-button class="geolocation-page-outside-card-try-again" fill="clear" :disabled="isLoadingLocation"
-              @click="loadAgainLocation('outside-geofence-retry')">
+              @click="loadAgainLocation">
               {{ $t("user.checkin.outside.try_again") }}
             </ion-button>
           </ion-row>
