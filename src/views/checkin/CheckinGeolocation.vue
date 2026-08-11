@@ -212,7 +212,13 @@ const printCurrentPosition = async (forceFresh = false) => {
 
   // Bounded, retrying acquisition — this call previously had no timeout and could
   // spin on "Locating..." indefinitely on weak GPS.
-  coordinates.value = await getCurrentPositionSafe();
+  //
+  // forceFresh also has to defeat the platform's position cache: without maximumAge 0 a
+  // retry re-serves the same fix that just failed the geofence check, so the "try again"
+  // button cannot recover for as long as that fix stays cached.
+  coordinates.value = await getCurrentPositionSafe(
+    forceFresh ? { maximumAge: 0 } : {},
+  );
 };
 
 const startVerifyPerson = async () => {
