@@ -69,3 +69,28 @@ export async function getCurrentPositionSafe(opts = {}) {
         : "UNAVAILABLE";
   throw err;
 }
+
+/**
+ * True only for a denied permission — not for TIMEOUT or UNAVAILABLE.
+ *
+ * Callers need the distinction because "grant location access" is the wrong instruction for a
+ * device that simply couldn't get a fix. Accepts the raw browser code 1 as well, for errors
+ * that reach a caller without passing through getCurrentPositionSafe.
+ */
+export const isPermissionDenied = (error) =>
+  error?.code === "PERMISSION_DENIED" || error?.code === 1;
+
+/**
+ * Base i18n key describing why a position could not be obtained. Each returned key exposes
+ * `.title` and `.description`, matching how backend errors fill the toast header and body.
+ *
+ * Each cause needs its own instruction: granting permission fixes a denial but does nothing
+ * for a timeout, and moving outdoors fixes a timeout but not a device with location services
+ * switched off. Returns a key rather than text so the copy stays in the locale files.
+ */
+export const locationErrorKey = (error) => {
+  if (isPermissionDenied(error)) return "user.checkin.geolocation";
+  if (error?.code === "TIMEOUT") return "user.checkin.locationError.timeout";
+  if (error?.code === "UNAVAILABLE") return "user.checkin.locationError.unavailable";
+  return "user.checkin.locationError.unknown";
+};

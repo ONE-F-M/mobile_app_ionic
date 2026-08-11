@@ -12,7 +12,11 @@ import {
   useIonRouter,
   onIonViewDidLeave,
 } from "@ionic/vue";
-import { getCurrentPositionSafe } from "@/utils/geolocation.js";
+import {
+  getCurrentPositionSafe,
+  isPermissionDenied,
+  locationErrorKey,
+} from "@/utils/geolocation.js";
 import Header from "@/components/Header.vue";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { buildStaticMapUrl } from "@/utils/staticMap";
@@ -225,6 +229,12 @@ const clickBack = () => {
   router.back();
 };
 
+// Header + body, the same shape the backend errors use.
+const showLocationError = (error) => {
+  const key = locationErrorKey(error);
+  showErrorToast(t(`${key}.title`), t(`${key}.description`));
+};
+
 const loadAgainLocation = async () => {
   if (isLoadingLocation.value) return;
 
@@ -237,10 +247,8 @@ const loadAgainLocation = async () => {
     revealMap();
   } catch (error) {
     console.error("Location refresh failed", error);
-    // Only GPS failures toast here; getSiteLocation surfaces its own backend errors.
-    if (error?.code === 1 || error?.message?.includes("location")) {
-      showErrorToast(t("user.checkin.geolocation.title"));
-    }
+    // getSiteLocation swallows and reports its own backend errors, so anything here is GPS.
+    showLocationError(error);
   } finally {
     isLoadingLocation.value = false;
   }
@@ -403,7 +411,13 @@ const ensureLocation = async () => {
   ]);
 
   if (gpsResult.status === "rejected") {
-    hasUserRejectedLocation.value = true;
+    // Only a denied permission warrants the modal — it tells the user to grant access, which
+    // is the wrong instruction for a timeout or a device that simply has no fix.
+    if (isPermissionDenied(gpsResult.reason)) {
+      hasUserRejectedLocation.value = true;
+    } else {
+      showLocationError(gpsResult.reason);
+    }
     return null;
   }
 

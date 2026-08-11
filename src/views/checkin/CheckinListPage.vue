@@ -19,7 +19,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useCustomToast } from "@/composable/toast.js";
 import useDateHelper from "@/composable/useDateHelper";
 import { useLangStore } from "@/store/lang.js";
-import { getCurrentPositionSafe } from "@/utils/geolocation.js";
+import { getCurrentPositionSafe, locationErrorKey } from "@/utils/geolocation.js";
 import { useI18n } from "vue-i18n";
 import Datepicker from "@/components/base/Datepicker.vue";
 import { App } from '@capacitor/app';
@@ -147,9 +147,14 @@ const refreshLocationAndShifts = async () => {
 
   } catch (error) {
     // 1. Handle Device GPS Errors (string codes come from getCurrentPositionSafe)
-    if (["PERMISSION_DENIED", "TIMEOUT", "UNAVAILABLE"].includes(error.code)
-        || error.code === 1 || error.message?.includes('location')) {
-       showErrorToast(t("user.checkin.geolocation.title"));
+    const isGpsError =
+      ["PERMISSION_DENIED", "TIMEOUT", "UNAVAILABLE"].includes(error.code)
+      || error.code === 1 || error.message?.includes('location');
+
+    if (isGpsError) {
+      // Each cause gets its own instruction — a timeout must not ask for permissions.
+      const key = locationErrorKey(error);
+      showErrorToast(t(`${key}.title`), t(`${key}.description`));
     }
     // 2. Handle Backend API Errors (Logic Fix)
     else {
