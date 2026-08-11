@@ -252,7 +252,6 @@ const clearForm = () => {
 const onSubmit = async () => {
   const isValidForm = validateForm();
 
-  console.log("isValidForm", isValidForm);
   if (!isValidForm) {
     return;
   }
