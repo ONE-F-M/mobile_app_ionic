@@ -17,6 +17,11 @@ export default {
     try_again: "Try Again",
   },
   apiKeyNotFound: "Failed to load Google Map. Service unavailable",
+  banner: {
+    // Shown when the server sent no sentence of its own to display.
+    fallback:
+      "Check-In Unavailable: Unable to verify check-in requirements due to System Issues.",
+  },
   in: "IN",
   out: "OUT",
   employee_name: "Employee Name",

@@ -6,6 +6,9 @@ const BASE_URL = import.meta.env.VITE_BASE_API_URL ?? "";
 export const API_PREFIX =
   import.meta.env.VITE_API_PREFIX ?? "/api/method/one_fm.api.v1.";
 
+// Shared in-flight refresh so concurrent 401s trigger only one token refresh.
+let refreshPromise: Promise<boolean> | null = null;
+
 const DEFAULT_HEADERS = (method: "get" | "post" | "put" | "delete") => {
   const userStore = useUserStore();
 
@@ -27,10 +30,43 @@ const DEFAULT_HEADERS = (method: "get" | "post" | "put" | "delete") => {
 };
 
 export const httpService = {
+  // Exchange the stored refresh token for a fresh access token. Shared in-flight
+  // so a burst of parallel 401s only refreshes once. Returns true on success.
+  _refreshSession: (): Promise<boolean> => {
+    const userStore = useUserStore();
+    if (!userStore.refreshToken) return Promise.resolve(false);
+
+    if (!refreshPromise) {
+      refreshPromise = (async () => {
+        try {
+          // Lazy import avoids a circular dependency (authentication imports httpService).
+          const authApi = (await import("./authentication")).default;
+          const { data } = await authApi.refreshToken({
+            refresh_token: userStore.refreshToken,
+          });
+          const newToken = data?.data?.token;
+          const newRefresh = data?.data?.refresh_token;
+          if (newToken) {
+            userStore.setToken(newToken);
+            if (newRefresh) userStore.setRefreshToken(newRefresh);
+            return true;
+          }
+          return false;
+        } catch (e) {
+          return false;
+        } finally {
+          refreshPromise = null;
+        }
+      })();
+    }
+    return refreshPromise;
+  },
+
   _request: async (
     method: "get" | "post" | "put" | "delete",
     url: string,
     options?: Omit<HttpOptions, "url">,
+    isRetry = false,
   ) => {
     const mergedHeaders = {
       ...DEFAULT_HEADERS(method),
@@ -64,6 +100,20 @@ export const httpService = {
     // Handle 401 Unauthorized — session expired or invalid token
     if (response.status === 401) {
       const userStore = useUserStore();
+
+      // Try a one-shot token refresh before giving up, so a merely-expired
+      // access token (OAuth2 tokens live ~1h) does NOT force a re-login.
+      // Skip when refreshing the refresh call itself or when already retried.
+      const isRefreshCall = url.includes("refresh_token");
+      if (!isRetry && !isRefreshCall && userStore.refreshToken) {
+        const refreshed = await httpService._refreshSession();
+        if (refreshed) {
+          // Retry the original request once; DEFAULT_HEADERS re-reads the new token.
+          return httpService._request(method, url, options, true);
+        }
+      }
+
+      // Refresh unavailable/failed — genuinely log out.
       userStore.logout();
 
       // Redirect to login page
