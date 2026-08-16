@@ -3,6 +3,7 @@ import { useAuthStore } from "@/store/auth.js";
 import checkin from "@/api/checkin";
 import leave from "@/api/leave";
 import shifts from "@/api/shifts";
+import { useResignationStore } from "@/store/resignation.ts";
 
 export const useUserStore = defineStore("user", {
   state: () => {
@@ -11,6 +12,7 @@ export const useUserStore = defineStore("user", {
       token: null,
       refreshToken: null,
       isEndpointEnabled: 1,
+      nationality: null,
 
       // 2. New State for Caching
       cachedCheckinList: null,
@@ -58,6 +60,10 @@ export const useUserStore = defineStore("user", {
 
     setToken(token) {
       this.token = token;
+    },
+
+    setNationality(nationality) {
+      this.nationality = nationality;
     },
 
     setRefreshToken(refreshToken) {
@@ -212,13 +218,16 @@ export const useUserStore = defineStore("user", {
 
     logout() {
       const authStore = useAuthStore();
+      const resignationStore = useResignationStore();
 
       authStore.reset();
+      resignationStore.clearActiveResignation();
 
       this.user = null;
       this.token = null;
       this.refreshToken = null;
       this.isEndpointEnabled = null;
+      this.nationality = null;
 
       // Clear cache on logout
       this.cachedCheckinList = null;

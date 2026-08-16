@@ -20,7 +20,7 @@
       <div v-if="resignationStore.activeResignation" class="leaves-create" :class="{'with-margin': resignationStore.activeResignation}">
         <ion-row class="form-row">
           <ion-col size="12">
-            <p class="leaves-create-label">{{ $t('resignation.employee_id', 'Employee ID') }}</p>
+            <BilingualText tag="p" class="leaves-create-label" tKey="resignation.employee_id" fallback="Employee ID" />
             <ion-input
               fill="outline"
               readonly
@@ -31,9 +31,13 @@
 
         <ion-row class="form-row">
           <ion-col size="12">
-            <p class="leaves-create-label leaves-create-label__required" :class="{ 'text-danger': errors.supervisor }">
-              {{ $t('resignation.supervisor_name', 'Supervisor Name') }}
-            </p>
+            <BilingualText
+              tag="p"
+              class="leaves-create-label leaves-create-label__required"
+              :class="{ 'text-danger': errors.supervisor }"
+              :tKey="supervisorLabelKey"
+              :fallback="supervisorLabelFallback"
+            />
             <ion-input
               :placeholder="$t('resignation.fetching_supervisor', 'Fetching assigned supervisor...')"
               fill="outline"
@@ -45,9 +49,13 @@
 
         <ion-row class="form-row">
           <ion-col size="12">
-            <p class="leaves-create-label leaves-create-label__required" :class="{ 'text-danger': errors.reason }">
-              {{ $t('resignation.withdrawal.reason', 'Reason for Withdrawal') }}
-            </p>
+            <BilingualText
+              tag="p"
+              class="leaves-create-label leaves-create-label__required"
+              :class="{ 'text-danger': errors.reason }"
+              tKey="resignation.withdrawal.reason"
+              fallback="Reason for Withdrawal"
+            />
             <ion-input
               :placeholder="$t('resignation.detailed_reason', 'Detailed reason...')"
               fill="outline"
@@ -58,22 +66,26 @@
 
         <ion-row class="form-row">
           <ion-col size="12">
-            <p class="leaves-create-label leaves-create-label__required" :class="{ 'text-danger': errors.proofDocument }">
-              {{ $t('resignation.withdrawal.proof', 'Withdrawal Letter/Proof (Required)') }}
-            </p>
-            <input type="file" :ref="(el) => fileInput = el" accept=".pdf,.jpg,.jpeg,.png" @change="onFileUpload" class="hidden-input" />
-            
+            <BilingualText
+              tag="p"
+              class="leaves-create-label leaves-create-label__required"
+              :class="{ 'text-danger': errors.proofDocument }"
+              tKey="resignation.withdrawal.proof"
+              fallback="Withdrawal Letter/Proof (Required)"
+            />
+            <img v-if="attachment.base64" :src="attachment.base64" class="proof-photo-preview" alt="" />
+
             <div class="upload-container">
-              <ion-button fill="outline" color="primary" @click="triggerFileUpload" class="upload-btn">
+              <ion-button fill="outline" color="primary" @click="takePhoto" class="upload-btn">
                 <ion-icon slot="start" :icon="attachOutline"></ion-icon>
-                {{ attachment.name ? attachment.name : $t('resignation.attach_document', 'Attach Document') }}
+                <BilingualText tag="span" tKey="resignation.attach_document" fallback="Take Photo" />
               </ion-button>
             </div>
           </ion-col>
         </ion-row>
 
         <div class="form-row">
-            <p class="legal-notice">{{ $t('resignation.withdrawal.legal_notice', 'By clicking submit, you are officially registering an intent to withdraw any active resignation applications on file.') }}</p>
+            <BilingualText tag="p" class="legal-notice" tKey="resignation.withdrawal.legal_notice" fallback="By clicking submit, you are officially registering an intent to withdraw any active resignation applications on file." />
         </div>
 
         <ion-button
@@ -84,7 +96,7 @@
           :disabled="isLoading || supervisorLoading"
         >
           <ion-spinner v-if="isLoading" name="crescent"></ion-spinner>
-          <span v-else>{{ $t('resignation.withdrawal.submit', 'Submit Withdrawal Request') }}</span>
+          <BilingualText v-else tag="span" tKey="resignation.withdrawal.submit" fallback="Submit Withdrawal Request" />
         </ion-button>
       </div>
       </template>
@@ -107,7 +119,8 @@ import {
 } from "@ionic/vue";
 import PageHeader from "@/components/common/PageHeader.vue";
 import ResignationTracker from "@/components/resignation/ResignationTracker.vue";
-import { ref, reactive } from "vue";
+import BilingualText from "@/components/base/BilingualText.vue";
+import { ref, reactive, computed } from "vue";
 import { attachOutline } from "ionicons/icons";
 import { useCustomToast } from "@/composable/toast.js";
 import resignation from "@/api/resignation";
@@ -116,10 +129,12 @@ import { useResignationStore } from "@/store/resignation.ts";
 import { useFileAttachment } from "@/composable/useFileAttachment.ts";
 import { useConfirmAlert } from "@/composable/useConfirmAlert.ts";
 import { useI18n } from 'vue-i18n';
+import { useSecondaryLanguage } from "@/composable/useSecondaryLanguage";
 
 const userStore = useUserStore();
 const resignationStore = useResignationStore();
 const { t } = useI18n();
+const { bilingualInline } = useSecondaryLanguage();
 const { showAcknowledge } = useConfirmAlert();
 const { showErrorToast, showSuccessToast } = useCustomToast();
 const router = useIonRouter();
@@ -131,7 +146,7 @@ const triggerBack = () => {
   router.canGoBack() ? router.back() : router.push("/resignation");
 };
 
-const { fileInput, attachment, onFileUpload, triggerFileUpload, clearAttachment } = useFileAttachment();
+const { attachment, takePhoto, clearAttachment } = useFileAttachment();
 
 const reason = ref("");
 
@@ -142,6 +157,13 @@ const errors = reactive({
 });
 const selectedSupervisor = ref("");
 const supervisorSearch = ref("");
+const isLineManager = ref(false);
+const supervisorLabelKey = computed(() =>
+  isLineManager.value ? 'resignation.line_manager_name' : 'resignation.supervisor_name'
+);
+const supervisorLabelFallback = computed(() =>
+  isLineManager.value ? 'Line Manager Name' : 'Supervisor Name'
+);
 
 const fetchSupervisor = async (empId) => {
   supervisorLoading.value = true;
@@ -149,6 +171,9 @@ const fetchSupervisor = async (empId) => {
     if (!empId) return;
     const res = await resignation.getEmployeeSupervisor(empId);
     const superData = res.data?.message || {};
+    // Corporate hires have no Operations Manager step -- their "Supervisor"
+    // is really their Line Manager (matches the ERP desk's own relabeling).
+    isLineManager.value = !superData.shift_working;
     if (superData.user_id) {
       selectedSupervisor.value = superData.user_id;
       supervisorSearch.value = superData.full_name;
@@ -164,6 +189,7 @@ const clearForm = () => {
   clearAttachment();
   selectedSupervisor.value = "";
   supervisorSearch.value = "";
+  isLineManager.value = false;
   reason.value = "";
 };
 
@@ -189,12 +215,12 @@ const onSubmit = async () => {
       },
     };
     await resignation.withdrawResignation(data);
-    showSuccessToast(t('resignation.withdrawal.success_msg', 'Resignation Withdrawal processed successfully.'));
+    showSuccessToast(bilingualInline(t('resignation.withdrawal.success_msg', 'Resignation Withdrawal processed successfully.'), 'resignation.withdrawal.success_msg', ' / '));
     clearForm();
     triggerBack();
   } catch (error) {
     console.error(error);
-    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
+    showErrorToast(error?.data?.message, error?.data?.error || error?.message, error?.data?.status_code);
   } finally {
     isLoading.value = false;
   }
@@ -257,8 +283,13 @@ onIonViewWillEnter(async () => {
     }
   }
 
-  .hidden-input {
-    display: none;
+  .proof-photo-preview {
+    display: block;
+    width: 100%;
+    max-height: 220px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-block-start: 8px;
   }
 
   .upload-container {

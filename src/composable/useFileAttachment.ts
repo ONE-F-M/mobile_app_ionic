@@ -1,68 +1,37 @@
 import { ref } from 'vue';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 
 import { useCustomToast } from "@/composable/toast.js";
 
 export function useFileAttachment() {
-  const fileInput = ref(null);
   const attachment = ref({ name: null, base64: null });
-  const maxFileSize = 5 * 1024 * 1024; // 5MB
   const { showErrorToast } = useCustomToast();
 
-  const ALLOWED_TYPES = [
-  "application/pdf",
-  "image/jpeg",
-  "image/jpg",
-  "image/png",
-];
-
-const onFileUpload = async (event) => {
-  const uploadFile = event.target.files[0];
-  if (!uploadFile) return;
-
-  if (!ALLOWED_TYPES.includes(uploadFile.type)) {
-    showErrorToast("Invalid file type. Only PDF, JPG, and PNG files are allowed.");
-    if (fileInput.value) fileInput.value.value = null;
-    return;
-  }
-
-  if (uploadFile.size > maxFileSize) {
-    showErrorToast("File size exceeds 5MB limit.");
-    if (fileInput.value) fileInput.value.value = null;
-    return;
-  }
-
-  const base64Data = await toBase64(uploadFile);
-  attachment.value.name = uploadFile.name;
-  attachment.value.base64 = base64Data;
-};
-
-  const toBase64 = (file) =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
-    });
-
-  const triggerFileUpload = () => {
-    if (fileInput.value) {
-      fileInput.value.click();
+  const takePhoto = async () => {
+    try {
+      const photo = await Camera.getPhoto({
+        quality: 80,
+        width: 1600,
+        resultType: CameraResultType.DataUrl,
+        source: CameraSource.Camera,
+      });
+      attachment.value.base64 = photo.dataUrl;
+      attachment.value.name = `resignation-letter-${Date.now()}.${photo.format || 'jpeg'}`;
+    } catch (error) {
+      // User backed out of the camera -- not an error worth surfacing.
+      if (error?.message?.toLowerCase().includes('cancel')) return;
+      showErrorToast(null, "Unable to take photo. Please try again.");
     }
   };
 
   const clearAttachment = () => {
     attachment.value.name = null;
     attachment.value.base64 = null;
-    if (fileInput.value) {
-      fileInput.value.value = null;
-    }
   };
 
   return {
-    fileInput,
     attachment,
-    onFileUpload,
-    triggerFileUpload,
+    takePhoto,
     clearAttachment
   };
 }

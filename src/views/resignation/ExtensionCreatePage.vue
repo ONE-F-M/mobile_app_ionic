@@ -20,7 +20,7 @@
       <div v-if="resignationStore.activeResignation" class="leaves-create" :class="{'with-margin': resignationStore.activeResignation}">
         <ion-row class="form-row">
           <ion-col size="12">
-            <p class="leaves-create-label">{{ $t('resignation.employee_id', 'Employee ID') }}</p>
+            <BilingualText tag="p" class="leaves-create-label" tKey="resignation.employee_id" fallback="Employee ID" />
             <ion-input
               fill="outline"
               readonly
@@ -29,7 +29,7 @@
           </ion-col>
 
           <ion-col size="12" class="ion-margin-bottom">
-            <p class="leaves-create-label">{{ $t('resignation.current_relieving_date', 'Current Relieving Date (View Only)') }}</p>
+            <BilingualText tag="p" class="leaves-create-label" tKey="resignation.current_relieving_date" fallback="Current Relieving Date (View Only)" />
             <ion-input
               fill="outline"
               readonly
@@ -39,9 +39,13 @@
           </ion-col>
 
           <ion-col size="12">
-            <p class="leaves-create-label leaves-create-label__required" :class="{ 'text-danger': errors.extendedDate }">
-              {{ $t('resignation.extended_relieving_date', 'New Relieving Date (Extension / Reduction)') }}
-            </p>
+            <BilingualText
+              tag="p"
+              class="leaves-create-label leaves-create-label__required"
+              :class="{ 'text-danger': errors.extendedDate }"
+              tKey="resignation.extended_relieving_date"
+              fallback="New Relieving Date (Extension / Reduction)"
+            />
             <div id="open-extended-modal" class="date-selector">
               <ion-input fill="outline" readonly :value="formattedExtendedDate || $t('resignation.click_to_select', 'Click to select date')" class="readonly-input">
                 <ion-icon slot="start" :icon="calendarOutline"></ion-icon>
@@ -55,9 +59,13 @@
 
         <ion-row class="form-row">
           <ion-col size="12">
-            <p class="leaves-create-label leaves-create-label__required" :class="{ 'text-danger': errors.supervisor }">
-              {{ $t('resignation.supervisor_name', 'Supervisor Name') }}
-            </p>
+            <BilingualText
+              tag="p"
+              class="leaves-create-label leaves-create-label__required"
+              :class="{ 'text-danger': errors.supervisor }"
+              :tKey="supervisorLabelKey"
+              :fallback="supervisorLabelFallback"
+            />
             <ion-input
               :placeholder="$t('resignation.fetching_supervisor', 'Fetching assigned supervisor...')"
               fill="outline"
@@ -69,9 +77,13 @@
 
         <ion-row class="form-row">
           <ion-col size="12">
-            <p class="leaves-create-label leaves-create-label__required" :class="{ 'text-danger': errors.reason }">
-              {{ $t('resignation.extension.reason', 'Reason for Date Change') }}
-            </p>
+            <BilingualText
+              tag="p"
+              class="leaves-create-label leaves-create-label__required"
+              :class="{ 'text-danger': errors.reason }"
+              tKey="resignation.extension.reason"
+              fallback="Reason for Date Change"
+            />
             <ion-input
               :placeholder="$t('resignation.detailed_reason', 'Detailed reason...')"
               fill="outline"
@@ -82,22 +94,26 @@
 
         <ion-row class="form-row">
           <ion-col size="12">
-            <p class="leaves-create-label leaves-create-label__required" :class="{ 'text-danger': errors.proofDocument }">
-              {{ $t('resignation.extension.proof', 'New Signed Letter/Proof (Required)') }}
-            </p>
-            <input type="file" :ref="(el) => extensionFile.fileInput.value = el" accept=".pdf,.jpg,.jpeg,.png" @change="extensionFile.onFileUpload" class="hidden-input" />
-            
+            <BilingualText
+              tag="p"
+              class="leaves-create-label leaves-create-label__required"
+              :class="{ 'text-danger': errors.proofDocument }"
+              tKey="resignation.extension.proof"
+              fallback="New Signed Letter/Proof (Required)"
+            />
+            <img v-if="extensionFile.attachment.value.base64" :src="extensionFile.attachment.value.base64" class="proof-photo-preview" alt="" />
+
             <div class="upload-container">
-              <ion-button fill="outline" color="primary" @click="extensionFile.triggerFileUpload" class="upload-btn">
+              <ion-button fill="outline" color="primary" @click="extensionFile.takePhoto" class="upload-btn">
                 <ion-icon slot="start" :icon="attachOutline"></ion-icon>
-                {{ extensionFile.attachment.value.name ? extensionFile.attachment.value.name : $t('resignation.attach_document', 'Attach Document') }}
+                <BilingualText tag="span" tKey="resignation.attach_document" fallback="Take Photo" />
               </ion-button>
             </div>
           </ion-col>
         </ion-row>
 
         <div class="form-row">
-            <p class="legal-notice">{{ $t('resignation.extension.legal_notice', 'By clicking submit, you are officially registering an intent to adjust the relieving date for any active resignation applications on file.') }}</p>
+            <BilingualText tag="p" class="legal-notice" tKey="resignation.extension.legal_notice" fallback="By clicking submit, you are officially registering an intent to adjust the relieving date for any active resignation applications on file." />
         </div>
 
         <ion-button
@@ -108,7 +124,7 @@
           :disabled="isLoading || supervisorLoading"
         >
           <ion-spinner v-if="isLoading" name="crescent"></ion-spinner>
-          <span v-else>{{ $t('resignation.extension.submit', 'Submit Date Adjustment') }}</span>
+          <BilingualText v-else tag="span" tKey="resignation.extension.submit" fallback="Submit Date Adjustment" />
         </ion-button>
       </div>
       </template>
@@ -133,6 +149,7 @@ import {
 } from "@ionic/vue";
 import PageHeader from "@/components/common/PageHeader.vue";
 import ResignationTracker from "@/components/resignation/ResignationTracker.vue";
+import BilingualText from "@/components/base/BilingualText.vue";
 import { ref, reactive, computed } from "vue";
 import { calendarOutline, attachOutline } from "ionicons/icons";
 import useDateHelper from "@/composable/useDateHelper";
@@ -144,10 +161,12 @@ import { useFileAttachment } from "@/composable/useFileAttachment.ts";
 import { useNoticePeriod } from "@/composable/useNoticePeriod";
 import { useConfirmAlert } from "@/composable/useConfirmAlert.ts";
 import { useI18n } from 'vue-i18n';
+import { useSecondaryLanguage } from "@/composable/useSecondaryLanguage";
 
 const userStore = useUserStore();
 const resignationStore = useResignationStore();
 const { t } = useI18n();
+const { bilingual, bilingualInline } = useSecondaryLanguage();
 const { showAcknowledge } = useConfirmAlert();
 const { showErrorToast } = useCustomToast();
 const { checkNoticePeriod } = useNoticePeriod();
@@ -180,6 +199,13 @@ const errors = reactive({
 });
 const selectedSupervisor = ref("");
 const supervisorSearch = ref("");
+const isLineManager = ref(false);
+const supervisorLabelKey = computed(() =>
+  isLineManager.value ? 'resignation.line_manager_name' : 'resignation.supervisor_name'
+);
+const supervisorLabelFallback = computed(() =>
+  isLineManager.value ? 'Line Manager Name' : 'Supervisor Name'
+);
 
 const fetchSupervisor = async (empId) => {
   supervisorLoading.value = true;
@@ -187,6 +213,9 @@ const fetchSupervisor = async (empId) => {
     if (!empId) return;
     const res = await resignation.getEmployeeSupervisor(empId);
     const superData = res.data?.message || {};
+    // Corporate hires have no Operations Manager step -- their "Supervisor"
+    // is really their Line Manager (matches the ERP desk's own relabeling).
+    isLineManager.value = !superData.shift_working;
     if (superData.user_id) {
       selectedSupervisor.value = superData.user_id;
       supervisorSearch.value = superData.full_name;
@@ -201,6 +230,7 @@ const fetchSupervisor = async (empId) => {
 const clearForm = () => {
   extensionFile.clearAttachment();
   selectedSupervisor.value = "";
+  isLineManager.value = false;
   reason.value = "";
   extendedDate.value = new Date().toISOString().split('T')[0];
 };
@@ -230,16 +260,16 @@ const submitData = async () => {
     await resignation.extendResignation(data);
     
     await showAcknowledge(
-      t('resignation.extension_success_title', 'Extension Submitted'),
-      t('resignation.extension_success_msg', 'Resignation extension has been submitted successfully.'),
-      t('resignation.acknowledge', 'Acknowledge')
+      bilingual(t('resignation.extension_success_title', 'Extension Submitted'), 'resignation.extension_success_title'),
+      bilingual(t('resignation.extension_success_msg', 'Resignation extension has been submitted successfully.'), 'resignation.extension_success_msg'),
+      bilingualInline(t('resignation.acknowledge', 'Acknowledge'), 'resignation.acknowledge')
     );
     clearForm();
     triggerBack();
     
   } catch (error) {
     console.error(error);
-    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
+    showErrorToast(error?.data?.message, error?.data?.error || error?.message, error?.data?.status_code);
   } finally {
     isLoading.value = false;
   }
@@ -250,10 +280,17 @@ const onSubmit = async () => {
 
   const activeResig = resignationStore.activeResignation;
   if (activeResig && activeResig.resignation_initiation_date) {
-    const isPeriodValid = await checkNoticePeriod(
-      resignationStore.activeResignation.resignation_initiation_date,
-      extendedDate.value
-    );
+    let isPeriodValid;
+    try {
+      isPeriodValid = await checkNoticePeriod(
+        resignationStore.activeResignation.resignation_initiation_date,
+        extendedDate.value
+      );
+    } catch (error) {
+      console.error("Notice period check failed:", error);
+      showErrorToast(null, error?.message);
+      return;
+    }
     if (!isPeriodValid) {
       isLoading.value = false;
       return;
@@ -323,8 +360,13 @@ onIonViewWillEnter(async () => {
     width: 100%;
   }
 
-  .hidden-input {
-    display: none;
+  .proof-photo-preview {
+    display: block;
+    width: 100%;
+    max-height: 220px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-block-start: 8px;
   }
 
   .upload-container {
@@ -350,5 +392,22 @@ onIonViewWillEnter(async () => {
 
 .loading-container {
   margin-block-start: 50px;
+}
+
+ion-popover.custom-calendar-popover {
+  --background: #2a2d32;
+  --box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --border-radius: 12px;
+  --width: min(340px, 92vw);
+}
+
+ion-datetime.brighter-calendar {
+  --background: #2a2d32;
+  --background-rgb: 42, 45, 50;
+  --title-color: #ffffff;
+  --color: #ffffff;
+  --wheel-fade-background-rgb: 42, 45, 50;
+  --wheel-highlight-background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
 }
 </style>

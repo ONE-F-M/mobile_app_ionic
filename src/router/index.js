@@ -125,6 +125,11 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    path: "/resignation/add/:id",
+    component: () => import("@/views/resignation/ResignationCreatePage.vue"),
+    meta: { requiresAuth: true },
+  },
+  {
     path: "/resignation/withdraw",
     component: () => import("@/views/resignation/WithdrawalCreatePage.vue"),
     meta: { requiresAuth: true },

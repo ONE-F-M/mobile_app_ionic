@@ -32,6 +32,7 @@ const emit = defineEmits([
 const showContent = ref(false);
 
 const updateService = (added, service) => {
+  if (service.locked) return;
   if (!added) {
     emit("add-service", service);
   } else {
@@ -95,7 +96,11 @@ watch(
                 {{ service.name }}
               </p>
             </ion-row>
+            <ion-text v-if="service.locked" class="services-item-required">
+              {{ $t("user.service.required", "Required") }}
+            </ion-text>
             <ion-button
+              v-else
               class="services-item-button"
               shape="round"
               size="small"
@@ -218,6 +223,13 @@ watch(
       --padding-start: 20px;
       --padding-end: 20px;
       --padding-bottom: 4px;
+    }
+
+    &-required {
+      color: #8b9298;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      padding: 4px 20px;
     }
 
     &-label {

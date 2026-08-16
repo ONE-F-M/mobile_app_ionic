@@ -22,7 +22,7 @@ export const useCustomToast = () => {
       errStr = error.message;
     }
     
-    const errorMessage = errStr || getStatusMessage(statusCode);
+    let errorMessage = errStr || getStatusMessage(statusCode);
     const errorTitle = message ? message : t("utils.toast.error");
 
     // 3. Fallback Logic (Refined)
