@@ -13,13 +13,14 @@ import {
 
 import IconPlus from "@/components/icon/Plus.vue";
 import CheckinHeader from "@/components/checkin/Header.vue";
+import CheckinBanner from "@/components/checkin/CheckinBanner.vue";
 import checkin from "@/api/checkin";
 import { useUserStore } from "@/store/user.js";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useCustomToast } from "@/composable/toast.js";
 import useDateHelper from "@/composable/useDateHelper";
 import { useLangStore } from "@/store/lang.js";
-import { Geolocation } from "@capacitor/geolocation";
+import { getCurrentPositionSafe } from "@/utils/geolocation.js";
 import { useI18n } from "vue-i18n";
 import Datepicker from "@/components/base/Datepicker.vue";
 import { App } from '@capacitor/app';
@@ -38,6 +39,8 @@ const isOpenDatePicker = ref(false);
 
 const currentShifts = ref([]);
 const isDeterminingLocation = ref(false);
+// Why check-in is unavailable, shown for as long as the check-in button is hidden.
+const blockerMessage = ref("");
 const availableShifts = computed(() =>
   currentShifts.value.filter((shift) => !shift?.is_completed)
 );
@@ -131,10 +134,9 @@ const refreshLocationAndShifts = async () => {
   isDeterminingLocation.value = true;
   
   try {
-    const coordinates = await Geolocation.getCurrentPosition({
-      enableHighAccuracy: true,
-      timeout: 10000,
-    });
+    // Bounded acquisition with cached-fix reuse + retry so the "Locating..."
+    // button state always resolves quickly instead of blocking on a cold fix.
+    const coordinates = await getCurrentPositionSafe();
 
     const { data } = await checkin.getSiteLocation({
       employee_id: userStore.user?.employee_id,
@@ -143,18 +145,19 @@ const refreshLocationAndShifts = async () => {
     });
 
     currentShifts.value = [];
+    blockerMessage.value = "";
     if (data.data.shift) currentShifts.value.push(data.data.shift);
     if (data.data.upcoming_shifts) currentShifts.value.push(...data.data.upcoming_shifts);
 
   } catch (error) {
-    // 1. Handle Device GPS Errors
-    if (error.code === 1 || error.message?.includes('location')) {
+    // 1. Handle Device GPS Errors (string codes come from getCurrentPositionSafe)
+    if (["PERMISSION_DENIED", "TIMEOUT", "UNAVAILABLE"].includes(error.code)
+        || error.code === 1 || error.message?.includes('location')) {
        showErrorToast(t("user.checkin.geolocation.title"));
-    } 
+    }
     // 2. Handle Backend API Errors (Logic Fix)
     else {
-       const message = getErrorMessage(error);
-       showErrorToast(message);
+       blockerMessage.value = error?.data?.error || t("user.checkin.banner.fallback");
     }
     currentShifts.value = [];
   } finally {
@@ -208,6 +211,8 @@ const openDatePicker = () => {
         class="checkin-page-header"
         @open-date-picker="openDatePicker"
       />
+
+      <CheckinBanner :message="blockerMessage" />
 
       <div class="checkin-page-table-wrapper">
         <ion-row>

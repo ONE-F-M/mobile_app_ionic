@@ -10,6 +10,7 @@ export const useUserStore = defineStore("user", {
     return {
       user: null,
       token: null,
+      refreshToken: null,
       isEndpointEnabled: 1,
       nationality: null,
 
@@ -63,6 +64,10 @@ export const useUserStore = defineStore("user", {
 
     setNationality(nationality) {
       this.nationality = nationality;
+    },
+
+    setRefreshToken(refreshToken) {
+      this.refreshToken = refreshToken;
     },
 
     // 3. New Prefetch Action
@@ -220,6 +225,7 @@ export const useUserStore = defineStore("user", {
 
       this.user = null;
       this.token = null;
+      this.refreshToken = null;
       this.isEndpointEnabled = null;
       this.nationality = null;
 
