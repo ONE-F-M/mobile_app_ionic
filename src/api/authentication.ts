@@ -24,6 +24,11 @@ export const userLogin = async (payload: UserLoginParams) =>
     data: payload,
   });
 
+export const refreshToken = async (payload: { refresh_token: string }) =>
+  await httpService.post(`v1.authentication.refresh_token`, {
+    data: payload,
+  });
+
 export const getUserEnrollment = async (payload: UserNameParams) =>
   await httpService.post(`v1.authentication.enrollment_status`, {
     data: payload,
@@ -45,6 +50,7 @@ export const updatePassword = async (data: UpdatePasswordParams) =>
 
 export default {
   userLogin,
+  refreshToken,
   getUserEnrollment,
   getUserFaceEnrollment,
   verifyOtp,
