@@ -1,4 +1,4 @@
-import { CapacitorHttp } from "@capacitor/core";
+import { Capacitor, CapacitorHttp } from "@capacitor/core";
 import { HttpOptions } from "@capacitor/core/types/core-plugins";
 import { useUserStore } from "../store/user.js";
 
@@ -32,15 +32,49 @@ export const httpService = {
     url: string,
     options?: Omit<HttpOptions, "url">,
   ) => {
-    const response = await CapacitorHttp[method]({
-      ...options,
-      headers: {
-        ...DEFAULT_HEADERS(method),
-        ...options?.headers,
-      },
+    const mergedHeaders = {
+      ...DEFAULT_HEADERS(method),
+      ...options?.headers,
+    };
 
+    let requestOptions = { ...options };
+
+    // Normalize Content-Type key for case-insensitive comparison
+    const contentTypeKey = Object.keys(mergedHeaders).find(k => k.toLowerCase() === 'content-type');
+    const contentType = contentTypeKey ? mergedHeaders[contentTypeKey] : '';
+
+    // CapacitorHttp on the web fails to serialize objects into form-urlencoded strings
+    // natively, which causes fetch() to throw a TypeError. We fix this by manually encoding it.
+    // NOTE: On native platforms (iOS/Android), CapacitorHttp serializes JSON natively,
+    // so we only manually stringify JSON if we're on the web platform.
+    if (Capacitor.getPlatform() === 'web') {
+      if (requestOptions.data && typeof requestOptions.data === 'object' && contentType === "application/x-www-form-urlencoded") {
+        requestOptions.data = new URLSearchParams(requestOptions.data).toString();
+      } else if (requestOptions.data && typeof requestOptions.data === 'object' && contentType === "application/json") {
+        requestOptions.data = JSON.stringify(requestOptions.data);
+      }
+    }
+
+    const response = await CapacitorHttp[method]({
+      ...requestOptions,
+      headers: mergedHeaders,
       url: `${BASE_URL}${API_PREFIX}${url}`,
     });
+
+    // Handle 401 Unauthorized — session expired or invalid token
+    if (response.status === 401) {
+      const userStore = useUserStore();
+      userStore.logout();
+
+      // Redirect to login page
+      // Using window.location ensures a full navigation even if the router isn't available
+      window.location.href = '/employee-id';
+
+      // Attach a user-friendly message before throwing
+      if (!response.data) response.data = {};
+      response.data.message = 'Your session has expired. Please log in again.';
+      throw response;
+    }
 
     if (response.status >= 400) {
       throw response;

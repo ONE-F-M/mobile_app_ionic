@@ -13,8 +13,9 @@ import {
   onIonViewWillEnter,
   IonInput,
   IonCol,
+  IonCheckbox,
 } from "@ionic/vue";
-import LeavesHeader from "@/components/leaves/Header.vue";
+import PageHeader from "@/components/common/PageHeader.vue";
 import { computed, nextTick, ref, shallowRef, watch } from "vue";
 
 import IconPlus from "@/components/icon/Plus.vue";
@@ -167,18 +168,55 @@ const selectedDates = ref({
 const isFromDatePickerOpen = shallowRef(false);
 const isToDatePickerOpen = shallowRef(false);
 
-const fetchLeaves = async () => {
+// Cache TTL — skip API call if data is < 5 minutes old
+const CACHE_TTL = 5 * 60 * 1000;
+
+const fetchLeaves = async ({ isInitial } = {}) => {
+  const fromDate = dayjs(selectedDates.value.start).format("YYYY-MM-DD");
+  const toDate = dayjs(selectedDates.value.end).format("YYYY-MM-DD");
+  const leaveType = selectedLeaveType.value;
+  const leaveStatus = selectedLeaveStatus.value;
+
+  const isCacheFresh = Date.now() - userStore.lastLeavesFetch < CACHE_TTL;
+  const isRangeMatch = userStore.cachedLeavesFrom === fromDate && userStore.cachedLeavesTo === toDate;
+  // Note: prefetchLeaves always uses empty strings for type/status.
+  // We can add them to the store if we want to support caching filtered views,
+  // but for now let's at least check they are empty if we're using prefetch.
+  const isFilterMatch = (userStore.cachedLeavesType ?? '') === leaveType && (userStore.cachedLeavesStatus ?? '') === leaveStatus;
+
+  // If cache is fresh and everything matches, use it and skip the network call entirely
+  if (isInitial && userStore.cachedLeavesList && isCacheFresh && isRangeMatch && isFilterMatch) {
+    myLeaves.value = userStore.cachedLeavesList.my_leaves || [];
+    leavesReportsTo.value = userStore.cachedLeavesList.reports_to || [];
+    return;
+  }
+
+  // Show cached data immediately while fetching fresh data in background
+  // only if the range/filters match to avoid showing wrong data.
+  if (isInitial && userStore.cachedLeavesList && isRangeMatch && isFilterMatch) {
+    myLeaves.value = userStore.cachedLeavesList.my_leaves || [];
+    leavesReportsTo.value = userStore.cachedLeavesList.reports_to || [];
+  }
+
   try {
     const { data } = await leave.getLeavesList({
       employee_id: userStore.user?.employee_id,
-      from_date: dayjs(selectedDates.value.start).format("YYYY-MM-DD"),
-      to_date: dayjs(selectedDates.value.end).format("YYYY-MM-DD"),
-      leave_type: selectedLeaveType.value,
-      status: selectedLeaveStatus.value,
+      from_date: fromDate,
+      to_date: toDate,
+      leave_type: leaveType,
+      status: leaveStatus,
     });
 
     myLeaves.value = data.data.my_leaves || [];
     leavesReportsTo.value = data.data.reports_to || [];
+
+    // Update cache and its parameters on successful fetch
+    userStore.cachedLeavesList = data.data;
+    userStore.cachedLeavesFrom = fromDate;
+    userStore.cachedLeavesTo = toDate;
+    userStore.cachedLeavesType = leaveType;
+    userStore.cachedLeavesStatus = leaveStatus;
+    userStore.lastLeavesFetch = Date.now();
   } catch (error) {
     showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
     myLeaves.value = [];
@@ -189,14 +227,14 @@ const fetchLeaves = async () => {
 };
 
 onIonViewWillEnter(async () => {
-  await Promise.all([fetchLeaves(), fetchLeaveTypes()]);
+  await Promise.all([fetchLeaves({ isInitial: true }), fetchLeaveTypes()]);
 });
 </script>
 
 <template>
   <ion-page>
     <ion-content class="ion-padding leaves-page">
-      <LeavesHeader
+      <PageHeader
         class="leaves-page-header"
         :title="$t('user.leaves.leaves')"
         show-filter-button
@@ -579,8 +617,9 @@ onIonViewWillEnter(async () => {
 
 .leaves-add-button {
   position: fixed;
-  bottom: 24px;
+  bottom: calc(24px + env(safe-area-inset-bottom));
   right: 16px;
+  z-index: 10;
   --background: #004c69;
   --background-hover: #014662;
   --background-activated: #004d6c;

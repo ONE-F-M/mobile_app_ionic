@@ -4,6 +4,7 @@ import user from "./user/index";
 import enrollment from "./enrollment";
 import auth from "./auth";
 import utils from "./utils";
+import resignation from "./resignation";
 
 export default {
   home,
@@ -12,4 +13,5 @@ export default {
   enrollment,
   auth,
   utils,
+  resignation,
 };

@@ -2,6 +2,11 @@
 import { computed } from "vue";
 import { IonButton, IonModal, IonRow } from "@ionic/vue";
 import useDateHelper from "@/composable/useDateHelper";
+// OPTIMIZATION: Import v-calendar locally instead of globally.
+// This defers the ~80 KB v-calendar bundle to only load when
+// a page with a date picker is actually visited.
+import { DatePicker as VDatePicker } from "v-calendar";
+import "v-calendar/style.css";
 
 const { formatDate } = useDateHelper();
 
@@ -11,12 +16,16 @@ const props = defineProps({
     required: true,
   },
   modelValue: {
-    type: Date,
+    type: [Date, Object],
     default: () => new Date(),
   },
   lang: {
     type: String,
     required: true,
+  },
+  minDate: {
+    type: [Date, String],
+    default: null,
   },
 });
 const emit = defineEmits(["update:model-value", "cancel", "ok"]);
@@ -50,11 +59,12 @@ const selectedDate = computed({
             <!--                </ion-button>-->
           </ion-row>
         </div>
-        <v-date-picker
+        <VDatePicker
           v-model="selectedDate"
           class="datepicker-range"
           :locale="lang"
           mode="date"
+          :min-date="minDate"
           expanded
           title-position="left"
         />
@@ -76,5 +86,5 @@ const selectedDate = computed({
 </template>
 
 <style scoped lang="scss">
-@import "../../theme/datepicker.scss";
+@use "../../theme/datepicker.scss";
 </style>

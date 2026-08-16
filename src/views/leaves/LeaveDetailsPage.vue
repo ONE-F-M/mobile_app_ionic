@@ -9,7 +9,7 @@ import {
   onIonViewWillEnter,
   useIonRouter,
 } from "@ionic/vue";
-import LeavesHeader from "@/components/leaves/Header.vue";
+import PageHeader from "@/components/common/PageHeader.vue";
 import { useRoute } from "vue-router";
 import { computed, ref } from "vue";
 import { useUserStore } from "@/store/user";
@@ -40,7 +40,10 @@ const triggerBack = () => {
 };
 const leaveDetails = ref({});
 const proofDocumentName = computed(() => {
-  return leaveDetails.value.proof_documents?.[0]?.description;
+  const proofDoc = leaveDetails.value.proof_documents?.[0];
+  if (!proofDoc) return null;
+
+  return proofDoc.description || proofDoc.file_name || proofDoc.attachments?.split('/').pop();
 });
 const documentContent = ref("");
 const formatDateToDisplay = (date) => {
@@ -172,7 +175,7 @@ onIonViewWillEnter(async () => {
 <template>
   <ion-page>
     <ion-content class="ion-padding leaves-page">
-      <LeavesHeader
+      <PageHeader
         :title="$t('user.leaves.leave_details')"
         class="leaves-page-header"
         @click-back="triggerBack"

@@ -8,8 +8,10 @@ import {
 import { useUserStore } from "@/store/user";
 import configuration from "@/api/configuration";
 import { useCustomToast } from "@/composable/toast";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import Header from "@/components/Header.vue";
+import MdiIcon from "@/components/base/MdiIcon.vue";
+import { getServiceRoute, RESIGNATION_SUB_SERVICES } from "@/utils/serviceRouteMap";
 
 const router = useIonRouter();
 const userStore = useUserStore();
@@ -17,6 +19,10 @@ const userStore = useUserStore();
 const { showErrorToast } = useCustomToast();
 
 const services = ref([]);
+
+const visibleServices = computed(() =>
+  services.value.filter(s => !RESIGNATION_SUB_SERVICES.includes(s.service))
+);
 
 const logout = () => {
   userStore.logout();
@@ -28,18 +34,9 @@ if (!userStore.user || !userStore.token) {
 }
 
 const goToServicePage = (service) => {
-  switch (service) {
-    case "Checkin Checkout":
-      router.push("/checkin");
-      break;
-    case "Leaves":
-      router.push("/leaves");
-      break;
-    case "New Leave Application":
-      router.push("/leaves/add");
-      break;
-    default:
-      break;
+  const route = getServiceRoute(service);
+  if (route !== "/service") {
+    router.push(route);
   }
 };
 
@@ -49,13 +46,48 @@ const fetchServices = async () => {
 
     services.value = data.data.service_detail;
   } catch (error) {
-    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
+    showErrorToast(error?.data?.message, error, error?.status || error?.data?.status_code);
     services.value = [];
+  }
+};
+
+const refreshDataIfNeeded = async () => {
+  const employeeId = userStore.user?.employee_id;
+  if (!employeeId) return;
+
+  const now = Date.now();
+  const cacheTimeout = 2 * 60 * 1000;
+
+  // Check age of checkin fetch
+  if (now - userStore.lastCheckinFetch > cacheTimeout) {
+    userStore.prefetchCheckins(employeeId);
+  }
+
+  // Check age of leaves fetch
+  if (now - userStore.lastLeavesFetch > cacheTimeout) {
+    userStore.prefetchLeaves(employeeId);
+  }
+
+  // Check age of shifts fetch
+  if (now - userStore.lastShiftsFetch > cacheTimeout) {
+    userStore.prefetchShifts(employeeId);
+  }
+
+  // Check age of geolocation fetch
+  if (now - userStore.lastGeolocationFetch > cacheTimeout) {
+    userStore.prefetchGeolocation(employeeId);
+  }
+
+  // Stock Entry Prefetch (Last fetch timestamp is in its own store)
+  const stockEntryStore = (await import("@/store/stock_entry")).useStockEntryStore();
+  if (!stockEntryStore.lastFetch || now - stockEntryStore.lastFetch > cacheTimeout) {
+    userStore.prefetchStockEntries(employeeId);
   }
 };
 
 onIonViewDidEnter(() => {
   fetchServices();
+  refreshDataIfNeeded();
 });
 </script>
 
@@ -63,15 +95,16 @@ onIonViewDidEnter(() => {
   <ion-page>
     <ion-content class="ion-padding user-home-page">
       <Header>{{ $t("user.home.title") }}</Header>
+      
       <div class="services">
         <div
-          v-for="service in services"
+          v-for="service in visibleServices"
           class="services-item"
           :key="service.service"
           @click="goToServicePage(service.service)"
         >
           <div class="services-item-icon-wrapper">
-            <span class="mdi" :class="`mdi-${service.service_icon}`" />
+            <MdiIcon :name="service.service_icon" :size="24" />
           </div>
           <div class="services-item-label">
             {{ $i18n.locale === 'ar' ? service.service_ar : service.service }}

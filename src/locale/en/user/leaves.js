@@ -9,7 +9,7 @@ export default {
   from_date: "From Date",
   to_date: "Till Date",
   select_leave_type: "Select Leave Type",
-  select_reliever:"Select Reliever",
+  select_reliever: "Select Reliever",
   enter_reason: "Enter reason here",
   card: {
     type: {
@@ -18,6 +18,13 @@ export default {
       hajj: "Hajj Leave",
       annual_leave: "Annual Leave",
       leave_without_pay: "Leave without pay",
+      unpaid_leave: "Unpaid Leave",
+      business_trip: "Business Trip",
+      casual_leave: "Casual Leave",
+      compensatory_off: "Compensatory Off",
+      privilege_leave: "Privilege Leave",
+      holiday_compensatory_leave: "Holiday Compensatory Leave",
+      bereavement_leave: "Bereavement Leave",
     },
     status: {
       pending: "Pending",
@@ -57,7 +64,8 @@ export default {
     posting_date: "Posting Date",
     total_leaves_days: "Total Leaves Days",
     save_leaves_application: "Apply",
-    reliever:'Reliever'
+    reliever: 'Reliever',
+    resumption_date: "Resumption Date"
   },
   change_status: {
     accept_leave: "Accept Leave",

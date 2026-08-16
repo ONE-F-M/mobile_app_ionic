@@ -36,3 +36,6 @@ npm-debug.log*
 /www
 .env
 Session.vim
+
+# Build generated
+public/sw-env.js

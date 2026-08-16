@@ -8,11 +8,27 @@
 import { IonApp, IonRouterOutlet } from "@ionic/vue";
 import { useLangStore } from "@/store/lang.js";
 import { storeToRefs } from "pinia";
-import { computed } from 'vue';
+import { computed, onMounted, onUnmounted } from 'vue';
 import { Capacitor } from '@capacitor/core';
+import { App as CapacitorApp } from '@capacitor/app';
+import { useResignationNotifier } from '@/composable/useResignationNotifier';
 
 const langStore = useLangStore();
 const { rtl } = storeToRefs(langStore);
+
+const { checkForUpdates } = useResignationNotifier();
+let appStateListener;
+
+onMounted(async () => {
+  checkForUpdates();
+  appStateListener = await CapacitorApp.addListener('appStateChange', ({ isActive }) => {
+    if (isActive) checkForUpdates();
+  });
+});
+
+onUnmounted(() => {
+  appStateListener?.remove();
+});
 
 const platform = computed(() => Capacitor.getPlatform());
 const isIOS = computed(() => platform.value === "ios");

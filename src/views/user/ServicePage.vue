@@ -9,6 +9,7 @@ import {
   useIonRouter,
 } from "@ionic/vue";
 import configuration from "@/api/configuration";
+import { getServiceRoute, RESIGNATION_SUB_SERVICES } from "@/utils/serviceRouteMap";
 import { useCustomToast } from "@/composable/toast";
 import { ref } from "vue";
 import ServiceGroupCard from "@/components/service/GroupCard.vue";
@@ -31,19 +32,9 @@ const router = useIonRouter();
 const selectedGroup = ref("");
 
 const goToServicePage = (service) => {
-
-  switch (service) {
-    case "Checkin Checkout":
-      router.push("/checkin");
-      break;
-    case "Leaves":
-      router.push("/leaves");
-      break;
-    case "New Leave Application":
-      router.push("/leaves/add");
-      break;
-    default:
-      break;
+  const route = getServiceRoute(service);
+  if (route !== "/service") {
+    router.push(route);
   }
 };
 
@@ -67,6 +58,10 @@ const fetchServices = async () => {
     const { data } = await configuration.getServices();
 
     data.data.forEach((service) => {
+    // Withdrawal/Extension are actions inside Employee Resignation, not
+    // separate features -- don't list them as their own manageable service.
+    if (RESIGNATION_SUB_SERVICES.includes(service.name)) return;
+
     const group = serviceGroups.value.find((group) => {
       const groupName = locale.value === "ar" ? group.name_ar : group.name;
       return groupName === (locale.value === "ar" ? service.service_group_ar : service.service_group);
@@ -81,7 +76,12 @@ const fetchServices = async () => {
       if (group) {
         group.services.push({
           ...service,
-          name: getLocalizedServiceName(service), 
+          // Employee Resignation is a required HR feature -- it must always
+          // stay on the home screen, so it can't be toggled off here. Checked
+          // against the raw (pre-localization) name, since it's stable across
+          // languages unlike the display name set just below.
+          locked: service.name === "Employee Resignation",
+          name: getLocalizedServiceName(service),
           added: !!addedService,
         });
       }
@@ -102,6 +102,7 @@ const fetchUserServices = async () => {
 };
 
 const removeService = async (service) => {
+  if (service.locked) return;
   try {
     const updatedService = [
       ...userServices.value

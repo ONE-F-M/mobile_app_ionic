@@ -12,34 +12,75 @@ export const useCustomToast = () => {
 
   const { t } = useI18n();
 
-  const showErrorToast = async (message, error, statusCode) => {
-    const errorMessage = error ? error : getStatusMessage(statusCode);
+  const showErrorToast = async (message, error, statusCode, duration = null) => {
+    let errStr = null;
+    if (typeof error === 'string') {
+      errStr = error;
+    } else if (error?.data?.error) {
+      errStr = typeof error.data.error === 'string' ? error.data.error : JSON.stringify(error.data.error);
+    } else if (error?.message) {
+      errStr = error.message;
+    }
+    
+    let errorMessage = errStr || getStatusMessage(statusCode);
     const errorTitle = message ? message : t("utils.toast.error");
+
+    // 3. Fallback Logic (Refined)
+    // Only look for a status code message or generic fallback 
+    // IF we have absolutely no information (no specific error AND no specific title).
+    // This prevents "You are not assigned to a shift" (Title) from showing "Unexpected error" (Body).
+
+    if (!errorMessage) {
+      // If we don't have a body, but we DO have a descriptive title (like "You are not assigned..."),
+      // we leave the body empty. It looks cleaner.
+
+      // Only if the title is also missing (or is just "Error!") do we force a body text.
+      if (!message || message === t("utils.toast.error") || message === "Error!") {
+        errorMessage = getStatusMessage(statusCode);
+
+        if (!errorMessage) {
+          errorMessage = "An unexpected error occurred. Please check your connection.";
+        }
+      }
+    }
 
     const errorToast = await toastController.create({
       cssClass: "toast-error",
       header: errorTitle,
-      message: errorMessage,
+      message: errorMessage, // If this is null, Ionic simply hides the body area
       ...commonConfig,
+      duration: duration || commonConfig.duration,
       icon: closeOutline,
     });
 
     return await errorToast.present();
   };
 
-  const showSuccessToast = async (message) => {
+  const showSuccessToast = async (message, duration = null) => {
     const successToast = await toastController.create({
       cssClass: "toast-success",
       header: t("utils.toast.success"),
       message,
       ...commonConfig,
+      duration: duration || commonConfig.duration,
       icon: checkmarkOutline,
     });
 
     return await successToast.present();
   };
 
+  const showToast = async (options = {}) => {
+    const toast = await toastController.create({
+      ...commonConfig,
+      ...options,
+      duration: options.duration || commonConfig.duration,
+    });
+    return await toast.present();
+  };
+
   const getStatusMessage = (statusCode) => {
+    if (!statusCode) return null;
+
     if (statusCode >= 100 && statusCode < 200) {
       return "Informational response received.";
     } else if (statusCode >= 200 && statusCode < 300) {
@@ -51,10 +92,12 @@ export const useCustomToast = () => {
     } else if (statusCode >= 500 && statusCode < 600) {
       return "Server error occurred. Please try again later.";
     }
+    return null;
   };
 
   return {
     showErrorToast,
     showSuccessToast,
+    showToast,
   };
 };

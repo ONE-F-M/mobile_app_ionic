@@ -13,11 +13,12 @@ import initI18n from "@/plugins/i18n.js";
 import { createAnimation, IonicVue } from "@ionic/vue";
 
 /* Import components */
-import VCalendar from "v-calendar";
+// REMOVED: VCalendar global registration — moved to local import in Datepicker.vue
+// This removes ~80 KB from the initial bundle.
 
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/vue/css/core.css";
-import "@mdi/font/css/materialdesignicons.css";
+// REMOVED: @mdi/font webfont (~240 KB). Replaced by tree-shakeable MdiIcon.vue component using @mdi/js.
 
 /* Basic CSS for apps built with Ionic */
 import "@ionic/vue/css/normalize.css";
@@ -40,10 +41,10 @@ import "./theme/fonts.scss";
 import "./theme/global.scss";
 
 /* Plugins CSS styles */
-import "v-calendar/style.css";
+// REMOVED: v-calendar/style.css — now imported locally in Datepicker.vue
 const app = createApp(App);
 app.use(pinia);
-app.use(VCalendar, {});
+// VCalendar removed from global registration — see Datepicker.vue for local usage
 
 const animationPage = (baseEl, opts) => {
   const { enteringEl, leavingEl } = opts;
@@ -74,9 +75,19 @@ const i18n = initI18n(lang);
 app.use(i18n);
 
 router.isReady().then( async () => {
-  await registerServiceWorker()
-  await getFirebaseMessaging();
-  app.mount("#app");
- 
+  try {
+    await registerServiceWorker();
+    await getFirebaseMessaging();
+  } catch (e) {
+    if (e?.message?.includes?.('apiKey')) {
+      console.warn("Dev mode: Skipping Firebase/SW initialization due to missing environment keys.");
+    } else {
+      console.warn("Firebase/SW initialization failed:", e);
+      window.__PUSH_NOTIFICATIONS_DISABLED__ = true;
+    }
+  } finally {
+    // ALWAYS mount the app, even if Firebase fails
+    app.mount("#app");
+  }
 });
 

@@ -9,6 +9,7 @@ import {
   IonText,
 } from "@ionic/vue";
 import IconChevronDown from "@/components/icon/ChevronDown.vue";
+import MdiIcon from "@/components/base/MdiIcon.vue";
 
 const props = defineProps({
   serviceGroup: {
@@ -31,6 +32,7 @@ const emit = defineEmits([
 const showContent = ref(false);
 
 const updateService = (added, service) => {
+  if (service.locked) return;
   if (!added) {
     emit("add-service", service);
   } else {
@@ -65,10 +67,11 @@ watch(
         @click="showContent = !showContent"
       >
         <div class="group-card-title-wrapper">
-          <span
-            class="mdi group-card-title-icon"
-            :class="`mdi-${serviceGroup.icon}`"
-          ></span>
+          <MdiIcon
+            :name="serviceGroup.icon"
+            :size="24"
+            class="group-card-title-icon"
+          />
           <ion-text>
             <p class="group-card-title">{{ serviceGroup.name }}</p>
           </ion-text>
@@ -87,13 +90,17 @@ watch(
               @click="$emit('open-service', service.name)"
             >
               <div class="services-item-icon-wrapper">
-                <span class="mdi" :class="`mdi-${service.icon}`" />
+                <MdiIcon :name="service.icon" :size="24" />
               </div>
               <p class="services-item-label">
                 {{ service.name }}
               </p>
             </ion-row>
+            <ion-text v-if="service.locked" class="services-item-required">
+              {{ $t("user.service.required", "Required") }}
+            </ion-text>
             <ion-button
+              v-else
               class="services-item-button"
               shape="round"
               size="small"
@@ -216,6 +223,13 @@ watch(
       --padding-start: 20px;
       --padding-end: 20px;
       --padding-bottom: 4px;
+    }
+
+    &-required {
+      color: #8b9298;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      padding: 4px 20px;
     }
 
     &-label {
