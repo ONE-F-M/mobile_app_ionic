@@ -17,6 +17,21 @@ export default {
     try_again: "Try Again",
   },
   apiKeyNotFound: "Failed to load Google Map. Service unavailable",
+  locationError: {
+    timeout: {
+      title: "Location request timed out",
+      description: "Move to an open area with a clear view of the sky and try again",
+    },
+    unavailable: {
+      title: "Location unavailable",
+      description: "Check that location services are switched on for this device",
+    },
+    unknown: {
+      title: "Could not determine your location",
+      description: "Please try again",
+    },
+  },
+  staticMapFailed: "Unable to load the map. Your location is still being checked",
   in: "IN",
   out: "OUT",
   employee_name: "Employee Name",

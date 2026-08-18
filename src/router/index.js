@@ -145,13 +145,6 @@ const routes = [
     component: () => import('@/views/resignation/ExtensionCreatePage.vue'),
     meta: { requiresAuth: true },
   },
-
-  // Shift Request Flow
-  {
-    path: "/checkin/geolocation",
-    component: () => import("@/views/checkin/CheckinGeolocation.vue"),
-    meta: { requiresAuth: true },
-  },
 ];
 
 const router = createRouter({

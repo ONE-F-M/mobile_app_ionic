@@ -12,8 +12,6 @@ export default function useNotification() {
 
   const addListeners = async () => {
     await PushNotifications.addListener("registration", async (token) => {
-      console.info("Registration token: ", token.value);
-
       authStore.setFcmToken(token.value);
 
       const deviceInfo = await Device.getInfo();
@@ -35,7 +33,6 @@ export default function useNotification() {
         // The OS only shows a banner + plays a sound automatically when the
         // app is backgrounded -- while it's open (which is when this fires),
         // nothing appears unless we show it ourselves.
-        console.log("Push notification received: ", notification);
         if (!notification.title && !notification.body) return;
 
         await playNotificationSound();
@@ -48,15 +45,11 @@ export default function useNotification() {
       },
     );
 
+    // Fires when a notification is tapped. Nothing to route to yet — deep-linking
+    // to the relevant screen belongs here.
     await PushNotifications.addListener(
       "pushNotificationActionPerformed",
-      (notification) => {
-        console.log(
-          "Push notification action performed",
-          notification.actionId,
-          notification.inputValue,
-        );
-      },
+      () => {},
     );
   };
 

@@ -17,6 +17,21 @@ export default {
     try_again: "حاول مرة أخرى",
   },
   apiKeyNotFound: "فشل تحميل خريطة جوجل. الخدمة غير متوفرة",
+  locationError: {
+    timeout: {
+      title: "انتهت مهلة طلب الموقع",
+      description: "انتقل إلى مكان مفتوح وحاول مرة أخرى",
+    },
+    unavailable: {
+      title: "الموقع غير متوفر",
+      description: "تأكد من تشغيل خدمات الموقع على هذا الجهاز",
+    },
+    unknown: {
+      title: "تعذر تحديد موقعك",
+      description: "يرجى المحاولة مرة أخرى",
+    },
+  },
+  staticMapFailed: "تعذر تحميل الخريطة. لا يزال يتم التحقق من موقعك",
   in: "في",
   out: "خارج",
   employee_name: "اسم الموظف",

@@ -70,6 +70,7 @@ const login = async () => {
     // 2. State Updates
     userStore.setUser(data.data);
     userStore.setToken(data.data.token);
+    userStore.setRefreshToken(data.data.refresh_token);
     userStore.setEndpointStatus(data.data.endpoint_state);
     userStore.setShiftWorking(data.data.shift_working);
     
