@@ -165,7 +165,7 @@ const { t } = useI18n();
 // In template: {{ t("module.key") }}
 ```
 
-Translation files in `src/locale/en.json` and `src/locale/ar.json`. The app supports RTL layout via the `rtl` state in the lang store.
+Translation strings live in per-module JS files under `src/locale/en/<module>/...` and `src/locale/ar/<module>/...` (e.g. `src/locale/en/user/leaves.js`), each collected into that language's `index.js` barrel. The app supports RTL layout via the `rtl` state in the lang store.
 
 ### 7. Composables
 
@@ -192,7 +192,7 @@ export const useMyHelper = () => {
 4. **Views**: Create `src/views/<feature>/` folder with `<Feature>Page.vue`
 5. **Components**: Create `src/components/<feature>/` for reusable sub-components
 6. **Route**: Add to `src/router/index.js` with `meta: { requiresAuth: true }`
-7. **i18n**: Add keys to `src/locale/en.json` and `src/locale/ar.json`
+7. **i18n**: Add the new key to the matching per-module file under both `src/locale/en/<module>/...` and `src/locale/ar/<module>/...`, and ensure each is collected by that language's `index.js` barrel — a key must be added in BOTH English and Arabic, never just one
 8. **Export**: Add API module to `src/api/index.ts`
 
 ### Adding a Capacitor Plugin
