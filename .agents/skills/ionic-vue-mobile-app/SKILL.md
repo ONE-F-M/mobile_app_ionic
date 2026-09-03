@@ -68,7 +68,7 @@ src/
 ├── components/   # Reusable Vue components (feature-grouped folders)
 ├── composable/   # Vue 3 composables (use* naming)
 ├── layouts/      # Page layout wrappers
-├── locale/       # i18n translation JSON files (en, ar)
+├── locale/       # i18n translation JS files (en, ar)
 ├── middleware/    # Route guards
 ├── plugins/      # Vue plugin setup (pinia, i18n)
 ├── router/       # Route definitions
@@ -165,7 +165,7 @@ const { t } = useI18n();
 // In template: {{ t("module.key") }}
 ```
 
-Translation files in `src/locale/en.json` and `src/locale/ar.json`. The app supports RTL layout via the `rtl` state in the lang store.
+Translations are NOT single files. Each language keeps per-module JS files under `src/locale/en/<module>/...` and `src/locale/ar/<module>/...` (e.g. `src/locale/en/user/leaves.js` and `src/locale/ar/user/leaves.js`). Each language's `index.js` barrel (`src/locale/en/index.js`, `src/locale/ar/index.js`, plus per-area barrels like `src/locale/en/user/index.js`) imports and merges those per-module files into the object handed to `vue-i18n`. Every key added to one language's module file must have a matching key added to the corresponding module file in the other language. The app supports RTL layout via the `rtl` state in the lang store.
 
 ### 7. Composables
 
@@ -192,7 +192,7 @@ export const useMyHelper = () => {
 4. **Views**: Create `src/views/<feature>/` folder with `<Feature>Page.vue`
 5. **Components**: Create `src/components/<feature>/` for reusable sub-components
 6. **Route**: Add to `src/router/index.js` with `meta: { requiresAuth: true }`
-7. **i18n**: Add keys to `src/locale/en.json` and `src/locale/ar.json`
+7. **i18n**: Create (or extend) a per-module JS file for the feature under `src/locale/en/<feature>...` and the matching file under `src/locale/ar/<feature>...`, then wire each into that language's `index.js` barrel. Every new key must be added in BOTH English and Arabic — a key present in only one language renders as its own key name.
 8. **Export**: Add API module to `src/api/index.ts`
 
 ### Adding a Capacitor Plugin
