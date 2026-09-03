@@ -22,4 +22,5 @@ export default {
   submit: "Submit",
   submit_success: "Submitted successfully",
   submit_error: "Error submitting",
+  sandbox_probe: "Sandbox probe",
 };
