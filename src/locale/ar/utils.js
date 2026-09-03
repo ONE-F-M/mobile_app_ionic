@@ -22,4 +22,5 @@ export default {
   submit: "إرسال",
   submit_success: "تم الإرسال بنجاح",
   submit_error: "خطأ في الإرسال",
+  sandbox_probe: "اختبار الصندوق",
 };
