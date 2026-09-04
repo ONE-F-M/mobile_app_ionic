@@ -6,6 +6,7 @@ import checkin from "./checkin";
 import leaves from "./leaves";
 import shifts from "./shifts";
 import stock_entry from "./stock_entry";
+import uniform_request from "./uniform_request";
 
 export default {
   home,
@@ -16,4 +17,5 @@ export default {
   profile,
   checkin,
   stock_entry,
+  uniform_request,
 };

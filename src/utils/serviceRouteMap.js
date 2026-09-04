@@ -6,7 +6,10 @@ export const serviceRouteMap = {
   "Employee Resignation": "/resignation",
   "Resignation Withdrawal": "/resignation/withdraw",
   "Advances": "/advance",
-  "Letters": "/letter"
+  "Letters": "/letter",
+  // WI-002301: keyed on the App Service name the backend creates - rename either and
+  // the tile silently falls back to /service.
+  "Uniform Request": "/uniform-request"
 };
 
 export const getServiceRoute = (service) => {
