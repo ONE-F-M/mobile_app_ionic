@@ -1,5 +1,6 @@
 import { createApp } from "vue";
 import App from "./App.vue";
+import MdiIcon from "@/components/base/MdiIcon.vue";
 import router from "./router";
 import "dayjs/locale/en";
 import "dayjs/locale/ar";
@@ -44,6 +45,7 @@ import "./theme/global.scss";
 // REMOVED: v-calendar/style.css — now imported locally in Datepicker.vue
 const app = createApp(App);
 app.use(pinia);
+app.component("MdiIcon", MdiIcon);
 // VCalendar removed from global registration — see Datepicker.vue for local usage
 
 const animationPage = (baseEl, opts) => {
@@ -74,13 +76,15 @@ const lang = langStore.lang || "en";
 const i18n = initI18n(lang);
 app.use(i18n);
 
-router.isReady().then( async () => {
+router.isReady().then(async () => {
   try {
     await registerServiceWorker();
     await getFirebaseMessaging();
   } catch (e) {
-    if (e?.message?.includes?.('apiKey')) {
-      console.warn("Dev mode: Skipping Firebase/SW initialization due to missing environment keys.");
+    if (e?.message?.includes?.("apiKey")) {
+      console.warn(
+        "Dev mode: Skipping Firebase/SW initialization due to missing environment keys.",
+      );
     } else {
       console.warn("Firebase/SW initialization failed:", e);
       window.__PUSH_NOTIFICATIONS_DISABLED__ = true;
@@ -90,4 +94,3 @@ router.isReady().then( async () => {
     app.mount("#app");
   }
 });
-
