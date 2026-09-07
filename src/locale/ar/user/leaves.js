@@ -9,6 +9,7 @@ export default {
   from_date: "من تاريخ",
   to_date: "حتى تاريخ",
   select_leave_type: "اختر نوع الإجازة",
+  select_reliever: "اختر البديل",
   enter_reason: "أدخل السبب هنا",
   card: {
     type: {
