@@ -11,13 +11,19 @@ import {
   IonButton,
   IonCol,
   IonContent,
+  IonHeader,
   IonInput,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonModal,
   IonPage,
   IonRow,
-  IonSelect,
-  IonSelectOption,
+  IonSearchbar,
   IonSpinner,
   IonText,
+  IonTitle,
+  IonToolbar,
   onIonViewWillEnter,
   useIonRouter,
 } from "@ionic/vue";
@@ -29,10 +35,12 @@ import Datepicker from "@/components/base/Datepicker.vue";
 import uniformRequest from "@/api/uniform_request";
 import useDateHelper from "@/composable/useDateHelper";
 import { useCustomToast } from "@/composable/toast.js";
+import { useLangStore } from "@/store/lang.js";
 import { useUserStore } from "@/store/user.js";
 
 const { t } = useI18n();
 const router = useIonRouter();
+const langStore = useLangStore();
 const userStore = useUserStore();
 const { showErrorToast, showSuccessToast } = useCustomToast();
 const { dayjs } = useDateHelper();
@@ -44,6 +52,43 @@ const isLoading = ref(false);
 const isSubmitting = ref(false);
 const itemOptions = ref([]);
 const requiredDate = ref(null);
+// Datepicker is a modal, not an inline field: it renders nothing until it is opened.
+const isDatePickerOpen = ref(false);
+
+// The uniform catalogue runs to about twelve hundred items, so the picker is a searchable
+// modal rather than a select: no list that long can be scrolled to the item that tore.
+const isItemModalOpen = ref(false);
+const itemSearchQuery = ref("");
+const activeItemIndex = ref(0);
+
+/** What the search box narrows to, capped so a blank query does not render the lot. */
+const itemResults = computed(() => {
+  const query = itemSearchQuery.value.trim().toLowerCase();
+  const matches = query
+    ? itemOptions.value.filter(
+        (option) =>
+          option.item_name.toLowerCase().includes(query) ||
+          option.item_code.toLowerCase().includes(query),
+      )
+    : itemOptions.value;
+
+  return matches.slice(0, 50);
+});
+
+const itemNameFor = (code) =>
+  itemOptions.value.find((option) => option.item_code === code)?.item_name || "";
+
+const openItemSelector = (index) => {
+  activeItemIndex.value = index;
+  itemSearchQuery.value = "";
+  isItemModalOpen.value = true;
+};
+
+const selectItem = (option) => {
+  rows[activeItemIndex.value].item_code = option.item_code;
+  clearError(activeItemIndex.value, "item");
+  isItemModalOpen.value = false;
+};
 
 const blankRow = () => ({ item_code: "", size: "", photo: null, photoName: null });
 const rows = reactive([blankRow()]);
@@ -71,6 +116,11 @@ const fetchItems = async () => {
   } finally {
     isLoading.value = false;
   }
+};
+
+/** Back to whichever tile opened this, falling back to the home tab. */
+const triggerBack = () => {
+  router.canGoBack() ? router.back() : router.push("/dashboard");
 };
 
 const addRow = () => rows.push(blankRow());
@@ -138,7 +188,7 @@ const onSubmit = async () => {
   try {
     const items = rows.map((row) => ({
       item_code: row.item_code,
-      item_name: itemOptions.value.find((o) => o.item_code === row.item_code)?.item_name,
+      item_name: itemNameFor(row.item_code),
       size: row.size.trim(),
       attach_photo: { attachment_name: row.photoName, attachment: row.photo },
     }));
@@ -149,7 +199,7 @@ const onSubmit = async () => {
     );
 
     showSuccessToast(t("user.uniform_request.success"));
-    router.push("/service");
+    triggerBack();
   } catch (error) {
     showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   } finally {
@@ -160,6 +210,8 @@ const onSubmit = async () => {
 onIonViewWillEnter(() => {
   rows.splice(0, rows.length, blankRow());
   requiredDate.value = null;
+  isDatePickerOpen.value = false;
+  isItemModalOpen.value = false;
   Object.keys(errors).forEach((key) => delete errors[key]);
   fetchItems();
 });
@@ -168,7 +220,7 @@ onIonViewWillEnter(() => {
 <template>
   <ion-page>
     <ion-content class="ion-padding">
-      <PageHeader :title="$t('user.uniform_request.title')" @click-back="router.push('/service')" />
+      <PageHeader :title="$t('user.uniform_request.title')" @click-back="triggerBack" />
 
       <p class="subtitle">{{ $t("user.uniform_request.subtitle") }}</p>
 
@@ -186,8 +238,22 @@ onIonViewWillEnter(() => {
 
       <div class="field">
         <span class="label">{{ $t("user.uniform_request.required_date") }}</span>
-        <Datepicker v-model="requiredDate" :min-date="new Date()" />
+        <ion-input
+          fill="outline"
+          readonly
+          :placeholder="$t('user.uniform_request.select_date')"
+          :value="requiredDate ? dayjs(requiredDate).format('DD-MM-YYYY') : ''"
+          @ion-focus="isDatePickerOpen = true"
+        />
         <span class="hint">{{ $t("user.uniform_request.required_date_hint") }}</span>
+        <Datepicker
+          v-model="requiredDate"
+          :lang="langStore.lang"
+          :is-open="isDatePickerOpen"
+          :min-date="new Date()"
+          @cancel="isDatePickerOpen = false"
+          @ok="isDatePickerOpen = false"
+        />
       </div>
 
       <h2 class="section">{{ $t("user.uniform_request.items") }}</h2>
@@ -206,20 +272,13 @@ onIonViewWillEnter(() => {
           </ion-col>
         </ion-row>
 
-        <ion-select
-          v-model="row.item_code"
-          interface="action-sheet"
+        <ion-input
+          fill="outline"
+          readonly
           :placeholder="$t('user.uniform_request.select_item')"
-          @ion-change="clearError(index, 'item')"
-        >
-          <ion-select-option
-            v-for="option in itemOptions"
-            :key="option.item_code"
-            :value="option.item_code"
-          >
-            {{ option.item_name }}
-          </ion-select-option>
-        </ion-select>
+          :value="itemNameFor(row.item_code)"
+          @ion-focus="openItemSelector(index)"
+        />
         <ion-text v-if="errorFor(index, 'item')" color="danger" class="error">
           {{ errorFor(index, "item") }}
         </ion-text>
@@ -267,6 +326,42 @@ onIonViewWillEnter(() => {
         <ion-spinner v-if="isSubmitting" name="crescent" />
         <span v-else>{{ $t("user.uniform_request.submit") }}</span>
       </ion-button>
+
+      <ion-modal :is-open="isItemModalOpen" @did-dismiss="isItemModalOpen = false">
+        <ion-header>
+          <ion-toolbar>
+            <ion-title>{{ $t("user.uniform_request.select_item") }}</ion-title>
+            <ion-button slot="end" fill="clear" @click="isItemModalOpen = false">
+              {{ $t("utils.cancel") }}
+            </ion-button>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content>
+          <ion-searchbar
+            v-model="itemSearchQuery"
+            :placeholder="$t('user.uniform_request.search_item')"
+            debounce="300"
+          />
+          <ion-list>
+            <ion-item
+              v-for="option in itemResults"
+              :key="option.item_code"
+              button
+              @click="selectItem(option)"
+            >
+              <ion-label>
+                <h2>{{ option.item_name }}</h2>
+                <p>{{ option.item_code }}</p>
+              </ion-label>
+            </ion-item>
+            <ion-item v-if="!itemResults.length" lines="none">
+              <ion-label class="ion-text-center">
+                {{ $t("user.uniform_request.no_item_match") }}
+              </ion-label>
+            </ion-item>
+          </ion-list>
+        </ion-content>
+      </ion-modal>
     </ion-content>
   </ion-page>
 </template>
