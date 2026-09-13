@@ -63,12 +63,12 @@ const fetchServices = async () => {
     if (RESIGNATION_SUB_SERVICES.includes(service.name)) return;
 
     const group = serviceGroups.value.find((group) => {
-      const groupName = locale.value === "ar" ? group.name_ar : group.name;
+      const groupName = getLocalizedServiceName(group);
       return groupName === (locale.value === "ar" ? service.service_group_ar : service.service_group);
     });
 
       const addedService = userServices.value.find(
-        (userService) =>{const serviceName = locale.value === "ar" ? service.name_ar : service.name;
+        (userService) =>{const serviceName = getLocalizedServiceName(service);
         return locale.value === "ar" ? userService.service_ar === serviceName: userService.service === serviceName;    
         }
       );
