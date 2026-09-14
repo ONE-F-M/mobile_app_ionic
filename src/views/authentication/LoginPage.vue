@@ -105,8 +105,20 @@ const login = async () => {
     // Check if it's strictly a credential error (401/403) or a System/Network error.
     // CapacitorHttp throws the response object directly (or stripped), so we check status directly.
     const status = error.status || error.data?.status || error.response?.status;
+    const errorCode = error.data?.error_code;
 
-    if (status === 401 || status === 403) {
+    // A disabled account also answers 401, but the password was actually correct -
+    // showing "invalid password" there sends the employee into a reset loop that can
+    // never succeed. Say what is really wrong instead.
+    if (errorCode === "ACCOUNT_DISABLED") {
+      const toast = await toastController.create({
+        message: error.data?.error || 'Your account has been deactivated. Please contact the IT Helpdesk.',
+        duration: 5000,
+        color: 'danger',
+        position: 'top'
+      });
+      await toast.present();
+    } else if (status === 401 || status === 403) {
       isIncorrectPassword.value = true;
     } else {
       // Show a toast for network/server errors
