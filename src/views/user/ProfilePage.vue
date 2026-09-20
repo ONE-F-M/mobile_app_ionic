@@ -277,6 +277,17 @@ onIonViewWillEnter(async () => {
                 </ion-select-option>
               </ion-select>
             </div>
+
+            <div class="account-link" @click="router.push('/account')">
+              <span class="body-large text-dark-tint">
+                {{ $t("user.account.title") }}
+              </span>
+              <ion-icon
+                class="text-dark-tint"
+                color="light"
+                :icon="chevronForwardOutline"
+              />
+            </div>
           </div>
         </div>
 
