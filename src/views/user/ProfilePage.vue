@@ -28,6 +28,7 @@ import { useCustomToast } from "@/composable/toast";
 import useDisplayImage from "@/composable/useDisplayImage";
 import useNotification from "@/composable/useNotification";
 import { Capacitor } from '@capacitor/core';
+import { version as appVersion } from "../../../package.json";
 
 
 const { t } = useI18n();
