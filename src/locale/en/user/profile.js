@@ -19,4 +19,5 @@ export default {
   logout: "Logout",
   image_updated: "Profile image updated successfully",
   set_profile_image: "Set Profile Image",
+  app_version: "App version {version}",
 };
