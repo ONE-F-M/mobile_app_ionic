@@ -289,6 +289,10 @@ onIonViewWillEnter(async () => {
         >
           {{ $t("user.profile.logout") }}
         </ion-button>
+
+        <div class="app-version body-small text-dark-tint">
+          {{ $t("user.profile.app_version", { version: appVersion }) }}
+        </div>
       </div>
     </ion-content>
   </ion-page>
