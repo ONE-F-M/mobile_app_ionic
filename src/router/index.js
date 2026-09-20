@@ -145,6 +145,14 @@ const routes = [
     component: () => import('@/views/resignation/ExtensionCreatePage.vue'),
     meta: { requiresAuth: true },
   },
+
+  // Account Flow
+  {
+    path: "/account",
+    name: "account-details",
+    component: () => import("@/views/account/AccountDetailsPage.vue"),
+    meta: { requiresAuth: true },
+  },
 ];
 
 const router = createRouter({
