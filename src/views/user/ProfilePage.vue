@@ -508,6 +508,14 @@ onIonViewWillEnter(async () => {
   }
 }
 
+.account-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  cursor: pointer;
+}
+
 .logout-button {
   height: 40px;
   margin-top: 24px;
