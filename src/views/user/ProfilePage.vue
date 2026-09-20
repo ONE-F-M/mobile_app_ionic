@@ -509,6 +509,11 @@ onIonViewWillEnter(async () => {
   font-family: "Readex Pro", sans-serif;
 }
 
+.app-version {
+  text-align: center;
+  opacity: 0.6;
+}
+
 .full-profile-modal {
   --border-radius: 16px 16px 0 0;
 
