@@ -19,4 +19,5 @@ export default {
   logout: "تسجيل الخروج",
   image_updated: "تم تحديث صورة الملف الشخصي بنجاح",
   set_profile_image: "تعيين صورة الملف الشخصي",
+  app_version: "إصدار التطبيق {version}",
 };
