@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { IonButton, IonModal, IonRow } from "@ionic/vue";
 import useDateHelper from "@/composable/useDateHelper";
 // OPTIMIZATION: Import v-calendar locally instead of globally.
@@ -33,19 +33,37 @@ const emit = defineEmits(["update:model-value", "cancel", "ok"]);
 const modal = ref(null);
 
 const selectedDate = computed({
-  get() {
-    return props.modelValue;
+  get() {\n    return props.modelValue;
   },
   set(value) {
     emit("update:model-value", value);
   },
 });
 
-const handleDismiss = async () => {
+const handleCancel = async () => {
   if (modal.value) {
     await modal.value.$el.dismiss();
   }
+  emit("cancel");
 };
+
+const handleOk = async () => {
+  if (modal.value) {
+    await modal.value.$el.dismiss();
+  }
+  emit("ok");
+};
+
+// Ensure modal is properly dismissed when isOpen changes to false
+watch(
+  () => props.isOpen,
+  async (newVal) => {
+    if (!newVal && modal.value) {
+      // Give a small delay to ensure clean state
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+  }
+);
 </script>
 
 <template>
