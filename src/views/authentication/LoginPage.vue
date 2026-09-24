@@ -300,6 +300,18 @@ watch(
   }
 }
 
+.remember-me-container {
+  margin-top: 16px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+
+  ::v-deep(ion-checkbox) {
+    font-size: 0.875rem;
+    font-weight: 400;
+  }
+}
+
 .login-button {
   margin-top: 24px;
   height: 46px;
