@@ -49,7 +49,12 @@ const handleDismiss = async () => {
 </script>
 
 <template>
-  <ion-modal class="datepicker-modal" :is-open="isOpen">
+  <ion-modal
+    ref="modal"
+    class="datepicker-modal"
+    :is-open="isOpen"
+    @will-dismiss="handleDismiss"
+  >
     <ion-row
       class="datepicker-wrapper ion-align-items-center ion-justify-content-center"
     >
