@@ -30,6 +30,7 @@ import { useI18n } from "vue-i18n";
 import { Loader } from "@googlemaps/js-api-loader";
 import auth from "@/api/authentication";
 import { useRoute } from "vue-router";
+import checkinStaging from "@/api/checkin-staging";
 
 const router = useIonRouter();
 const route = useRoute();
