@@ -5,6 +5,7 @@ import {
   IonPage,
   IonContent,
   IonSpinner,
+  IonCheckbox,
   useIonRouter,
   onIonViewDidLeave,
   onIonViewDidEnter,
@@ -30,6 +31,7 @@ const isLoading = ref(false);
 const isIncorrectPassword = ref(false);
 const passwordInput = ref(null); // Reference for auto-focus
 const password = ref("");
+const rememberMe = ref(false);
 
 const { addListeners, registerNotifications } = useNotification();
 
