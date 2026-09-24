@@ -306,7 +306,7 @@ const getSiteLocation = async () => {
         payload.shift = route.query.shift;
       }
 
-      const { data } = await checkin.getSiteLocation(payload);
+      const { data } = await checkinStaging.getSiteLocation(payload);
 
       site_radius.value = data.data.geofence_radius;
       siteName.value = data.data.site_name || "";
