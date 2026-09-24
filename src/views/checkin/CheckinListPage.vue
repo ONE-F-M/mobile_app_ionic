@@ -350,7 +350,7 @@ p { margin: 0; }
     line-height: 1rem;
     color: #8b9298;
   }
-  &-date, &-time {
+  &-timestamp {
     font-size: 0.75rem;
     line-height: 1rem;
     color: #c0c7cd;
