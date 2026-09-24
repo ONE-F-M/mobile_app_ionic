@@ -78,6 +78,20 @@ const login = async () => {
     
     authStore.setEmployeeIdentificator(data.data.name);
     
+    // 2a. Save token to localStorage if "Remember Me" is checked
+    if (rememberMe.value) {
+      localStorage.setItem('auth_token', data.data.token);
+      localStorage.setItem('refresh_token', data.data.refresh_token);
+      localStorage.setItem('employee_id', data.data.employee_id);
+      localStorage.setItem('user_data', JSON.stringify(data.data));
+    } else {
+      // Clear localStorage if "Remember Me" is unchecked
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('employee_id');
+      localStorage.removeItem('user_data');
+    }
+    
     userStore.prefetchCheckins(data.data.employee_id);
     userStore.prefetchLeaves(data.data.employee_id);
     userStore.prefetchShifts(data.data.employee_id);
