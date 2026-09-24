@@ -345,7 +345,7 @@ const verifyCheckin = async () => {
       payload.video = verifyVideo.value
     }
 
-    await checkin.verifyCheckin(payload);
+    await checkinStaging.verifyCheckin(payload);
     userStore.prefetchCheckins(userStore.user?.employee_id);
     userStore.prefetchGeolocation(userStore.user?.employee_id);
     // await getSiteLocation();
