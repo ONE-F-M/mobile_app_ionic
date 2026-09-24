@@ -253,8 +253,7 @@ const openDatePicker = () => {
               </ion-col>
               <ion-col size="auto" class="align-cols-end">
                 <div>
-                  <p class="checkin-page-date">{{ formatDate(check.time, "DD/MM/YY") }}</p>
-                  <p class="checkin-page-time">{{ formatDate(check.time, "hh:mm A") }}</p>
+                  <p class="checkin-page-timestamp">{{ dayjs(check.time).locale(langStore.lang).fromNow() }}</p>
                 </div>
               </ion-col>
               <ion-col size="3" class="align-cols-end">
