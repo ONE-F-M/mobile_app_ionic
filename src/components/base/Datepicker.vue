@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { IonButton, IonModal, IonRow } from "@ionic/vue";
 import useDateHelper from "@/composable/useDateHelper";
 // OPTIMIZATION: Import v-calendar locally instead of globally.
@@ -30,6 +30,8 @@ const props = defineProps({
 });
 const emit = defineEmits(["update:model-value", "cancel", "ok"]);
 
+const modal = ref(null);
+
 const selectedDate = computed({
   get() {
     return props.modelValue;
@@ -38,6 +40,12 @@ const selectedDate = computed({
     emit("update:model-value", value);
   },
 });
+
+const handleDismiss = async () => {
+  if (modal.value) {
+    await modal.value.$el.dismiss();
+  }
+};
 </script>
 
 <template>
