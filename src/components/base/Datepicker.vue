@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch, nextTick } from "vue";
 import { IonButton, IonModal, IonRow } from "@ionic/vue";
 import useDateHelper from "@/composable/useDateHelper";
 // OPTIMIZATION: Import v-calendar locally instead of globally.
@@ -33,7 +33,8 @@ const emit = defineEmits(["update:model-value", "cancel", "ok"]);
 const modal = ref(null);
 
 const selectedDate = computed({
-  get() {\n    return props.modelValue;
+  get() {
+    return props.modelValue;
   },
   set(value) {
     emit("update:model-value", value);
@@ -59,8 +60,8 @@ watch(
   () => props.isOpen,
   async (newVal) => {
     if (!newVal && modal.value) {
-      // Give a small delay to ensure clean state
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      // Give time for modal to properly settle
+      await nextTick();
     }
   }
 );
@@ -71,7 +72,6 @@ watch(
     ref="modal"
     class="datepicker-modal"
     :is-open="isOpen"
-    @will-dismiss="handleDismiss"
   >
     <ion-row
       class="datepicker-wrapper ion-align-items-center ion-justify-content-center"
