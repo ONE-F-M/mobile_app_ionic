@@ -206,6 +206,14 @@ watch(
             :error-text="$t('auth.invalid.password')"
           />
           
+          <div class="remember-me-container">
+            <ion-checkbox
+              v-model="rememberMe"
+              :label="$t('login.rememberMe')"
+              label-placement="end"
+            ></ion-checkbox>
+          </div>
+          
           <ion-button
             @click="login"
             class="login-button"
