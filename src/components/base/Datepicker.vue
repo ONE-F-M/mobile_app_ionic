@@ -100,13 +100,13 @@ watch(
           title-position="left"
         />
         <ion-row class="ion-justify-content-end datepicker-card-footer-wrapper">
-          <ion-button fill="clear" @click="emit('cancel')">
+          <ion-button fill="clear" @click="handleCancel">
             {{ $t("utils.cancel") }}
           </ion-button>
           <ion-button
             fill="clear"
             :disabled="!selectedDate"
-            @click="emit('ok')"
+            @click="handleOk"
           >
             {{ $t("utils.ok") }}
           </ion-button>
