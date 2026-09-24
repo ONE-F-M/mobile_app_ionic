@@ -8,4 +8,5 @@ export default {
   hello: "Hello",
   forgotPassword: "If you have forgotten your password",
   clickHere: "click here",
+  rememberMe: "Remember Me",
 };
