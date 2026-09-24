@@ -458,6 +458,7 @@ onIonViewWillEnter(async () => {
         </ion-row>
         <!-- From Date Picker -->
         <Datepicker
+          :key="`from-date-picker-${isFromDatePickerOpen}`"
           :lang="langStore.lang"
           :is-open="isFromDatePickerOpen"
           v-model="selectedDates.from_date"
@@ -466,6 +467,7 @@ onIonViewWillEnter(async () => {
         />
         <!-- Resumption Date Picker -->
         <Datepicker
+          :key="`resumption-date-picker-${isResumptionDatePickerOpen}`"
           :lang="langStore.lang"
           :is-open="isResumptionDatePickerOpen"
           v-model="selectedDates.resumption_date"
