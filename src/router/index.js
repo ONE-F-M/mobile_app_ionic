@@ -161,6 +161,12 @@ const routes = [
     component: () => import("@/views/checkin/CheckinGeolocation.vue"),
     meta: { requiresAuth: true },
   },
+
+  // QA Test Harness (no auth required for QA access)
+  {
+    path: "/qa-harness",
+    component: () => import("@/views/QAHarness.vue"),
+  },
 ];
 
 const router = createRouter({
