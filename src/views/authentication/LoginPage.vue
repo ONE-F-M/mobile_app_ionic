@@ -142,6 +142,7 @@ onIonViewDidLeave(() => {
   isLoading.value = false;
   password.value = "";
   isIncorrectPassword.value = false;
+  rememberMe.value = false;
 });
 
 // Lifecycle: Auto-focus the input when entering
