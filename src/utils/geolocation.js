@@ -52,9 +52,10 @@ export async function getCurrentPositionSafe(opts = {}) {
     const isLastAttempt = i === attempts - 1;
     try {
       return await Geolocation.getCurrentPosition({
-        // Drop to coarse accuracy on the final try so indoor/weak-signal devices
-        // still return a position rather than timing out again.
-        enableHighAccuracy: !isLastAttempt,
+        // Drop to coarse accuracy on the final try so indoor/weak-signal devices still return
+        // a position rather than timing out again — UNLESS highAccuracyOnly is set, in which
+        // case a coarse reading is never acceptable for a geofence decision.
+        enableHighAccuracy: highAccuracyOnly ? true : !isLastAttempt,
         timeout,
         maximumAge,
       });
