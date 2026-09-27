@@ -15,6 +15,7 @@ import { Geolocation } from "@capacitor/geolocation";
  * @param {number} [opts.timeout=8000]      per-attempt timeout (ms)
  * @param {number} [opts.maximumAge=15000]  accept a cached fix up to this age (ms)
  * @param {number} [opts.retries=2]         extra attempts after the first
+ * @param {boolean} [opts.highAccuracyOnly=false]  never fall back to low accuracy
  * @returns {Promise<GeolocationPosition>}  resolves with a Capacitor position
  * @throws  {Error} with .code: 'PERMISSION_DENIED' | 'TIMEOUT' | 'UNAVAILABLE'
  */
@@ -23,6 +24,7 @@ export async function getCurrentPositionSafe(opts = {}) {
     timeout = 8000,
     maximumAge = 15000,
     retries = 2,
+    highAccuracyOnly = false,
   } = opts;
 
   // 1. Permission gate — turns a silent hang into an actionable error.
@@ -50,7 +52,7 @@ export async function getCurrentPositionSafe(opts = {}) {
       return await Geolocation.getCurrentPosition({
         // Drop to coarse accuracy on the final try so indoor/weak-signal devices
         // still return a position rather than timing out again.
-        enableHighAccuracy: !isLastAttempt,
+        enableHighAccuracy: highAccuracyOnly || !isLastAttempt,
         timeout,
         maximumAge,
       });
