@@ -15,6 +15,9 @@ import { Geolocation } from "@capacitor/geolocation";
  * @param {number} [opts.timeout=8000]      per-attempt timeout (ms)
  * @param {number} [opts.maximumAge=15000]  accept a cached fix up to this age (ms)
  * @param {number} [opts.retries=2]         extra attempts after the first
+ * @param {boolean} [opts.highAccuracyOnly=false]  when true, every attempt (including the last)
+ *   asks for a high-accuracy fix — the check-in geofence decision must never be based on a
+ *   coarse fallback reading, since that reading can be hundreds of metres off (see WI-002950).
  * @returns {Promise<GeolocationPosition>}  resolves with a Capacitor position
  * @throws  {Error} with .code: 'PERMISSION_DENIED' | 'TIMEOUT' | 'UNAVAILABLE'
  */
@@ -23,6 +26,7 @@ export async function getCurrentPositionSafe(opts = {}) {
     timeout = 8000,
     maximumAge = 15000,
     retries = 2,
+    highAccuracyOnly = false,
   } = opts;
 
   // 1. Permission gate — turns a silent hang into an actionable error.
