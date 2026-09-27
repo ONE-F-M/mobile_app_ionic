@@ -260,7 +260,7 @@ const getSiteLocation = async () => {
     const cacheTimeout = 2 * 60 * 1000;
     const isCacheFresh = now - userStore.lastGeolocationFetch < cacheTimeout;
 
-    // 1. Check Face Enrollment Cache
+    // 1. Check Face Enrollment Cache — unrelated to the in/out decision, safe to reuse.
     let enrollmentData = null;
     if (isCacheFresh && userStore.cachedFaceEnrollment) {
       enrollmentData = userStore.cachedFaceEnrollment;
@@ -277,40 +277,31 @@ const getSiteLocation = async () => {
       return false;
     }
 
-    // 2. Check Site Location Cache
-    if (isCacheFresh && userStore.cachedGeolocationData) {
-      const data = userStore.cachedGeolocationData;
-      site_radius.value = data.geofence_radius;
-      siteName.value = data.site_name || "";
-      site_lat.value = data.latitude;
-      site_long.value = data.longitude;
-      userStore.setEndpointStatus(data.endpoint_status);
-      isUserWithinGeofenceRadius.value = data.user_within_geofence_radius;
-      faceRecEndpointEnabled.value = data.endpoint_status;
-      shift.value = data.shift;
-    } else {
-      const payload = {
-        employee_id: userStore.user?.employee_id,
-        latitude: coordinates.value?.coords?.latitude,
-        longitude: coordinates.value?.coords?.longitude,
-        log_type: logType.value || "IN",
-      };
+    // 2. Site location / geofence decision — ALWAYS ask the server with the fix currently
+    // held in `coordinates`. The Home page prefetch's cachedGeolocationData is a single
+    // reading taken elsewhere (and can be stale or far from the site pin — see WI-002950
+    // Mahboula Camp incident); it must never be reused to answer "inside or outside".
+    const payload = {
+      employee_id: userStore.user?.employee_id,
+      latitude: coordinates.value?.coords?.latitude,
+      longitude: coordinates.value?.coords?.longitude,
+      log_type: logType.value || "IN",
+    };
 
-      if (route.query.shift && route.query.shift !== 'None' && route.query.shift !== 'undefined') {
-        payload.shift = route.query.shift;
-      }
-
-      const { data } = await checkin.getSiteLocation(payload);
-
-      site_radius.value = data.data.geofence_radius;
-      siteName.value = data.data.site_name || "";
-      site_lat.value = data.data.latitude;
-      site_long.value = data.data.longitude;
-      userStore.setEndpointStatus(data.data.endpoint_status);
-      isUserWithinGeofenceRadius.value = data.data.user_within_geofence_radius;
-      faceRecEndpointEnabled.value = data.data.endpoint_status;
-      shift.value = data.data.shift;
+    if (route.query.shift && route.query.shift !== 'None' && route.query.shift !== 'undefined') {
+      payload.shift = route.query.shift;
     }
+
+    const { data } = await checkin.getSiteLocation(payload);
+
+    site_radius.value = data.data.geofence_radius;
+    siteName.value = data.data.site_name || "";
+    site_lat.value = data.data.latitude;
+    site_long.value = data.data.longitude;
+    userStore.setEndpointStatus(data.data.endpoint_status);
+    isUserWithinGeofenceRadius.value = data.data.user_within_geofence_radius;
+    faceRecEndpointEnabled.value = data.data.endpoint_status;
+    shift.value = data.data.shift;
 
     return true;
   } catch (error) {
