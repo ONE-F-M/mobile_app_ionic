@@ -191,28 +191,20 @@ const saveVideo = async () => {
   instruction.value = "";
 };
 
-const printCurrentPosition = async (forceFresh = false) => {
-  // forceFresh skips the query-param shortcut — a refresh needs a real fix, not the position
-  // the user arrived with.
-  if (!forceFresh && route.query.lat && route.query.lng) {
-      coordinates.value = {
-        coords: {
-            latitude: Number(route.query.lat),
-            longitude: Number(route.query.lng)
-        }
-      };
-      return; 
-  }
-
-  // Bounded, retrying acquisition — this call previously had no timeout and could
-  // spin on "Locating..." indefinitely on weak GPS.
-  //
-  // forceFresh also has to defeat the platform's position cache: without maximumAge 0 a
-  // retry re-serves the same fix that just failed the geofence check, so the "try again"
-  // button cannot recover for as long as that fix stays cached.
-  coordinates.value = await getCurrentPositionSafe(
-    forceFresh ? { maximumAge: 0 } : {},
-  );
+const printCurrentPosition = async () => {
+  // Every call here feeds the in/out geofence decision (via getSiteLocation), so it must
+  // always be a brand-new, high-accuracy fix:
+  //   - maximumAge: 0 defeats the platform's position cache — otherwise a "fresh" read can
+  //     re-serve the very fix that was 240 m off (see WI-002950 Mahboula Camp incident),
+  //   - highAccuracyOnly: true stops getCurrentPositionSafe's normal last-attempt fallback
+  //     to coarse accuracy, which is not precise enough for a geofence check.
+  // There is deliberately no cached/query-param shortcut here any more: the map page and the
+  // Check-in button must both call get_site_location with a live reading on every open, every
+  // "Try Again", and every check-in attempt — never a stored answer.
+  coordinates.value = await getCurrentPositionSafe({
+    maximumAge: 0,
+    highAccuracyOnly: true,
+  });
 };
 
 const startVerifyPerson = async () => {
