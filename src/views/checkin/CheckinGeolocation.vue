@@ -232,7 +232,7 @@ const loadAgainLocation = async () => {
 
   try {
     isLoadingLocation.value = true;
-    await printCurrentPosition(true);
+    await printCurrentPosition();
     await getSiteLocation();
 
     // User may have moved inside the geofence — show the map that was withheld.
