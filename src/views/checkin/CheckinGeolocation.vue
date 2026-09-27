@@ -210,6 +210,26 @@ const printCurrentPosition = async () => {
 const startVerifyPerson = async () => {
   if (isSubmitting.value) return; // Prevent multiple clicks
   isSubmitting.value = true;
+
+  // Requirement: the Check-in button must take a fresh reading and check it again — a
+  // reading taken while the map was open (even seconds ago) is not good enough, since the
+  // employee may have walked out of the geofence since then.
+  try {
+    await printCurrentPosition();
+    const hasSiteLocation = await getSiteLocation();
+    if (!hasSiteLocation || !isUserWithinGeofenceRadius.value) {
+      // getSiteLocation already reveals the "outside" modal via isUserWithinGeofenceRadius;
+      // a failed enrolment check already navigated away. Either way, do not proceed.
+      isSubmitting.value = false;
+      return;
+    }
+  } catch (error) {
+    console.error("Pre check-in location check failed", error);
+    showLocationError(error);
+    isSubmitting.value = false;
+    return;
+  }
+
   await initializeStream();
   setTimeout(() => {
     isOpen.value = true;
