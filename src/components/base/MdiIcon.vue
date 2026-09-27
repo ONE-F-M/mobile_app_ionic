@@ -48,6 +48,7 @@ import {
   mdiAccountClockOutline,
   mdiAccountGroup,
   mdiAccountCheck,
+  mdiAccountTieOutline,
   mdiMapMarker,
   mdiMapMarkerOutline,
   mdiCheckCircle,
@@ -121,6 +122,7 @@ import {
   mdiSwapHorizontalCircle,
   mdiCalendarRange,
   mdiPackageVariant,
+  mdiTshirtCrewOutline,
 } from '@mdi/js'
 
 // Map from kebab-case icon name (as returned by the API) to SVG path data.
@@ -141,6 +143,7 @@ const iconMap = {
   'account-clock-outline': mdiAccountClockOutline,
   'account-group': mdiAccountGroup,
   'account-check': mdiAccountCheck,
+  'account-tie-outline': mdiAccountTieOutline,
   'map-marker': mdiMapMarker,
   'map-marker-outline': mdiMapMarkerOutline,
   'check-circle': mdiCheckCircle,
@@ -213,6 +216,7 @@ const iconMap = {
   'swap_horizontal_circle': mdiSwapHorizontalCircle,
   'calendar-range': mdiCalendarRange,
   'inventory_2': mdiPackageVariant,
+  'tshirt-crew-outline': mdiTshirtCrewOutline,
 }
 
 const props = defineProps({

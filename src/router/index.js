@@ -84,6 +84,15 @@ const routes = [
     ],
   },
 
+  // Requisition Flow
+  {
+    path: "/uniform-request",
+    name: "uniform-request",
+    component: () =>
+      import("@/views/requisition/UniformRequestCreatePage.vue"),
+    meta: { requiresAuth: true },
+  },
+
   // Checkin Flow
   {
     path: "/checkin",

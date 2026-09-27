@@ -18,6 +18,7 @@ import {
   locationErrorKey,
 } from "@/utils/geolocation.js";
 import Header from "@/components/Header.vue";
+import CheckinBanner from "@/components/checkin/CheckinBanner.vue";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { buildStaticMapUrl } from "@/utils/staticMap";
 import IconScan from "@/components/icon/Scan.vue";
@@ -52,6 +53,8 @@ const shift = ref(null);
 const verifyVideo = ref("");
 
 const coordinates = ref("");
+// Why check-in is unavailable, shown for as long as the check-in button is hidden.
+const blockerMessage = ref("");
 const isOpen = ref(false);
 const isLoading = ref(false);
 const isLoadingLocation = ref(false);
@@ -191,33 +194,34 @@ const saveVideo = async () => {
   instruction.value = "";
 };
 
-const printCurrentPosition = async (forceFresh = false) => {
-  // forceFresh skips the query-param shortcut — a refresh needs a real fix, not the position
-  // the user arrived with.
-  if (!forceFresh && route.query.lat && route.query.lng) {
-      coordinates.value = {
-        coords: {
-            latitude: Number(route.query.lat),
-            longitude: Number(route.query.lng)
-        }
-      };
-      return; 
-  }
-
-  // Bounded, retrying acquisition — this call previously had no timeout and could
-  // spin on "Locating..." indefinitely on weak GPS.
-  //
-  // forceFresh also has to defeat the platform's position cache: without maximumAge 0 a
-  // retry re-serves the same fix that just failed the geofence check, so the "try again"
-  // button cannot recover for as long as that fix stays cached.
-  coordinates.value = await getCurrentPositionSafe(
-    forceFresh ? { maximumAge: 0 } : {},
-  );
+const printCurrentPosition = async () => {
+  coordinates.value = await getCurrentPositionSafe({
+    maximumAge: 0,
+    highAccuracyOnly: true,
+  });
 };
 
 const startVerifyPerson = async () => {
   if (isSubmitting.value) return; // Prevent multiple clicks
   isSubmitting.value = true;
+
+  try {
+    await printCurrentPosition();
+  } catch (error) {
+    if (isPermissionDenied(error)) {
+      hasUserRejectedLocation.value = true;
+    } else {
+      showLocationError(error);
+    }
+    isSubmitting.value = false;
+    return;
+  }
+  const isSiteLocationResolved = await getSiteLocation();
+  if (!isSiteLocationResolved || !isUserWithinGeofenceRadius.value) {
+    isSubmitting.value = false;
+    return;
+  }
+
   await initializeStream();
   setTimeout(() => {
     isOpen.value = true;
@@ -240,7 +244,7 @@ const loadAgainLocation = async () => {
 
   try {
     isLoadingLocation.value = true;
-    await printCurrentPosition(true);
+    await printCurrentPosition();
     await getSiteLocation();
 
     // User may have moved inside the geofence — show the map that was withheld.
@@ -277,48 +281,35 @@ const getSiteLocation = async () => {
       return false;
     }
 
-    // 2. Check Site Location Cache
-    if (isCacheFresh && userStore.cachedGeolocationData) {
-      const data = userStore.cachedGeolocationData;
-      site_radius.value = data.geofence_radius;
-      siteName.value = data.site_name || "";
-      site_lat.value = data.latitude;
-      site_long.value = data.longitude;
-      userStore.setEndpointStatus(data.endpoint_status);
-      isUserWithinGeofenceRadius.value = data.user_within_geofence_radius;
-      faceRecEndpointEnabled.value = data.endpoint_status;
-      shift.value = data.shift;
-    } else {
-      const payload = {
-        employee_id: userStore.user?.employee_id,
-        latitude: coordinates.value?.coords?.latitude,
-        longitude: coordinates.value?.coords?.longitude,
-        log_type: logType.value || "IN",
-      };
+    // 2. Ask the server with the current fix; the Home prefetch answer is never reused here
+    const payload = {
+      employee_id: userStore.user?.employee_id,
+      latitude: coordinates.value?.coords?.latitude,
+      longitude: coordinates.value?.coords?.longitude,
+      log_type: logType.value || "IN",
+    };
 
-      if (route.query.shift && route.query.shift !== 'None' && route.query.shift !== 'undefined') {
-        payload.shift = route.query.shift;
-      }
-
-      const { data } = await checkin.getSiteLocation(payload);
-
-      site_radius.value = data.data.geofence_radius;
-      siteName.value = data.data.site_name || "";
-      site_lat.value = data.data.latitude;
-      site_long.value = data.data.longitude;
-      userStore.setEndpointStatus(data.data.endpoint_status);
-      isUserWithinGeofenceRadius.value = data.data.user_within_geofence_radius;
-      faceRecEndpointEnabled.value = data.data.endpoint_status;
-      shift.value = data.data.shift;
+    if (route.query.shift && route.query.shift !== 'None' && route.query.shift !== 'undefined') {
+      payload.shift = route.query.shift;
     }
 
+    const { data } = await checkin.getSiteLocation(payload);
+
+    site_radius.value = data.data.geofence_radius;
+    siteName.value = data.data.site_name || "";
+    site_lat.value = data.data.latitude;
+    site_long.value = data.data.longitude;
+    userStore.setEndpointStatus(data.data.endpoint_status);
+    isUserWithinGeofenceRadius.value = data.data.user_within_geofence_radius;
+    faceRecEndpointEnabled.value = data.data.endpoint_status;
+    shift.value = data.data.shift;
+    blockerMessage.value = "";
     return true;
   } catch (error) {
-    // Robust Error Handling
-    const msg = error?.data?.message || error?.message || "Unable to retrieve site location";
-    const detail = error?.data?.error || null;
-    const code = error?.data?.status_code || 0;
-    showErrorToast(msg, detail, code);
+    // A banner rather than a toast: without a shift the check-in button is hidden,
+    // so the reason has to stay on screen with it. The server sends the sentence to
+    // show - a closed window, an upcoming shift, a status to clear.
+    blockerMessage.value = error?.data?.error || t("user.checkin.banner.fallback");
     return false;
   }
 };
@@ -561,6 +552,7 @@ onIonViewWillLeave(() => {
   isUserWithinGeofenceRadius.value = true;
   logType.value = "";
   shift.value = null;
+  blockerMessage.value = "";
 });
 
 onIonViewDidLeave(() => {
@@ -582,6 +574,8 @@ onIonViewDidLeave(() => {
             }}
           </slot>
         </Header>
+
+        <CheckinBanner :message="blockerMessage" />
       </div>
       <div ref="mapContainer" class="map-wrapper">
         <img v-if="isMapVisible && staticMapUrl" :src="staticMapUrl" class="map-static" alt=""
