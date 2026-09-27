@@ -192,20 +192,10 @@ const saveVideo = async () => {
 };
 
 const printCurrentPosition = async () => {
-  // OPTIMIZATION: Check URL params first to skip Geolocation call
-  if (route.query.lat && route.query.lng) {
-      coordinates.value = {
-        coords: {
-            latitude: Number(route.query.lat),
-            longitude: Number(route.query.lng)
-        }
-      };
-      return; 
-  }
-
-  // Bounded, retrying acquisition — this call previously had no timeout and could
-  // spin on "Locating..." indefinitely on weak GPS.
-  coordinates.value = await getCurrentPositionSafe();
+  coordinates.value = await getCurrentPositionSafe({
+    maximumAge: 0,
+    highAccuracyOnly: true,
+  });
 };
 
 const setCenterCamera = async () => {
@@ -238,6 +228,20 @@ const setCenterCamera = async () => {
 const startVerifyPerson = async () => {
   if (isSubmitting.value) return; // Prevent multiple clicks
   isSubmitting.value = true;
+
+  try {
+    await printCurrentPosition();
+  } catch {
+    hasUserRejectedLocation.value = true;
+    isSubmitting.value = false;
+    return;
+  }
+  const isSiteLocationResolved = await getSiteLocation();
+  if (!isSiteLocationResolved || !isUserWithinGeofenceRadius.value) {
+    isSubmitting.value = false;
+    return;
+  }
+
   await initializeStream();
   setTimeout(() => {
     isOpen.value = true;
@@ -279,49 +283,39 @@ const getSiteLocation = async () => {
     if (enrollmentData?.enrolled === false) {
       showErrorToast(`You have not enrolled your face. Please enroll.`);
       router.push("/enrollment");
-      return;
+      return false;
     }
 
-    // 2. Check Site Location Cache
-    if (isCacheFresh && userStore.cachedGeolocationData) {
-      const data = userStore.cachedGeolocationData;
-      site_radius.value = data.geofence_radius;
-      siteName.value = data.site_name || "";
-      site_lat.value = data.latitude;
-      site_long.value = data.longitude;
-      userStore.setEndpointStatus(data.endpoint_status);
-      isUserWithinGeofenceRadius.value = data.user_within_geofence_radius;
-      faceRecEndpointEnabled.value = data.endpoint_status;
-      shift.value = data.shift;
-    } else {
-      const payload = {
-        employee_id: userStore.user?.employee_id,
-        latitude: coordinates.value?.coords?.latitude,
-        longitude: coordinates.value?.coords?.longitude,
-        log_type: logType.value || "IN",
-      };
+    // 2. Ask the server with the current fix; the Home prefetch answer is never reused here
+    const payload = {
+      employee_id: userStore.user?.employee_id,
+      latitude: coordinates.value?.coords?.latitude,
+      longitude: coordinates.value?.coords?.longitude,
+      log_type: logType.value || "IN",
+    };
 
-      if (route.query.shift && route.query.shift !== 'None' && route.query.shift !== 'undefined') {
-        payload.shift = route.query.shift;
-      }
-
-      const { data } = await checkin.getSiteLocation(payload);
-
-      site_radius.value = data.data.geofence_radius;
-      siteName.value = data.data.site_name || "";
-      site_lat.value = data.data.latitude;
-      site_long.value = data.data.longitude;
-      userStore.setEndpointStatus(data.data.endpoint_status);
-      isUserWithinGeofenceRadius.value = data.data.user_within_geofence_radius;
-      faceRecEndpointEnabled.value = data.data.endpoint_status;
-      shift.value = data.data.shift;
+    if (route.query.shift && route.query.shift !== 'None' && route.query.shift !== 'undefined') {
+      payload.shift = route.query.shift;
     }
+
+    const { data } = await checkin.getSiteLocation(payload);
+
+    site_radius.value = data.data.geofence_radius;
+    siteName.value = data.data.site_name || "";
+    site_lat.value = data.data.latitude;
+    site_long.value = data.data.longitude;
+    userStore.setEndpointStatus(data.data.endpoint_status);
+    isUserWithinGeofenceRadius.value = data.data.user_within_geofence_radius;
+    faceRecEndpointEnabled.value = data.data.endpoint_status;
+    shift.value = data.data.shift;
     blockerMessage.value = "";
+    return true;
   } catch (error) {
     // A banner rather than a toast: without a shift the check-in button is hidden,
     // so the reason has to stay on screen with it. The server sends the sentence to
     // show - a closed window, an upcoming shift, a status to clear.
     blockerMessage.value = error?.data?.error || t("user.checkin.banner.fallback");
+    return false;
   }
 };
 
