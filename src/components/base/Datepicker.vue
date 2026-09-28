@@ -30,8 +30,6 @@ const props = defineProps({
 });
 const emit = defineEmits(["update:model-value", "cancel", "ok"]);
 
-const modal = ref(null);
-
 const selectedDate = computed({
   get() {
     return props.modelValue;
