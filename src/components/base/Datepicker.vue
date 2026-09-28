@@ -41,30 +41,22 @@ const selectedDate = computed({
   },
 });
 
-const handleCancel = async () => {
-  if (modal.value) {
-    await modal.value.$el.dismiss();
-  }
+// Let the :is-open prop drive the ion-modal's presentation/dismissal
+// declaratively, the same way every other ion-modal in this app works.
+// Previously handleCancel/handleOk also called modal.value.$el.dismiss()
+// directly, which raced with the reactive dismissal Ionic already runs
+// when :is-open flips to false. That left the overlay stack in a
+// half-torn-down state, so re-opening the picker a second time crashed
+// while Ionic tried to present an overlay that had not finished
+// dismissing. Emitting the event and letting the parent flip isOpen is
+// enough on its own.
+const handleCancel = () => {
   emit("cancel");
 };
 
-const handleOk = async () => {
-  if (modal.value) {
-    await modal.value.$el.dismiss();
-  }
+const handleOk = () => {
   emit("ok");
 };
-
-// Ensure modal is properly dismissed when isOpen changes to false
-watch(
-  () => props.isOpen,
-  async (newVal) => {
-    if (!newVal && modal.value) {
-      // Give time for modal to properly settle
-      await nextTick();
-    }
-  }
-);
 </script>
 
 <template>
