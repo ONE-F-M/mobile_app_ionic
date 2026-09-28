@@ -59,7 +59,6 @@ const handleOk = () => {
 
 <template>
   <ion-modal
-    ref="modal"
     class="datepicker-modal"
     :is-open="isOpen"
   >
