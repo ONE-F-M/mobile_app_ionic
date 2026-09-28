@@ -223,6 +223,17 @@ export const useUserStore = defineStore("user", {
       authStore.reset();
       resignationStore.clearActiveResignation();
 
+      // Clear any "Remember Me" data persisted to localStorage so a stale
+      // token cannot silently log the user back in after an explicit logout.
+      try {
+        localStorage.removeItem("auth_token");
+        localStorage.removeItem("refresh_token");
+        localStorage.removeItem("employee_id");
+        localStorage.removeItem("user_data");
+      } catch (error) {
+        console.warn("Failed to clear localStorage on logout:", error);
+      }
+
       this.user = null;
       this.token = null;
       this.refreshToken = null;
