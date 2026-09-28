@@ -247,7 +247,7 @@ const openDatePicker = () => {
                     {{ $i18n.locale === 'ar' ? check.employee_name_in_arabic: check.employee_name }}
                   </p>
                   <p class="checkin-page-duration">
-                    {{ dayjs(check.time).locale(langStore.lang).toNow(true) }}
+                    {{ dayjs(check.time).locale(langStore.lang).fromNow() }}
                   </p>
                 </div>
               </ion-col>
