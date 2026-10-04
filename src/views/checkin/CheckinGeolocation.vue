@@ -8,17 +8,19 @@ import {
   IonText,
   IonSpinner,
   IonProgressBar,
-  onIonViewDidEnter,
   onIonViewWillLeave,
   useIonRouter,
   onIonViewDidLeave,
 } from "@ionic/vue";
-import { getCurrentPositionSafe } from "@/utils/geolocation.js";
-import { Capacitor } from "@capacitor/core";
+import {
+  getCurrentPositionSafe,
+  isPermissionDenied,
+  locationErrorKey,
+} from "@/utils/geolocation.js";
 import Header from "@/components/Header.vue";
 import CheckinBanner from "@/components/checkin/CheckinBanner.vue";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
-import { GoogleMap } from "@capacitor/google-maps";
+import { buildStaticMapUrl } from "@/utils/staticMap";
 import IconScan from "@/components/icon/Scan.vue";
 import { useCustomToast } from "@/composable/toast.js";
 import checkin from "@/api/checkin";
@@ -27,7 +29,6 @@ import { useUserStore } from "@/store/user.js";
 import MyLocation from "@/components/icon/MyLocation.vue";
 import utils from "@/api/utils";
 import { useI18n } from "vue-i18n";
-import { Loader } from "@googlemaps/js-api-loader";
 import auth from "@/api/authentication";
 import { useRoute } from "vue-router";
 
@@ -37,8 +38,10 @@ const route = useRoute();
 const prevStep = () => {
   router.back();
 };
-let googleMap;
-let myMarker;
+const mapApiKey = ref(null);
+const isMapVisible = ref(false);
+const mapContainer = ref(null);
+const mapSize = ref({ width: 0, height: 0 });
 
 const userStore = useUserStore();
 const isUserWithinGeofenceRadius = ref(true);
@@ -198,41 +201,18 @@ const printCurrentPosition = async () => {
   });
 };
 
-const setCenterCamera = async () => {
-  await printCurrentPosition();
-
-  if (isIOS.value) {
-    myMarker.setMap(null);
-  } else {
-    await googleMap.removeMarker(myMarker);
-  }
-
-  await addInitialMarker(googleMap);
-
-  if (isIOS.value) {
-    googleMap.moveCamera({
-      center: initialPosition.value,
-      zoom: 18,
-    });
-    return;
-  }
-
-  await googleMap.setCamera({
-    coordinate: initialPosition.value,
-    zoom: 18,
-    animate: true,
-    animationDuration: 500,
-  });
-};
-
 const startVerifyPerson = async () => {
   if (isSubmitting.value) return; // Prevent multiple clicks
   isSubmitting.value = true;
 
   try {
     await printCurrentPosition();
-  } catch {
-    hasUserRejectedLocation.value = true;
+  } catch (error) {
+    if (isPermissionDenied(error)) {
+      hasUserRejectedLocation.value = true;
+    } else {
+      showLocationError(error);
+    }
     isSubmitting.value = false;
     return;
   }
@@ -253,11 +233,26 @@ const clickBack = () => {
   router.back();
 };
 
+// Header + body, the same shape the backend errors use.
+const showLocationError = (error) => {
+  const key = locationErrorKey(error);
+  showErrorToast(t(`${key}.title`), t(`${key}.description`));
+};
+
 const loadAgainLocation = async () => {
+  if (isLoadingLocation.value) return;
+
   try {
     isLoadingLocation.value = true;
     await printCurrentPosition();
     await getSiteLocation();
+
+    // User may have moved inside the geofence — show the map that was withheld.
+    revealMap();
+  } catch (error) {
+    console.error("Location refresh failed", error);
+    // getSiteLocation swallows and reports its own backend errors, so anything here is GPS.
+    showLocationError(error);
   } finally {
     isLoadingLocation.value = false;
   }
@@ -365,91 +360,128 @@ const initialPosition = computed(() => ({
   lat: coordinates.value?.coords?.latitude || 0,
   lng: coordinates.value?.coords?.longitude || 0,
 }));
-const platform = computed(() => Capacitor.getPlatform());
-const isIOS = computed(() => platform.value === "ios");
+// A ref written once per refresh, NOT a computed: a refresh mutates position, site data and
+// size across separate await boundaries, so a computed reassigned the <img> src two or three
+// times — aborting each in-flight load and billing a request for every one.
+const staticMapUrl = ref("");
 
-const addInitialMarker = async (map) => {
-  if (isIOS.value) {
-    const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
+const renderStaticMap = () => {
+  const canRender =
+    isMapVisible.value &&
+    mapApiKey.value &&
+    mapSize.value.width &&
+    (initialPosition.value.lat || initialPosition.value.lng);
 
-    myMarker = new AdvancedMarkerElement({
-      map,
-      position: initialPosition.value,
-    });
-    return;
+  const next = canRender
+    ? buildStaticMapUrl({
+        apiKey: mapApiKey.value,
+        center: initialPosition.value,
+        marker: initialPosition.value,
+        circle: {
+          lat: site_lat.value,
+          lng: site_long.value,
+          radiusM: site_radius.value,
+        },
+        size: mapSize.value,
+      })
+    : "";
+
+  // An identical value doesn't re-render, so no request is made.
+  if (next === staticMapUrl.value) return;
+
+  staticMapUrl.value = next;
+};
+
+// Returns the key, or null if GPS or the key request failed — the matching error state is
+// raised here, so callers only need the null check.
+const ensureLocation = async () => {
+  // allSettled, not all, so a key failure stays distinguishable from a GPS failure.
+  const [gpsResult, apiKeyResult] = await Promise.allSettled([
+    printCurrentPosition(),
+    utils.getGoogleMapApiKey(),
+  ]);
+
+  if (gpsResult.status === "rejected") {
+    // Only a denied permission warrants the modal — it tells the user to grant access, which
+    // is the wrong instruction for a timeout or a device that simply has no fix.
+    if (isPermissionDenied(gpsResult.reason)) {
+      hasUserRejectedLocation.value = true;
+    } else {
+      showLocationError(gpsResult.reason);
+    }
+    return null;
   }
 
-  myMarker = await map.addMarker({
-    coordinate: initialPosition.value,
-  });
+  const apiKey =
+    apiKeyResult.status === "fulfilled"
+      ? apiKeyResult.value?.data?.data?.google_map_api
+      : null;
+
+  // Covers both a failed request and a 200 that carried no key.
+  if (!apiKey) {
+    showErrorToast(t("user.checkin.apiKeyNotFound"));
+    return null;
+  }
+
+  return apiKey;
+};
+
+// Outside the geofence a blocking modal covers the map; with no shift the check-in button
+// never renders. Either way there is nothing worth paying for.
+const canUseMap = () => isUserWithinGeofenceRadius.value && !!shift.value;
+
+// Static API caps each dimension at 640px; scaling proportionally keeps the container's aspect
+// ratio so object-fit has nothing meaningful to crop.
+const MAX_STATIC_PX = 640;
+
+// Quantised: mobile browsers resize the viewport as the address bar collapses, and unrounded
+// drift produces a new URL — another paid request for a visually identical image.
+const SIZE_STEP_PX = 16;
+
+const measureMapSize = () => {
+  const width = mapContainer.value?.clientWidth || window.innerWidth;
+  const height = mapContainer.value?.clientHeight || window.innerHeight;
+  const factor = Math.min(1, MAX_STATIC_PX / Math.max(width, height));
+  const quantise = (px) =>
+    Math.max(SIZE_STEP_PX, Math.round((px * factor) / SIZE_STEP_PX) * SIZE_STEP_PX);
+
+  mapSize.value = { width: quantise(width), height: quantise(height) };
+};
+
+// Shows or hides the map once eligibility is known — the retry paths use it too, so someone
+// who moves inside the geofence gets the map that was withheld.
+const revealMap = () => {
+  measureMapSize();
+  isMapVisible.value = canUseMap();
+
+  // Built once here, after position, site data and size have all settled.
+  renderStaticMap();
+};
+
+const handleStaticMapError = (event) => {
+  // A load superseded by a newer src reports as an error — only surface the current one.
+  if (event?.target?.src && event.target.src !== staticMapUrl.value) return;
+
+  console.error("Static map failed to load", staticMapUrl.value);
+  showErrorToast(t("user.checkin.staticMapFailed"));
 };
 
 const initializeMap = async () => {
   hasUserRejectedLocation.value = false;
   isLoadingLocation.value = true;
 
-  let apiKey = null;
-
   try {
-    // OPTIMIZATION: This will likely be instant because printCurrentPosition checks query params first
-    const gpsPromise = printCurrentPosition();
-    const apiKeyPromise = utils.getGoogleMapApiKey();
+    const apiKey = await ensureLocation();
+    if (!apiKey) return;
 
-    const [_, apiKeyResponse] = await Promise.all([gpsPromise, apiKeyPromise]);
-    apiKey = apiKeyResponse.data?.data?.google_map_api;
+    hasUserRejectedLocation.value = false;
+    mapApiKey.value = apiKey;
 
-  } catch (e) {
-    if (!coordinates.value) { // GPS Failed
-      hasUserRejectedLocation.value = true;
-    } else { // API Key Failed
-      showErrorToast(t("user.checkin.apiKeyNotFound"));
-    }
-    isLoadingLocation.value = false;
-    return;
-  }
+    // Eligibility first: an unenrolled user navigates away and never sees the map.
+    const hasSiteLocation = await getSiteLocation();
+    if (!hasSiteLocation) return;
 
-  hasUserRejectedLocation.value = false;
-
-  // 2. Parallelize Map Initialization and Site Data Fetching
-  const mapInitPromise = (async () => {
-    if (isIOS.value) {
-      const loader = new Loader({ apiKey, version: "weekly" });
-      await loader.load();
-      const { Map } = await google.maps.importLibrary("maps");
-
-      googleMap = new Map(document.getElementById("map"), {
-        mapId: "my-map",
-        center: initialPosition.value,
-        panControl: false,
-        zoom: 18,
-        disableDefaultUI: true,
-      });
-    } else {
-      const mapRef = document.getElementById("map");
-      const body = document.querySelector("body.dark");
-      body.classList.add("map-transparent");
-
-      googleMap = await GoogleMap.create({
-        apiKey,
-        id: "my-map",
-        element: mapRef,
-        config: {
-          center: initialPosition.value,
-          panControl: false,
-          zoom: 18,
-        },
-      });
-    }
-    await addInitialMarker(googleMap);
-    return googleMap;
-  })();
-
-  const siteLocationPromise = getSiteLocation();
-
-  try {
-    await Promise.all([mapInitPromise, siteLocationPromise]);
-    // 3. Add site marker only after map relies on site data
-    await addsitemarker();
+    revealMap();
   } catch (e) {
     console.error("Map or Site Location Error", e);
   } finally {
@@ -457,28 +489,25 @@ const initializeMap = async () => {
   }
 };
 
-const addsitemarker = async () => {
-  if (isIOS.value) {
-    new google.maps.Circle({
-      strokeColor: "#FF0000",
-      fillColor: 'red',
-      fillOpacity: 0.35,
-      map: googleMap,
-      center: { lat: site_lat.value, lng: site_long.value },
-      radius: site_radius.value,
-    });
-  }
-  else {
-    googleMap.addCircles([{
-      center: { lat: site_lat.value, lng: site_long.value },
-      radius: site_radius.value,
-      strokeWidth: 3,
-      strokeColor: '#FF0000',
-      fillColor: 'red',
-    }])
-  }
+// "Try again" on the permission-denied modal.
+const retryLocation = async () => {
+  isLoadingLocation.value = true;
 
-}
+  try {
+    const apiKey = await ensureLocation();
+    if (!apiKey) return;
+
+    hasUserRejectedLocation.value = false;
+    mapApiKey.value = apiKey;
+
+    await getSiteLocation();
+    revealMap();
+  } catch (e) {
+    console.error("Map or Site Location Error", e);
+  } finally {
+    isLoadingLocation.value = false;
+  }
+};
 
 const disableSwipeBack = () => {
   const ionRouterOutlet = document.querySelector('ion-router-outlet');
@@ -504,12 +533,12 @@ const enableSwipeBack = () => {
 
 onMounted(async () => {
   disableSwipeBack();
-  
+
   // Set logType from query parameter if available
   if (route.query.log_type) {
     logType.value = route.query.log_type;
   }
-  
+
   // Start map init IMMEDIATELY (parallel with transition)
   await initializeMap();
 });
@@ -519,10 +548,6 @@ onBeforeUnmount(() => {
 });
 
 onIonViewWillLeave(() => {
-  const body = document.querySelector("body.dark");
-
-  body.classList.remove("map-transparent");
-
   isLoading.value = false;
   isUserWithinGeofenceRadius.value = true;
   logType.value = "";
@@ -531,7 +556,8 @@ onIonViewWillLeave(() => {
 });
 
 onIonViewDidLeave(() => {
-  googleMap?.destroy();
+  isMapVisible.value = false;
+  staticMapUrl.value = "";
 });
 </script>
 
@@ -551,11 +577,15 @@ onIonViewDidLeave(() => {
 
         <CheckinBanner :message="blockerMessage" />
       </div>
-      <div style="height: calc(100% - 70px); width: 100%" id="map"></div>
+      <div ref="mapContainer" class="map-wrapper">
+        <img v-if="isMapVisible && staticMapUrl" :src="staticMapUrl" class="map-static" alt=""
+          @error="handleStaticMapError" />
+      </div>
 
       <div class="location-currentLocation" :class="{
         'location-currentLocation-shift': shift,
-      }" @click="setCenterCamera">
+        'location-currentLocation-busy': isLoadingLocation,
+      }" @click="loadAgainLocation">
         <MyLocation />
       </div>
 
@@ -648,7 +678,8 @@ onIonViewDidLeave(() => {
             <ion-button @click="clickBack" class="geolocation-page-outside-card-back" fill="clear">
               {{ $t("user.checkin.geolocation.back") }}
             </ion-button>
-            <ion-button class="geolocation-page-outside-card-try-again" fill="clear" @click="initializeMap">
+            <ion-button class="geolocation-page-outside-card-try-again" fill="clear" :disabled="isLoadingLocation"
+              @click="retryLocation">
               {{ $t("user.checkin.geolocation.try_again") }}
             </ion-button>
           </ion-row>
@@ -659,6 +690,19 @@ onIonViewDidLeave(() => {
 </template>
 
 <style lang="scss" scoped>
+.map-wrapper {
+  position: relative;
+  height: calc(100% - 70px);
+  width: 100%;
+}
+
+.map-static {
+  display: block;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+
 .loader {
   display: flex;
   justify-content: center;
@@ -692,6 +736,11 @@ onIonViewDidLeave(() => {
 
   &-shift {
     bottom: 160px;
+  }
+
+  &-busy {
+    opacity: 0.5;
+    pointer-events: none;
   }
 }
 

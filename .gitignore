@@ -39,3 +39,12 @@ Session.vim
 
 # Build generated
 public/sw-env.js
+
+# Yarn Berry: keep the config, not the 125MB zip cache or local install state
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
