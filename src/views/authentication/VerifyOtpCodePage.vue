@@ -71,13 +71,11 @@ const verifyCode = async () => {
       temp_id: tempId.value,
     });
 
-    console.log("data otpCode", data);
-
     authStore.setPasswordCode(data.data.password_token);
     showSuccessToast("Verification successfully");
     router.push("/register/set-password");
   } catch (error) {
-    console.log("error", error);
+    console.error("OTP verification failed:", error);
     showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
   }
 };

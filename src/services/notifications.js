@@ -48,7 +48,7 @@ export const setupNotifications = async (proxy={}) => {
         }
       } 
       else {
-        console.log(
+        console.warn(
           "No registration token available. Request permission to generate one."
         );
       }
@@ -56,6 +56,6 @@ export const setupNotifications = async (proxy={}) => {
       console.error("An error occurred while retrieving token: ", error);
     }
   } else {
-    console.log("Unable to get permission to notify.");
+    console.warn("Unable to get permission to notify.");
   }
 };
