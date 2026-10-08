@@ -17,7 +17,11 @@
           :description="$t('resignation.withdrawal.tracker_description', 'You are requesting to withdraw the following active resignation:')"
         />
 
-      <div v-if="resignationStore.activeResignation" class="leaves-create" :class="{'with-margin': resignationStore.activeResignation}">
+      <div v-if="hasPendingWithdrawal" class="ion-padding pending-withdrawal-msg">
+        <BilingualText tKey="resignation.pending_withdrawal_msg" fallback="Your resignation withdrawal is currently under review." />
+      </div>
+
+      <div v-else-if="resignationStore.activeResignation" class="leaves-create" :class="{'with-margin': resignationStore.activeResignation}">
         <ion-row class="form-row">
           <ion-col size="12">
             <BilingualText tag="p" class="leaves-create-label" tKey="resignation.employee_id" fallback="Employee ID" />
@@ -130,6 +134,7 @@ import { useFileAttachment } from "@/composable/useFileAttachment.ts";
 import { useConfirmAlert } from "@/composable/useConfirmAlert.ts";
 import { useI18n } from 'vue-i18n';
 import { useSecondaryLanguage } from "@/composable/useSecondaryLanguage";
+import { getFrappeErrorMessage } from "@/utils/frappeError";
 
 const userStore = useUserStore();
 const resignationStore = useResignationStore();
@@ -141,6 +146,11 @@ const router = useIonRouter();
 
 const isLoading = ref(false);
 const supervisorLoading = ref(false);
+
+const hasPendingWithdrawal = computed(() => {
+  const state = resignationStore.activeResignation?.withdrawal_state;
+  return !!state && !["Approved", "Rejected"].includes(state);
+});
 
 const triggerBack = () => {
   router.canGoBack() ? router.back() : router.push("/resignation");
@@ -220,7 +230,15 @@ const onSubmit = async () => {
     triggerBack();
   } catch (error) {
     console.error(error);
-    showErrorToast(error?.data?.message, error?.data?.error || error?.message, error?.data?.status_code);
+    // The request can fail on the phone after the server already saved the withdrawal
+    await resignationStore.fetchActiveResignation();
+    if (hasPendingWithdrawal.value) {
+      showSuccessToast(bilingualInline(t('resignation.pending_withdrawal_msg', 'Your resignation withdrawal is currently under review.'), 'resignation.pending_withdrawal_msg', ' / '));
+      clearForm();
+      triggerBack();
+      return;
+    }
+    showErrorToast(null, getFrappeErrorMessage(error) || error?.message, error?.status);
   } finally {
     isLoading.value = false;
   }
@@ -315,5 +333,11 @@ onIonViewWillEnter(async () => {
 
 .loading-container {
   margin-block-start: 50px;
+}
+
+.pending-withdrawal-msg {
+  text-align: center;
+  color: var(--ion-color-danger);
+  font-weight: 500;
 }
 </style>
