@@ -484,9 +484,14 @@ onIonViewWillLeave(() => {
 });
 
 onIonViewDidLeave(() => {
+  cleanup();
+  reset();
   isMapVisible.value = false;
   staticMapUrl.value = "";
 });
+
+onUnmounted(cleanup);
+onDeactivated(cleanup);
 </script>
 
 <template>
