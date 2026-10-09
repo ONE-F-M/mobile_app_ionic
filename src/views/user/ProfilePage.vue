@@ -54,7 +54,7 @@ const user = reactive({
 });
 
 const selectedLanguage = ref(langStore.lang);
-const { unRegisterNotifications } = useNotification();
+const { unregister } = usePushRegistration();
 
 const platform = computed(() => Capacitor.getPlatform());
 const isIOS = computed(() => platform.value === "ios");
