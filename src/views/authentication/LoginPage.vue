@@ -40,15 +40,7 @@ const prevStep = () => {
 
 const handleBackgroundTasks = async (userData) => {
   try {
-    const deviceInfo = await Device.getInfo();
-    
-    // Logic: If on mobile, register native notifications; else web notifications
-    if (deviceInfo.platform !== "web") {
-      await addListeners();
-      await registerNotifications(); 
-    } else {
-      setupNotifications(userData);
-    }
+    await register(userData.data);
   } catch (err) {
     console.warn("Background setup failed silently:", err);
   }
