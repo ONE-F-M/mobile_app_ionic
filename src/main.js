@@ -101,8 +101,12 @@ router.isReady().then(async () => {
   }
 });
 
-// Non-blocking background initialization
-registerServiceWorker()
-  .then(() => getFirebaseMessaging())
-  .catch((err) => console.warn('Background init failed:', err));
+// Non-blocking background initialization (web only)
+if (isWeb) {
+  Promise.all([import("@/services/serviceWorker"), import("@/services/firebase")])
+    .then(([{ registerServiceWorker }, { getFirebaseMessaging }]) =>
+      registerServiceWorker().then(() => getFirebaseMessaging())
+    )
+    .catch((err) => console.warn('Background init failed:', err));
+}
 
