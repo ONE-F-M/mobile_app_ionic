@@ -8,7 +8,6 @@ import {
   onIonViewDidLeave,
 } from "@ionic/vue";
 import { arrowBackOutline, arrowForwardOutline } from "ionicons/icons";
-import { Filesystem, Directory } from '@capacitor/filesystem';
 import {
   ref,
   onMounted,
@@ -17,146 +16,61 @@ import {
   onDeactivated,
   shallowRef,
 } from "vue";
+import { useFaceRecorder } from "@/composable/useFaceRecorder.js";
 
 const emit = defineEmits(["completed"]);
 
-const progress = ref(0);
-const step = 0.01;
 const showVideo = shallowRef(false);
-
-//in seconds
-const duration = 5;
-const instructions = [
-  "enrollment.instructions.look_straight"
-];
 const instruction = ref("");
-const percent = (duration / 100) * 1000;
-const interval = 1 / instructions.length;
-const curr_step = ref(1);
-
-const updateProgress = () => {
-  progress.value += step;
-
-  if (
-    progress.value > curr_step.value * interval &&
-    instructions[curr_step.value]
-  ) {
-    instruction.value = instructions[curr_step.value];
-    curr_step.value += 1;
-  }
-};
-
-const progressWrapper = () => {
-    if (progress.value >= 1) {
-        saveVideo();
-    return;
-  }
-
-  updateProgress();
-  setTimeout(progressWrapper, percent);
-};
-
 const video = ref(null);
 
-let stream = null;
-let dataPromise = null;
-let recorder = null;
-const initializeStream = async () => {
-  let videoConstraints = {
-    facingMode: 'user',
-    frameRate: { min: 15, ideal: 20, max: 30 }
-  };
+const saveVideo = async () => {
+  instruction.value = "enrollment.almost_done";
 
-  if (window.screen.orientation && window.screen.orientation.type.includes('portrait')) {
-    // Portrait mode: height > width
-    
-    videoConstraints.width = { ideal: 360 };
-    videoConstraints.height = { ideal: 640 };
-  } else {
-    
-    // Landscape mode: width > height
-    videoConstraints.width = { ideal: 640 };
-    videoConstraints.height = { ideal: 360 };
-  }
-  
-  stream = await navigator.mediaDevices
-    .getUserMedia({
-      video: videoConstraints,
-      
-      audio: false,
-    })
-    .catch((err) => console.log("media stream err:", err.name));
+  const result = await finish();
+  if (!result) return;
 
-  if (!stream) return;
-
-  video.value.srcObject = stream;
-  video.value.play();
-
-  let dataResolver;
-  dataPromise = new Promise((resolve) => (dataResolver = resolve));
-
-let recorder_options = { mimeType: 'video/webm;codecs=vp9',videoBitsPerSecond: 250000 };
-if (!MediaRecorder.isTypeSupported(recorder_options.mimeType)) {
-  recorder_options = { mimeType: 'video/webm;codecs=vp8',videoBitsPerSecond: 250000  }; // Fallback for browsers that don't support MP4
-}
-  recorder = new MediaRecorder(stream,recorder_options);
-  recorder.ondataavailable = (event) => dataResolver(event.data);
-  recorder.start();
-  
-  instruction.value = "enrollment.instructions.look_straight";
-    setTimeout(progressWrapper, percent);
+  video.value?.pause();
+  emit("completed", result.base64, result.mimeType);
 };
 
-const cleanup = async () => {
-  recorder.stop(); //just in case
-  stream && stream.getTracks().forEach((track) => track.stop());
-  stream = null;
+const { progress, start, finish, cleanup, reset } = useFaceRecorder({
+  videoBitsPerSecond: 250000,
+  duration: 5,
+  swapInPortrait: true,
+  onFinished: saveVideo,
+});
+
+const initializeStream = async () => {
+  const started = await start(video.value);
+  if (!started) return false;
+
+  instruction.value = "enrollment.instructions.look_straight";
+  return true;
+};
+
+const startAndShow = async () => {
+  if (await initializeStream()) {
+    showVideo.value = true;
+  }
+};
+
+const stopAll = () => {
+  cleanup();
   showVideo.value = false;
 };
 
-const saveVideo = async () => {
-    instruction.value = "enrollment.almost_done";
-  recorder.stop();
+onMounted(startAndShow);
+onActivated(startAndShow);
 
-  const chunks = await dataPromise;
-  const fileSizeInMB = (chunks.size / (1024 * 1024)).toFixed(2);
-  
-  const readerPromise = new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64String = reader.result.split(",")[1];
-
-      resolve(base64String);
-    }; 
-    reader.readAsDataURL(chunks);
-  });
-
-  const converted = await readerPromise;
-    video.value.pause();
-  emit("completed", converted);
-};
-
-onMounted(async () => {
-  await initializeStream();
-  showVideo.value = true;
-});
-onActivated(async () => {
-  await initializeStream();
-  showVideo.value = true;
-});
-
-onUnmounted(cleanup);
-onDeactivated(cleanup);
+onUnmounted(stopAll);
+onDeactivated(stopAll);
 
 onIonViewDidLeave(() => {
-  if (recorder) {
-    cleanup();
-  }
-  progress.value = 0;
+  stopAll();
+  reset();
   instruction.value = "";
-  curr_step.value = 1;
   video.value = null;
-  showVideo.value = false;
 });
 </script>
 

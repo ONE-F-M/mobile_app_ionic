@@ -19,7 +19,15 @@ import {
 } from "@/utils/geolocation.js";
 import Header from "@/components/Header.vue";
 import CheckinBanner from "@/components/checkin/CheckinBanner.vue";
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import {
+  computed,
+  onBeforeUnmount,
+  onDeactivated,
+  onMounted,
+  onUnmounted,
+  ref,
+} from "vue";
+import { useFaceRecorder } from "@/composable/useFaceRecorder.js";
 import { buildStaticMapUrl } from "@/utils/staticMap";
 import IconScan from "@/components/icon/Scan.vue";
 import { useCustomToast } from "@/composable/toast.js";
@@ -51,6 +59,7 @@ const faceRecEndpointEnabled = ref(true)
 const logType = ref("");
 const shift = ref(null);
 const verifyVideo = ref("");
+const verifyVideoMime = ref("");
 
 const coordinates = ref("");
 // Why check-in is unavailable, shown for as long as the check-in button is hidden.
@@ -60,13 +69,7 @@ const isLoading = ref(false);
 const isLoadingLocation = ref(false);
 const isSubmitting = ref(false);
 
-const progress = ref(0);
-const step = 0.01;
-
-//in seconds
-const duration = 5;
 const instruction = ref("");
-const percent = (duration / 100) * 1000;
 
 const defaultSwipeHandler = ref(null);
 const site_radius = ref(100);
@@ -77,112 +80,36 @@ const siteName = ref("");
 const { showErrorToast, showSuccessToast } = useCustomToast();
 const { t } = useI18n();
 
-const updateProgress = () => {
-  progress.value += step;
-
-  if (progress.value > 0.4 && progress.value < 0.7) {
+const onRecorderProgress = (value) => {
+  if (value > 0.4 && value < 0.7) {
     instruction.value = "user.checkin.blink_eyes";
   } else {
     instruction.value = "";
   }
 };
 
-const progressWrapper = () => {
-  if (progress.value >= 1) {
-    saveVideo();
-    return;
-  }
-
-  updateProgress();
-  setTimeout(progressWrapper, percent);
-};
-
 const video = ref(null);
 
-let stream = null;
-let dataPromise = null;
-let recorder = null;
+const { progress, start, finish, cleanup, reset } = useFaceRecorder({
+  videoBitsPerSecond: 150000, // 150 kbps keeps check-in clips small
+  duration: 5,
+  onProgress: onRecorderProgress,
+  onFinished: () => saveVideo(),
+});
+
 const initializeStream = async () => {
-  let videoConstraints = {
-    facingMode: 'user',
-    frameRate: { min: 15, ideal: 20, max: 30 }
-  };
-
-  if (window.screen.orientation && window.screen.orientation.type.includes('portrait')) {
-    // Portrait mode: height > width
-    videoConstraints.width = { ideal: 640 };
-    videoConstraints.height = { ideal: 360 };
-  } else {
-    // Landscape mode: width > height
-    videoConstraints.width = { ideal: 640 };
-    videoConstraints.height = { ideal: 360 };
-  }
-  stream = await navigator.mediaDevices
-    .getUserMedia({
-      video: videoConstraints,
-      audio: false,
-    })
-    .catch((err) => console.log("media stream err:", err.name));
-
-  if (!stream) return;
-  const isAppleDevice = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-  let recorder_options
-  if (isAppleDevice) {
-    recorder_options = {
-      mimeType: 'video/mp4',
-      videoBitsPerSecond: 150000, // Lower bitrate for smaller file size
-    };
-  }
-  else {
-    recorder_options = {
-      mimeType: 'video/webm;codecs=vp9',
-      videoBitsPerSecond: 150000,
-      // 150 kbps for video
-    };
-  }
-  video.value.srcObject = stream;
-  video.value.play();
-
-  let dataResolver;
-  dataPromise = new Promise((resolve) => (dataResolver = resolve));
-
-  if (!MediaRecorder.isTypeSupported(recorder_options.mimeType)) {
-    recorder_options = {
-      mimeType: 'video/mp4', videoBitsPerSecond: 200000, // 200 kbps for video
-      codecs: 'avc1.42E01E, mp4a.40.2'
-    }; // Fallback for browsers that don't support MP4
-  }
-  recorder = new MediaRecorder(stream, recorder_options);
-  recorder.ondataavailable = (event) => dataResolver(event.data);
-  recorder.start();
-
-  setTimeout(progressWrapper, percent);
-};
-
-const cleanup = async () => {
-  recorder.stop();
-  stream && stream.getTracks().forEach((track) => track.stop());
-  stream = null;
+  await start(video.value);
 };
 
 const saveVideo = async () => {
-  recorder.stop();
+  const result = await finish();
+  if (!result) return;
 
-  const chunks = await dataPromise;
-
-  const readerPromise = new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64String = reader.result.split(",")[1]; // Extract base64 part
-      resolve(base64String);
-    };
-    reader.readAsDataURL(chunks);
-  });
-
-  verifyVideo.value = await readerPromise;
+  verifyVideo.value = result.base64;
+  verifyVideoMime.value = result.mimeType;
 
   isLoading.value = true;
-  video.value.pause();
+  video.value?.pause();
 
   await verifyCheckin();
   // await getSiteLocation();
@@ -190,7 +117,7 @@ const saveVideo = async () => {
   cleanup();
   isOpen.value = false;
   isLoading.value = false;
-  progress.value = 0;
+  reset();
   instruction.value = "";
 };
 
@@ -331,6 +258,7 @@ const verifyCheckin = async () => {
 
     if (userStore.isEndpointEnabled) {
       payload.video = verifyVideo.value
+      payload.video_mime = verifyVideoMime.value
     }
 
     await checkin.verifyCheckin(payload);
@@ -556,9 +484,14 @@ onIonViewWillLeave(() => {
 });
 
 onIonViewDidLeave(() => {
+  cleanup();
+  reset();
   isMapVisible.value = false;
   staticMapUrl.value = "";
 });
+
+onUnmounted(cleanup);
+onDeactivated(cleanup);
 </script>
 
 <template>

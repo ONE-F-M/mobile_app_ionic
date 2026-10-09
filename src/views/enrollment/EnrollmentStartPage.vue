@@ -32,7 +32,7 @@ const startEnrollment = () => {
 
 
 
-const handleVideo = async (video) => {
+const handleVideo = async (video, videoMime) => {
   const employeeId = authStore.employeeId;
   
   try {
@@ -40,6 +40,7 @@ const handleVideo = async (video) => {
     let payload = {'employee_id':employeeId}
     if(userStore.isEndpointEnabled){
       payload.video = video
+      payload.video_mime = videoMime
       
     }
     
