@@ -29,7 +29,7 @@ const isIncorrectPassword = ref(false);
 const passwordInput = ref(null); // Reference for auto-focus
 const password = ref("");
 
-const { addListeners, registerNotifications } = useNotification();
+const { register } = usePushRegistration();
 
 // Simple navigation back
 const prevStep = () => {
