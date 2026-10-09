@@ -12,7 +12,7 @@ const getNotifications = async (payload: { employee_id: string }) =>
 
 interface NotificationDeviceId {
   employee_id: string;
-  fcm_token: string;
+  fcm_token: string | null;
   device_os: "ios" | "android" | "web";
 }
 const setDeviceIdNotifications = async (payload: NotificationDeviceId) =>
