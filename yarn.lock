@@ -1277,6 +1277,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@capacitor/preferences@npm:^6.0.0":
+  version: 6.0.4
+  resolution: "@capacitor/preferences@npm:6.0.4"
+  peerDependencies:
+    "@capacitor/core": ^6.0.0
+  checksum: 3f039b06197d245e7df5980e7c78dd22cc3ffa5698a3c947275589855df7f00511e15e92121c185072630a3d706fc30d5f30e6af92590884043ff8b9dc2cc96b
+  languageName: node
+  linkType: hard
+
 "@capacitor/push-notifications@npm:^6.0.0":
   version: 6.0.5
   resolution: "@capacitor/push-notifications@npm:6.0.5"
@@ -4132,6 +4141,7 @@ __metadata:
     "@capacitor/haptics": 6.0.0
     "@capacitor/ios": ^6.0.0
     "@capacitor/keyboard": 6.0.0
+    "@capacitor/preferences": ^6.0.0
     "@capacitor/push-notifications": ^6.0.0
     "@capacitor/status-bar": 6.0.0
     "@eslint/js": ^9.0.0
