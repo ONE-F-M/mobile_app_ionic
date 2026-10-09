@@ -117,9 +117,16 @@ const changeLanguage = (lang) => {
   window.location.reload();
 };
 
-const logout = () => {
+const logout = async () => {
+  // Unregister first: telling the backend the token is gone needs the
+  // session that userStore.logout() clears. Never block logout on it.
+  try {
+    await unregister();
+  } catch (error) {
+    console.warn("Push unregistration failed:", error);
+  }
+
   userStore.logout();
-  unRegisterNotifications();
 
   router.navigate("/", "root");
 };
