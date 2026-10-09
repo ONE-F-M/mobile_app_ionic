@@ -26,7 +26,7 @@ import { useLangStore } from "@/store/lang.js";
 import profile from "@/api/profile";
 import { useCustomToast } from "@/composable/toast";
 import useDisplayImage from "@/composable/useDisplayImage";
-import useNotification from "@/composable/useNotification";
+import { usePushRegistration } from "@/composable/usePushRegistration";
 import { Capacitor } from '@capacitor/core';
 
 
