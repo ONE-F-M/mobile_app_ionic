@@ -42,7 +42,7 @@ const { showErrorToast, showSuccessToast } = useCustomToast();
 
 const isLoading = ref(false);
 
-const { addListeners, registerNotifications } = useNotification();
+const { register } = usePushRegistration();
 
 const prevStep = () => {
   router.back();
