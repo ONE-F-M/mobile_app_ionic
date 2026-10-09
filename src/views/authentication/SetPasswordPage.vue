@@ -75,16 +75,12 @@ const updatePassword = async () => {
     userStore.setUser(data.data);
     userStore.setToken(data.data.token);
 
-    const deviceInfo = await Device.getInfo();
-
     authStore.setEmployeeIdentificator(data.data.name);
 
-    if (deviceInfo.platform !== "web") {
-      await addListeners();
-      await registerNotifications();
-    }
-    else{
-      setupNotifications(data)
+    try {
+      await register(data.data);
+    } catch (err) {
+      console.warn("Push registration failed silently:", err);
     }
 
     if (data.data.enrolled) {
