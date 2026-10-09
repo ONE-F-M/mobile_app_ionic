@@ -5,8 +5,7 @@ import dotenv from 'dotenv';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
-// Resolve the build mode: `--mode <name>` / `--mode=<name>` on the command line,
-// else the MODE env var, else production (vite build's own default).
+// `--mode <name>` or `--mode=<name>`, else MODE, else production as in vite build.
 export function resolveMode(argv = process.argv) {
     const idx = argv.indexOf('--mode');
     if (idx !== -1 && argv[idx + 1]) return argv[idx + 1];
@@ -15,8 +14,7 @@ export function resolveMode(argv = process.argv) {
     return process.env.MODE || 'production';
 }
 
-// Write public/sw-env.js from .env.<mode> so the service worker gets the same
-// Firebase config as the bundle built in that mode.
+// The service worker gets the same Firebase config as the bundle built in that mode.
 export function writeSwEnv(mode = resolveMode()) {
     dotenv.config({ path: `.env.${mode}` });
 

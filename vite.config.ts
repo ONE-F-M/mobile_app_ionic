@@ -8,8 +8,7 @@ import { writeSwEnv } from './swEnvBuild.js';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    // Generate public/sw-env.js from .env.<mode> before the build, so the service
-    // worker uses the same Firebase config as the bundle (yarn build --mode <mode>).
+    // Writes public/sw-env.js from .env.<mode> before the build.
     {
       name: 'sw-env-build',
       apply: 'build',
