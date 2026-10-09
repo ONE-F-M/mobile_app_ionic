@@ -76,10 +76,18 @@ const lang = langStore.lang || "en";
 const i18n = initI18n(lang);
 app.use(i18n);
 
+// Service worker + Firebase JS messaging are web-only. On native (Android/iOS)
+// they are skipped entirely and loaded lazily so no firebase chunk is requested.
+const isWeb = Capacitor.getPlatform() === "web";
+
 router.isReady().then(async () => {
   try {
-    await registerServiceWorker();
-    await getFirebaseMessaging();
+    if (isWeb) {
+      const { registerServiceWorker } = await import("@/services/serviceWorker");
+      const { getFirebaseMessaging } = await import("@/services/firebase");
+      await registerServiceWorker();
+      await getFirebaseMessaging();
+    }
   } catch (e) {
     if (e?.message?.includes?.('apiKey')) {
       console.warn("Dev mode: Skipping Firebase/SW initialization due to missing environment keys.");
