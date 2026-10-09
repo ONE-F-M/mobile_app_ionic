@@ -51,6 +51,7 @@ const faceRecEndpointEnabled = ref(true)
 const logType = ref("");
 const shift = ref(null);
 const verifyVideo = ref("");
+const verifyVideoMime = ref("");
 
 const coordinates = ref("");
 // Why check-in is unavailable, shown for as long as the check-in button is hidden.
