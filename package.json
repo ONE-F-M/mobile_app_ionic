@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
-    "build": "node swEnvBuild.js && vite build",
+    "build": "vite build",
     "sync": "yarn build && npx cap sync",
     "preview": "vite preview",
     "test:e2e": "cypress run",
