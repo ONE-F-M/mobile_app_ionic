@@ -1,5 +1,3 @@
-import { setupNotifications } from '@/services/notifications.js';
-
 export const registerServiceWorker = async (proxy={}) => {
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistration('/firebase-messaging-sw.js')
