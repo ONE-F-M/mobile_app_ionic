@@ -10,9 +10,7 @@ import {
   onIonViewDidEnter,
   toastController
 } from "@ionic/vue";
-import { setupNotifications } from '@/services/notifications.js';
 import { ref, watch } from "vue";
-import { Device } from "@capacitor/device";
 
 import auth from "@/api/authentication";
 import { useUserStore } from "@/store/user";
