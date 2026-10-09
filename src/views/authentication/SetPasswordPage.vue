@@ -20,9 +20,7 @@ import { useAuthStore } from "@/store/auth.js";
 import { storeToRefs } from "pinia";
 import auth from "@/api/authentication";
 import { useUserStore } from "@/store/user.js";
-import useNotification from "@/composable/useNotification";
-import { Device } from "@capacitor/device";
-import { setupNotifications } from '@/services/notifications.js';
+import { usePushRegistration } from "@/composable/usePushRegistration";
 const { t } = useI18n();
 
 /*
