@@ -137,8 +137,9 @@ export function usePushRegistration() {
 
     authStore.setFcmToken(null);
 
+    // An empty token clears it on the backend; null would arrive as the text "null".
     await profile.setDeviceIdNotifications({
-      fcm_token: null,
+      fcm_token: "",
       employee_id: employeeId,
       device_os: getDeviceOs(),
     });

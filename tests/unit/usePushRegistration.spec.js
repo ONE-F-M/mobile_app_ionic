@@ -81,12 +81,12 @@ describe("usePushRegistration on web", () => {
     expect(profile.setDeviceIdNotifications).not.toHaveBeenCalled();
   });
 
-  test("unregister deletes the web token and clears it on the backend", async () => {
+  test("unregister deletes the web token and sends an empty token to clear it", async () => {
     const { push, messaging, profile } = await load();
     await push.unregister();
     expect(messaging.deleteToken).toHaveBeenCalled();
     expect(profile.setDeviceIdNotifications).toHaveBeenCalledWith({
-      fcm_token: null,
+      fcm_token: "",
       employee_id: "EMP-1",
       device_os: "web",
     });
