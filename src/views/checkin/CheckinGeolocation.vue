@@ -19,7 +19,15 @@ import {
 } from "@/utils/geolocation.js";
 import Header from "@/components/Header.vue";
 import CheckinBanner from "@/components/checkin/CheckinBanner.vue";
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import {
+  computed,
+  onBeforeUnmount,
+  onDeactivated,
+  onMounted,
+  onUnmounted,
+  ref,
+} from "vue";
+import { useFaceRecorder } from "@/composable/useFaceRecorder.js";
 import { buildStaticMapUrl } from "@/utils/staticMap";
 import IconScan from "@/components/icon/Scan.vue";
 import { useCustomToast } from "@/composable/toast.js";
