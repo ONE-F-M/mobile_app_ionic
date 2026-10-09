@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>mobile_app_ionic</string>
+	<string>ONE FM</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -25,33 +25,24 @@
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<string>Supports opening documents in place</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Allow to use camera?</string>
+	<string>ONE FM records a short video of your face to verify your identity when you check in and out.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Privacy - Location When In Use Usage Description</string>
+	<string>ONE FM uses your location to confirm you are at your assigned site when you check in.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Privacy - Photo Library Additions Usage Description</string>
+	<string>ONE FM can save photos and documents you choose to your photo library.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Privacy - Photo Library Usage Description</string>
+	<string>ONE FM lets you attach a photo for your profile and for leave or resignation documents.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
-		<string>armv7</string>
+		<string>arm64</string>
 	</array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
