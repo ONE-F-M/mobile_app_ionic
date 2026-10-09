@@ -30,17 +30,7 @@ export const blobToBase64 = (blob) =>
     reader.readAsDataURL(blob);
   });
 
-/**
- * Shared face-video recorder for enrollment and check-in.
- *
- * options:
- *  - videoBitsPerSecond: 150000 for check-in, 250000 for enrollment
- *  - duration: seconds to record (default 5)
- *  - step: progress increment per tick (default 0.01)
- *  - swapInPortrait: request width/height swapped when the screen is portrait
- *  - onProgress(progress): called on every tick, progress is 0..1
- *  - onFinished(): called once when progress reaches 1; call finish() from it
- */
+// Records one face clip for enrollment or check-in; finish() resolves { base64, mimeType, size }.
 export function useFaceRecorder({
   videoBitsPerSecond,
   duration = 5,
@@ -113,7 +103,7 @@ export function useFaceRecorder({
     try {
       if (recorder && recorder.state !== "inactive") recorder.stop();
     } catch (err) {
-      console.log("recorder stop err:", err?.name);
+      console.warn("Could not stop the recorder:", err?.name);
     }
     recorder = null;
 
@@ -122,13 +112,7 @@ export function useFaceRecorder({
     }
     stream = null;
 
-    if (videoEl) {
-      try {
-        videoEl.srcObject = null;
-      } catch (err) {
-        // element may already be gone
-      }
-    }
+    if (videoEl) videoEl.srcObject = null;
     videoEl = null;
   };
 
@@ -145,7 +129,7 @@ export function useFaceRecorder({
 
     const media = await navigator.mediaDevices
       .getUserMedia({ video: buildConstraints(), audio: false })
-      .catch((err) => console.log("media stream err:", err?.name));
+      .catch((err) => console.warn("Could not open the camera:", err?.name));
 
     if (!media) return false;
 
@@ -169,7 +153,7 @@ export function useFaceRecorder({
     try {
       recorder = new MediaRecorder(stream, options);
     } catch (err) {
-      console.log("recorder create err:", err?.name);
+      console.warn("Could not start recording:", err?.name);
       cleanup();
       return false;
     }
