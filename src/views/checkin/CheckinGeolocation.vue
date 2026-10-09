@@ -249,6 +249,7 @@ const verifyCheckin = async () => {
 
     if (userStore.isEndpointEnabled) {
       payload.video = verifyVideo.value
+      payload.video_mime = verifyVideoMime.value
     }
 
     await checkin.verifyCheckin(payload);
