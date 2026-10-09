@@ -108,7 +108,7 @@ const saveVideo = async () => {
   cleanup();
   isOpen.value = false;
   isLoading.value = false;
-  progress.value = 0;
+  reset();
   instruction.value = "";
 };
 
