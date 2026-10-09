@@ -10,16 +10,14 @@ import {
   onIonViewDidEnter,
   toastController
 } from "@ionic/vue";
-import { setupNotifications } from '@/services/notifications.js';
 import { ref, watch } from "vue";
-import { Device } from "@capacitor/device";
 
 import auth from "@/api/authentication";
 import { useUserStore } from "@/store/user";
 import { useAuthStore } from "@/store/auth";
 import { storeToRefs } from "pinia";
 import Header from "@/components/Header.vue";
-import useNotification from "@/composable/useNotification";
+import { usePushRegistration } from "@/composable/usePushRegistration";
 
 const userStore = useUserStore();
 const authStore = useAuthStore();
@@ -31,7 +29,7 @@ const isIncorrectPassword = ref(false);
 const passwordInput = ref(null); // Reference for auto-focus
 const password = ref("");
 
-const { addListeners, registerNotifications } = useNotification();
+const { register } = usePushRegistration();
 
 // Simple navigation back
 const prevStep = () => {
@@ -40,15 +38,7 @@ const prevStep = () => {
 
 const handleBackgroundTasks = async (userData) => {
   try {
-    const deviceInfo = await Device.getInfo();
-    
-    // Logic: If on mobile, register native notifications; else web notifications
-    if (deviceInfo.platform !== "web") {
-      await addListeners();
-      await registerNotifications(); 
-    } else {
-      setupNotifications(userData);
-    }
+    await register(userData.data);
   } catch (err) {
     console.warn("Background setup failed silently:", err);
   }
