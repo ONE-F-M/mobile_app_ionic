@@ -9,8 +9,9 @@ export const registerServiceWorker = async (proxy={}) => {
                // Service Worker not registered
               navigator.serviceWorker.register('/firebase-messaging-sw.js')
              
-                .then((newRegistration) => {
-                  setupNotifications()
+                .then(() => {
+                  // Token registration happens at login via
+                  // usePushRegistration().register(user).
                 })
                 .catch((error) => {
                   console.error('Service Worker registration failed:', error);
