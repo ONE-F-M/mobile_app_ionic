@@ -12,6 +12,7 @@ import pinia from "@/plugins/pinia.js";
 import initI18n from "@/plugins/i18n.js";
 
 import { createAnimation, IonicVue } from "@ionic/vue";
+import { SplashScreen } from "@capacitor/splash-screen";
 
 /* Import components */
 // REMOVED: VCalendar global registration — moved to local import in Datepicker.vue
@@ -90,6 +91,7 @@ router.isReady().then(async () => {
   } finally {
     // ALWAYS mount the app, even if Firebase fails
     app.mount("#app");
+    SplashScreen.hide().catch((err) => console.warn("Could not hide the splash screen:", err));
   }
 });
 
