@@ -5,14 +5,9 @@ import path from 'path'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa';
 
-// Native (Capacitor Android/iOS) builds are selected with the CAP_NATIVE=1
-// environment variable, set by `yarn build:native` (CAP_NATIVE=1 yarn build).
-// We deliberately do NOT use `--mode native`: --mode picks which .env.<mode>
-// file is loaded, so it stays `production` | `staging` for env selection.
-// A native build must not ship the PWA / service-worker / Firebase web assets.
+// Set by `yarn build:native`; --mode stays free to pick the .env file.
 const isNative = process.env.CAP_NATIVE === '1' || process.env.CAP_NATIVE === 'true'
 
-// Web-only files copied verbatim from public/ into dist/ that a native build must not contain.
 const WEB_ONLY_PUBLIC_FILES = ['firebase-messaging-sw.js', 'sw-env.js']
 
 const removeWebOnlyAssets = () => ({
@@ -31,7 +26,6 @@ export default defineConfig({
   plugins: [
     vue(),
     legacy(),
-    // Only enable PWA in production web builds (never for native builds)
     ...(process.env.NODE_ENV === 'production' && !isNative ? [VitePWA({ registerType: 'autoUpdate' })] : []),
     ...(isNative ? [removeWebOnlyAssets()] : [])
   ],

@@ -75,8 +75,6 @@ const lang = langStore.lang || "en";
 const i18n = initI18n(lang);
 app.use(i18n);
 
-// Service worker + Firebase JS messaging are web-only. On native (Android/iOS)
-// they are skipped entirely and loaded lazily so no firebase chunk is requested.
 const isWeb = Capacitor.getPlatform() === "web";
 
 router.isReady().then(async () => {
@@ -100,7 +98,6 @@ router.isReady().then(async () => {
   }
 });
 
-// Non-blocking background initialization (web only)
 if (isWeb) {
   Promise.all([import("@/services/serviceWorker"), import("@/services/firebase")])
     .then(([{ registerServiceWorker }, { getFirebaseMessaging }]) =>
