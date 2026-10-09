@@ -118,8 +118,7 @@ const changeLanguage = (lang) => {
 };
 
 const logout = async () => {
-  // Unregister first: telling the backend the token is gone needs the
-  // session that userStore.logout() clears. Never block logout on it.
+  // Before logout: the backend call needs the session logout() clears.
   try {
     await unregister();
   } catch (error) {
