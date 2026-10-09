@@ -5,9 +5,8 @@ import router from "./router";
 import "dayjs/locale/en";
 import "dayjs/locale/ar";
 
-import { initializeFirebase, getFirebaseMessaging } from "@/services/firebase";
+import { Capacitor } from "@capacitor/core";
 import { useLangStore } from "@/store/lang.js";
-import { registerServiceWorker } from "@/services/serviceWorker";
 import pinia from "@/plugins/pinia.js";
 import initI18n from "@/plugins/i18n.js";
 
