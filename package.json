@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite --host",
     "build": "node swEnvBuild.js && vite build",
+    "build:native": "CAP_NATIVE=1 yarn build",
     "sync": "yarn build && npx cap sync",
     "preview": "vite preview",
     "test:e2e": "cypress run",

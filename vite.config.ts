@@ -1,16 +1,33 @@
 import legacy from '@vitejs/plugin-legacy'
 import vue from '@vitejs/plugin-vue'
+import { rmSync } from 'fs'
 import path from 'path'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa';
+
+// Set by `yarn build:native`; --mode stays free to pick the .env file.
+const isNative = process.env.CAP_NATIVE === '1' || process.env.CAP_NATIVE === 'true'
+
+const WEB_ONLY_PUBLIC_FILES = ['firebase-messaging-sw.js', 'sw-env.js']
+
+const removeWebOnlyAssets = () => ({
+  name: 'remove-web-only-assets',
+  apply: 'build' as const,
+  closeBundle() {
+    if (!isNative) return
+    for (const file of WEB_ONLY_PUBLIC_FILES) {
+      rmSync(path.resolve(__dirname, 'dist', file), { force: true })
+    }
+  },
+})
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
     legacy(),
-    // Only enable PWA in production builds
-    ...(process.env.NODE_ENV === 'production' ? [VitePWA({ registerType: 'autoUpdate' })] : [])
+    ...(process.env.NODE_ENV === 'production' && !isNative ? [VitePWA({ registerType: 'autoUpdate' })] : []),
+    ...(isNative ? [removeWebOnlyAssets()] : [])
   ],
   resolve: {
     alias: {

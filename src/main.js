@@ -5,9 +5,8 @@ import router from "./router";
 import "dayjs/locale/en";
 import "dayjs/locale/ar";
 
-import { initializeFirebase, getFirebaseMessaging } from "@/services/firebase";
+import { Capacitor } from "@capacitor/core";
 import { useLangStore } from "@/store/lang.js";
-import { registerServiceWorker } from "@/services/serviceWorker";
 import pinia from "@/plugins/pinia.js";
 import initI18n from "@/plugins/i18n.js";
 
@@ -76,10 +75,16 @@ const lang = langStore.lang || "en";
 const i18n = initI18n(lang);
 app.use(i18n);
 
+const isWeb = Capacitor.getPlatform() === "web";
+
 router.isReady().then(async () => {
   try {
-    await registerServiceWorker();
-    await getFirebaseMessaging();
+    if (isWeb) {
+      const { registerServiceWorker } = await import("@/services/serviceWorker");
+      const { getFirebaseMessaging } = await import("@/services/firebase");
+      await registerServiceWorker();
+      await getFirebaseMessaging();
+    }
   } catch (e) {
     if (e?.message?.includes?.('apiKey')) {
       console.warn("Dev mode: Skipping Firebase/SW initialization due to missing environment keys.");
@@ -93,8 +98,11 @@ router.isReady().then(async () => {
   }
 });
 
-// Non-blocking background initialization
-registerServiceWorker()
-  .then(() => getFirebaseMessaging())
-  .catch((err) => console.warn('Background init failed:', err));
+if (isWeb) {
+  Promise.all([import("@/services/serviceWorker"), import("@/services/firebase")])
+    .then(([{ registerServiceWorker }, { getFirebaseMessaging }]) =>
+      registerServiceWorker().then(() => getFirebaseMessaging())
+    )
+    .catch((err) => console.warn('Background init failed:', err));
+}
 
