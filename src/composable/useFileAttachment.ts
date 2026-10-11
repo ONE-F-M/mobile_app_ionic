@@ -1,7 +1,9 @@
 import { ref } from 'vue';
+import { Capacitor } from '@capacitor/core';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 
 import { useCustomToast } from "@/composable/toast.js";
+import { compressImageDataUrl } from "@/utils/compressImage";
 
 export function useFileAttachment() {
   const attachment = ref({ name: null, base64: null });
@@ -15,8 +17,10 @@ export function useFileAttachment() {
         resultType: CameraResultType.DataUrl,
         source: CameraSource.Camera,
       });
-      attachment.value.base64 = photo.dataUrl;
-      attachment.value.name = `resignation-letter-${Date.now()}.${photo.format || 'jpeg'}`;
+      // The web camera ignores width and quality and returns the original photo
+      const isNative = Capacitor.isNativePlatform();
+      attachment.value.base64 = isNative ? photo.dataUrl : await compressImageDataUrl(photo.dataUrl);
+      attachment.value.name = `resignation-letter-${Date.now()}.${isNative ? photo.format || 'jpeg' : 'jpeg'}`;
     } catch (error) {
       // User backed out of the camera -- not an error worth surfacing.
       if (error?.message?.toLowerCase().includes('cancel')) return;
