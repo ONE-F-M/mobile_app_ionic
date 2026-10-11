@@ -1,4 +1,5 @@
-const stripHtml = (text) => text.replace(/<[^>]*>/g, "").trim();
+// DOMParser does not run scripts; textContent keeps only the visible text
+const stripHtml = (text) => (new DOMParser().parseFromString(text, "text/html").body.textContent || "").trim();
 
 // Frappe sends frappe.throw() text in _server_messages (a JSON list of JSON strings), else in exception
 export const getFrappeErrorMessage = (error) => {

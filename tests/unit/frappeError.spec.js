@@ -23,6 +23,15 @@ describe("getFrappeErrorMessage", () => {
     expect(getFrappeErrorMessage(error)).toBe("Employee X not found");
   });
 
+  it("leaves no tag behind from nested or broken markup", () => {
+    const error = {
+      data: { _server_messages: JSON.stringify([JSON.stringify({ message: "Hi <scr<script>ipt>alert(1)</script> there" })]) },
+    };
+    const message = getFrappeErrorMessage(error);
+    expect(message).not.toMatch(/<\s*script/i);
+    expect(message.startsWith("Hi")).toBe(true);
+  });
+
   it("falls back to the exception text without the exception class", () => {
     const error = { data: { exception: `frappe.exceptions.ValidationError: ${IN_PROGRESS}` } };
     expect(getFrappeErrorMessage(error)).toBe(IN_PROGRESS);
