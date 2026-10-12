@@ -21,6 +21,18 @@ describe("AndroidManifest.xml", () => {
     }
   });
 
+  test("removes the advertising permissions Firebase libraries merge in", () => {
+    for (const name of [
+      "com.google.android.gms.permission.AD_ID",
+      "android.permission.ACCESS_ADSERVICES_AD_ID",
+      "android.permission.ACCESS_ADSERVICES_ATTRIBUTION",
+      "com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE",
+    ]) {
+      expect(manifest, name).toContain(`<uses-permission android:name="${name}" tools:node="remove" />`);
+    }
+    expect(manifest).toContain('xmlns:tools="http://schemas.android.com/tools"');
+  });
+
   test("declares POST_NOTIFICATIONS, which the push plugin requests but does not declare", () => {
     expect(permission("POST_NOTIFICATIONS")).toBeDefined();
   });
