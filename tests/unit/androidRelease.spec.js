@@ -20,8 +20,8 @@ describe("Android release build", () => {
     expect(gradle).toMatch(/signingConfig keystorePath \? signingConfigs\.release : null\s*minifyEnabled true\s*shrinkResources true/);
   });
 
-  test("starts above the last Play release (versionCode 50)", () => {
-    expect(Number(gradle.match(/versionCode (\d+)/)[1])).toBeGreaterThanOrEqual(60);
+  test("starts above the last Play release (versionCode 50) and takes CI's number when set", () => {
+    expect(gradle).toContain("versionCode Integer.parseInt(System.getenv('ANDROID_VERSION_CODE') ?: '60')");
     expect(gradle).toContain('versionName "6.0"');
   });
 
