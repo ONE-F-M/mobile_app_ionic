@@ -41,6 +41,30 @@ describe("app icons and splash screens", () => {
     expect(files).toContain("AppIcon-512@2x.png");
   });
 
+  test("the splash is dark in light mode too", () => {
+    const androidSplashes = filesUnder(ANDROID_RES).filter((f) => f.endsWith("/splash.png") && !f.includes("night"));
+    expect(androidSplashes.length).toBe(13);
+    for (const day of androidSplashes) {
+      const night = day.replace(/drawable(-(port|land))?/, (dir) => (dir === "drawable" ? "drawable-night" : `${dir}-night`));
+      expect(md5(day), day).toBe(md5(night));
+    }
+    for (const scale of [1, 2, 3]) {
+      const base = join(IOS_ASSETS, `Splash.imageset/Default@${scale}x~universal~anyany`);
+      expect(md5(`${base}.png`)).toBe(md5(`${base}-dark.png`));
+    }
+    expect(readFileSync(join(ANDROID_RES, "values/splash_colors.xml"), "utf8")).toContain("#171717");
+    expect(readFileSync(join(root, "capacitor.config.ts"), "utf8")).toMatch(/SplashScreen:\s*{[^}]*backgroundColor:\s*"#171717"/);
+  });
+
+  test("the adaptive icons have a monochrome layer for themed icons", () => {
+    for (const name of ["ic_launcher.xml", "ic_launcher_round.xml"]) {
+      expect(readFileSync(join(ANDROID_RES, "mipmap-anydpi-v26", name), "utf8")).toContain(
+        '<monochrome android:drawable="@drawable/ic_launcher_monochrome" />'
+      );
+    }
+    expect(readFileSync(join(ANDROID_RES, "drawable/ic_launcher_monochrome.xml"), "utf8")).toContain("<vector");
+  });
+
   test("the splash stays up until the app hides it", () => {
     const config = readFileSync(join(root, "capacitor.config.ts"), "utf8");
     expect(config).toMatch(/SplashScreen:\s*{[^}]*launchAutoHide:\s*false/);
