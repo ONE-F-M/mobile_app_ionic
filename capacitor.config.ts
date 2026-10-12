@@ -10,7 +10,6 @@ const config: CapacitorConfig = {
     hostname: "localhost",
     androidScheme: "https",
     iosScheme: "https",
-    allowNavigation: ["https://staging.one-fm.com/*"],
   },
   plugins: {
     CapacitorHttp: {
