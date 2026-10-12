@@ -4,6 +4,7 @@ import { rmSync } from 'fs'
 import path from 'path'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa';
+import { writeSwEnv } from './swEnvBuild.js';
 
 // Set by `yarn build:native`; --mode stays free to pick the .env file.
 const isNative = process.env.CAP_NATIVE === '1' || process.env.CAP_NATIVE === 'true'
@@ -24,6 +25,14 @@ const removeWebOnlyAssets = () => ({
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
+    // Writes public/sw-env.js from .env.<mode> before the build.
+    {
+      name: 'sw-env-build',
+      apply: 'build',
+      config(_config, { mode }) {
+        writeSwEnv(mode)
+      },
+    },
     vue(),
     legacy(),
     ...(process.env.NODE_ENV === 'production' && !isNative ? [VitePWA({ registerType: 'autoUpdate' })] : []),

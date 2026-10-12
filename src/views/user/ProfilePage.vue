@@ -26,7 +26,7 @@ import { useLangStore } from "@/store/lang.js";
 import profile from "@/api/profile";
 import { useCustomToast } from "@/composable/toast";
 import useDisplayImage from "@/composable/useDisplayImage";
-import useNotification from "@/composable/useNotification";
+import { usePushRegistration } from "@/composable/usePushRegistration";
 import { Capacitor } from '@capacitor/core';
 
 
@@ -54,7 +54,7 @@ const user = reactive({
 });
 
 const selectedLanguage = ref(langStore.lang);
-const { unRegisterNotifications } = useNotification();
+const { unregister } = usePushRegistration();
 
 const platform = computed(() => Capacitor.getPlatform());
 const isIOS = computed(() => platform.value === "ios");
@@ -117,9 +117,15 @@ const changeLanguage = (lang) => {
   window.location.reload();
 };
 
-const logout = () => {
+const logout = async () => {
+  // Before logout: the backend call needs the session logout() clears.
+  try {
+    await unregister();
+  } catch (error) {
+    console.warn("Push unregistration failed:", error);
+  }
+
   userStore.logout();
-  unRegisterNotifications();
 
   router.navigate("/", "root");
 };
