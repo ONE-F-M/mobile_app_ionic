@@ -22,4 +22,5 @@ export default {
   submit: "Submit",
   submit_success: "Submitted successfully",
   submit_error: "Error submitting",
+  press_back_again_to_exit: "Press back again to exit",
 };

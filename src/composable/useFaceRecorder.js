@@ -1,5 +1,6 @@
 import { ref } from "vue";
 import { Capacitor } from "@capacitor/core";
+import { useBackButton } from "@ionic/vue";
 
 // Preferred first. Safari/WKWebView only records mp4; Chromium records webm.
 export const MIME_PREFERENCE = [
@@ -52,6 +53,12 @@ export function useFaceRecorder({
   let timer = null;
   let ticks = 0;
   let session = 0; // bumped by cleanup() so a start() still awaiting the camera aborts
+  let backGuard = null;
+
+  const releaseBackButton = () => {
+    backGuard?.unregister();
+    backGuard = null;
+  };
 
   const clearTimer = () => {
     if (timer) clearTimeout(timer);
@@ -99,6 +106,7 @@ export function useFaceRecorder({
   const cleanup = () => {
     session += 1;
     clearTimer();
+    releaseBackButton();
 
     try {
       if (recorder && recorder.state !== "inactive") recorder.stop();
@@ -168,6 +176,8 @@ export function useFaceRecorder({
     dataPromise = new Promise((resolve) => (dataResolver = resolve));
     recorder.ondataavailable = (event) => dataResolver(event.data);
     recorder.start();
+    // Back is ignored while the clip records; Ionic overlays still close first.
+    backGuard = useBackButton(20, () => {});
 
     timer = setTimeout(tick, tickMs);
     return true;
@@ -176,6 +186,7 @@ export function useFaceRecorder({
   // Stops recording and resolves { base64, mimeType, size }, or null if not recording.
   const finish = async () => {
     clearTimer();
+    releaseBackButton();
     const activeRecorder = recorder;
     const pending = dataPromise;
     if (!activeRecorder || !pending) return null;

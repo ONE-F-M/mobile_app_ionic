@@ -2,6 +2,14 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { isLowEndDevice, pickMimeType, useFaceRecorder } from "@/composable/useFaceRecorder.js";
 
 vi.mock("@capacitor/core", () => ({ Capacitor: { getPlatform: () => "web" } }));
+const backGuards = [];
+vi.mock("@ionic/vue", () => ({
+  useBackButton: (priority, handler) => {
+    const guard = { priority, handler, unregister: vi.fn() };
+    backGuards.push(guard);
+    return guard;
+  },
+}));
 
 const supported = new Set();
 const track = () => ({ stop: vi.fn() });
@@ -32,6 +40,7 @@ const setDevice = ({ cores, memory }) => {
 };
 
 beforeEach(() => {
+  backGuards.length = 0;
   supported.clear();
   lastRecorder = null;
   globalThis.MediaRecorder = FakeRecorder;
@@ -113,5 +122,30 @@ describe("useFaceRecorder", () => {
     });
     const recorder = useFaceRecorder({ videoBitsPerSecond: 150000 });
     expect(await recorder.start(null)).toBe(false);
+  });
+});
+
+describe("back button while recording", () => {
+  test("is swallowed from start until finish", async () => {
+    supported.add("video/webm;codecs=vp8");
+    const recorder = useFaceRecorder({ videoBitsPerSecond: 150000 });
+    await recorder.start();
+
+    expect(backGuards).toHaveLength(1);
+    expect(backGuards[0].priority).toBe(20);
+    const next = vi.fn();
+    backGuards[0].handler(next);
+    expect(next).not.toHaveBeenCalled();
+
+    await recorder.finish();
+    expect(backGuards[0].unregister).toHaveBeenCalled();
+  });
+
+  test("is released when recording is cleaned up", async () => {
+    supported.add("video/webm;codecs=vp8");
+    const recorder = useFaceRecorder({ videoBitsPerSecond: 150000 });
+    await recorder.start();
+    recorder.cleanup();
+    expect(backGuards[0].unregister).toHaveBeenCalled();
   });
 });

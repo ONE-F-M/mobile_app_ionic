@@ -12,11 +12,13 @@ import { computed, onMounted, onUnmounted } from 'vue';
 import { Capacitor } from '@capacitor/core';
 import { App as CapacitorApp } from '@capacitor/app';
 import { useResignationNotifier } from '@/composable/useResignationNotifier';
+import { useExitOnBack } from "@/composable/useExitOnBack.js";
 
 const langStore = useLangStore();
 const { rtl } = storeToRefs(langStore);
 
 const { checkForUpdates } = useResignationNotifier();
+useExitOnBack();
 let appStateListener;
 
 onMounted(async () => {
