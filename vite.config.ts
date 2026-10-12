@@ -38,6 +38,9 @@ export default defineConfig({
     ...(process.env.NODE_ENV === 'production' && !isNative ? [VitePWA({ registerType: 'autoUpdate' })] : []),
     ...(isNative ? [removeWebOnlyAssets()] : [])
   ],
+  preview: {
+    allowedHosts: ['mobile-staging.one-fm.com'],
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
