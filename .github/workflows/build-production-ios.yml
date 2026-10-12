@@ -11,6 +11,7 @@ jobs:
      VITE_BASE_API_URL: ${{ vars.VITE_BASE_PRODUCTION_API_URL }}
      VITE_API_PREFIX: ${{ vars.VITE_API_PREFIX }}
      VITE_BASE_URL: ${{ vars.VITE_BASE_URL }}    
+     CAP_NATIVE: "1"
     runs-on: macos-latest
     steps:
       # this was more debug as was curious what came pre-installed
