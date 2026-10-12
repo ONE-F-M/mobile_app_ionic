@@ -3,7 +3,7 @@ name: "Build IPA (Production)"
 on:
   push:
     branches:
-      - production
+      - version-15
 
 jobs:
   build_with_signing:
@@ -20,21 +20,20 @@ jobs:
         run: /usr/bin/xcodebuild -version
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Install Ionic
-        run: yarn global add @ionic/cli
-
       - name: Install app dependencies
-        run: yarn install
+        run: corepack yarn@3.8.7 install --immutable
 
-      - name: Copy IOS
-        run: ionic capacitor sync
+      - name: Build web app and copy it to iOS
+        run: |
+          corepack yarn@3.8.7 build:native --mode production
+          npx cap sync ios
 
       - name: Install the Apple certificate and provisioning profile
         env:
@@ -90,7 +89,7 @@ jobs:
           # build number
           # ex. 10
           # If build-number is not set, auto-increment build number.
-          build-number: ''
+          build-number: ${{ github.run_number }}
 
       - name: Build archive
         run: |
@@ -108,7 +107,7 @@ jobs:
           xcodebuild -exportOptionsPlist ios/App/ExportOptions.plist -exportArchive -archivePath $RUNNER_TEMP/app.xcarchive -exportPath $RUNNER_TEMP/build          
 
       - name: Upload Application
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: app
           path: ${{ runner.temp }}/build/App.ipa
