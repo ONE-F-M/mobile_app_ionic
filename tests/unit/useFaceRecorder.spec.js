@@ -11,6 +11,14 @@ const setAgent = ({ userAgent, touchPoints = 0 }) => {
 const ANDROID_UA = "Mozilla/5.0 (Linux; Android 13; Pixel 6) AppleWebKit/537.36 Chrome/120 Mobile Safari/537.36";
 const IPHONE_UA = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148";
 const IPADOS_UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Version/17.0 Safari/605.1.15";
+const backGuards = [];
+vi.mock("@ionic/vue", () => ({
+  useBackButton: (priority, handler) => {
+    const guard = { priority, handler, unregister: vi.fn() };
+    backGuards.push(guard);
+    return guard;
+  },
+}));
 
 const supported = new Set();
 const track = () => ({ stop: vi.fn() });
@@ -41,6 +49,7 @@ const setDevice = ({ cores, memory }) => {
 };
 
 beforeEach(() => {
+  backGuards.length = 0;
   supported.clear();
   lastRecorder = null;
   platform.current = "web";
@@ -182,5 +191,30 @@ describe("useFaceRecorder", () => {
     });
     const recorder = useFaceRecorder({ videoBitsPerSecond: 150000 });
     expect(await recorder.start(null)).toBe(false);
+  });
+});
+
+describe("back button while recording", () => {
+  test("is swallowed from start until finish", async () => {
+    supported.add("video/webm;codecs=vp8");
+    const recorder = useFaceRecorder({ videoBitsPerSecond: 150000 });
+    await recorder.start();
+
+    expect(backGuards).toHaveLength(1);
+    expect(backGuards[0].priority).toBe(20);
+    const next = vi.fn();
+    backGuards[0].handler(next);
+    expect(next).not.toHaveBeenCalled();
+
+    await recorder.finish();
+    expect(backGuards[0].unregister).toHaveBeenCalled();
+  });
+
+  test("is released when recording is cleaned up", async () => {
+    supported.add("video/webm;codecs=vp8");
+    const recorder = useFaceRecorder({ videoBitsPerSecond: 150000 });
+    await recorder.start();
+    recorder.cleanup();
+    expect(backGuards[0].unregister).toHaveBeenCalled();
   });
 });

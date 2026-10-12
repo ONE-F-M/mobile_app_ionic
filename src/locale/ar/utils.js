@@ -22,4 +22,5 @@ export default {
   submit: "إرسال",
   submit_success: "تم الإرسال بنجاح",
   submit_error: "خطأ في الإرسال",
+  press_back_again_to_exit: "اضغط رجوع مرة أخرى للخروج",
 };
