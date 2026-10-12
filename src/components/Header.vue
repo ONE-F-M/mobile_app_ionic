@@ -18,7 +18,7 @@ const triggerBack = () => emit("goBack");
   <ion-row class="header-wrapper">
     <template v-if="withBackButton">
       <ion-col class="back-button-wrapper" size="3">
-        <ion-button @click="triggerBack" router-direction="back" fill="clear">
+        <ion-button @click="triggerBack" router-direction="back" fill="clear" aria-label="Back">
           <ion-icon
             class="icon-arrow-back"
             color="light"
