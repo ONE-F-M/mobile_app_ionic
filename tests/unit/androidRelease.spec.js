@@ -8,8 +8,8 @@ const ignored = readFileSync(resolve(android, ".gitignore"), "utf8").split("\n")
 
 describe("Android release build", () => {
   test("signs with the keystore from keystore.properties or the ANDROID_* variables", () => {
+    expect(gradle).toContain("def keystorePath = signingValue('storeFile', 'ANDROID_KEYSTORE_PATH')");
     for (const [property, variable] of [
-      ["storeFile", "ANDROID_KEYSTORE_PATH"],
       ["storePassword", "ANDROID_KEYSTORE_PASSWORD"],
       ["keyAlias", "ANDROID_KEY_ALIAS"],
       ["keyPassword", "ANDROID_KEY_PASSWORD"],
@@ -17,7 +17,7 @@ describe("Android release build", () => {
       expect(gradle).toContain(`signingValue('${property}', '${variable}')`);
     }
     expect(gradle).toContain("rootProject.file('keystore.properties')");
-    expect(gradle).toMatch(/release\s*{\s*signingConfig signingConfigs\.release\s*minifyEnabled true\s*shrinkResources true/);
+    expect(gradle).toMatch(/signingConfig keystorePath \? signingConfigs\.release : null\s*minifyEnabled true\s*shrinkResources true/);
   });
 
   test("starts above the last Play release (versionCode 50)", () => {

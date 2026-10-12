@@ -7,6 +7,7 @@ if (keystorePropertiesFile.exists()) {
     keystorePropertiesFile.withInputStream { keystoreProperties.load(it) }
 }
 def signingValue = { String property, String variable -> keystoreProperties.getProperty(property) ?: System.getenv(variable) }
+def keystorePath = signingValue('storeFile', 'ANDROID_KEYSTORE_PATH')
 
 android {
     namespace "com.onefacilitiesmanagement.android.app"
@@ -26,8 +27,6 @@ android {
     }
     signingConfigs {
         release {
-            def keystorePath = signingValue('storeFile', 'ANDROID_KEYSTORE_PATH')
-            // Without a keystore the release build is left unsigned, so a laptop without the key can still build it.
             if (keystorePath) {
                 storeFile file(keystorePath)
                 storePassword signingValue('storePassword', 'ANDROID_KEYSTORE_PASSWORD')
@@ -38,7 +37,8 @@ android {
     }
     buildTypes {
         release {
-            signingConfig signingConfigs.release
+            // Without a keystore the release build is left unsigned, so a laptop without the key can still build it.
+            signingConfig keystorePath ? signingConfigs.release : null
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
