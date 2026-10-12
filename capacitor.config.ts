@@ -20,7 +20,11 @@ const config: CapacitorConfig = {
     },
     Keyboard: {
       resize: KeyboardResize.None,
-    }
+    },
+    SplashScreen: {
+      launchAutoHide: false,
+      backgroundColor: "#ffffff",
+    },
   },
 };
 
