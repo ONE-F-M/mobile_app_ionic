@@ -1,5 +1,13 @@
 apply plugin: 'com.android.application'
 
+// Release signing comes from android/keystore.properties on a laptop or ANDROID_* variables in CI.
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('keystore.properties')
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.withInputStream { keystoreProperties.load(it) }
+}
+def signingValue = { String property, String variable -> keystoreProperties.getProperty(property) ?: System.getenv(variable) }
+
 android {
     namespace "com.onefacilitiesmanagement.android.app"
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -7,8 +15,8 @@ android {
         applicationId "com.onefacilitiesmanagement.android.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode 60
+        versionName "6.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -16,9 +24,23 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            def keystorePath = signingValue('storeFile', 'ANDROID_KEYSTORE_PATH')
+            // Without a keystore the release build is left unsigned, so a laptop without the key can still build it.
+            if (keystorePath) {
+                storeFile file(keystorePath)
+                storePassword signingValue('storePassword', 'ANDROID_KEYSTORE_PASSWORD')
+                keyAlias signingValue('keyAlias', 'ANDROID_KEY_ALIAS')
+                keyPassword signingValue('keyPassword', 'ANDROID_KEY_PASSWORD')
+            }
+        }
+    }
     buildTypes {
         release {
-            minifyEnabled false
+            signingConfig signingConfigs.release
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
