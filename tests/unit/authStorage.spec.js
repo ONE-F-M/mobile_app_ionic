@@ -5,9 +5,11 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 
 const platform = { native: false };
 const saved = {};
+const clearAllCookies = vi.fn(async () => {});
 
 vi.mock("@capacitor/core", () => ({
   Capacitor: { isNativePlatform: () => platform.native, getPlatform: () => (platform.native ? "android" : "web") },
+  CapacitorCookies: { clearAllCookies },
 }));
 vi.mock("@capacitor/preferences", () => ({
   Preferences: {
@@ -44,6 +46,7 @@ describe("authStorage on web", () => {
     await authStorageReady;
     expect(authStorage).toBe(localStorage);
     expect(Preferences.get).not.toHaveBeenCalled();
+    expect(clearAllCookies).not.toHaveBeenCalled();
   });
 });
 
@@ -58,6 +61,22 @@ describe("authStorage on native", () => {
     await authStorageReady;
     expect(authStorage.getItem("user")).toBe('{"token":"Bearer abc"}');
     expect(authStorage.getItem("auth")).toBeNull();
+  });
+
+  test("drops server cookies at start so requests use only the token", async () => {
+    const { authStorageReady } = await load();
+    await expect(authStorageReady).resolves.toBeUndefined();
+    expect(clearAllCookies).toHaveBeenCalledTimes(1);
+  });
+
+  test("drops the cookie session that user_login opens", async () => {
+    vi.doMock("@/api/http.service", () => ({ httpService: { post: vi.fn(async () => ({ message: "ok" })) } }));
+    await load();
+    clearAllCookies.mockClear();
+    const { userLogin } = await import("@/api/authentication");
+    expect(await userLogin({ employee_id: "E1", password: "x" })).toEqual({ message: "ok" });
+    expect(clearAllCookies).toHaveBeenCalledTimes(1);
+    vi.doUnmock("@/api/http.service");
   });
 
   test("writes through to Preferences", async () => {
