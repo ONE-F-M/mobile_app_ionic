@@ -29,12 +29,12 @@ jobs:
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
             node -v
-            cd /home/frappe/mobile_ionic_app/mobile_app_ionic
+            cd /home/frappe/mobile_app_ionic
             git fetch origin staging
-            git checkout staging
-            git reset --hard origin/staging
+            git checkout -f -B staging origin/staging
             sudo chown -R $(whoami):$(whoami) node_modules dist 2>/dev/null || true
             rm -rf dist
-            yarn install --frozen-lockfile
+            corepack yarn@3.8.7 install --immutable
             export NODE_OPTIONS="--max-old-space-size=4096"
-            yarn build
+            corepack yarn@3.8.7 build --mode staging
+            sudo supervisorctl restart mobile-staging
