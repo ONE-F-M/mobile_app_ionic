@@ -1287,19 +1287,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@capacitor/google-maps@npm:^6.0.0":
-  version: 6.0.1
-  resolution: "@capacitor/google-maps@npm:6.0.1"
-  dependencies:
-    "@googlemaps/js-api-loader": ~1.13.7
-    "@googlemaps/markerclusterer": ~2.0.7
-    "@types/google.maps": ~3.50.5
-  peerDependencies:
-    "@capacitor/core": ^6.1.0
-  checksum: b5cbbe3822bdd33007aadfabf8d02af96718fa4645fa10104d752b38372b16fd2c3c8b832037289a5cd5fd4a31450354cf766d8d175d6b7dde6f774363a07c1c
-  languageName: node
-  linkType: hard
-
 "@capacitor/haptics@npm:6.0.0":
   version: 6.0.0
   resolution: "@capacitor/haptics@npm:6.0.0"
@@ -1327,6 +1314,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@capacitor/preferences@npm:^6.0.0":
+  version: 6.0.4
+  resolution: "@capacitor/preferences@npm:6.0.4"
+  peerDependencies:
+    "@capacitor/core": ^6.0.0
+  checksum: 3f039b06197d245e7df5980e7c78dd22cc3ffa5698a3c947275589855df7f00511e15e92121c185072630a3d706fc30d5f30e6af92590884043ff8b9dc2cc96b
+  languageName: node
+  linkType: hard
+
 "@capacitor/push-notifications@npm:^6.0.0":
   version: 6.0.5
   resolution: "@capacitor/push-notifications@npm:6.0.5"
@@ -1342,15 +1338,6 @@ __metadata:
   peerDependencies:
     "@capacitor/core": ^6.0.0
   checksum: c5ef2b0c6476b4dab221beeaa1c74014c72dd29d1e0a82e2f3ac124a44bba1f162850e6268b88b87ad90e4a415ba8ada46f0302932755559fb74e337f1855d62
-  languageName: node
-  linkType: hard
-
-"@capacitor/status-bar@npm:6.0.0":
-  version: 6.0.0
-  resolution: "@capacitor/status-bar@npm:6.0.0"
-  peerDependencies:
-    "@capacitor/core": ^6.0.0
-  checksum: 812dd54159ab654f3c3a3014b26564d22a2c2f123fab14902c0754a653f7c7ca647846e07b3526c09e1a701226c3f2b0bae2e5815fcdf3479b282d9f6e7ee787
   languageName: node
   linkType: hard
 
@@ -2189,25 +2176,6 @@ __metadata:
   version: 1.0.3
   resolution: "@firebase/webchannel-wrapper@npm:1.0.3"
   checksum: 94cd385738b0b61f8a4338f9971c716e49f1998930d0f21affd0c6dd946b792e43c9e6bc53bb137dc2d19d770116cfb3d1fdc918d136c88ef25ea38c33d8836f
-  languageName: node
-  linkType: hard
-
-"@googlemaps/js-api-loader@npm:~1.13.7":
-  version: 1.13.11
-  resolution: "@googlemaps/js-api-loader@npm:1.13.11"
-  dependencies:
-    fast-deep-equal: ^3.1.3
-  checksum: aea6ad541ca483a5f9cdd7f27d08c9bb446d433e07736014b163619dd89c4cf6548f40cd13ae687d4b622cbc161eec264f6c91e2c14d4bf8ea62445e96e89663
-  languageName: node
-  linkType: hard
-
-"@googlemaps/markerclusterer@npm:~2.0.7":
-  version: 2.0.15
-  resolution: "@googlemaps/markerclusterer@npm:2.0.15"
-  dependencies:
-    fast-deep-equal: ^3.1.3
-    supercluster: ^7.1.3
-  checksum: bb3201212fe4e0d18a22979ad1aaf9796f958ddb5e2a8bc3aa4d2666ce8e81d70d05ebca7c1d8c85027775678d825408795ff34d925316f244e027dee9b0a883
   languageName: node
   linkType: hard
 
@@ -3428,13 +3396,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/google.maps@npm:~3.50.5":
-  version: 3.50.5
-  resolution: "@types/google.maps@npm:3.50.5"
-  checksum: 1754518ffc1719c2086834ee1cab45b4a2a0ec007f3d1101d46afda46d7ef96a989ab977333352a1c73c5267ce2e7bec7e5bfeb74146a723be746279c3ad086c
-  languageName: node
-  linkType: hard
-
 "@types/html-minifier-terser@npm:^6.0.0":
   version: 6.1.0
   resolution: "@types/html-minifier-terser@npm:6.1.0"
@@ -4196,11 +4157,11 @@ __metadata:
   linkType: hard
 
 "@xml-tools/parser@npm:^1.0.11":
-  version: 1.0.11
-  resolution: "@xml-tools/parser@npm:1.0.11"
+  version: 1.0.12
+  resolution: "@xml-tools/parser@npm:1.0.12"
   dependencies:
     chevrotain: 7.1.1
-  checksum: 79f32386ef935c1ba65d421e36b556fb14593c7b7e5ca99160ec8ec6dba912a00be6c32d0ab8bad35f82cb5640c05f1a8cfd1d227d563aed20ecc57d678ceab2
+  checksum: 290a2927e5d6c19124f20632e5b63a4e74eae3b72cb603e8ff4e5e7952cbc867fe4ea85df3ce1f0c97e083c907c26e8c910bdcb2c753719f64eb8e25a98bcf2f
   languageName: node
   linkType: hard
 
@@ -4245,13 +4206,12 @@ __metadata:
     "@capacitor/device": ^6.0.0
     "@capacitor/filesystem": ^6.0.0
     "@capacitor/geolocation": ^6.0.0
-    "@capacitor/google-maps": ^6.0.0
     "@capacitor/haptics": 6.0.0
     "@capacitor/ios": ^6.0.0
     "@capacitor/keyboard": 6.0.0
+    "@capacitor/preferences": ^6.0.0
     "@capacitor/push-notifications": ^6.0.0
     "@capacitor/splash-screen": ^6.0.0
-    "@capacitor/status-bar": 6.0.0
     "@eslint/js": ^9.0.0
     "@ionic/vue": ^7.0.0
     "@ionic/vue-router": ^7.0.0
@@ -4772,8 +4732,8 @@ __metadata:
   linkType: hard
 
 "bare-fs@npm:^4.0.1, bare-fs@npm:^4.8.2":
-  version: 4.8.3
-  resolution: "bare-fs@npm:4.8.3"
+  version: 4.8.4
+  resolution: "bare-fs@npm:4.8.4"
   dependencies:
     bare-events: ^2.5.4
     bare-path: ^3.0.0
@@ -4785,7 +4745,7 @@ __metadata:
   peerDependenciesMeta:
     bare-buffer:
       optional: true
-  checksum: 0efc0046f61f5beb3a8808a155a700434c767e8c37d1ae82c71fd99ce61ad0aea601497ecbf6fc0c0eef93e0ee29fd9040e3b742a769ad8959bfa802e144b54f
+  checksum: 27f197608b3632a271ff6432635f14e2a71bcf9e8f39c870f7604b73738812c61679d76e43d31f70e6eeb282ef23f678edce234f0911f40c243b7b333432d9f7
   languageName: node
   linkType: hard
 
@@ -9047,13 +9007,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"kdbush@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "kdbush@npm:3.0.0"
-  checksum: bc5fa433958e42664a8a92457e4f0d1db55b3b8e36956aac0102964adb2eab043bdbff156570dc8d867144ceff588fb7a1c6e099ba9be068cd1767a73e1ace92
-  languageName: node
-  linkType: hard
-
 "keyv@npm:^4.5.4":
   version: 4.5.4
   resolution: "keyv@npm:4.5.4"
@@ -10999,11 +10952,11 @@ __metadata:
   linkType: hard
 
 "prettier@npm:>=2.4.0":
-  version: 3.9.9
-  resolution: "prettier@npm:3.9.9"
+  version: 3.9.10
+  resolution: "prettier@npm:3.9.10"
   bin:
     prettier: bin/prettier.cjs
-  checksum: fbd41978e758c07ce493728c73c9011400446281aca707024e58f7b6ea5ad1dd2f12f8cc51ff76ceb7c7749947db876f6074030a5ec333d8e4084c29455ea948
+  checksum: a031d6ce0d077d46a47424eb367708c426ef3d5a85e06eace273cb1fa9823fd3c5f8b6af7f1f4715474b5f98b7fdfa650b72d97e2742f16ff27006dc0a136d8a
   languageName: node
   linkType: hard
 
@@ -12597,15 +12550,6 @@ __metadata:
   peerDependencies:
     postcss: ^8.2.15
   checksum: 11175366ef52de65bf06cefba0ddc9db286dc3a1451fd2989e74c6ea47091a02329a4bf6ce10b1a36950056927b6bbbe47c5ab3a1f4c7032df932d010fbde5a2
-  languageName: node
-  linkType: hard
-
-"supercluster@npm:^7.1.3":
-  version: 7.1.5
-  resolution: "supercluster@npm:7.1.5"
-  dependencies:
-    kdbush: ^3.0.0
-  checksum: 69863238870093b96617135884721b6343746e14f396b2d67d6b55c52c362ec0516c5e386aa21815e75a9cef2054e831ac34023d0d8b600091d28cea0794f027
   languageName: node
   linkType: hard
 

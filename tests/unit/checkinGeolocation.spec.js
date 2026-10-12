@@ -28,11 +28,6 @@ vi.mock("vue-router", () => ({
 }));
 vi.mock("vue-i18n", () => ({ useI18n: () => ({ t: (key) => key }) }));
 vi.mock("@capacitor/core", () => ({ Capacitor: { getPlatform: () => "web" } }));
-vi.mock("@capacitor/google-maps", () => ({
-  GoogleMap: {
-    create: vi.fn(async () => ({ addMarker: vi.fn(), addCircles: vi.fn(), destroy: vi.fn() })),
-  },
-}));
 vi.mock("@googlemaps/js-api-loader", () => ({ Loader: vi.fn() }));
 vi.mock("@/utils/geolocation.js", () => ({ getCurrentPositionSafe: vi.fn() }));
 vi.mock("@/api/checkin", () => ({ default: { getSiteLocation: vi.fn(), verifyCheckin: vi.fn() } }));

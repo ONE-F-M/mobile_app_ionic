@@ -1,4 +1,6 @@
+import { nextTick } from "vue";
 import { defineStore } from "pinia";
+import { authStorage, clearAuthStorage } from "@/utils/authStorage";
 import { useAuthStore } from "@/store/auth.js";
 import checkin from "@/api/checkin";
 import leave from "@/api/leave";
@@ -40,7 +42,7 @@ export const useUserStore = defineStore("user", {
       lastGeolocationFetch: 0,
     };
   },
-  persist: true,
+  persist: { storage: authStorage },
   getters: {
     isShiftWorking: (state) => !!(state.shiftWorking ?? state.user?.shift_working),
   },
@@ -258,6 +260,9 @@ export const useUserStore = defineStore("user", {
         const stockEntryStore = m.useStockEntryStore();
         stockEntryStore.reset();
       });
+
+      // After the persist plugin has written the reset state.
+      nextTick(clearAuthStorage);
     },
   },
 });

@@ -20,9 +20,7 @@ import { useAuthStore } from "@/store/auth.js";
 import { storeToRefs } from "pinia";
 import auth from "@/api/authentication";
 import { useUserStore } from "@/store/user.js";
-import useNotification from "@/composable/useNotification";
-import { Device } from "@capacitor/device";
-import { setupNotifications } from '@/services/notifications.js';
+import { usePushRegistration } from "@/composable/usePushRegistration";
 const { t } = useI18n();
 
 /*
@@ -44,7 +42,7 @@ const { showErrorToast, showSuccessToast } = useCustomToast();
 
 const isLoading = ref(false);
 
-const { addListeners, registerNotifications } = useNotification();
+const { register } = usePushRegistration();
 
 const prevStep = () => {
   router.back();
@@ -77,16 +75,12 @@ const updatePassword = async () => {
     userStore.setUser(data.data);
     userStore.setToken(data.data.token);
 
-    const deviceInfo = await Device.getInfo();
-
     authStore.setEmployeeIdentificator(data.data.name);
 
-    if (deviceInfo.platform !== "web") {
-      await addListeners();
-      await registerNotifications();
-    }
-    else{
-      setupNotifications(data)
+    try {
+      await register(data.data);
+    } catch (err) {
+      console.warn("Push registration failed silently:", err);
     }
 
     if (data.data.enrolled) {
