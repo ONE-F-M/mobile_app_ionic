@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { authStorage } from "@/utils/authStorage";
 
 export const useAuthStore = defineStore("auth", {
   state: () => {
@@ -14,7 +15,7 @@ export const useAuthStore = defineStore("auth", {
       fcmToken: null,
     };
   },
-  persist: true,
+  persist: { storage: authStorage },
   actions: {
     setUserName(userName) {
       this.userName = userName;
