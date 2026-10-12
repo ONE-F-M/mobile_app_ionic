@@ -1,4 +1,4 @@
-import { Capacitor } from "@capacitor/core";
+import { Capacitor, CapacitorCookies } from "@capacitor/core";
 import { Preferences } from "@capacitor/preferences";
 
 const SESSION_KEYS = ["auth", "user"];
@@ -29,8 +29,16 @@ const preferencesStorage = {
   },
 };
 
+// The API authenticates with the Bearer token; a stored Frappe sid cookie overrides it and fails once that session ends.
+export const clearServerCookies = () =>
+  isNative
+    ? CapacitorCookies.clearAllCookies().catch((err) => console.error("Could not clear server cookies:", err))
+    : Promise.resolve();
+
 // Resolves once the native session is in memory; the router waits for it before its first guard.
-export const authStorageReady = isNative ? loadSnapshot() : Promise.resolve();
+export const authStorageReady = isNative
+  ? Promise.all([loadSnapshot(), clearServerCookies()]).then(() => undefined)
+  : Promise.resolve();
 
 // Preferences survives reboots and WebView storage eviction; the web build keeps localStorage.
 export const authStorage = isNative ? preferencesStorage : localStorage;
