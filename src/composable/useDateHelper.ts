@@ -9,7 +9,7 @@ export default function useDateHelper() {
   const langStore = useLangStore();
 
   const formatDate = (inputDateStr: string = "", format = "YYYY-MM-D") => {
-    const formattedDate = dayjs(inputDateStr).locale(langStore.lang);
+    const formattedDate = dayjs(inputDateStr).locale(langStore.lang || "en");
 
     if (formattedDate.isValid()) {
       return formattedDate.format(format);
