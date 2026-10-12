@@ -44,14 +44,19 @@ afterEach(() => {
 });
 
 describe("pickMimeType", () => {
-  test("prefers mp4 when the browser can record it", () => {
-    supported.add("video/mp4").add("video/webm;codecs=vp8");
-    expect(pickMimeType()).toBe("video/mp4");
+  test("prefers webm vp9 over h264 and mp4 on Android WebView", () => {
+    supported.add("video/mp4").add("video/webm;codecs=h264").add("video/webm;codecs=vp8").add("video/webm;codecs=vp9");
+    expect(pickMimeType()).toBe("video/webm;codecs=vp9");
   });
 
-  test("falls back through webm h264, vp8 and vp9", () => {
-    supported.add("video/webm;codecs=vp9").add("video/webm;codecs=vp8");
+  test("uses vp8 before mp4 and h264 when vp9 is missing", () => {
+    supported.add("video/mp4").add("video/webm;codecs=h264").add("video/webm;codecs=vp8");
     expect(pickMimeType()).toBe("video/webm;codecs=vp8");
+  });
+
+  test("uses mp4 where webm cannot be recorded, as on WKWebView", () => {
+    supported.add("video/mp4");
+    expect(pickMimeType()).toBe("video/mp4");
   });
 
   test("returns empty when nothing in the list is supported", () => {

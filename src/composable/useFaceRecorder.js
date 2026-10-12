@@ -1,12 +1,12 @@
 import { ref } from "vue";
 import { Capacitor } from "@capacitor/core";
 
-// Preferred first. Safari/WKWebView only records mp4; Chromium records webm.
+// Preferred first. Android WebView's h264 encoder can return an empty clip, so webm VP9/VP8 lead and mp4 serves WKWebView.
 export const MIME_PREFERENCE = [
+  "video/webm;codecs=vp9",
+  "video/webm;codecs=vp8",
   "video/mp4",
   "video/webm;codecs=h264",
-  "video/webm;codecs=vp8",
-  "video/webm;codecs=vp9",
 ];
 
 export const pickMimeType = () => {
