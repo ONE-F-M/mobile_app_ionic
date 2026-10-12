@@ -130,6 +130,31 @@ describe("usePushRegistration on native", () => {
     expect(registrationListeners).toHaveLength(1);
   });
 
+  test("a token reported twice at once is saved once", async () => {
+    const { push, profile } = await load();
+    await push.register({ name: "EMP-9" });
+    await Promise.all([
+      listeners.registration({ value: "native-token" }),
+      listeners.registration({ value: "native-token" }),
+    ]);
+    expect(profile.setDeviceIdNotifications).toHaveBeenCalledTimes(1);
+  });
+
+  test("the same token is saved again after logout and after a failed save", async () => {
+    const { push, profile } = await load();
+    await push.register({ name: "EMP-9" });
+    profile.setDeviceIdNotifications.mockRejectedValueOnce(new Error("deadlock"));
+    await listeners.registration({ value: "native-token" });
+    await listeners.registration({ value: "native-token" });
+
+    await push.unregister();
+    await push.register({ name: "EMP-9" });
+    await listeners.registration({ value: "native-token" });
+
+    const saves = profile.setDeviceIdNotifications.mock.calls.filter(([args]) => args.fcm_token === "native-token");
+    expect(saves).toHaveLength(3);
+  });
+
   test("unregister uses the Capacitor plugin", async () => {
     const { push, PushNotifications, messaging } = await load();
     await push.unregister();

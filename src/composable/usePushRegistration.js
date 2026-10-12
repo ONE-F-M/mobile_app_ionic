@@ -9,6 +9,8 @@ import { initializeFirebase, getFirebaseMessaging } from "@/services/firebase";
 
 // Attached once per session; a second login would otherwise double every alert.
 let nativeListenersAdded = false;
+// Android can fire "registration" twice for one register(); two saves of one Employee deadlock.
+let storedToken = null;
 
 // TODO(Chukwuebuka Akeru): open notification.data.url on tap.
 const handleNotificationTap = () => {};
@@ -23,13 +25,20 @@ export function usePushRegistration() {
   const getDeviceOs = () => Capacitor.getPlatform();
 
   const storeToken = async (token, employeeId) => {
+    if (token === storedToken) return;
+    storedToken = token;
     authStore.setFcmToken(token);
 
-    await profile.setDeviceIdNotifications({
-      fcm_token: token,
-      employee_id: employeeId || authStore.employeeIdentificator,
-      device_os: getDeviceOs(),
-    });
+    try {
+      await profile.setDeviceIdNotifications({
+        fcm_token: token,
+        employee_id: employeeId || authStore.employeeIdentificator,
+        device_os: getDeviceOs(),
+      });
+    } catch (err) {
+      storedToken = null;
+      throw err;
+    }
   };
 
   const addListeners = async () => {
@@ -136,6 +145,7 @@ export function usePushRegistration() {
     }
 
     authStore.setFcmToken(null);
+    storedToken = null;
 
     // An empty token clears it on the backend; null would arrive as the text "null".
     await profile.setDeviceIdNotifications({
