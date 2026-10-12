@@ -2,6 +2,7 @@ import { CapacitorConfig } from "@capacitor/cli";
 import { KeyboardResize } from '@capacitor/keyboard';
 
 const config: CapacitorConfig = {
+  // iOS bundle id; Android uses applicationId com.onefacilitiesmanagement.android.app in android/app/build.gradle.
   appId: "com.onefacilitiesmanagement.ios.apps",
   appName: "OneFMMobile",
   webDir: "dist",
