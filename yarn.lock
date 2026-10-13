@@ -1195,34 +1195,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@capacitor/cli@npm:5.6.0":
-  version: 5.6.0
-  resolution: "@capacitor/cli@npm:5.6.0"
-  dependencies:
-    "@ionic/cli-framework-output": ^2.2.5
-    "@ionic/utils-fs": ^3.1.6
-    "@ionic/utils-subprocess": ^2.1.11
-    "@ionic/utils-terminal": ^2.3.3
-    commander: ^9.3.0
-    debug: ^4.3.4
-    env-paths: ^2.2.0
-    kleur: ^4.1.4
-    native-run: ^2.0.0
-    open: ^8.4.0
-    plist: ^3.0.5
-    prompts: ^2.4.2
-    rimraf: ^4.4.1
-    semver: ^7.3.7
-    tar: ^6.1.11
-    tslib: ^2.4.0
-    xml2js: ^0.5.0
-  bin:
-    cap: bin/capacitor
-    capacitor: bin/capacitor
-  checksum: 8d47c9ac71d0b4796edfc41db9d69b97b98d94f3b8460e002f83c648ab202ddd173a8db39d4c531fcdd8feb7890de4789b3c6991e6c0d1d63ae34b31f2293dbc
-  languageName: node
-  linkType: hard
-
 "@capacitor/cli@npm:^5.3.0":
   version: 5.7.8
   resolution: "@capacitor/cli@npm:5.7.8"
@@ -1248,6 +1220,34 @@ __metadata:
     cap: bin/capacitor
     capacitor: bin/capacitor
   checksum: b8bffc55b6702504b4521eafe25b528a6f8eb4d2947b24c9f36703f4610f7a6ab34fddaa7b99401c6459e6cb20f6b30c357716d312511f33030d0da7f6b291ca
+  languageName: node
+  linkType: hard
+
+"@capacitor/cli@npm:^6.2.1":
+  version: 6.2.2
+  resolution: "@capacitor/cli@npm:6.2.2"
+  dependencies:
+    "@ionic/cli-framework-output": ^2.2.5
+    "@ionic/utils-fs": ^3.1.6
+    "@ionic/utils-subprocess": 2.1.11
+    "@ionic/utils-terminal": ^2.3.3
+    commander: ^9.3.0
+    debug: ^4.3.4
+    env-paths: ^2.2.0
+    kleur: ^4.1.4
+    native-run: ^2.0.0
+    open: ^8.4.0
+    plist: ^3.0.5
+    prompts: ^2.4.2
+    rimraf: ^4.4.1
+    semver: ^7.3.7
+    tar: ^6.1.11
+    tslib: ^2.4.0
+    xml2js: ^0.5.0
+  bin:
+    cap: bin/capacitor
+    capacitor: bin/capacitor
+  checksum: 42e5d1daf02d37396bcd76c51c30b8cb42f8a8681dbad8b85a98cea8636aa11c821e489c7f78ec8de98cf7011fdeba2802e8ebdbfa34424ab2948814ae013bf8
   languageName: node
   linkType: hard
 
