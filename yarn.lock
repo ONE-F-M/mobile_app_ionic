@@ -2401,6 +2401,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ionic/utils-stream@npm:3.1.5":
+  version: 3.1.5
+  resolution: "@ionic/utils-stream@npm:3.1.5"
+  dependencies:
+    debug: ^4.0.0
+    tslib: ^2.0.1
+  checksum: 6211825c64295df1c368650b445c8cb1220417855aa6f0cdec68f4ccd3c5368b5f825911708a7242386e9546aa9050a5f85f9b1a0356c8dd9280d1dd33bcb33a
+  languageName: node
+  linkType: hard
+
 "@ionic/utils-stream@npm:3.1.6":
   version: 3.1.6
   resolution: "@ionic/utils-stream@npm:3.1.6"
