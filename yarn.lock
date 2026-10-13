@@ -2453,6 +2453,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ionic/utils-terminal@npm:2.3.3":
+  version: 2.3.3
+  resolution: "@ionic/utils-terminal@npm:2.3.3"
+  dependencies:
+    "@types/slice-ansi": ^4.0.0
+    debug: ^4.0.0
+    signal-exit: ^3.0.3
+    slice-ansi: ^4.0.0
+    string-width: ^4.1.0
+    strip-ansi: ^6.0.0
+    tslib: ^2.0.1
+    untildify: ^4.0.0
+    wrap-ansi: ^7.0.0
+  checksum: c551a2c8c094405c1a636638a1e1f2cbac0afe29e9a20c726d7571f20aec5e177cf7ed38c785735808c9bccf7e4f71bd04ee291865dc6f70ac009074fa064974
+  languageName: node
+  linkType: hard
+
 "@ionic/utils-terminal@npm:2.3.4":
   version: 2.3.4
   resolution: "@ionic/utils-terminal@npm:2.3.4"
