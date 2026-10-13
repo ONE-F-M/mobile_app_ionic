@@ -2373,6 +2373,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ionic/utils-process@npm:2.1.10":
+  version: 2.1.10
+  resolution: "@ionic/utils-process@npm:2.1.10"
+  dependencies:
+    "@ionic/utils-object": 2.1.5
+    "@ionic/utils-terminal": 2.3.3
+    debug: ^4.0.0
+    signal-exit: ^3.0.3
+    tree-kill: ^1.2.2
+    tslib: ^2.0.1
+  checksum: 4aa84bcdee08dae2ca0cce37e9109de1de43cba2cb4e4b2aa2324b6fc958ac751251efbf3883959d0d8b02f3ce3beff94f07bd20c4c895ccb270a10aa1360545
+  languageName: node
+  linkType: hard
+
 "@ionic/utils-process@npm:2.1.11":
   version: 2.1.11
   resolution: "@ionic/utils-process@npm:2.1.11"
