@@ -43,6 +43,8 @@ const setDevice = ({ cores, memory }) => {
 beforeEach(() => {
   supported.clear();
   lastRecorder = null;
+  platform.current = "web";
+  setAgent({ userAgent: ANDROID_UA });
   globalThis.MediaRecorder = FakeRecorder;
   setDevice({ cores: 8, memory: 8 });
   navigator.mediaDevices = { getUserMedia: vi.fn(async () => ({ getTracks: () => [track(), track()] })) };
