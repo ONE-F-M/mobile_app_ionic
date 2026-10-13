@@ -156,6 +156,17 @@ describe("useFaceRecorder", () => {
     expect(constraints.frameRate).toEqual({ ideal: 15, max: 15 });
   });
 
+  test("asks an iOS device with 4 cores for the normal 640x360 stream", async () => {
+    platform.current = "ios";
+    setDevice({ cores: 4, memory: undefined });
+    const recorder = useFaceRecorder({ videoBitsPerSecond: 150000 });
+    await recorder.start(null);
+    const constraints = navigator.mediaDevices.getUserMedia.mock.calls[0][0].video;
+    expect(constraints.width).toEqual({ ideal: 640 });
+    expect(constraints.height).toEqual({ ideal: 360 });
+    expect(constraints.frameRate).toEqual({ min: 15, ideal: 20, max: 30 });
+  });
+
   test("cleanup stops every camera track", async () => {
     const tracks = [track(), track()];
     navigator.mediaDevices.getUserMedia = vi.fn(async () => ({ getTracks: () => tracks }));
