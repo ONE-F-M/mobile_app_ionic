@@ -45,7 +45,7 @@ onIonViewWillEnter(async () => {
     <ion-content class="ion-padding content">
       <Header>{{ $t("user.notification.title") }}</Header>
       <div class="notifications-wrapper">
-        <template v-for="notification in notifications">
+        <template v-for="notification in notifications" :key="notification.name">
           <div class="notification">
             <div class="notification-header">
               <div class="notification-title">
