@@ -10,8 +10,11 @@ vi.mock("@capacitor/camera", () => ({
   CameraResultType: { DataUrl: "dataUrl" },
   CameraSource: { Camera: "CAMERA" },
 }));
+const { showErrorToast } = vi.hoisted(() => ({ showErrorToast: vi.fn() }));
+
 vi.mock("@/utils/compressImage", () => ({ compressImageDataUrl: vi.fn() }));
-vi.mock("@/composable/toast.js", () => ({ useCustomToast: () => ({ showErrorToast: vi.fn() }) }));
+vi.mock("@/composable/toast.js", () => ({ useCustomToast: () => ({ showErrorToast }) }));
+vi.mock("vue-i18n", () => ({ useI18n: () => ({ t: (key) => key }) }));
 
 describe("useFileAttachment.takePhoto", () => {
   beforeEach(() => {
@@ -40,5 +43,29 @@ describe("useFileAttachment.takePhoto", () => {
     expect(compressImageDataUrl).not.toHaveBeenCalled();
     expect(attachment.value.base64).toBe("data:image/png;base64,ORIGINAL");
     expect(attachment.value.name).toMatch(/\.png$/);
+  });
+
+  it("uploads the original photo when the browser cannot redraw it", async () => {
+    Capacitor.isNativePlatform.mockReturnValue(false);
+    Camera.getPhoto.mockResolvedValue({ dataUrl: "data:image/heic;base64,ORIGINAL", format: "heic" });
+    compressImageDataUrl.mockRejectedValue(new Error("Could not read the photo"));
+    const { attachment, takePhoto } = useFileAttachment();
+
+    await takePhoto();
+
+    expect(attachment.value.base64).toBe("data:image/heic;base64,ORIGINAL");
+    expect(attachment.value.name).toMatch(/\.heic$/);
+    expect(showErrorToast).not.toHaveBeenCalled();
+  });
+
+  it("refuses a photo over 5 MB and says why", async () => {
+    Capacitor.isNativePlatform.mockReturnValue(true);
+    Camera.getPhoto.mockResolvedValue({ dataUrl: "x".repeat(5 * 1024 * 1024 + 1), format: "jpeg" });
+    const { attachment, takePhoto } = useFileAttachment();
+
+    await takePhoto();
+
+    expect(attachment.value.base64).toBeNull();
+    expect(showErrorToast).toHaveBeenCalledWith(null, "resignation.photo_too_large");
   });
 });

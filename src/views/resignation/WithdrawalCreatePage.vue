@@ -135,6 +135,7 @@ import { useConfirmAlert } from "@/composable/useConfirmAlert.ts";
 import { useI18n } from 'vue-i18n';
 import { useSecondaryLanguage } from "@/composable/useSecondaryLanguage";
 import { getFrappeErrorMessage } from "@/utils/frappeError";
+import { isWithdrawalPending } from "@/utils/resignationConstants";
 
 const userStore = useUserStore();
 const resignationStore = useResignationStore();
@@ -147,10 +148,7 @@ const router = useIonRouter();
 const isLoading = ref(false);
 const supervisorLoading = ref(false);
 
-const hasPendingWithdrawal = computed(() => {
-  const state = resignationStore.activeResignation?.withdrawal_state;
-  return !!state && !["Approved", "Rejected"].includes(state);
-});
+const hasPendingWithdrawal = computed(() => isWithdrawalPending(resignationStore.activeResignation));
 
 const triggerBack = () => {
   router.canGoBack() ? router.back() : router.push("/resignation");
@@ -238,7 +236,7 @@ const onSubmit = async () => {
       triggerBack();
       return;
     }
-    showErrorToast(null, getFrappeErrorMessage(error) || error?.message, error?.status);
+    showErrorToast(null, getFrappeErrorMessage(error) || error?.data?.message || error?.message, error?.status);
   } finally {
     isLoading.value = false;
   }

@@ -228,6 +228,7 @@ import useDateHelper from "@/composable/useDateHelper.ts";
 import { useI18n } from "vue-i18n";
 import { useSecondaryLanguage } from "@/composable/useSecondaryLanguage";
 import { useRoute } from "vue-router";
+import { isWithdrawalPending } from "@/utils/resignationConstants";
 
 const userStore = useUserStore();
 const resignationStore = useResignationStore();
@@ -264,10 +265,7 @@ const isTerminalView = computed(() =>
 // progress" from that here, so the dashboard actually hides Withdraw/Extend
 // while one is already pending instead of letting the employee walk all the
 // way to a submit screen that the backend then rejects.
-const hasPendingWithdrawal = computed(() => {
-  const state = displayResignation.value?.withdrawal_state;
-  return !!state && !["Approved", "Rejected"].includes(state);
-});
+const hasPendingWithdrawal = computed(() => isWithdrawalPending(displayResignation.value));
 const hasPendingExtension = computed(() => {
   const state = displayResignation.value?.extension_state;
   return !!state && state !== "Approved";

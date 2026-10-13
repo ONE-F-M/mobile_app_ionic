@@ -15,11 +15,13 @@ class FakeImage {
 describe("compressImageDataUrl", () => {
   beforeEach(() => {
     vi.stubGlobal("Image", FakeImage);
+    const context = { fillStyle: "", fillRect: vi.fn(), drawImage: vi.fn() };
     canvas = {
       width: 0,
       height: 0,
-      drawImage: vi.fn(),
-      getContext: vi.fn(() => ({ drawImage: canvas.drawImage })),
+      context,
+      drawImage: context.drawImage,
+      getContext: vi.fn(() => context),
       toDataURL: vi.fn(() => "data:image/jpeg;base64,COMPRESSED"),
     };
     const createElement = document.createElement.bind(document);
@@ -47,6 +49,18 @@ describe("compressImageDataUrl", () => {
     await compressImageDataUrl("data:image/jpeg;base64,SMALL");
 
     expect([canvas.width, canvas.height]).toEqual([800, 600]);
+  });
+
+  it("paints a white background so a transparent PNG does not turn black", async () => {
+    imageSize = { width: 800, height: 600, fail: false };
+
+    await compressImageDataUrl("data:image/png;base64,TRANSPARENT");
+
+    expect(canvas.context.fillStyle).toBe("white");
+    expect(canvas.context.fillRect).toHaveBeenCalledWith(0, 0, 800, 600);
+    expect(canvas.context.fillRect.mock.invocationCallOrder[0]).toBeLessThan(
+      canvas.context.drawImage.mock.invocationCallOrder[0]
+    );
   });
 
   it("rejects when the photo cannot be read", async () => {

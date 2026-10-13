@@ -41,3 +41,9 @@ const STATE_I18N_KEYS = {
 
 export const getStateI18nKey = (state) =>
   state && STATE_I18N_KEYS[state] ? `resignation.state.${STATE_I18N_KEYS[state]}` : null;
+
+// A withdrawal is still under review until it is approved or rejected
+export const isWithdrawalPending = (resignation) => {
+  const state = resignation?.withdrawal_state;
+  return !!state && !["Approved", "Rejected"].includes(state);
+};

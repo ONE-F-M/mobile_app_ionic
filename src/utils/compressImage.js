@@ -10,7 +10,11 @@ export const compressImageDataUrl = (dataUrl, maxWidth = MAX_WIDTH, quality = JP
       const canvas = document.createElement("canvas");
       canvas.width = Math.round(image.width * scale);
       canvas.height = Math.round(image.height * scale);
-      canvas.getContext("2d").drawImage(image, 0, 0, canvas.width, canvas.height);
+      const context = canvas.getContext("2d");
+      // JPEG has no transparency, so a transparent PNG would turn black without a background
+      context.fillStyle = "white";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
       resolve(canvas.toDataURL("image/jpeg", quality));
     };
     image.onerror = () => reject(new Error("Could not read the photo"));
