@@ -1,7 +1,16 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { isLowEndDevice, pickMimeType, useFaceRecorder } from "@/composable/useFaceRecorder.js";
 
-vi.mock("@capacitor/core", () => ({ Capacitor: { getPlatform: () => "web" } }));
+const platform = vi.hoisted(() => ({ current: "web" }));
+vi.mock("@capacitor/core", () => ({ Capacitor: { getPlatform: () => platform.current } }));
+
+const setAgent = ({ userAgent, touchPoints = 0 }) => {
+  Object.defineProperty(navigator, "userAgent", { value: userAgent, configurable: true });
+  Object.defineProperty(navigator, "maxTouchPoints", { value: touchPoints, configurable: true });
+};
+const ANDROID_UA = "Mozilla/5.0 (Linux; Android 13; Pixel 6) AppleWebKit/537.36 Chrome/120 Mobile Safari/537.36";
+const IPHONE_UA = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148";
+const IPADOS_UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Version/17.0 Safari/605.1.15";
 
 const supported = new Set();
 const track = () => ({ stop: vi.fn() });
