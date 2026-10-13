@@ -2329,6 +2329,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ionic/utils-fs@npm:3.1.6":
+  version: 3.1.6
+  resolution: "@ionic/utils-fs@npm:3.1.6"
+  dependencies:
+    "@types/fs-extra": ^8.0.0
+    debug: ^4.0.0
+    fs-extra: ^9.0.0
+    tslib: ^2.0.1
+  checksum: 7cdd69c1aca348192edb588bc24b13491198d4c16428d3b3a176b2d6862a48e3dbb42cf3b677c3c36f3d9ceaf87739c0f633f2ac964092fefe58978863350f04
+  languageName: node
+  linkType: hard
+
 "@ionic/utils-fs@npm:3.1.7, @ionic/utils-fs@npm:^3.1.5, @ionic/utils-fs@npm:^3.1.6, @ionic/utils-fs@npm:^3.1.7":
   version: 3.1.7
   resolution: "@ionic/utils-fs@npm:3.1.7"
