@@ -17,6 +17,8 @@ export function resolveMode(argv = process.argv) {
 // The service worker gets the same Firebase config as the bundle built in that mode.
 export function writeSwEnv(mode = resolveMode()) {
     dotenv.config({ path: `.env.${mode}` });
+    // Keys the mode file leaves out come from .env; dotenv never overrides, so the mode file still wins.
+    dotenv.config({ path: '.env' });
 
     const envVariables = {
         VITE_FIREBASE_API_KEY: process.env.VITE_FIREBASE_API_KEY,
