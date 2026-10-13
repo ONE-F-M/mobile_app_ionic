@@ -16,9 +16,19 @@ export const pickMimeType = () => {
   return MIME_PREFERENCE.find((type) => MediaRecorder.isTypeSupported(type)) || "";
 };
 
+// Native iOS, or a web view/browser on iPhone/iPad. iPadOS reports "Macintosh" but has touch points.
+export const isIOSDevice = () => {
+  if (Capacitor.getPlatform() === "ios") return true;
+  const ua = typeof navigator.userAgent === "string" ? navigator.userAgent : "";
+  if (/iPhone|iPad|iPod/i.test(ua)) return true;
+  return /Macintosh/i.test(ua) && navigator.maxTouchPoints > 1;
+};
+
 // Phones with few cores or little memory get a smaller, slower stream.
+// iPhones report a low core count even when they are fast, so iOS skips the core rule.
 export const isLowEndDevice = () =>
-  (typeof navigator.hardwareConcurrency === "number" &&
+  (!isIOSDevice() &&
+    typeof navigator.hardwareConcurrency === "number" &&
     navigator.hardwareConcurrency <= 4) ||
   (typeof navigator.deviceMemory === "number" && navigator.deviceMemory <= 3);
 
