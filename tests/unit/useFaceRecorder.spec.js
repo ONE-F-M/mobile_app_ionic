@@ -1,7 +1,16 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { isLowEndDevice, pickMimeType, useFaceRecorder } from "@/composable/useFaceRecorder.js";
 
-vi.mock("@capacitor/core", () => ({ Capacitor: { getPlatform: () => "web" } }));
+const platform = vi.hoisted(() => ({ current: "web" }));
+vi.mock("@capacitor/core", () => ({ Capacitor: { getPlatform: () => platform.current } }));
+
+const setAgent = ({ userAgent, touchPoints = 0 }) => {
+  Object.defineProperty(navigator, "userAgent", { value: userAgent, configurable: true });
+  Object.defineProperty(navigator, "maxTouchPoints", { value: touchPoints, configurable: true });
+};
+const ANDROID_UA = "Mozilla/5.0 (Linux; Android 13; Pixel 6) AppleWebKit/537.36 Chrome/120 Mobile Safari/537.36";
+const IPHONE_UA = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148";
+const IPADOS_UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Version/17.0 Safari/605.1.15";
 
 const supported = new Set();
 const track = () => ({ stop: vi.fn() });
@@ -34,6 +43,8 @@ const setDevice = ({ cores, memory }) => {
 beforeEach(() => {
   supported.clear();
   lastRecorder = null;
+  platform.current = "web";
+  setAgent({ userAgent: ANDROID_UA });
   globalThis.MediaRecorder = FakeRecorder;
   setDevice({ cores: 8, memory: 8 });
   navigator.mediaDevices = { getUserMedia: vi.fn(async () => ({ getTracks: () => [track(), track()] })) };
@@ -73,6 +84,48 @@ describe("isLowEndDevice", () => {
     setDevice({ cores: 8, memory: 8 });
     expect(isLowEndDevice()).toBe(false);
   });
+
+  test("Android with 4 cores is low-end", () => {
+    platform.current = "android";
+    setDevice({ cores: 4, memory: 8 });
+    expect(isLowEndDevice()).toBe(true);
+  });
+
+  test("Android with deviceMemory 2 is low-end", () => {
+    platform.current = "android";
+    setDevice({ cores: 8, memory: 2 });
+    expect(isLowEndDevice()).toBe(true);
+  });
+
+  test("native iOS with 4 cores is not low-end", () => {
+    platform.current = "ios";
+    setDevice({ cores: 4, memory: undefined });
+    expect(isLowEndDevice()).toBe(false);
+  });
+
+  test("an iPhone user agent on web with 4 cores is not low-end", () => {
+    setAgent({ userAgent: IPHONE_UA, touchPoints: 5 });
+    setDevice({ cores: 4, memory: undefined });
+    expect(isLowEndDevice()).toBe(false);
+  });
+
+  test("iPadOS (Macintosh with touch points) with 4 cores is not low-end", () => {
+    setAgent({ userAgent: IPADOS_UA, touchPoints: 5 });
+    setDevice({ cores: 4, memory: undefined });
+    expect(isLowEndDevice()).toBe(false);
+  });
+
+  test("a Macintosh without touch points is not treated as iOS", () => {
+    setAgent({ userAgent: IPADOS_UA, touchPoints: 0 });
+    setDevice({ cores: 4, memory: undefined });
+    expect(isLowEndDevice()).toBe(true);
+  });
+
+  test("iOS keeps the deviceMemory rule", () => {
+    platform.current = "ios";
+    setDevice({ cores: 8, memory: 2 });
+    expect(isLowEndDevice()).toBe(true);
+  });
 });
 
 describe("useFaceRecorder", () => {
@@ -101,6 +154,17 @@ describe("useFaceRecorder", () => {
     expect(constraints.width).toEqual({ ideal: 480 });
     expect(constraints.height).toEqual({ ideal: 360 });
     expect(constraints.frameRate).toEqual({ ideal: 15, max: 15 });
+  });
+
+  test("asks an iOS device with 4 cores for the normal 640x360 stream", async () => {
+    platform.current = "ios";
+    setDevice({ cores: 4, memory: undefined });
+    const recorder = useFaceRecorder({ videoBitsPerSecond: 150000 });
+    await recorder.start(null);
+    const constraints = navigator.mediaDevices.getUserMedia.mock.calls[0][0].video;
+    expect(constraints.width).toEqual({ ideal: 640 });
+    expect(constraints.height).toEqual({ ideal: 360 });
+    expect(constraints.frameRate).toEqual({ min: 15, ideal: 20, max: 30 });
   });
 
   test("cleanup stops every camera track", async () => {
