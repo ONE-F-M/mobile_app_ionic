@@ -79,14 +79,19 @@ export const httpService = {
     const contentTypeKey = Object.keys(mergedHeaders).find(k => k.toLowerCase() === 'content-type');
     const contentType = contentTypeKey ? mergedHeaders[contentTypeKey] : '';
 
-    // CapacitorHttp on the web fails to serialize objects into form-urlencoded strings
-    // natively, which causes fetch() to throw a TypeError. We fix this by manually encoding it.
-    // NOTE: On native platforms (iOS/Android), CapacitorHttp serializes JSON natively,
-    // so we only manually stringify JSON if we're on the web platform.
-    if (Capacitor.getPlatform() === 'web') {
+    // Form-urlencoded objects are encoded here with URLSearchParams on web and iOS.
+    // - web: CapacitorHttp fails to serialize objects into form-urlencoded strings, which
+    //   makes fetch() throw a TypeError.
+    // - iOS: the native plugin builds the form body itself and does not percent-encode "+",
+    //   so the server reads every "+" (e.g. in a base64 video) as a space. A string body is
+    //   sent to the server as is, so URLSearchParams sends "+" as %2B.
+    // Android encodes "+" correctly, so it keeps sending the data object to CapacitorHttp.
+    // JSON is only stringified on web; native platforms serialize JSON themselves.
+    const platform = Capacitor.getPlatform();
+    if (platform === 'web' || platform === 'ios') {
       if (requestOptions.data && typeof requestOptions.data === 'object' && contentType === "application/x-www-form-urlencoded") {
         requestOptions.data = new URLSearchParams(requestOptions.data).toString();
-      } else if (requestOptions.data && typeof requestOptions.data === 'object' && contentType === "application/json") {
+      } else if (platform === 'web' && requestOptions.data && typeof requestOptions.data === 'object' && contentType === "application/json") {
         requestOptions.data = JSON.stringify(requestOptions.data);
       }
     }
