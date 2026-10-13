@@ -84,6 +84,48 @@ describe("isLowEndDevice", () => {
     setDevice({ cores: 8, memory: 8 });
     expect(isLowEndDevice()).toBe(false);
   });
+
+  test("Android with 4 cores is low-end", () => {
+    platform.current = "android";
+    setDevice({ cores: 4, memory: 8 });
+    expect(isLowEndDevice()).toBe(true);
+  });
+
+  test("Android with deviceMemory 2 is low-end", () => {
+    platform.current = "android";
+    setDevice({ cores: 8, memory: 2 });
+    expect(isLowEndDevice()).toBe(true);
+  });
+
+  test("native iOS with 4 cores is not low-end", () => {
+    platform.current = "ios";
+    setDevice({ cores: 4, memory: undefined });
+    expect(isLowEndDevice()).toBe(false);
+  });
+
+  test("an iPhone user agent on web with 4 cores is not low-end", () => {
+    setAgent({ userAgent: IPHONE_UA, touchPoints: 5 });
+    setDevice({ cores: 4, memory: undefined });
+    expect(isLowEndDevice()).toBe(false);
+  });
+
+  test("iPadOS (Macintosh with touch points) with 4 cores is not low-end", () => {
+    setAgent({ userAgent: IPADOS_UA, touchPoints: 5 });
+    setDevice({ cores: 4, memory: undefined });
+    expect(isLowEndDevice()).toBe(false);
+  });
+
+  test("a Macintosh without touch points is not treated as iOS", () => {
+    setAgent({ userAgent: IPADOS_UA, touchPoints: 0 });
+    setDevice({ cores: 4, memory: undefined });
+    expect(isLowEndDevice()).toBe(true);
+  });
+
+  test("iOS keeps the deviceMemory rule", () => {
+    platform.current = "ios";
+    setDevice({ cores: 8, memory: 2 });
+    expect(isLowEndDevice()).toBe(true);
+  });
 });
 
 describe("useFaceRecorder", () => {
