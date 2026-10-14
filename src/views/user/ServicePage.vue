@@ -62,7 +62,6 @@ const fetchServices = async () => {
     // separate features -- don't list them as their own manageable service.
     if (RESIGNATION_SUB_SERVICES.includes(service.name)) return;
 
-    // No registered screen for this service yet -- don't offer it.
     if (getServiceRoute(service.name) === null) return;
 
     const group = serviceGroups.value.find((group) => {
