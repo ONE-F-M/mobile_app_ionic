@@ -65,6 +65,17 @@ describe("app icons and splash screens", () => {
     expect(readFileSync(join(ANDROID_RES, "drawable/ic_launcher_monochrome.xml"), "utf8")).toContain("<vector");
   });
 
+  test("the adaptive icons fill the icon with the solid dark background and have no inset", () => {
+    for (const name of ["ic_launcher.xml", "ic_launcher_round.xml"]) {
+      const xml = readFileSync(join(ANDROID_RES, "mipmap-anydpi-v26", name), "utf8");
+      expect(xml, name).not.toContain("<inset");
+      expect(xml, name).toContain('<background android:drawable="@color/ic_launcher_background" />');
+      expect(xml, name).toContain('<foreground android:drawable="@mipmap/ic_launcher_foreground" />');
+    }
+    const colors = readFileSync(join(ANDROID_RES, "values/ic_launcher_background.xml"), "utf8");
+    expect(colors).toContain('<color name="ic_launcher_background">#171717</color>');
+  });
+
   test("the splash stays up until the app hides it", () => {
     const config = readFileSync(join(root, "capacitor.config.ts"), "utf8");
     expect(config).toMatch(/SplashScreen:\s*{[^}]*launchAutoHide:\s*false/);
