@@ -1,25 +1,26 @@
-name: Build APK (Production)
+name: Build AAB (Production)
 
 on:
   push:
     branches:
-      - production
+      - version-15
+  workflow_dispatch:
 
 jobs:
   build:
     env:
       VITE_BASE_API_URL: ${{ vars.VITE_BASE_PRODUCTION_API_URL }}
       VITE_API_PREFIX: ${{ vars.VITE_API_PREFIX }}
-      VITE_BASE_URL: ${{ vars.VITE_BASE_URL }}    
+      VITE_BASE_URL: ${{ vars.VITE_BASE_URL }}
       CAP_NATIVE: "1"
-    name: Build APK
+    name: Build and upload the signed bundle
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
 
       - name: Setup java
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
@@ -27,43 +28,41 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '21'
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install Ionic
-        run: yarn global add @ionic/cli
+          node-version: '20'
 
       - name: Install app dependencies
-        run: yarn install
+        run: corepack yarn@3.8.7 install --immutable
 
-      - name: Build Ionic App
-        run: yarn build
+      - name: Build web app and copy it to Android
+        run: |
+          corepack yarn@3.8.7 build:native --mode production
+          npx cap sync android
 
-      - name: Copy Android
-        run: ionic capacitor sync
+      - name: Build the signed release bundle
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          # Play's last release was versionCode 50; every run uploads a higher one.
+          ANDROID_VERSION_CODE: ${{ 60 + github.run_number }}
+        run: |
+          export ANDROID_KEYSTORE_PATH="$RUNNER_TEMP/upload.jks"
+          echo -n "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$ANDROID_KEYSTORE_PATH"
+          cd android
+          ./gradlew bundleRelease
 
-      - name: Build Android Dev APK
-        run: ionic capacitor build android
-
-      - name: Build Android Release APK
-        run: ionic capacitor build android --release --prod
-
-      - name: Generate the Android App Bundle
-        working-directory: ./android/
-        run: ./gradlew assembleDebug
-
-      - name: Upload dev APK
+      - name: Keep the bundle as a workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-dev
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: app-release
+          path: android/app/build/outputs/bundle/release/app-release.aab
 
-      # - name: Upload to Google Play (Internal Testing)
-      #   uses: r0adkll/upload-google-play@v1
-      #   with:
-      #     serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_KEY }}
-      #     packageName: com.onefm.mobile
-      #     releaseFiles: android/app/build/outputs/apk/debug/app-debug.apk
-      #     track: internal
+      - name: Upload to the Play internal track
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.onefacilitiesmanagement.android.app
+          releaseFiles: android/app/build/outputs/bundle/release/app-release.aab
+          track: internal
+          status: completed
