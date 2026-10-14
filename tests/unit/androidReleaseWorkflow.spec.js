@@ -5,8 +5,8 @@ import { describe, expect, test } from "vitest";
 const workflow = readFileSync(resolve(__dirname, "../../.github/workflows/build-production-apk.yml"), "utf8");
 
 describe("Android release workflow", () => {
-  test("builds only from version-15", () => {
-    expect(workflow).toMatch(/push:\s*\n\s*branches:\s*\n\s*- version-15\s*\n\s*\njobs:/);
+  test("builds from version-15 or a manual run", () => {
+    expect(workflow).toMatch(/push:\s*\n\s*branches:\s*\n\s*- version-15\s*\n\s*workflow_dispatch:\s*\n\s*\njobs:/);
   });
 
   test("builds a signed bundle with Yarn 3 and the keystore from secrets", () => {
