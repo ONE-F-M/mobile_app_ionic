@@ -3,10 +3,16 @@ import { resolve } from "node:path";
 import { describe, expect, test } from "vitest";
 
 const workflow = readFileSync(resolve(__dirname, "../../.github/workflows/build-production-ios.yml"), "utf8");
+const exportOptions = readFileSync(resolve(__dirname, "../../ios/App/ExportOptions.plist"), "utf8");
 
 describe("iOS release workflow", () => {
   test("builds only from version-15", () => {
-    expect(workflow).toMatch(/push:\s*\n\s*branches:\s*\n\s*- version-15\s*\n\s*\njobs:/);
+    expect(workflow).toMatch(/push:\s*\n\s*branches:\s*\n\s*- version-15\s*\n\s*workflow_dispatch:\s*\n\s*\njobs:/);
+  });
+
+  test("exports with the app-store-connect method for team 8R3SW4662G", () => {
+    expect(exportOptions).toMatch(/<key>method<\/key>\s*<string>app-store-connect<\/string>/);
+    expect(exportOptions).toMatch(/<key>teamID<\/key>\s*<string>8R3SW4662G<\/string>/);
   });
 
   test("uses actions GitHub still runs and the lockfile's Yarn version", () => {

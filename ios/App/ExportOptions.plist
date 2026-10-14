@@ -18,6 +18,6 @@
         <key>uploadSymbols</key>
         <true/>
         <key>method</key>
-        <string>app-store</string>
+        <string>app-store-connect</string>
     </dict>
 </plist>

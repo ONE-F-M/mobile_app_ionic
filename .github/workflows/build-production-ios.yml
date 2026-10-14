@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - version-15
+  workflow_dispatch:
 
 jobs:
   build_with_signing:
