@@ -33,7 +33,7 @@ const selectedGroup = ref("");
 
 const goToServicePage = (service) => {
   const route = getServiceRoute(service);
-  if (route !== "/service") {
+  if (route) {
     router.push(route);
   }
 };
@@ -61,6 +61,8 @@ const fetchServices = async () => {
     // Withdrawal/Extension are actions inside Employee Resignation, not
     // separate features -- don't list them as their own manageable service.
     if (RESIGNATION_SUB_SERVICES.includes(service.name)) return;
+
+    if (getServiceRoute(service.name) === null) return;
 
     const group = serviceGroups.value.find((group) => {
       const groupName = locale.value === "ar" ? group.name_ar : group.name;
