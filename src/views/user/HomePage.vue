@@ -21,7 +21,9 @@ const { showErrorToast } = useCustomToast();
 const services = ref([]);
 
 const visibleServices = computed(() =>
-  services.value.filter(s => !RESIGNATION_SUB_SERVICES.includes(s.service))
+  services.value.filter(
+    s => !RESIGNATION_SUB_SERVICES.includes(s.service) && getServiceRoute(s.service) !== null
+  )
 );
 
 const logout = () => {
