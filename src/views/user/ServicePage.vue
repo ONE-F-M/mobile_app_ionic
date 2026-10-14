@@ -33,7 +33,7 @@ const selectedGroup = ref("");
 
 const goToServicePage = (service) => {
   const route = getServiceRoute(service);
-  if (route !== "/service") {
+  if (route) {
     router.push(route);
   }
 };
