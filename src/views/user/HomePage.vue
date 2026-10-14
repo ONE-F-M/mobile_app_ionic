@@ -37,7 +37,7 @@ if (!userStore.user || !userStore.token) {
 
 const goToServicePage = (service) => {
   const route = getServiceRoute(service);
-  if (route !== "/service") {
+  if (route) {
     router.push(route);
   }
 };
