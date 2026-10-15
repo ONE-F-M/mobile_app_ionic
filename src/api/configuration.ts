@@ -3,6 +3,9 @@ import { httpService } from "./http.service";
 const getServices = async () =>
   await httpService.get(`v1.configuration.app_service`);
 
+const getAppVersion = async () =>
+  await httpService.get(`v1.configuration.app_version`);
+
 const getServicesGroups = async () =>
   await httpService.get(`v1.configuration.app_service_group`);
 
