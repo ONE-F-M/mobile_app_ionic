@@ -2,6 +2,7 @@ import { Capacitor } from "@capacitor/core";
 import { PushNotifications } from "@capacitor/push-notifications";
 import { Haptics, NotificationType } from "@capacitor/haptics";
 import { useAuthStore } from "@/store/auth";
+import { toRouterPath } from "@/utils/notificationUrl";
 import profile from "@/api/profile";
 import { useConfirmAlert } from "@/composable/useConfirmAlert.ts";
 import { playNotificationSound } from "@/utils/notificationSound";
@@ -12,8 +13,41 @@ let nativeListenersAdded = false;
 // Android can fire "registration" twice for one register(); two saves of one Employee deadlock.
 let storedToken = null;
 
-// TODO(Chukwuebuka Akeru): open notification.data.url on tap.
-const handleNotificationTap = () => {};
+// Held until the router is ready and the user is signed in.
+let pendingNotificationUrl = null;
+
+// Router and user store are imported lazily because they pull in the whole app.
+export async function consumePendingNotificationUrl() {
+  if (!pendingNotificationUrl) return;
+
+  const [{ default: router }, { useUserStore }] = await Promise.all([
+    import("@/router"),
+    import("@/store/user"),
+  ]);
+
+  await router.isReady();
+  const userStore = useUserStore();
+  const isSignedIn = !!(userStore.user && userStore.token);
+  if (!pendingNotificationUrl || !isSignedIn) return;
+
+  const url = pendingNotificationUrl;
+  pendingNotificationUrl = null;
+
+  try {
+    await router.push(toRouterPath(router, url));
+  } catch (err) {
+    console.error("Failed to open notification url: ", err);
+  }
+}
+
+// Capacitor passes { actionId, notification: { data } }.
+const handleNotificationTap = async (action) => {
+  const url = action?.notification?.data?.url;
+  if (!url) return;
+
+  pendingNotificationUrl = url;
+  await consumePendingNotificationUrl();
+};
 
 export function usePushRegistration() {
   const authStore = useAuthStore();
@@ -95,6 +129,8 @@ export function usePushRegistration() {
 
     // The token is stored by the "registration" listener.
     await PushNotifications.register();
+
+    consumePendingNotificationUrl().catch((err) => console.error("Failed to open the tapped notification: ", err));
   };
 
   const registerWeb = async (user) => {

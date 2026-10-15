@@ -28,6 +28,15 @@ vi.mock("@/store/auth", () => {
   const store = { employeeIdentificator: "EMP-1", setFcmToken: vi.fn() };
   return { useAuthStore: () => store };
 });
+const user = { user: null, token: null };
+const KNOWN_ROUTES = ["/leaves/HR-LAP-1", "/checkin", "/notification"];
+const router = {
+  isReady: vi.fn(async () => {}),
+  push: vi.fn(async () => {}),
+  resolve: (path) => ({ matched: KNOWN_ROUTES.includes(path) ? [{}] : [], fullPath: path }),
+};
+vi.mock("@/router", () => ({ default: router }));
+vi.mock("@/store/user", () => ({ useUserStore: () => user }));
 vi.mock("@/api/profile", () => ({ default: { setDeviceIdNotifications: vi.fn(async () => ({})) } }));
 vi.mock("@/composable/useConfirmAlert.ts", () => ({ useConfirmAlert: () => ({ showAcknowledge: vi.fn() }) }));
 vi.mock("@/utils/notificationSound", () => ({ playNotificationSound: vi.fn(async () => {}) }));
@@ -52,6 +61,8 @@ const load = async () => {
 
 beforeEach(() => {
   vi.clearAllMocks();
+  user.user = null;
+  user.token = null;
   for (const key of Object.keys(listeners)) delete listeners[key];
   globalThis.Notification = { requestPermission: vi.fn(async () => "granted") };
 });
@@ -153,6 +164,44 @@ describe("usePushRegistration on native", () => {
 
     const saves = profile.setDeviceIdNotifications.mock.calls.filter(([args]) => args.fcm_token === "native-token");
     expect(saves).toHaveLength(3);
+  });
+
+  test("tapping a notification opens its screen for a signed-in user", async () => {
+    user.user = { name: "EMP-9" };
+    user.token = "token";
+    const { push } = await load();
+    await push.addListeners();
+    await listeners.pushNotificationActionPerformed({ notification: { data: { url: "/leaves/HR-LAP-1" } } });
+    expect(router.push).toHaveBeenCalledWith("/leaves/HR-LAP-1");
+  });
+
+  test("addListeners alone attaches the tap listener without asking for permission", async () => {
+    const { push, PushNotifications } = await load();
+    await push.addListeners();
+    expect(listeners.pushNotificationActionPerformed).toBeTypeOf("function");
+    expect(PushNotifications.checkPermissions).not.toHaveBeenCalled();
+  });
+
+  test("a tap before sign-in waits, then opens the screen after login", async () => {
+    const { push } = await load();
+    const { consumePendingNotificationUrl } = await import("@/composable/usePushRegistration");
+    await push.addListeners();
+    await listeners.pushNotificationActionPerformed({ notification: { data: { url: "/checkin" } } });
+    expect(router.push).not.toHaveBeenCalled();
+
+    user.user = { name: "EMP-9" };
+    user.token = "token";
+    await consumePendingNotificationUrl();
+    expect(router.push).toHaveBeenCalledWith("/checkin");
+  });
+
+  test("a tap with an address the app does not know opens the notification list", async () => {
+    user.user = { name: "EMP-9" };
+    user.token = "token";
+    const { push } = await load();
+    await push.addListeners();
+    await listeners.pushNotificationActionPerformed({ notification: { data: { url: "/payslip" } } });
+    expect(router.push).toHaveBeenCalledWith("/notification");
   });
 
   test("unregister uses the Capacitor plugin", async () => {
