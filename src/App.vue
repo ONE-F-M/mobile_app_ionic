@@ -13,6 +13,7 @@ import { Capacitor } from '@capacitor/core';
 import { App as CapacitorApp } from '@capacitor/app';
 import { useResignationNotifier } from '@/composable/useResignationNotifier';
 import { useExitOnBack } from "@/composable/useExitOnBack.js";
+import { consumePendingNotificationUrl } from "@/composable/usePushRegistration.js";
 
 const langStore = useLangStore();
 const { rtl } = storeToRefs(langStore);
