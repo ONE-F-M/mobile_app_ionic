@@ -1,6 +1,7 @@
 <template>
   <ion-app :class="appClasses" :dir="rtl ? 'rtl' : 'ltr'">
     <ion-router-outlet />
+    <AppUpdateGate />
   </ion-app>
 </template>
 
