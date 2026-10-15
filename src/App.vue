@@ -23,6 +23,8 @@ let appStateListener;
 
 onMounted(async () => {
   checkForUpdates();
+  // Cold start: open the screen of a notification that launched the app.
+  consumePendingNotificationUrl().catch(() => {});
   appStateListener = await CapacitorApp.addListener('appStateChange', ({ isActive }) => {
     if (isActive) checkForUpdates();
   });
