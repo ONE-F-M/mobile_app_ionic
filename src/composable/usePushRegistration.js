@@ -12,8 +12,41 @@ let nativeListenersAdded = false;
 // Android can fire "registration" twice for one register(); two saves of one Employee deadlock.
 let storedToken = null;
 
-// TODO(Chukwuebuka Akeru): open notification.data.url on tap.
-const handleNotificationTap = () => {};
+// A tapped notification's url, kept until the router is ready and the user is
+// signed in (cold start, or a tap that arrives before login finishes).
+let pendingNotificationUrl = null;
+
+const isSignedIn = () => {
+  const userStore = useUserStore();
+  return !!(userStore.user && userStore.token);
+};
+
+// Opens the pending url if it can be opened now; otherwise leaves it pending.
+// Called from the tap listener, after login, and from App.vue onMounted.
+export async function consumePendingNotificationUrl() {
+  if (!pendingNotificationUrl) return;
+
+  await router.isReady();
+  if (!pendingNotificationUrl || !isSignedIn()) return;
+
+  const url = pendingNotificationUrl;
+  pendingNotificationUrl = null;
+
+  try {
+    await router.push(toRouterPath(router, url));
+  } catch (err) {
+    console.error("Failed to open notification url: ", err);
+  }
+}
+
+// Capacitor passes { actionId, notification: { data } }.
+const handleNotificationTap = async (action) => {
+  const url = action?.notification?.data?.url;
+  if (!url) return;
+
+  pendingNotificationUrl = url;
+  await consumePendingNotificationUrl();
+};
 
 export function usePushRegistration() {
   const authStore = useAuthStore();
