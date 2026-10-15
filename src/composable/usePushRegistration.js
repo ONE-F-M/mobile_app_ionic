@@ -17,18 +17,21 @@ let storedToken = null;
 // signed in (cold start, or a tap that arrives before login finishes).
 let pendingNotificationUrl = null;
 
-const isSignedIn = () => {
-  const userStore = useUserStore();
-  return !!(userStore.user && userStore.token);
-};
-
 // Opens the pending url if it can be opened now; otherwise leaves it pending.
 // Called from the tap listener, after login, and from App.vue onMounted.
+// Router and user store are loaded lazily: they pull in the whole app.
 export async function consumePendingNotificationUrl() {
   if (!pendingNotificationUrl) return;
 
+  const [{ default: router }, { useUserStore }] = await Promise.all([
+    import("@/router"),
+    import("@/store/user"),
+  ]);
+
   await router.isReady();
-  if (!pendingNotificationUrl || !isSignedIn()) return;
+  const userStore = useUserStore();
+  const isSignedIn = !!(userStore.user && userStore.token);
+  if (!pendingNotificationUrl || !isSignedIn) return;
 
   const url = pendingNotificationUrl;
   pendingNotificationUrl = null;
