@@ -59,19 +59,18 @@ messaging.onBackgroundMessage((payload) => {
     icon: payload?.notification?.icon || "/logo.png",
   };
 
-  if (isChrome) {
-    notificationOptions["data"] = {
-      url: payload?.data?.url,
-    };
-  } else {
-    if (payload?.data?.url) {
-      notificationOptions["actions"] = [
-        {
-          action: payload.data.url,
-          title: "View Details",
-        },
-      ];
-    }
+  // Always set data so a click on the notification body opens the url in every browser.
+  notificationOptions["data"] = {
+    url: payload?.data?.url,
+  };
+
+  if (!isChrome && payload?.data?.url) {
+    notificationOptions["actions"] = [
+      {
+        action: payload.data.url,
+        title: "View Details",
+      },
+    ];
   }
 
   
