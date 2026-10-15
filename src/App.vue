@@ -24,9 +24,11 @@ const { rtl } = storeToRefs(langStore);
 const { checkForUpdates } = useResignationNotifier();
 useExitOnBack();
 const { addListeners } = usePushRegistration();
+const { checkAppVersion } = useAppVersion();
 let appStateListener;
 
 onMounted(async () => {
+  checkAppVersion();
   checkForUpdates();
   // A signed-in launch never reaches the login page, so the tap listener is attached here.
   addListeners()
