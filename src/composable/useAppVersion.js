@@ -27,8 +27,7 @@ const reset = () => {
   storeUrl.value = "";
 };
 
-// Compares the installed version with the server's minimum and latest. Any failure or
-// empty value lets the user in: no block and no banner.
+// Any failure or empty value lets the user in: no block and no banner.
 async function checkAppVersion() {
   try {
     const platform = Capacitor.getPlatform();

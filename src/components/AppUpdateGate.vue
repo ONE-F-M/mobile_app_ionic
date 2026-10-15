@@ -44,8 +44,8 @@ const openStore = () => {
   gap: 16px;
   padding: 24px;
   text-align: center;
-  background: var(--ion-background-color, #fff);
-  color: var(--ion-text-color, #000);
+  background: var(--ion-background-color);
+  color: var(--ion-text-color);
 }
 
 .update-banner {
@@ -57,8 +57,8 @@ const openStore = () => {
   align-items: center;
   gap: 8px;
   padding: calc(env(safe-area-inset-top, 0px) + 8px) 12px 8px;
-  background: var(--ion-color-primary, #3880ff);
-  color: var(--ion-color-primary-contrast, #fff);
+  background: var(--ion-color-primary);
+  color: var(--ion-color-primary-contrast);
 }
 
 .update-banner__message {

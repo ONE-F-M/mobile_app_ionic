@@ -1,5 +1,4 @@
-// Compares dotted versions number by number ("1.10.0" is newer than "1.9.0").
-// An empty or missing value is never older, so a missing setting lets the user in.
+// Compares dotted versions number by number; an empty value is never older.
 export function isOlder(a, b) {
   if (!a || !b) return false;
   const left = String(a).trim().split(".");
