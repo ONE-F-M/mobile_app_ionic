@@ -15,6 +15,8 @@ import { App as CapacitorApp } from '@capacitor/app';
 import { useResignationNotifier } from '@/composable/useResignationNotifier';
 import { useExitOnBack } from "@/composable/useExitOnBack.js";
 import { consumePendingNotificationUrl, usePushRegistration } from "@/composable/usePushRegistration.js";
+import { useAppVersion } from "@/composable/useAppVersion.js";
+import AppUpdateGate from "@/components/AppUpdateGate.vue";
 
 const langStore = useLangStore();
 const { rtl } = storeToRefs(langStore);
