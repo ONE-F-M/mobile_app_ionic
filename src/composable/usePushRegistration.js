@@ -131,6 +131,9 @@ export function usePushRegistration() {
 
     // The token is stored by the "registration" listener.
     await PushNotifications.register();
+
+    // A notification tapped before login finished can open now.
+    consumePendingNotificationUrl().catch(() => {});
   };
 
   const registerWeb = async (user) => {
