@@ -25,6 +25,7 @@ const updateServices = async (payload: UpdateServicesPayload) =>
 
 export default {
   getServices,
+  getAppVersion,
   getServicesGroups,
   getUserServices,
   updateServices,
