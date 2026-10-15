@@ -38,12 +38,19 @@ export async function initializeFirebase() {
   
             if (Notification.permission === "granted") {
               const notification = new Notification(notificationTitle, notificationOptions);
-              notification.onclick = (event) => {
+              notification.onclick = async (event) => {
                 event.preventDefault();
                 const url = payload?.data?.url;
-                if (url) {
-                  window.open(url, "_blank");
-                }
+                if (!url) return;
+                // Same handling as the native tap: open the screen in this
+                // tab, falling back to /notification for an unknown url.
+                const [{ default: router }, { toRouterPath }] = await Promise.all([
+                  import("@/router"),
+                  import("@/utils/notificationUrl"),
+                ]);
+                window.focus();
+                notification.close();
+                router.push(toRouterPath(router, url));
               };
             }
           });
