@@ -1,6 +1,7 @@
 <template>
   <ion-app :class="appClasses" :dir="rtl ? 'rtl' : 'ltr'">
     <ion-router-outlet />
+    <AppUpdateGate />
   </ion-app>
 </template>
 
@@ -14,6 +15,8 @@ import { App as CapacitorApp } from '@capacitor/app';
 import { useResignationNotifier } from '@/composable/useResignationNotifier';
 import { useExitOnBack } from "@/composable/useExitOnBack.js";
 import { consumePendingNotificationUrl, usePushRegistration } from "@/composable/usePushRegistration.js";
+import { useAppVersion } from "@/composable/useAppVersion.js";
+import AppUpdateGate from "@/components/AppUpdateGate.vue";
 
 const langStore = useLangStore();
 const { rtl } = storeToRefs(langStore);
@@ -21,16 +24,21 @@ const { rtl } = storeToRefs(langStore);
 const { checkForUpdates } = useResignationNotifier();
 useExitOnBack();
 const { addListeners } = usePushRegistration();
+const { checkAppVersion } = useAppVersion();
 let appStateListener;
 
 onMounted(async () => {
+  checkAppVersion();
   checkForUpdates();
   // A signed-in launch never reaches the login page, so the tap listener is attached here.
   addListeners()
     .then(consumePendingNotificationUrl)
     .catch((err) => console.error("Failed to open the tapped notification: ", err));
   appStateListener = await CapacitorApp.addListener('appStateChange', ({ isActive }) => {
-    if (isActive) checkForUpdates();
+    if (isActive) {
+      checkAppVersion();
+      checkForUpdates();
+    }
   });
 });
 

@@ -23,4 +23,13 @@ export default {
   submit_success: "تم الإرسال بنجاح",
   submit_error: "خطأ في الإرسال",
   press_back_again_to_exit: "اضغط رجوع مرة أخرى للخروج",
+  update_required: {
+    title: "التحديث مطلوب",
+    message: "لم يعد هذا الإصدار من التطبيق مدعومًا. يرجى التحديث للمتابعة.",
+  },
+  update_available: {
+    message: "يتوفر إصدار جديد من التطبيق.",
+  },
+  update: "تحديث",
+  later: "لاحقًا",
 };
