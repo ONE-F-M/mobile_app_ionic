@@ -35,7 +35,10 @@ onMounted(async () => {
     .then(consumePendingNotificationUrl)
     .catch((err) => console.error("Failed to open the tapped notification: ", err));
   appStateListener = await CapacitorApp.addListener('appStateChange', ({ isActive }) => {
-    if (isActive) checkForUpdates();
+    if (isActive) {
+      checkAppVersion();
+      checkForUpdates();
+    }
   });
 });
 
