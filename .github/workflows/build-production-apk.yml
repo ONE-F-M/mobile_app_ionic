@@ -44,9 +44,9 @@ jobs:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-          # Play's last release was versionCode 50; every run uploads a higher one.
-          ANDROID_VERSION_CODE: ${{ 60 + github.run_number }}
         run: |
+          # Play's last release was versionCode 50; every run uploads a higher one.
+          export ANDROID_VERSION_CODE=$((60 + GITHUB_RUN_NUMBER))
           export ANDROID_KEYSTORE_PATH="$RUNNER_TEMP/upload.jks"
           echo -n "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$ANDROID_KEYSTORE_PATH"
           cd android

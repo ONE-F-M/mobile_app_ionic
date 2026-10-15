@@ -21,7 +21,11 @@ describe("Android release workflow", () => {
   });
 
   test("numbers every upload above Play's last release", () => {
-    expect(workflow).toContain("ANDROID_VERSION_CODE: ${{ 60 + github.run_number }}");
+    expect(workflow).toContain("export ANDROID_VERSION_CODE=$((60 + GITHUB_RUN_NUMBER))");
+  });
+
+  test("has no arithmetic inside an expression, which GitHub rejects", () => {
+    expect(workflow).not.toMatch(/\$\{\{[^}]*\s[-+*/]\s[^}]*\}\}/);
   });
 
   test("uploads the bundle to the internal track of the live package", () => {
