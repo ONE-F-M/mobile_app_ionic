@@ -13,13 +13,10 @@ let nativeListenersAdded = false;
 // Android can fire "registration" twice for one register(); two saves of one Employee deadlock.
 let storedToken = null;
 
-// A tapped notification's url, kept until the router is ready and the user is
-// signed in (cold start, or a tap that arrives before login finishes).
+// Held until the router is ready and the user is signed in.
 let pendingNotificationUrl = null;
 
-// Opens the pending url if it can be opened now; otherwise leaves it pending.
-// Called from the tap listener, after login, and from App.vue onMounted.
-// Router and user store are loaded lazily: they pull in the whole app.
+// Router and user store are imported lazily because they pull in the whole app.
 export async function consumePendingNotificationUrl() {
   if (!pendingNotificationUrl) return;
 
@@ -133,8 +130,7 @@ export function usePushRegistration() {
     // The token is stored by the "registration" listener.
     await PushNotifications.register();
 
-    // A notification tapped before login finished can open now.
-    consumePendingNotificationUrl().catch(() => {});
+    consumePendingNotificationUrl().catch((err) => console.error("Failed to open the tapped notification: ", err));
   };
 
   const registerWeb = async (user) => {

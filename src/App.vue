@@ -13,19 +13,22 @@ import { Capacitor } from '@capacitor/core';
 import { App as CapacitorApp } from '@capacitor/app';
 import { useResignationNotifier } from '@/composable/useResignationNotifier';
 import { useExitOnBack } from "@/composable/useExitOnBack.js";
-import { consumePendingNotificationUrl } from "@/composable/usePushRegistration.js";
+import { consumePendingNotificationUrl, usePushRegistration } from "@/composable/usePushRegistration.js";
 
 const langStore = useLangStore();
 const { rtl } = storeToRefs(langStore);
 
 const { checkForUpdates } = useResignationNotifier();
 useExitOnBack();
+const { addListeners } = usePushRegistration();
 let appStateListener;
 
 onMounted(async () => {
   checkForUpdates();
-  // Cold start: open the screen of a notification that launched the app.
-  consumePendingNotificationUrl().catch(() => {});
+  // A signed-in launch never reaches the login page, so the tap listener is attached here.
+  addListeners()
+    .then(consumePendingNotificationUrl)
+    .catch((err) => console.error("Failed to open the tapped notification: ", err));
   appStateListener = await CapacitorApp.addListener('appStateChange', ({ isActive }) => {
     if (isActive) checkForUpdates();
   });

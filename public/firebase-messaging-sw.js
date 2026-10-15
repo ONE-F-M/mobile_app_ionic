@@ -24,8 +24,6 @@ self.addEventListener('notificationclick', (event) => {
   const rawUrl = event.notification.data?.url || event.action;
 
   if (rawUrl) {
-    // data.url is a path such as /leaves/<id>; resolve it against this origin
-    // and refuse anything that points elsewhere.
     let clickUrl = null;
     try {
       const parsed = new URL(rawUrl, self.location.origin);

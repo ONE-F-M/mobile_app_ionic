@@ -42,8 +42,6 @@ export async function initializeFirebase() {
                 event.preventDefault();
                 const url = payload?.data?.url;
                 if (!url) return;
-                // Same handling as the native tap: open the screen in this
-                // tab, falling back to /notification for an unknown url.
                 const [{ default: router }, { toRouterPath }] = await Promise.all([
                   import("@/router"),
                   import("@/utils/notificationUrl"),
