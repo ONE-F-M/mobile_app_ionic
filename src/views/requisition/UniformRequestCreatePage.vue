@@ -164,6 +164,23 @@ const onPhotoPicked = async (event, index) => {
 };
 
 /**
+ * On native the photo button opens the camera/gallery prompt instead of the web file
+ * input; on web the label falls through to the input and onPhotoPicked as before.
+ */
+const onPhotoButtonClick = async (event, index) => {
+  if (!Capacitor.isNativePlatform()) return;
+
+  event.preventDefault();
+
+  const photo = await pickPhoto("uniform");
+  if (!photo) return;
+
+  rows[index].photo = photo.dataUrl.split(",")[1];
+  rows[index].photoName = photo.name;
+  clearError(index, "photo");
+};
+
+/**
  * Every row needs an item, a size and a photo. Checked before anything is sent so the
  * employee is told which row is short of what, rather than the whole form being refused.
  */
