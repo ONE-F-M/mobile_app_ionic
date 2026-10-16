@@ -35,13 +35,14 @@ export function useFileAttachment() {
         resultType: CameraResultType.DataUrl,
         quality: 80,
         width: 1600,
+        height: 1600,
       });
       return {
         name: `${prefix}-${Date.now()}.${photo.format || 'jpeg'}`,
         dataUrl: photo.dataUrl,
       };
     } catch (error) {
-      // User backed out of the picker -- not an error worth surfacing.
+      // Backing out of the picker is not an error.
       if (error?.message?.toLowerCase().includes('cancel')) return null;
       showErrorToast(null, "Unable to take photo. Please try again.");
       return null;

@@ -34,6 +34,7 @@ describe("useFileAttachment.pickPhoto", () => {
       resultType: "dataUrl",
       quality: 80,
       width: 1600,
+      height: 1600,
     });
     expect(result.dataUrl).toBe("data:image/png;base64,AAA");
     expect(result.name).toMatch(/^profile-\d+\.png$/);
