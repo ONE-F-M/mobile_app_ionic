@@ -232,7 +232,7 @@ onIonViewWillEnter(async () => {
                       alt="avatar"
                     />
                   </div>
-                  <label class="label-large" for="file_input">
+                  <label class="label-large" for="file_input" @click="onSetImageClick">
                     <input
                       id="file_input"
                       class="hidden"
