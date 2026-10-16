@@ -20,7 +20,12 @@ import {
   IonToolbar,
   IonModal,
   IonHeader,
+  actionSheetController,
 } from "@ionic/vue";
+import { useI18n } from "vue-i18n";
+import { Capacitor } from "@capacitor/core";
+import { CameraSource } from "@capacitor/camera";
+import { useFileAttachment } from "@/composable/useFileAttachment";
 import PageHeader from "@/components/common/PageHeader.vue";
 
 import { chevronDownOutline } from "ionicons/icons";
