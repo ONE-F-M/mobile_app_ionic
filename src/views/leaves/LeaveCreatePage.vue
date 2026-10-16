@@ -20,7 +20,12 @@ import {
   IonToolbar,
   IonModal,
   IonHeader,
+  actionSheetController,
 } from "@ionic/vue";
+import { useI18n } from "vue-i18n";
+import { Capacitor } from "@capacitor/core";
+import { CameraSource } from "@capacitor/camera";
+import { useFileAttachment } from "@/composable/useFileAttachment";
 import PageHeader from "@/components/common/PageHeader.vue";
 
 import { chevronDownOutline } from "ionicons/icons";
@@ -196,6 +201,54 @@ const onFileUpload = async (event) => {
     console.error(e);
     showErrorToast("Failed to upload a file");
   }
+};
+
+const { t } = useI18n();
+const { pickPhoto } = useFileAttachment();
+
+const pickProofPhoto = async (source) => {
+  const photo = await pickPhoto("leave-proof", source);
+  if (!photo) return;
+
+  // Base64 without the "data:...;base64," prefix, like onFileUpload.
+  attachment.value.base64 = photo.dataUrl.split(",")[1];
+  attachment.value.name = photo.name;
+  errors.proofDocument = false;
+};
+
+const onUploadClick = async () => {
+  if (!Capacitor.isNativePlatform()) {
+    fileInput.value?.click();
+    return;
+  }
+
+  const sheet = await actionSheetController.create({
+    buttons: [
+      {
+        text: t("user.leaves.create_leave.take_photo"),
+        handler: () => {
+          pickProofPhoto(CameraSource.Camera);
+        },
+      },
+      {
+        text: t("user.leaves.create_leave.choose_from_gallery"),
+        handler: () => {
+          pickProofPhoto(CameraSource.Photos);
+        },
+      },
+      {
+        text: t("user.leaves.create_leave.choose_file"),
+        handler: () => {
+          fileInput.value?.click();
+        },
+      },
+      {
+        text: t("user.leaves.create_leave.cancel"),
+        role: "cancel",
+      },
+    ],
+  });
+  await sheet.present();
 };
 
 const errors = reactive({
@@ -563,7 +616,7 @@ onIonViewWillEnter(async () => {
             shape="round"
             class="leaves-create-upload-button"
             expand="block"
-            @click="fileInput?.click()"
+            @click="onUploadClick"
           >
             {{ $t("user.leaves.create_leave.upload_proof_document") }}
           </ion-button>
