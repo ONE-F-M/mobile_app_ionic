@@ -23,7 +23,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
-	<string>Supports opening documents in place</string>
+	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>ONE FM records a short video of your face to verify your identity when you check in and out.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
