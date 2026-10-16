@@ -28,7 +28,10 @@ import { useCustomToast } from "@/composable/toast";
 import useDisplayImage from "@/composable/useDisplayImage";
 import { usePushRegistration } from "@/composable/usePushRegistration";
 import { Capacitor } from '@capacitor/core';
+import { useFileAttachment } from "@/composable/useFileAttachment";
+import { resizeDataUrl } from "@/utils/resizeImage.js";
 
+const { pickPhoto } = useFileAttachment();
 
 const { t } = useI18n();
 
