@@ -321,7 +321,11 @@ onIonViewWillEnter(() => {
             class="photo-input"
             @change="onPhotoPicked($event, index)"
           />
-          <label :for="`uniform-photo-${index}`" class="photo-button">
+          <label
+            :for="`uniform-photo-${index}`"
+            class="photo-button"
+            @click="onPhotoButtonClick($event, index)"
+          >
             {{
               row.photoName
                 ? $t("user.uniform_request.change_photo")
