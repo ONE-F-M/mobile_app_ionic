@@ -203,6 +203,54 @@ const onFileUpload = async (event) => {
   }
 };
 
+const { t } = useI18n();
+const { pickPhoto } = useFileAttachment();
+
+const pickProofPhoto = async (source) => {
+  const photo = await pickPhoto("leave-proof", source);
+  if (!photo) return;
+
+  // Base64 without the "data:...;base64," prefix, like onFileUpload.
+  attachment.value.base64 = photo.dataUrl.split(",")[1];
+  attachment.value.name = photo.name;
+  errors.proofDocument = false;
+};
+
+const onUploadClick = async () => {
+  if (!Capacitor.isNativePlatform()) {
+    fileInput.value?.click();
+    return;
+  }
+
+  const sheet = await actionSheetController.create({
+    buttons: [
+      {
+        text: t("user.leaves.create_leave.take_photo"),
+        handler: () => {
+          pickProofPhoto(CameraSource.Camera);
+        },
+      },
+      {
+        text: t("user.leaves.create_leave.choose_from_gallery"),
+        handler: () => {
+          pickProofPhoto(CameraSource.Photos);
+        },
+      },
+      {
+        text: t("user.leaves.create_leave.choose_file"),
+        handler: () => {
+          fileInput.value?.click();
+        },
+      },
+      {
+        text: t("user.leaves.create_leave.cancel"),
+        role: "cancel",
+      },
+    ],
+  });
+  await sheet.present();
+};
+
 const errors = reactive({
   leaveType: false,
   fromDate: false,
