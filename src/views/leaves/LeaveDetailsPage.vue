@@ -57,7 +57,7 @@ const writeProofFile = async () => {
     try {
       await openOnDevice(proofDocumentName.value, documentContent.value);
     } catch (error) {
-      showErrorToast(error);
+      showErrorToast(null, error);
     }
   } else {
     const mimeType = mimeTypeFor(proofDocumentName.value);
