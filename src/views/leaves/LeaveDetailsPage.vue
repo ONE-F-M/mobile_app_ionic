@@ -17,7 +17,8 @@ import leave from "@/api/leave";
 import { useCustomToast } from "@/composable/toast";
 import useDateHelper from "@/composable/useDateHelper";
 import dayjs from "dayjs";
-import { Filesystem, Directory } from "@capacitor/filesystem";
+import { Capacitor } from "@capacitor/core";
+import { mimeTypeFor, openOnDevice } from "@/utils/proofFile";
 import { storeToRefs } from "pinia";
 import IconLeave from "@/components/icon/Leave.vue";
 import { App } from '@capacitor/app'; // for opening files in native apps
