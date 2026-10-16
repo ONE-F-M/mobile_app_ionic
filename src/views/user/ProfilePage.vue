@@ -81,6 +81,19 @@ const langSelectAlertOptions = {
   ...(!isIOS.value && { leaveAnimation: langSelectLeaveAnimation }),
 };
 
+const uploadImage = async (dataUrl) => {
+  const payload = {
+    employee_id: userStore.user?.employee_id,
+    // Base64 without the "data:...;base64," prefix.
+    image: dataUrl.split(",")[1],
+  };
+
+  await profile.updateProfileImage(payload);
+
+  await getUserDetails();
+  showSuccessToast(t("user.profile.image_updated"));
+};
+
 const updateImage = async (event) => {
   try {
     const file = event.target?.files[0];
@@ -97,15 +110,24 @@ const updateImage = async (event) => {
 
     const imageBase64 = await readerPromise;
 
-    const payload = {
-      employee_id: userStore.user?.employee_id,
-      image: imageBase64.split(",")[1],
-    };
+    await uploadImage(await resizeDataUrl(imageBase64));
+  } catch (error) {
+    console.error(error);
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
+  }
+};
 
-    await profile.updateProfileImage(payload);
+// On native the label opens the camera/gallery prompt instead of the web file input.
+const onSetImageClick = async (event) => {
+  if (!Capacitor.isNativePlatform()) return;
 
-    await getUserDetails();
-    showSuccessToast(t("user.profile.image_updated"));
+  event.preventDefault();
+
+  const photo = await pickPhoto("profile");
+  if (!photo) return;
+
+  try {
+    await uploadImage(photo.dataUrl);
   } catch (error) {
     console.error(error);
     showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
