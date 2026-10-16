@@ -616,7 +616,7 @@ onIonViewWillEnter(async () => {
             shape="round"
             class="leaves-create-upload-button"
             expand="block"
-            @click="fileInput?.click()"
+            @click="onUploadClick"
           >
             {{ $t("user.leaves.create_leave.upload_proof_document") }}
           </ion-button>
