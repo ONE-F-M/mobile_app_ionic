@@ -10,10 +10,10 @@
     <span class="update-banner__message">
       {{ t("utils.update_available.message") }}
     </span>
-    <ion-button size="small" @click="openStore">
+    <ion-button size="small" color="light" @click="openStore">
       {{ t("utils.update") }}
     </ion-button>
-    <ion-button size="small" fill="clear" @click="dismissBanner">
+    <ion-button size="small" fill="clear" color="light" @click="dismissBanner">
       {{ t("utils.later") }}
     </ion-button>
   </div>
