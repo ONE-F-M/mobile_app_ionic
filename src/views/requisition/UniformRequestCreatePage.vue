@@ -37,8 +37,11 @@ import useDateHelper from "@/composable/useDateHelper";
 import { useCustomToast } from "@/composable/toast.js";
 import { useLangStore } from "@/store/lang.js";
 import { useUserStore } from "@/store/user.js";
+import { Capacitor } from "@capacitor/core";
+import { useFileAttachment } from "@/composable/useFileAttachment";
 
 const { t } = useI18n();
+const { pickPhoto } = useFileAttachment();
 const router = useIonRouter();
 const langStore = useLangStore();
 const userStore = useUserStore();
