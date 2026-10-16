@@ -56,6 +56,7 @@ export function useFileAttachment() {
   return {
     attachment,
     takePhoto,
+    pickPhoto,
     clearAttachment
   };
 }
