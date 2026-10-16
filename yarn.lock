@@ -1146,6 +1146,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@capacitor-community/file-opener@npm:6.0.1":
+  version: 6.0.1
+  resolution: "@capacitor-community/file-opener@npm:6.0.1"
+  peerDependencies:
+    "@capacitor/core": ^6.0.0
+  checksum: 4537bc482c92bd6b6a86bd960efeac6ad347503acf03dc2763247ecf87fe96df978bd6a4a13d8415697e4795c94a0eb9a480ade185f1c52562d1bef6084bfc64
+  languageName: node
+  linkType: hard
+
 "@capacitor/android@npm:6.0.0":
   version: 6.0.0
   resolution: "@capacitor/android@npm:6.0.0"
@@ -4286,6 +4295,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "One_Facilities_Management@workspace:."
   dependencies:
+    "@capacitor-community/file-opener": 6.0.1
     "@capacitor/android": 6.0.0
     "@capacitor/app": 6.0.0
     "@capacitor/assets": ^3.0.5
