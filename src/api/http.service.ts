@@ -96,11 +96,28 @@ export const httpService = {
       }
     }
 
-    const response = await CapacitorHttp[method]({
-      ...requestOptions,
-      headers: mergedHeaders,
-      url: `${BASE_URL}${API_PREFIX}${url}`,
-    });
+    let response;
+    try {
+      response = await CapacitorHttp[method]({
+        ...requestOptions,
+        headers: mergedHeaders,
+        url: `${BASE_URL}${API_PREFIX}${url}`,
+        connectTimeout: REQUEST_TIMEOUT_MS,
+        readTimeout: REQUEST_TIMEOUT_MS,
+      });
+    } catch (error) {
+      const text = `${(error as any)?.message ?? error ?? ""}`;
+      if (TIMEOUT_PATTERN.test(text)) {
+        throw {
+          status: 0,
+          data: {
+            message: translate("utils.request_timeout.title"),
+            error: translate("utils.request_timeout.message"),
+          },
+        };
+      }
+      throw error;
+    }
 
     // Handle 401 Unauthorized — session expired or invalid token
     if (response.status === 401) {
