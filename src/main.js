@@ -2,6 +2,7 @@ import { createApp } from "vue";
 import App from "./App.vue";
 import MdiIcon from "@/components/base/MdiIcon.vue";
 import router from "./router";
+import { setRouter, setTranslator } from "@/api/http.service";
 import "dayjs/locale/en";
 import "dayjs/locale/ar";
 
@@ -42,6 +43,9 @@ import "./theme/fonts.scss";
 /* Custom styles */
 import "./theme/global.scss";
 
+// http.service is imported before the router exists, so hand it over here.
+setRouter(router);
+
 /* Plugins CSS styles */
 // REMOVED: v-calendar/style.css — now imported locally in Datepicker.vue
 const app = createApp(App);
@@ -77,6 +81,7 @@ app
 const langStore = useLangStore();
 const lang = langStore.lang || "en";
 const i18n = initI18n(lang);
+setTranslator(i18n.global.t);
 app.use(i18n);
 
 const isWeb = Capacitor.getPlatform() === "web";

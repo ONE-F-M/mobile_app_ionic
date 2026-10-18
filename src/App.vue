@@ -16,6 +16,7 @@ import { useResignationNotifier } from '@/composable/useResignationNotifier';
 import { useExitOnBack } from "@/composable/useExitOnBack.js";
 import { consumePendingNotificationUrl, usePushRegistration } from "@/composable/usePushRegistration.js";
 import { useAppVersion } from "@/composable/useAppVersion.js";
+import { useNetworkStatus } from "@/composable/useNetworkStatus.js";
 import AppUpdateGate from "@/components/AppUpdateGate.vue";
 
 const langStore = useLangStore();
@@ -25,9 +26,11 @@ const { checkForUpdates } = useResignationNotifier();
 useExitOnBack();
 const { addListeners } = usePushRegistration();
 const { checkAppVersion } = useAppVersion();
+const { start: startNetworkStatus } = useNetworkStatus();
 let appStateListener;
 
 onMounted(async () => {
+  startNetworkStatus().catch((err) => console.warn("Network status unavailable: ", err));
   checkAppVersion();
   checkForUpdates();
   // A signed-in launch never reaches the login page, so the tap listener is attached here.

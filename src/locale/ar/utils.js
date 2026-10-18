@@ -39,4 +39,9 @@ export default {
   },
   update: "تحديث",
   later: "لاحقًا",
+  offline: "لا يوجد اتصال بالإنترنت",
+  request_timeout: {
+    title: "انتهت مهلة الطلب",
+    message: "تحقق من اتصالك وحاول مرة أخرى",
+  },
 };

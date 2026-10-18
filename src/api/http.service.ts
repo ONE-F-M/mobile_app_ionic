@@ -6,6 +6,21 @@ const BASE_URL = import.meta.env.VITE_BASE_API_URL ?? "";
 export const API_PREFIX =
   import.meta.env.VITE_API_PREFIX ?? "/api/method/one_fm.api.v1.";
 
+const REQUEST_TIMEOUT_MS = 20000;
+const TIMEOUT_PATTERN = /timed? ?out|timeout/i;
+
+// Set from main.js, which creates the router and i18n after this module loads.
+let appRouter: { replace: (path: string) => unknown };
+let appTranslator: (key: string) => string;
+
+export const setRouter = (router: { replace: (path: string) => unknown }) => {
+  appRouter = router;
+};
+
+export const setTranslator = (t: (key: string) => string) => {
+  appTranslator = t;
+};
+
 // Shared in-flight refresh so concurrent 401s trigger only one token refresh.
 let refreshPromise: Promise<boolean> | null = null;
 
@@ -96,11 +111,28 @@ export const httpService = {
       }
     }
 
-    const response = await CapacitorHttp[method]({
-      ...requestOptions,
-      headers: mergedHeaders,
-      url: `${BASE_URL}${API_PREFIX}${url}`,
-    });
+    let response;
+    try {
+      response = await CapacitorHttp[method]({
+        ...requestOptions,
+        headers: mergedHeaders,
+        url: `${BASE_URL}${API_PREFIX}${url}`,
+        connectTimeout: REQUEST_TIMEOUT_MS,
+        readTimeout: REQUEST_TIMEOUT_MS,
+      });
+    } catch (error) {
+      const text = `${(error as any)?.message ?? error ?? ""}`;
+      if (TIMEOUT_PATTERN.test(text)) {
+        throw {
+          status: 0,
+          data: {
+            message: appTranslator("utils.request_timeout.title"),
+            error: appTranslator("utils.request_timeout.message"),
+          },
+        };
+      }
+      throw error;
+    }
 
     // Handle 401 Unauthorized — session expired or invalid token
     if (response.status === 401) {
@@ -121,9 +153,8 @@ export const httpService = {
       // Refresh unavailable/failed — genuinely log out.
       userStore.logout();
 
-      // Redirect to login page
-      // Using window.location ensures a full navigation even if the router isn't available
-      window.location.href = '/employee-id';
+      // Redirect to login page through the in-app router (no full WebView reload)
+      appRouter.replace('/employee-id');
 
       // Attach a user-friendly message before throwing
       if (!response.data) response.data = {};

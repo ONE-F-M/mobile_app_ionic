@@ -40,4 +40,9 @@ export default {
   },
   update: "Update",
   later: "Later",
+  offline: "No internet connection",
+  request_timeout: {
+    title: "Request timed out",
+    message: "Check your connection and try again",
+  },
 };
