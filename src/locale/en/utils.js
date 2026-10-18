@@ -1,4 +1,11 @@
 export default {
+  webview_outdated: {
+    title: "Update Android System WebView",
+    message:
+      "Your phone's Android System WebView is too old to run ONE FM. Update it from the Play Store.",
+    update: "Update WebView",
+    retry: "Retry",
+  },
   toast: {
     error: "Error!",
     success: "Success!",
