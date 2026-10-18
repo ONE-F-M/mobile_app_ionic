@@ -326,14 +326,20 @@ onMounted(async () => {
           </div>
         </div>
 
-        <ion-button
-          class="logout-button title-medium"
-          expand="block"
-          shape="round"
-          @click="logout"
-        >
-          {{ $t("user.profile.logout") }}
-        </ion-button>
+        <div>
+          <ion-button
+            class="logout-button title-medium"
+            expand="block"
+            shape="round"
+            @click="logout"
+          >
+            {{ $t("user.profile.logout") }}
+          </ion-button>
+
+          <p v-if="appVersion" class="app-version">
+            {{ $t("user.profile.version") }} {{ appVersion.version }} ({{ appVersion.build }})
+          </p>
+        </div>
       </div>
     </ion-content>
   </ion-page>
