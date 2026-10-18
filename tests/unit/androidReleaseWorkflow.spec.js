@@ -21,7 +21,9 @@ describe("Android release workflow", () => {
   });
 
   test("numbers every upload above Play's last release", () => {
-    expect(workflow).toContain("export ANDROID_VERSION_CODE=$((60 + GITHUB_RUN_NUMBER))");
+    expect(workflow).toContain("node scripts/set-native-version.mjs $((60 + GITHUB_RUN_NUMBER))");
+    expect(workflow).not.toContain("ANDROID_VERSION_CODE");
+    expect(workflow.indexOf("node scripts/set-native-version.mjs")).toBeLessThan(workflow.indexOf("cd android"));
   });
 
   test("has no arithmetic inside an expression, which GitHub rejects", () => {
