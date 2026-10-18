@@ -138,9 +138,8 @@ export const httpService = {
       // Refresh unavailable/failed — genuinely log out.
       userStore.logout();
 
-      // Redirect to login page
-      // Using window.location ensures a full navigation even if the router isn't available
-      window.location.href = '/employee-id';
+      // Redirect to login page through the in-app router (no full WebView reload)
+      appRouter?.replace('/employee-id');
 
       // Attach a user-friendly message before throwing
       if (!response.data) response.data = {};
