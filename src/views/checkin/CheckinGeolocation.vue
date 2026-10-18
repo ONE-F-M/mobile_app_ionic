@@ -497,6 +497,7 @@ onDeactivated(cleanup);
 <template>
   <ion-page>
     <ion-content class="geolocation-page">
+      <ion-progress-bar v-if="isSubmitting" type="indeterminate" />
       <div class="ion-padding-horizontal geolocation-header">
         <Header with-back-button @goBack="prevStep">
           <slot name="title">
