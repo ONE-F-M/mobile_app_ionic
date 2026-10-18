@@ -65,6 +65,8 @@ const animationPage = (baseEl, opts) => {
     .addAnimation([enteringPage, leavingPage]);
 };
 
+const webViewTooOld = isWebViewTooOld(navigator.userAgent, Capacitor.getPlatform());
+
 app
   .use(IonicVue, {
     navAnimation: animationPage,
