@@ -10,6 +10,7 @@ import { useLangStore } from "@/store/lang.js";
 import pinia from "@/plugins/pinia.js";
 import initI18n from "@/plugins/i18n.js";
 import { isWebViewTooOld, showWebViewGate } from "@/utils/webViewGate.js";
+import { loadLocaleFonts } from "@/utils/localeFonts.js";
 
 import { createAnimation, IonicVue } from "@ionic/vue";
 import { SplashScreen } from "@capacitor/splash-screen";
@@ -76,6 +77,7 @@ app
 
 const langStore = useLangStore();
 const lang = langStore.lang || "en";
+loadLocaleFonts([lang]);
 const i18n = initI18n(lang);
 app.use(i18n);
 
