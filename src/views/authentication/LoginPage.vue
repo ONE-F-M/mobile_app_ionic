@@ -265,6 +265,12 @@ watch(
   }
 }
 
+.login-description-link {
+  display: inline-block;
+  padding: 12px 0;
+  margin: -12px 0;
+}
+
 .login-button {
   margin-top: 24px;
   height: 46px;

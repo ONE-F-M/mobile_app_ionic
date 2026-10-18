@@ -13,6 +13,7 @@ import {
 } from "@ionic/vue";
 import { useUserStore } from "@/store/user";
 import { useLangStore } from "@/store/lang";
+import { loadLocaleFonts } from "@/utils/localeFonts.js";
 import { useIonRouter } from "@ionic/vue";
 import { useI18n } from "vue-i18n";
 import { onMounted, ref } from "vue";
@@ -103,6 +104,7 @@ const onEnd = () => {
 
 onIonViewWillEnter(() => {
   langStore.resetLang()
+  loadLocaleFonts(["en", "ar"]);
 });
 
 onMounted(() => {

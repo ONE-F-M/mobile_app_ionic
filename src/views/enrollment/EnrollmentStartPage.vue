@@ -119,6 +119,8 @@ const handleVideo = async (video, videoMime) => {
 .login-header-wrapper {
   ion-button {
     --padding-start: 0;
+    min-width: 44px;
+    min-height: 44px;
   }
 }
 

@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { loadLocaleFonts } from "@/utils/localeFonts.js";
 
 export const useLangStore = defineStore("lang", {
   state: () => {
@@ -13,6 +14,7 @@ export const useLangStore = defineStore("lang", {
       this.lang = lang;
 
       this.rtl = lang === "ar";
+      loadLocaleFonts([lang]);
     },
     resetLang() {
       this.lang = null;

@@ -67,6 +67,8 @@ const triggerBack = () => {
 
   ion-button {
     --padding-start: 12px;
+    min-width: 44px;
+    min-height: 44px;
   }
 
   .back-button-wrapper {
