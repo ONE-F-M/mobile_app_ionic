@@ -21,7 +21,8 @@ import Header from "@/components/Header.vue";
 import PenIcon from "@/components/icon/PenIcon.vue";
 
 import { useUserStore } from "@/store/user";
-import { computed, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
+import { App } from "@capacitor/app";
 import { useLangStore } from "@/store/lang.js";
 import profile from "@/api/profile";
 import { useCustomToast } from "@/composable/toast";
