@@ -20,9 +20,10 @@ describe("Android release build", () => {
     expect(gradle).toMatch(/signingConfig keystorePath \? signingConfigs\.release : null\s*minifyEnabled true\s*shrinkResources true/);
   });
 
-  test("starts above the last Play release (versionCode 50) and takes CI's number when set", () => {
-    expect(gradle).toContain("versionCode Integer.parseInt(System.getenv('ANDROID_VERSION_CODE') ?: '60')");
-    expect(gradle).toContain('versionName "6.0"');
+  test("starts above the last Play release (versionCode 50); CI rewrites it with scripts/set-native-version.mjs", () => {
+    expect(gradle).toContain("versionCode 60");
+    expect(gradle).toContain('versionName "7.0.0"');
+    expect(gradle).not.toContain("ANDROID_VERSION_CODE");
   });
 
   test("keeps keystores and their passwords out of git", () => {
