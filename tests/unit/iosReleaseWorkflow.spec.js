@@ -24,6 +24,8 @@ describe("iOS release workflow", () => {
   });
 
   test("gives every upload a new build number", () => {
-    expect(workflow).toContain("build-number: ${{ github.run_number }}");
+    expect(workflow).toContain("- name: Set the version");
+    expect(workflow).toContain("node scripts/set-native-version.mjs ${{ github.run_number }}");
+    expect(workflow).not.toContain("yanamura/ios-bump-version");
   });
 });
