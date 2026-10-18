@@ -6,6 +6,24 @@ const BASE_URL = import.meta.env.VITE_BASE_API_URL ?? "";
 export const API_PREFIX =
   import.meta.env.VITE_API_PREFIX ?? "/api/method/one_fm.api.v1.";
 
+const REQUEST_TIMEOUT_MS = 20000;
+const TIMEOUT_PATTERN = /timed? ?out|timeout/i;
+
+// The router and translator are created after this module is first imported,
+// so main.js hands them over once they exist.
+let appRouter: { replace: (path: string) => unknown } | null = null;
+let appTranslator: ((key: string) => string) | null = null;
+
+export const setRouter = (router: { replace: (path: string) => unknown }) => {
+  appRouter = router;
+};
+
+export const setTranslator = (t: (key: string) => string) => {
+  appTranslator = t;
+};
+
+const translate = (key: string) => (appTranslator ? appTranslator(key) : key);
+
 // Shared in-flight refresh so concurrent 401s trigger only one token refresh.
 let refreshPromise: Promise<boolean> | null = null;
 
