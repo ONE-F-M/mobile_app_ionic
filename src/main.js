@@ -9,6 +9,7 @@ import { Capacitor } from "@capacitor/core";
 import { useLangStore } from "@/store/lang.js";
 import pinia from "@/plugins/pinia.js";
 import initI18n from "@/plugins/i18n.js";
+import { isWebViewTooOld, showWebViewGate } from "@/utils/webViewGate.js";
 
 import { createAnimation, IonicVue } from "@ionic/vue";
 import { SplashScreen } from "@capacitor/splash-screen";
