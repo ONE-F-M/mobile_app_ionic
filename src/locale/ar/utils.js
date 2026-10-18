@@ -1,4 +1,11 @@
 export default {
+  webview_outdated: {
+    title: "تحديث Android System WebView",
+    message:
+      "إصدار Android System WebView على هاتفك قديم جدًا لتشغيل ONE FM. قم بتحديثه من متجر Play.",
+    update: "تحديث WebView",
+    retry: "إعادة المحاولة",
+  },
   toast: {
     error: "خطأ!",
     success: "نجاح!",

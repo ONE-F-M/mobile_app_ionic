@@ -9,6 +9,7 @@ import { Capacitor } from "@capacitor/core";
 import { useLangStore } from "@/store/lang.js";
 import pinia from "@/plugins/pinia.js";
 import initI18n from "@/plugins/i18n.js";
+import { isWebViewTooOld, showWebViewGate } from "@/utils/webViewGate.js";
 
 import { createAnimation, IonicVue } from "@ionic/vue";
 import { SplashScreen } from "@capacitor/splash-screen";
@@ -65,6 +66,8 @@ const animationPage = (baseEl, opts) => {
     .addAnimation([enteringPage, leavingPage]);
 };
 
+const webViewTooOld = isWebViewTooOld(navigator.userAgent, Capacitor.getPlatform());
+
 app
   .use(IonicVue, {
     navAnimation: animationPage,
@@ -97,6 +100,9 @@ router.isReady().then(async () => {
     // ALWAYS mount the app, even if Firebase fails
     app.mount("#app");
     SplashScreen.hide().catch((err) => console.warn("Could not hide the splash screen:", err));
+    if (webViewTooOld) {
+      showWebViewGate(i18n.global.t, navigator.userAgent);
+    }
   }
 });
 
