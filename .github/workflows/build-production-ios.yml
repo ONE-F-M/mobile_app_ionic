@@ -79,18 +79,8 @@ jobs:
           pod install
           cd ..
 
-      - uses: yanamura/ios-bump-version@v1
-        with:
-          project-path: ios/App
-          # version number
-          # ex. 3.2.0
-          # If version is not set, the version does not be changed.
-          version: ''
-      
-          # build number
-          # ex. 10
-          # If build-number is not set, auto-increment build number.
-          build-number: ${{ github.run_number }}
+      - name: Set the version
+        run: node scripts/set-native-version.mjs ${{ github.run_number }}
 
       - name: Build archive
         run: |
