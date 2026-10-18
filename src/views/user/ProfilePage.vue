@@ -181,6 +181,20 @@ const getUserDetails = async () => {
 onIonViewWillEnter(async () => {
   await getUserDetails();
 });
+
+// The running app's version and build, read from the native shell (not available on the web).
+const appVersion = ref(null);
+
+onMounted(async () => {
+  if (!Capacitor.isNativePlatform()) return;
+
+  try {
+    const info = await App.getInfo();
+    appVersion.value = { version: info.version, build: info.build };
+  } catch (error) {
+    console.warn("Could not read the app version:", error);
+  }
+});
 </script>
 
 <template>
