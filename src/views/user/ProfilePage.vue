@@ -22,6 +22,7 @@ import PenIcon from "@/components/icon/PenIcon.vue";
 
 import { useUserStore } from "@/store/user";
 import { computed, reactive, ref } from "vue";
+import { App } from "@capacitor/app";
 import { useLangStore } from "@/store/lang.js";
 import profile from "@/api/profile";
 import { useCustomToast } from "@/composable/toast";
@@ -180,6 +181,20 @@ const getUserDetails = async () => {
 onIonViewWillEnter(async () => {
   await getUserDetails();
 });
+
+// The native shell's version and build; App.getInfo is not available on the web.
+const appVersion = ref(null);
+
+onIonViewWillEnter(async () => {
+  if (appVersion.value || !Capacitor.isNativePlatform()) return;
+
+  try {
+    const info = await App.getInfo();
+    appVersion.value = { version: info.version, build: info.build };
+  } catch (error) {
+    console.warn("Could not read the app version:", error);
+  }
+});
 </script>
 
 <template>
@@ -311,14 +326,20 @@ onIonViewWillEnter(async () => {
           </div>
         </div>
 
-        <ion-button
-          class="logout-button title-medium"
-          expand="block"
-          shape="round"
-          @click="logout"
-        >
-          {{ $t("user.profile.logout") }}
-        </ion-button>
+        <div>
+          <ion-button
+            class="logout-button title-medium"
+            expand="block"
+            shape="round"
+            @click="logout"
+          >
+            {{ $t("user.profile.logout") }}
+          </ion-button>
+
+          <p v-if="appVersion" class="app-version">
+            {{ $t("user.profile.version") }} {{ appVersion.version }} ({{ appVersion.build }})
+          </p>
+        </div>
       </div>
     </ion-content>
   </ion-page>
@@ -533,6 +554,13 @@ onIonViewWillEnter(async () => {
   margin-top: 24px;
   margin-bottom: 12px;
   font-family: "Readex Pro", sans-serif;
+}
+
+.app-version {
+  margin: 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--ion-color-medium);
 }
 
 .full-profile-modal {

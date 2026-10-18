@@ -46,7 +46,7 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           # Play's last release was versionCode 50; every run uploads a higher one.
-          export ANDROID_VERSION_CODE=$((60 + GITHUB_RUN_NUMBER))
+          node scripts/set-native-version.mjs $((60 + GITHUB_RUN_NUMBER))
           export ANDROID_KEYSTORE_PATH="$RUNNER_TEMP/upload.jks"
           echo -n "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$ANDROID_KEYSTORE_PATH"
           cd android
