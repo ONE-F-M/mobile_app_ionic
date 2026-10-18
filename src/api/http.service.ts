@@ -9,10 +9,9 @@ export const API_PREFIX =
 const REQUEST_TIMEOUT_MS = 20000;
 const TIMEOUT_PATTERN = /timed? ?out|timeout/i;
 
-// The router and translator are created after this module is first imported,
-// so main.js hands them over once they exist.
-let appRouter: { replace: (path: string) => unknown } | null = null;
-let appTranslator: ((key: string) => string) | null = null;
+// Set from main.js, which creates the router and i18n after this module loads.
+let appRouter: { replace: (path: string) => unknown };
+let appTranslator: (key: string) => string;
 
 export const setRouter = (router: { replace: (path: string) => unknown }) => {
   appRouter = router;
@@ -21,8 +20,6 @@ export const setRouter = (router: { replace: (path: string) => unknown }) => {
 export const setTranslator = (t: (key: string) => string) => {
   appTranslator = t;
 };
-
-const translate = (key: string) => (appTranslator ? appTranslator(key) : key);
 
 // Shared in-flight refresh so concurrent 401s trigger only one token refresh.
 let refreshPromise: Promise<boolean> | null = null;
@@ -129,8 +126,8 @@ export const httpService = {
         throw {
           status: 0,
           data: {
-            message: translate("utils.request_timeout.title"),
-            error: translate("utils.request_timeout.message"),
+            message: appTranslator("utils.request_timeout.title"),
+            error: appTranslator("utils.request_timeout.message"),
           },
         };
       }
@@ -157,7 +154,7 @@ export const httpService = {
       userStore.logout();
 
       // Redirect to login page through the in-app router (no full WebView reload)
-      appRouter?.replace('/employee-id');
+      appRouter.replace('/employee-id');
 
       // Attach a user-friendly message before throwing
       if (!response.data) response.data = {};

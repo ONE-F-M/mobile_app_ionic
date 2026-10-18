@@ -2,8 +2,7 @@ import { Network } from "@capacitor/network";
 import { toastController } from "@ionic/vue";
 import { useI18n } from "vue-i18n";
 
-// Keeps one persistent "No internet connection" toast on screen while the device is offline.
-// Call useNetworkStatus() from a component's setup, then start() once mounted.
+// One persistent "No internet connection" toast while the device is offline.
 export function useNetworkStatus() {
   const { t } = useI18n();
 
@@ -45,11 +44,5 @@ export function useNetworkStatus() {
     apply(await Network.getStatus());
   };
 
-  const stop = async () => {
-    await listener?.remove();
-    listener = null;
-    await hideOffline();
-  };
-
-  return { start, stop };
+  return { start };
 }
