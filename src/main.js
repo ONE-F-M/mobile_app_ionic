@@ -99,10 +99,10 @@ router.isReady().then(async () => {
   } finally {
     // ALWAYS mount the app, even if Firebase fails
     app.mount("#app");
+    SplashScreen.hide().catch((err) => console.warn("Could not hide the splash screen:", err));
     if (webViewTooOld) {
       showWebViewGate(i18n.global.t, navigator.userAgent);
     }
-    SplashScreen.hide().catch((err) => console.warn("Could not hide the splash screen:", err));
   }
 });
 

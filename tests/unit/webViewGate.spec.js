@@ -58,7 +58,7 @@ describe("webViewGate", () => {
 
   it("showWebViewGate creates a blocking alert with a back guard", async () => {
     const unregister = vi.fn();
-    useBackButton.mockReturnValue(unregister);
+    useBackButton.mockReturnValue({ unregister });
     let dismissCb;
     const alert = {
       present: vi.fn().mockResolvedValue(undefined),

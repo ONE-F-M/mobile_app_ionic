@@ -24,7 +24,7 @@ export function webViewStoreUrl(userAgent) {
 
 export async function showWebViewGate(t, userAgent) {
   // Swallow the hardware back button while the gate is up.
-  const unregister = useBackButton(101, () => {});
+  const backGuard = useBackButton(101, () => {});
 
   const alert = await alertController.create({
     header: t("utils.webview_outdated.title"),
@@ -47,10 +47,7 @@ export async function showWebViewGate(t, userAgent) {
     ],
   });
 
-  alert.onDidDismiss().then(() => {
-    if (typeof unregister === "function") unregister();
-    else if (unregister && typeof unregister.unregister === "function") unregister.unregister();
-  });
+  alert.onDidDismiss().then(() => backGuard.unregister());
 
   await alert.present();
   return alert;
