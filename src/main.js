@@ -81,6 +81,7 @@ app
 const langStore = useLangStore();
 const lang = langStore.lang || "en";
 const i18n = initI18n(lang);
+setTranslator(i18n.global.t);
 app.use(i18n);
 
 const isWeb = Capacitor.getPlatform() === "web";
