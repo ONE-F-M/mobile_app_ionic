@@ -16,6 +16,7 @@ import { useResignationNotifier } from '@/composable/useResignationNotifier';
 import { useExitOnBack } from "@/composable/useExitOnBack.js";
 import { consumePendingNotificationUrl, usePushRegistration } from "@/composable/usePushRegistration.js";
 import { useAppVersion } from "@/composable/useAppVersion.js";
+import { useNetworkStatus } from "@/composable/useNetworkStatus.js";
 import AppUpdateGate from "@/components/AppUpdateGate.vue";
 
 const langStore = useLangStore();
