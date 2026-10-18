@@ -2,6 +2,7 @@ import { createApp } from "vue";
 import App from "./App.vue";
 import MdiIcon from "@/components/base/MdiIcon.vue";
 import router from "./router";
+import { setRouter, setTranslator } from "@/api/http.service";
 import "dayjs/locale/en";
 import "dayjs/locale/ar";
 
