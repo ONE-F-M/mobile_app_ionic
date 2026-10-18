@@ -43,6 +43,9 @@ import "./theme/fonts.scss";
 /* Custom styles */
 import "./theme/global.scss";
 
+// http.service is imported before the router exists, so hand it over here.
+setRouter(router);
+
 /* Plugins CSS styles */
 // REMOVED: v-calendar/style.css — now imported locally in Datepicker.vue
 const app = createApp(App);
