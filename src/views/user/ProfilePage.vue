@@ -556,6 +556,13 @@ onMounted(async () => {
   font-family: "Readex Pro", sans-serif;
 }
 
+.app-version {
+  margin: 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--ion-color-medium);
+}
+
 .full-profile-modal {
   --border-radius: 16px 16px 0 0;
 
