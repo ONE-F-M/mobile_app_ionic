@@ -25,9 +25,11 @@ const { checkForUpdates } = useResignationNotifier();
 useExitOnBack();
 const { addListeners } = usePushRegistration();
 const { checkAppVersion } = useAppVersion();
+const { start: startNetworkStatus } = useNetworkStatus();
 let appStateListener;
 
 onMounted(async () => {
+  startNetworkStatus().catch((err) => console.warn("Network status unavailable: ", err));
   checkAppVersion();
   checkForUpdates();
   // A signed-in launch never reaches the login page, so the tap listener is attached here.
