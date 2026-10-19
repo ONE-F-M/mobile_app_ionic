@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, test } from "vitest";
 
@@ -28,6 +28,14 @@ describe("Android release workflow", () => {
 
   test("has no arithmetic inside an expression, which GitHub rejects", () => {
     expect(workflow).not.toMatch(/\$\{\{[^}]*\s[-+*/]\s[^}]*\}\}/);
+  });
+
+  test("sets no VITE_ variable, so the committed .env.production supplies the server URL", () => {
+    expect(workflow).not.toMatch(/^\s+VITE_[A-Z_]+:/m);
+  });
+
+  test("has no separate test-production workflow", () => {
+    expect(existsSync(resolve(__dirname, "../../.github/workflows/build-test-production-apk.yml"))).toBe(false);
   });
 
   test("uploads the bundle to the internal track of the live package", () => {
