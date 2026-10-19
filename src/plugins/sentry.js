@@ -2,8 +2,6 @@ import * as Sentry from "@sentry/capacitor";
 import * as SentryVue from "@sentry/vue";
 import { scrub } from "@/utils/sentryScrub.js";
 
-const WEBVIEW = /(Chrome|AppleWebKit)\/([\d.]+)/;
-
 export const initSentry = (app) => {
   const dsn = import.meta.env.VITE_SENTRY_DSN;
   if (!dsn) return;
@@ -19,6 +17,8 @@ export const initSentry = (app) => {
     },
     SentryVue.init,
   );
-  const match = WEBVIEW.exec(navigator.userAgent);
-  if (match) Sentry.setTag("webview", `${match[1]} ${match[2]}`);
+  // Android WebView user agents also contain AppleWebKit, so Chrome is checked first.
+  const ua = navigator.userAgent;
+  const match = /Chrome\/([\d.]+)/.exec(ua) || /AppleWebKit\/([\d.]+)/.exec(ua);
+  if (match) Sentry.setTag("webview", `${match[0].split("/")[0]} ${match[1]}`);
 };
