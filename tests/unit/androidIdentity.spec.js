@@ -10,7 +10,7 @@ describe("Android application identity", () => {
   test("namespace matches the store application id", () => {
     const gradle = read("build.gradle");
     expect(gradle).toContain(`applicationId "${APP_ID}"`);
-    expect(gradle).toContain(`namespace "${APP_ID}"`);
+    expect(gradle).toContain(`namespace = "${APP_ID}"`);
   });
 
   test("MainActivity lives in the application package", () => {
