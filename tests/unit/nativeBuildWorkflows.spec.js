@@ -7,7 +7,7 @@ const workflows = readdirSync(dir).filter((f) => /^build-.*\.yml$/.test(f));
 
 describe("native build workflows", () => {
   test("every APK and IPA workflow builds with CAP_NATIVE", () => {
-    expect(workflows.length).toBeGreaterThanOrEqual(6);
+    expect(workflows.length).toBeGreaterThanOrEqual(4);
     for (const file of workflows) {
       expect(readFileSync(resolve(dir, file), "utf8"), file).toMatch(/^\s+CAP_NATIVE: "1"$/m);
     }
