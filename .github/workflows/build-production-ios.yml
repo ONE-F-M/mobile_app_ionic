@@ -10,6 +10,7 @@ jobs:
   build_with_signing:
     env:
      CAP_NATIVE: "1"
+     SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
     runs-on: macos-26
     steps:
       # this was more debug as was curious what came pre-installed
@@ -89,6 +90,10 @@ jobs:
           -configuration Release \
           -destination generic/platform=iOS \
           clean archive          
+
+      - name: Upload debug symbols to Sentry
+        if: env.SENTRY_AUTH_TOKEN != ''
+        run: npx sentry-cli --url https://de.sentry.io/ debug-files upload --org one-fm --project one-fm-mobile "$RUNNER_TEMP/app.xcarchive/dSYMs"
 
       - name: Export IPA
         run: |

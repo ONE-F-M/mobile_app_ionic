@@ -20,4 +20,14 @@ export default {
   image_updated: "تم تحديث صورة الملف الشخصي بنجاح",
   set_profile_image: "تعيين صورة الملف الشخصي",
   version: "الإصدار",
+  debug_menu: {
+    title: "فحص الإبلاغ عن الأعطال",
+    test_error: "إرسال خطأ تجريبي",
+    native_crash: "اختبار توقف التطبيق",
+    sent: "تم إرسال الخطأ التجريبي",
+    crash_title: "إغلاق التطبيق؟",
+    crash_message: "سيُغلق التطبيق عمدًا. افتحه مرة أخرى لإرسال تقرير التوقف.",
+    crash_confirm: "إيقاف التطبيق",
+    cancel: "إلغاء",
+  },
 };

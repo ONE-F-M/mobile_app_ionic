@@ -10,7 +10,9 @@ import { Capacitor } from "@capacitor/core";
 import { useLangStore } from "@/store/lang.js";
 import pinia from "@/plugins/pinia.js";
 import initI18n from "@/plugins/i18n.js";
-import { isWebViewTooOld, showWebViewGate } from "@/utils/webViewGate.js";
+import { isWebViewTooOld, showWebViewGate, webViewMajor } from "@/utils/webViewGate.js";
+import { initSentry } from "@/plugins/sentry.js";
+import { captureMessage } from "@sentry/capacitor";
 import { loadLocaleFonts } from "@/utils/localeFonts.js";
 
 import { createAnimation, IonicVue } from "@ionic/vue";
@@ -50,6 +52,7 @@ setRouter(router);
 /* Plugins CSS styles */
 // REMOVED: v-calendar/style.css — now imported locally in Datepicker.vue
 const app = createApp(App);
+initSentry(app);
 app.use(pinia);
 app.component("MdiIcon", MdiIcon);
 // VCalendar removed from global registration — see Datepicker.vue for local usage
@@ -108,6 +111,7 @@ router.isReady().then(async () => {
     app.mount("#app");
     SplashScreen.hide().catch((err) => console.warn("Could not hide the splash screen:", err));
     if (webViewTooOld) {
+      captureMessage("webview_too_old", { level: "warning", tags: { webview_major: String(webViewMajor(navigator.userAgent)) } });
       showWebViewGate(i18n.global.t, navigator.userAgent);
     }
   }

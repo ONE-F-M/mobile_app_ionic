@@ -10,6 +10,7 @@ jobs:
   build:
     env:
       CAP_NATIVE: "1"
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
     name: Build and upload the signed bundle
     runs-on: ubuntu-latest
     steps:
