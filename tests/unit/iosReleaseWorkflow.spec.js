@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, test } from "vitest";
 
@@ -21,6 +21,15 @@ describe("iOS release workflow", () => {
     expect(workflow).toContain("corepack yarn@3.8.7 build:native --mode production");
     expect(workflow).toContain("npx cap sync ios");
     expect(workflow).not.toContain("ionic capacitor sync");
+  });
+
+  test("sets no VITE_ variable, so .env.production supplies the server URL, and runs on macos-26", () => {
+    expect(workflow).not.toMatch(/^\s+VITE_[A-Z_]+:/m);
+    expect(workflow).toMatch(/^\s+runs-on: macos-26$/m);
+  });
+
+  test("has no separate test-production iOS workflow", () => {
+    expect(existsSync(resolve(__dirname, "../../.github/workflows/build-test-production-ios.yml"))).toBe(false);
   });
 
   test("gives every upload a new build number", () => {
