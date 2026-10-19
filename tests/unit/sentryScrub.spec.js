@@ -9,6 +9,11 @@ describe("scrub", () => {
     expect(crumb.data.url).toBe(`https://x.one-fm.com/api/method/v1.r?employee_id=${F}&token=${F}&page=2`);
   });
 
+  test("removes employee_id from a bare query string, as native HTTP breadcrumbs record it", () => {
+    const crumb = scrub({ data: { "http.query": "employee_id=2602012XX100&from_date=2025-10-19" } });
+    expect(crumb.data["http.query"]).toBe(`employee_id=${F}&from_date=2025-10-19`);
+  });
+
   test("replaces values of sensitive keys at any depth", () => {
     const event = scrub({
       request: { headers: { Authorization: "Bearer abc.def", Accept: "application/json" } },

@@ -1,6 +1,6 @@
 const FILTERED = "[Filtered]";
 const SENSITIVE_KEY = /employee|token|authorization|password|secret|cookie|video|base64|attachment/i;
-const SENSITIVE_PARAM = /([?&](?:employee_id|employee|token|password|api_key)=)[^&#\s]*/gi;
+const SENSITIVE_PARAM = /((?:^|[?&])(?:employee_id|employee|token|password|api_key)=)[^&#\s]*/gi;
 const BEARER = /\b(Bearer|token)\s+[\w.:-]+/gi;
 const LONG_BASE64 = /[A-Za-z0-9+/=]{200,}/g;
 
