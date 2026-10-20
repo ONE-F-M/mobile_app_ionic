@@ -9,6 +9,7 @@ export default {
   from_date: "من تاريخ",
   to_date: "حتى تاريخ",
   select_leave_type: "اختر نوع الإجازة",
+  select_reliever: "اختر البديل",
   enter_reason: "أدخل السبب هنا",
   card: {
     type: {
@@ -63,6 +64,12 @@ export default {
     posting_date: "تاريخ النشر",
     total_leaves_days: "إجمالي أيام الإجازات",
     save_leaves_application: "حفظ طلب الإجازة",
+    reliever: "البديل",
     resumption_date: "تاريخ العودة للعمل"
+  },
+  change_status: {
+    accept_leave: "قبول الإجازة",
+    reject_leave: "رفض الإجازة",
+    confirm_text: "هل أنت متأكد أنك تريد قبول طلب الإجازة",
   },
 };
