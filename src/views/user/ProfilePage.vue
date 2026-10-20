@@ -30,6 +30,7 @@ import useDisplayImage from "@/composable/useDisplayImage";
 import { usePushRegistration } from "@/composable/usePushRegistration";
 import { Capacitor } from '@capacitor/core';
 import { useFileAttachment } from "@/composable/useFileAttachment";
+import { useDebugMenu } from "@/composable/useDebugMenu";
 import { resizeDataUrl } from "@/utils/resizeImage.js";
 
 const { pickPhoto } = useFileAttachment();
@@ -184,6 +185,7 @@ onIonViewWillEnter(async () => {
 
 // The native shell's version and build; App.getInfo is not available on the web.
 const appVersion = ref(null);
+const { onVersionTap } = useDebugMenu();
 
 onIonViewWillEnter(async () => {
   if (appVersion.value || !Capacitor.isNativePlatform()) return;
@@ -336,7 +338,11 @@ onIonViewWillEnter(async () => {
             {{ $t("user.profile.logout") }}
           </ion-button>
 
-          <p v-if="appVersion" class="app-version">
+          <p
+            v-if="appVersion"
+            class="app-version"
+            @click="onVersionTap"
+          >
             {{ $t("user.profile.version") }} {{ appVersion.version }} ({{ appVersion.build }})
           </p>
         </div>

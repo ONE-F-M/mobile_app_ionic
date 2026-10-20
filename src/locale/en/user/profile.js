@@ -20,4 +20,14 @@ export default {
   image_updated: "Profile image updated successfully",
   set_profile_image: "Set Profile Image",
   version: "Version",
+  debug_menu: {
+    title: "Crash reporting checks",
+    test_error: "Send test error",
+    native_crash: "Test native crash",
+    sent: "Test error sent",
+    crash_title: "Close the app?",
+    crash_message: "The app will close on purpose. Open it again to send the crash report.",
+    crash_confirm: "Crash the app",
+    cancel: "Cancel",
+  },
 };

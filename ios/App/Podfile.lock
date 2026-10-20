@@ -85,6 +85,12 @@ PODS:
   - nanopb/decode (3.30910.0)
   - nanopb/encode (3.30910.0)
   - PromisesObjC (2.4.1)
+  - Sentry (9.16.1):
+    - Sentry/Core (= 9.16.1)
+  - Sentry/Core (9.16.1)
+  - SentryCapacitor (4.3.0):
+    - Capacitor
+    - Sentry (= 9.16.1)
 
 DEPENDENCIES:
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
@@ -102,6 +108,7 @@ DEPENDENCIES:
   - "CapacitorPushNotifications (from `../../node_modules/@capacitor/push-notifications`)"
   - "CapacitorSplashScreen (from `../../node_modules/@capacitor/splash-screen`)"
   - FirebaseMessaging (~> 11.0)
+  - "SentryCapacitor (from `../../node_modules/@sentry/capacitor`)"
 
 SPEC REPOS:
   trunk:
@@ -116,6 +123,7 @@ SPEC REPOS:
     - IONGeolocationLib
     - nanopb
     - PromisesObjC
+    - Sentry
 
 EXTERNAL SOURCES:
   Capacitor:
@@ -146,6 +154,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/push-notifications"
   CapacitorSplashScreen:
     :path: "../../node_modules/@capacitor/splash-screen"
+  SentryCapacitor:
+    :path: "../../node_modules/@sentry/capacitor"
 
 SPEC CHECKSUMS:
   Capacitor: 59aea4e8bd98b24b798919b4c55ae90c6ded1b0d
@@ -173,7 +183,9 @@ SPEC CHECKSUMS:
   IONGeolocationLib: a125d4f91ea353652026e5da6e5bee0414a57d37
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   PromisesObjC: 752c3227f599e3467650e47ea36f433eeb10c273
+  Sentry: e5d82a3c1f2d951f75c04c57215a0abb1facbd51
+  SentryCapacitor: 51a84af1e21f72895220340fe3b4e419dad43b5d
 
-PODFILE CHECKSUM: 7bd2d4dac6425b68ed3dbde36f0447e5ef3bfecb
+PODFILE CHECKSUM: e97a3fbd1680c14f92ef1010c85ee0f976cd7ac1
 
 COCOAPODS: 1.17.0

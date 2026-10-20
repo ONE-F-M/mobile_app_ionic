@@ -4,7 +4,7 @@ import pluginVue from "eslint-plugin-vue";
 import prettier from "eslint-config-prettier";
 
 export default [
-  { languageOptions: { globals: globals.browser } },
+  { languageOptions: { globals: { ...globals.browser, __APP_VERSION__: "readonly" } } },
   pluginJs.configs.recommended,
   ...pluginVue.configs["flat/essential"],
   prettier,

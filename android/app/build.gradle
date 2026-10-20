@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'io.sentry.android.gradle'
 
 // Release signing comes from android/keystore.properties on a laptop or ANDROID_* variables in CI.
 def keystoreProperties = new Properties()
@@ -65,6 +66,25 @@ dependencies {
 
     implementation platform('com.google.firebase:firebase-bom:32.8.1')
     implementation 'com.google.firebase:firebase-analytics'
+}
+
+// The release build uploads its R8 mapping to Sentry only when CI provides the token.
+def sentryAuthToken = System.getenv('SENTRY_AUTH_TOKEN') ?: ''
+sentry {
+    org = 'one-fm'
+    projectName = 'one-fm-mobile'
+    url = 'https://de.sentry.io/'
+    authToken = sentryAuthToken
+    autoUploadProguardMapping = !sentryAuthToken.isEmpty()
+    uploadNativeSymbols = false
+    includeSourceContext = false
+    telemetry = false
+    autoInstallation {
+        enabled = false
+    }
+    tracingInstrumentation {
+        enabled = false
+    }
 }
 
 apply from: 'capacitor.build.gradle'
