@@ -9,7 +9,43 @@ export const API_PREFIX =
 // Shared in-flight refresh so concurrent 401s trigger only one token refresh.
 let refreshPromise: Promise<boolean> | null = null;
 
-const DEFAULT_HEADERS = (method: "get" | "post" | "put" | "delete") => {
+// Endpoints that are reached before the user has a session. A 401 from one of these
+// is the server's ANSWER (wrong password, disabled account, bad OTP) - not an expired
+// session - so it must never trigger logout + redirect. Doing so tears the page down
+// before LoginPage can render "invalid password", which is why users report being
+// "kicked back to the Employee ID screen" instead of being told their password is wrong.
+// Matched in full, never as a substring: "v1.utils.enrollment_status" is a DIFFERENT,
+// session-protected endpoint from the guest "v1.authentication.enrollment_status".
+const GUEST_ENDPOINTS = [
+  "v1.authentication.user_login",
+  "v1.authentication.forgot_password",
+  "v1.authentication.verify_otp",
+  "v1.authentication.change_password",
+  "v1.authentication.enrollment_status",
+];
+
+// Endpoints that must never carry the stored bearer token: the guest ones, plus the
+// refresh call itself. By the time we refresh, the access token is expired by
+// definition, and frappe/auth.py:629 rejects ANY request carrying an unusable bearer
+// with a 401 before the whitelisted method runs - so attaching it made every refresh
+// fail and silently defeated the stay-signed-in flow.
+const NO_AUTH_HEADER_ENDPOINTS = [
+  ...GUEST_ENDPOINTS,
+  "v1.authentication.refresh_token",
+];
+
+const endpointOf = (url: string) => url.split("?")[0];
+
+const isGuestEndpoint = (url: string) =>
+  GUEST_ENDPOINTS.includes(endpointOf(url));
+
+const skipAuthHeader = (url: string) =>
+  NO_AUTH_HEADER_ENDPOINTS.includes(endpointOf(url));
+
+const DEFAULT_HEADERS = (
+  method: "get" | "post" | "put" | "delete",
+  skipAuth = false,
+) => {
   const userStore = useUserStore();
 
   const headers = {
@@ -22,7 +58,11 @@ const DEFAULT_HEADERS = (method: "get" | "post" | "put" | "delete") => {
     delete headers["Content-Type"];
   }
 
-  if (userStore.token) {
+  // A leftover token on a guest endpoint is rejected by Frappe's validate_auth()
+  // with a framework 401 before our whitelisted method ever runs - no Activity Log,
+  // no error log, and the login simply appears to fail. Send credentials only where
+  // they mean something.
+  if (userStore.token && !skipAuth) {
     headers["Authorization"] = `${userStore.token}`;
   }
 
@@ -68,8 +108,10 @@ export const httpService = {
     options?: Omit<HttpOptions, "url">,
     isRetry = false,
   ) => {
+    const isGuestCall = isGuestEndpoint(url);
+
     const mergedHeaders = {
-      ...DEFAULT_HEADERS(method),
+      ...DEFAULT_HEADERS(method, skipAuthHeader(url)),
       ...options?.headers,
     };
 
@@ -99,6 +141,13 @@ export const httpService = {
 
     // Handle 401 Unauthorized — session expired or invalid token
     if (response.status === 401) {
+      // On a guest endpoint the 401 IS the answer (wrong password, disabled
+      // account, bad OTP). Hand it to the caller so it can show a field-level
+      // error; never log out or navigate, or the message is never seen.
+      if (isGuestCall) {
+        throw response;
+      }
+
       const userStore = useUserStore();
 
       // Try a one-shot token refresh before giving up, so a merely-expired
