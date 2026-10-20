@@ -102,6 +102,18 @@ describe("usePushRegistration on web", () => {
       device_os: "web",
     });
   });
+
+  test("unregister still clears the backend token when deleteToken fails", async () => {
+    const { push, messaging, profile } = await load();
+    const failure = new Error("messaging/token-unsubscribe-failed");
+    messaging.deleteToken.mockRejectedValueOnce(failure);
+    await expect(push.unregister()).rejects.toBe(failure);
+    expect(profile.setDeviceIdNotifications).toHaveBeenCalledWith({
+      fcm_token: "",
+      employee_id: "EMP-1",
+      device_os: "web",
+    });
+  });
 });
 
 describe("usePushRegistration on native", () => {
