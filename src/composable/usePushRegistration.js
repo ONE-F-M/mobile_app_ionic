@@ -172,12 +172,17 @@ export function usePushRegistration() {
   const unregister = async () => {
     const employeeId = authStore.employeeIdentificator;
 
-    if (isNative()) {
-      await PushNotifications.unregister();
-    } else {
-      const { getMessaging, deleteToken } = await import("firebase/messaging");
-      const app = await initializeFirebase();
-      await deleteToken(getMessaging(app));
+    let deviceError = null;
+    try {
+      if (isNative()) {
+        await PushNotifications.unregister();
+      } else {
+        const { getMessaging, deleteToken } = await import("firebase/messaging");
+        const app = await initializeFirebase();
+        await deleteToken(getMessaging(app));
+      }
+    } catch (err) {
+      deviceError = err;
     }
 
     authStore.setFcmToken(null);
@@ -189,6 +194,8 @@ export function usePushRegistration() {
       employee_id: employeeId,
       device_os: getDeviceOs(),
     });
+
+    if (deviceError) throw deviceError;
   };
 
   return { register, unregister, addListeners };
