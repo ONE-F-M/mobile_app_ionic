@@ -48,6 +48,7 @@ export default {
     success_msg: "Resignation Withdrawal processed successfully.",
   },
   attach_document: "Take Photo",
+  photo_too_large: "The photo is larger than 5 MB. Please take it again.",
   extension: {
     title: "Extend / Reduce Resignation",
     tracker_description: "You are requesting to adjust the relieving date of the following active resignation:",

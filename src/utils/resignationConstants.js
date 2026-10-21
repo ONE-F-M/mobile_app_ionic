@@ -41,3 +41,15 @@ const STATE_I18N_KEYS = {
 
 export const getStateI18nKey = (state) =>
   state && STATE_I18N_KEYS[state] ? `resignation.state.${STATE_I18N_KEYS[state]}` : null;
+
+// A withdrawal is still under review until it is approved or rejected
+export const isWithdrawalPending = (resignation) => {
+  const state = resignation?.withdrawal_state;
+  return !!state && !["Approved", "Rejected"].includes(state);
+};
+
+// A submitted resignation can be withdrawn while it is still under review, not only once approved
+export const canWithdrawResignation = (resignation) => {
+  const state = resignation?.workflow_state;
+  return !!state && state !== "Draft";
+};
