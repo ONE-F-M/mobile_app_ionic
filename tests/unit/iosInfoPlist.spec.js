@@ -9,6 +9,7 @@ const project = readFileSync(resolve(iosApp, "App.xcodeproj/project.pbxproj"), "
 const PERMISSION_KEYS = [
   "NSCameraUsageDescription",
   "NSLocationWhenInUseUsageDescription",
+  "NSLocationAlwaysAndWhenInUseUsageDescription",
   "NSPhotoLibraryUsageDescription",
   "NSPhotoLibraryAddUsageDescription",
 ];
@@ -47,6 +48,11 @@ describe("iOS permission prompts", () => {
       expect(text, key).toMatch(/^ONE FM .+\.$/);
       expect(text, key).not.toMatch(/Privacy -|Allow to use/);
     }
+  });
+
+  test("uses the check-in reason for the Always location key the geolocation plugin requires", () => {
+    expect(plistString("NSLocationAlwaysAndWhenInUseUsageDescription")).toBe(plistString("NSLocationWhenInUseUsageDescription"));
+    expect(plist).not.toContain("<string>location</string>");
   });
 
   test("English and Arabic strings cover every prompt and are registered with Xcode", () => {
