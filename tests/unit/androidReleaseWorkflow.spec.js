@@ -42,6 +42,7 @@ describe("Android release workflow", () => {
     expect(workflow).toContain("packageName: com.onefacilitiesmanagement.android.app");
     expect(workflow).toContain("releaseFiles: android/app/build/outputs/bundle/release/app-release.aab");
     expect(workflow).toContain("track: internal");
+    expect(workflow).toContain("mappingFile: android/app/build/outputs/mapping/release/mapping.txt");
     expect(workflow).toContain("secrets.PLAY_SERVICE_ACCOUNT_JSON");
   });
 });

@@ -32,6 +32,15 @@ describe("iOS release workflow", () => {
     expect(existsSync(resolve(__dirname, "../../.github/workflows/build-test-production-ios.yml"))).toBe(false);
   });
 
+  test("imports the distribution certificate and profile once", () => {
+    expect(workflow.match(/security import /g)).toHaveLength(1);
+    expect(workflow).not.toMatch(/EXPORT_CERT|EXPORT_PROFILE/);
+  });
+
+  test("uploads to TestFlight with an action on a supported Node runtime", () => {
+    expect(workflow).toContain("uses: apple-actions/upload-testflight-build@v5");
+  });
+
   test("gives every upload a new build number", () => {
     expect(workflow).toContain("- name: Set the version");
     expect(workflow).toContain("node scripts/set-native-version.mjs ${{ github.run_number }}");
