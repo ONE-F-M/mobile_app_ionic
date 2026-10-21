@@ -41,6 +41,31 @@ export function useFileAttachment() {
     }
   };
 
+  /**
+   * Generic native picker: camera, gallery or the system prompt, depending on source.
+   * Resolves { name, dataUrl } or null when the user cancels or the picker fails.
+   */
+  const pickPhoto = async (prefix, source = CameraSource.Prompt) => {
+    try {
+      const photo = await Camera.getPhoto({
+        source,
+        resultType: CameraResultType.DataUrl,
+        quality: 80,
+        width: 1600,
+        height: 1600,
+      });
+      return {
+        name: `${prefix}-${Date.now()}.${photo.format || 'jpeg'}`,
+        dataUrl: photo.dataUrl,
+      };
+    } catch (error) {
+      // Backing out of the picker is not an error.
+      if (error?.message?.toLowerCase().includes('cancel')) return null;
+      showErrorToast(null, "Unable to take photo. Please try again.");
+      return null;
+    }
+  };
+
   const clearAttachment = () => {
     attachment.value.name = null;
     attachment.value.base64 = null;
@@ -49,6 +74,7 @@ export function useFileAttachment() {
   return {
     attachment,
     takePhoto,
+    pickPhoto,
     clearAttachment
   };
 }

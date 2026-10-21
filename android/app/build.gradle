@@ -1,25 +1,47 @@
 apply plugin: 'com.android.application'
+apply plugin: 'io.sentry.android.gradle'
+
+// Release signing comes from android/keystore.properties on a laptop or ANDROID_* variables in CI.
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('keystore.properties')
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.withInputStream { keystoreProperties.load(it) }
+}
+def signingValue = { String property, String variable -> keystoreProperties.getProperty(property) ?: System.getenv(variable) }
+def keystorePath = signingValue('storeFile', 'ANDROID_KEYSTORE_PATH')
 
 android {
-    namespace "io.ionic.starter"
-    compileSdkVersion rootProject.ext.compileSdkVersion
+    namespace = "com.onefacilitiesmanagement.android.app"
+    compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
         applicationId "com.onefacilitiesmanagement.android.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        manifestPlaceholders.googleApiKey = "AIzaSyCtN1XcvXyIigYGW6XSK-LFG1up2luh8Os"
-        versionCode 1
-        versionName "1.0"
+        versionCode 60
+        versionName "7.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
              // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
-            ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+            ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+    signingConfigs {
+        release {
+            if (keystorePath) {
+                storeFile file(keystorePath)
+                storePassword signingValue('storePassword', 'ANDROID_KEYSTORE_PASSWORD')
+                keyAlias signingValue('keyAlias', 'ANDROID_KEY_ALIAS')
+                keyPassword signingValue('keyPassword', 'ANDROID_KEY_PASSWORD')
+            }
         }
     }
     buildTypes {
         release {
-            minifyEnabled false
+            // Without a keystore the release build is left unsigned, so a laptop without the key can still build it.
+            signingConfig keystorePath ? signingConfigs.release : null
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -44,6 +66,25 @@ dependencies {
 
     implementation platform('com.google.firebase:firebase-bom:32.8.1')
     implementation 'com.google.firebase:firebase-analytics'
+}
+
+// The release build uploads its R8 mapping to Sentry only when CI provides the token.
+def sentryAuthToken = System.getenv('SENTRY_AUTH_TOKEN') ?: ''
+sentry {
+    org = 'one-fm'
+    projectName = 'one-fm-mobile'
+    url = 'https://de.sentry.io/'
+    authToken = sentryAuthToken
+    autoUploadProguardMapping = !sentryAuthToken.isEmpty()
+    uploadNativeSymbols = false
+    includeSourceContext = false
+    telemetry = false
+    autoInstallation {
+        enabled = false
+    }
+    tracingInstrumentation {
+        enabled = false
+    }
 }
 
 apply from: 'capacitor.build.gradle'

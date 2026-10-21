@@ -35,6 +35,8 @@ npm-debug.log*
 /plugins
 /www
 .env
+.env.local
+.env.*.local
 Session.vim
 
 # Build generated

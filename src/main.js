@@ -2,16 +2,21 @@ import { createApp } from "vue";
 import App from "./App.vue";
 import MdiIcon from "@/components/base/MdiIcon.vue";
 import router from "./router";
+import { setRouter, setTranslator } from "@/api/http.service";
 import "dayjs/locale/en";
 import "dayjs/locale/ar";
 
-import { initializeFirebase, getFirebaseMessaging } from "@/services/firebase";
+import { Capacitor } from "@capacitor/core";
 import { useLangStore } from "@/store/lang.js";
-import { registerServiceWorker } from "@/services/serviceWorker";
 import pinia from "@/plugins/pinia.js";
 import initI18n from "@/plugins/i18n.js";
+import { isWebViewTooOld, showWebViewGate, webViewMajor } from "@/utils/webViewGate.js";
+import { initSentry } from "@/plugins/sentry.js";
+import { captureMessage } from "@sentry/capacitor";
+import { loadLocaleFonts } from "@/utils/localeFonts.js";
 
 import { createAnimation, IonicVue } from "@ionic/vue";
+import { SplashScreen } from "@capacitor/splash-screen";
 
 /* Import components */
 // REMOVED: VCalendar global registration — moved to local import in Datepicker.vue
@@ -41,9 +46,13 @@ import "./theme/fonts.scss";
 /* Custom styles */
 import "./theme/global.scss";
 
+// http.service is imported before the router exists, so hand it over here.
+setRouter(router);
+
 /* Plugins CSS styles */
 // REMOVED: v-calendar/style.css — now imported locally in Datepicker.vue
 const app = createApp(App);
+initSentry(app);
 app.use(pinia);
 app.component("MdiIcon", MdiIcon);
 // VCalendar removed from global registration — see Datepicker.vue for local usage
@@ -65,6 +74,8 @@ const animationPage = (baseEl, opts) => {
     .addAnimation([enteringPage, leavingPage]);
 };
 
+const webViewTooOld = isWebViewTooOld(navigator.userAgent, Capacitor.getPlatform());
+
 app
   .use(IonicVue, {
     navAnimation: animationPage,
@@ -73,13 +84,21 @@ app
 
 const langStore = useLangStore();
 const lang = langStore.lang || "en";
+loadLocaleFonts([lang]);
 const i18n = initI18n(lang);
+setTranslator(i18n.global.t);
 app.use(i18n);
+
+const isWeb = Capacitor.getPlatform() === "web";
 
 router.isReady().then(async () => {
   try {
-    await registerServiceWorker();
-    await getFirebaseMessaging();
+    if (isWeb) {
+      const { registerServiceWorker } = await import("@/services/serviceWorker");
+      const { getFirebaseMessaging } = await import("@/services/firebase");
+      await registerServiceWorker();
+      await getFirebaseMessaging();
+    }
   } catch (e) {
     if (e?.message?.includes?.('apiKey')) {
       console.warn("Dev mode: Skipping Firebase/SW initialization due to missing environment keys.");
@@ -90,11 +109,19 @@ router.isReady().then(async () => {
   } finally {
     // ALWAYS mount the app, even if Firebase fails
     app.mount("#app");
+    SplashScreen.hide().catch((err) => console.warn("Could not hide the splash screen:", err));
+    if (webViewTooOld) {
+      captureMessage("webview_too_old", { level: "warning", tags: { webview_major: String(webViewMajor(navigator.userAgent)) } });
+      showWebViewGate(i18n.global.t, navigator.userAgent);
+    }
   }
 });
 
-// Non-blocking background initialization
-registerServiceWorker()
-  .then(() => getFirebaseMessaging())
-  .catch((err) => console.warn('Background init failed:', err));
+if (isWeb) {
+  Promise.all([import("@/services/serviceWorker"), import("@/services/firebase")])
+    .then(([{ registerServiceWorker }, { getFirebaseMessaging }]) =>
+      registerServiceWorker().then(() => getFirebaseMessaging())
+    )
+    .catch((err) => console.warn('Background init failed:', err));
+}
 

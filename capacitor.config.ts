@@ -2,6 +2,7 @@ import { CapacitorConfig } from "@capacitor/cli";
 import { KeyboardResize } from '@capacitor/keyboard';
 
 const config: CapacitorConfig = {
+  // iOS bundle id; Android uses applicationId com.onefacilitiesmanagement.android.app in android/app/build.gradle.
   appId: "com.onefacilitiesmanagement.ios.apps",
   appName: "OneFMMobile",
   webDir: "dist",
@@ -9,7 +10,6 @@ const config: CapacitorConfig = {
     hostname: "localhost",
     androidScheme: "https",
     iosScheme: "https",
-    allowNavigation: ["https://staging.one-fm.com/*"],
   },
   plugins: {
     CapacitorHttp: {
@@ -20,7 +20,11 @@ const config: CapacitorConfig = {
     },
     Keyboard: {
       resize: KeyboardResize.None,
-    }
+    },
+    SplashScreen: {
+      launchAutoHide: false,
+      backgroundColor: "#171717",
+    },
   },
 };
 

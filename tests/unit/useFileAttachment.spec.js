@@ -1,25 +1,81 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Capacitor } from "@capacitor/core";
-import { Camera } from "@capacitor/camera";
 import { compressImageDataUrl } from "@/utils/compressImage";
-import { useFileAttachment } from "@/composable/useFileAttachment";
+
+const { getPhoto, showErrorToast } = vi.hoisted(() => ({
+  getPhoto: vi.fn(),
+  showErrorToast: vi.fn(),
+}));
 
 vi.mock("@capacitor/core", () => ({ Capacitor: { isNativePlatform: vi.fn() } }));
 vi.mock("@capacitor/camera", () => ({
-  Camera: { getPhoto: vi.fn() },
+  Camera: { getPhoto },
   CameraResultType: { DataUrl: "dataUrl" },
-  CameraSource: { Camera: "CAMERA" },
+  CameraSource: { Prompt: "PROMPT", Camera: "CAMERA", Photos: "PHOTOS" },
 }));
-const { showErrorToast } = vi.hoisted(() => ({ showErrorToast: vi.fn() }));
-
 vi.mock("@/utils/compressImage", () => ({ compressImageDataUrl: vi.fn() }));
 vi.mock("@/composable/toast.js", () => ({ useCustomToast: () => ({ showErrorToast }) }));
 vi.mock("vue-i18n", () => ({ useI18n: () => ({ t: (key) => key }) }));
 
+import { useFileAttachment } from "@/composable/useFileAttachment";
+
+describe("useFileAttachment.pickPhoto", () => {
+  beforeEach(() => {
+    getPhoto.mockReset();
+    showErrorToast.mockReset();
+  });
+
+  it("uses the Prompt source by default and returns name and dataUrl", async () => {
+    getPhoto.mockResolvedValue({ dataUrl: "data:image/png;base64,AAA", format: "png" });
+
+    const { pickPhoto } = useFileAttachment();
+    const result = await pickPhoto("profile");
+
+    expect(getPhoto).toHaveBeenCalledWith({
+      source: "PROMPT",
+      resultType: "dataUrl",
+      quality: 80,
+      width: 1600,
+      height: 1600,
+    });
+    expect(result.dataUrl).toBe("data:image/png;base64,AAA");
+    expect(result.name).toMatch(/^profile-\d+\.png$/);
+    expect(showErrorToast).not.toHaveBeenCalled();
+  });
+
+  it("passes an explicit source through to getPhoto", async () => {
+    getPhoto.mockResolvedValue({ dataUrl: "data:image/jpeg;base64,BBB", format: "jpeg" });
+
+    const { pickPhoto } = useFileAttachment();
+    const result = await pickPhoto("leave-proof", "CAMERA");
+
+    expect(getPhoto).toHaveBeenCalledWith(expect.objectContaining({ source: "CAMERA" }));
+    expect(result.name).toMatch(/^leave-proof-\d+\.jpeg$/);
+  });
+
+  it("returns null without a toast when the user cancels", async () => {
+    getPhoto.mockRejectedValue(new Error("User cancelled photos app"));
+
+    const { pickPhoto } = useFileAttachment();
+
+    expect(await pickPhoto("profile")).toBeNull();
+    expect(showErrorToast).not.toHaveBeenCalled();
+  });
+
+  it("shows the error toast and returns null on any other error", async () => {
+    getPhoto.mockRejectedValue(new Error("Camera unavailable"));
+
+    const { pickPhoto } = useFileAttachment();
+
+    expect(await pickPhoto("profile")).toBeNull();
+    expect(showErrorToast).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe("useFileAttachment.takePhoto", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    Camera.getPhoto.mockResolvedValue({ dataUrl: "data:image/png;base64,ORIGINAL", format: "png" });
+    getPhoto.mockResolvedValue({ dataUrl: "data:image/png;base64,ORIGINAL", format: "png" });
     compressImageDataUrl.mockResolvedValue("data:image/jpeg;base64,COMPRESSED");
   });
 
@@ -47,7 +103,7 @@ describe("useFileAttachment.takePhoto", () => {
 
   it("uploads the original photo when the browser cannot redraw it", async () => {
     Capacitor.isNativePlatform.mockReturnValue(false);
-    Camera.getPhoto.mockResolvedValue({ dataUrl: "data:image/heic;base64,ORIGINAL", format: "heic" });
+    getPhoto.mockResolvedValue({ dataUrl: "data:image/heic;base64,ORIGINAL", format: "heic" });
     compressImageDataUrl.mockRejectedValue(new Error("Could not read the photo"));
     const { attachment, takePhoto } = useFileAttachment();
 
@@ -60,7 +116,7 @@ describe("useFileAttachment.takePhoto", () => {
 
   it("refuses a photo over 5 MB and says why", async () => {
     Capacitor.isNativePlatform.mockReturnValue(true);
-    Camera.getPhoto.mockResolvedValue({ dataUrl: "x".repeat(5 * 1024 * 1024 + 1), format: "jpeg" });
+    getPhoto.mockResolvedValue({ dataUrl: "x".repeat(5 * 1024 * 1024 + 1), format: "jpeg" });
     const { attachment, takePhoto } = useFileAttachment();
 
     await takePhoto();

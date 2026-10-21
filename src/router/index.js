@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "@ionic/vue-router";
 import { authGuard } from "@/middleware/loggedIn";
+import { authStorageReady } from "@/utils/authStorage";
 import EnrollmentStartPage from "@/views/enrollment/EnrollmentStartPage.vue";
 import { useUserStore } from "@/store/user";
 
@@ -161,6 +162,7 @@ const router = createRouter({
   routes,
 });
 
+router.beforeEach(() => authStorageReady);
 router.beforeEach(authGuard);
 
 export default router;

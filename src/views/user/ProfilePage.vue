@@ -22,13 +22,18 @@ import PenIcon from "@/components/icon/PenIcon.vue";
 
 import { useUserStore } from "@/store/user";
 import { computed, reactive, ref } from "vue";
+import { App } from "@capacitor/app";
 import { useLangStore } from "@/store/lang.js";
 import profile from "@/api/profile";
 import { useCustomToast } from "@/composable/toast";
 import useDisplayImage from "@/composable/useDisplayImage";
-import useNotification from "@/composable/useNotification";
+import { usePushRegistration } from "@/composable/usePushRegistration";
 import { Capacitor } from '@capacitor/core';
+import { useFileAttachment } from "@/composable/useFileAttachment";
+import { useDebugMenu } from "@/composable/useDebugMenu";
+import { resizeDataUrl } from "@/utils/resizeImage.js";
 
+const { pickPhoto } = useFileAttachment();
 
 const { t } = useI18n();
 
@@ -54,7 +59,7 @@ const user = reactive({
 });
 
 const selectedLanguage = ref(langStore.lang);
-const { unRegisterNotifications } = useNotification();
+const { unregister } = usePushRegistration();
 
 const platform = computed(() => Capacitor.getPlatform());
 const isIOS = computed(() => platform.value === "ios");
@@ -81,6 +86,19 @@ const langSelectAlertOptions = {
   ...(!isIOS.value && { leaveAnimation: langSelectLeaveAnimation }),
 };
 
+const uploadImage = async (dataUrl) => {
+  const payload = {
+    employee_id: userStore.user?.employee_id,
+    // Base64 without the "data:...;base64," prefix.
+    image: dataUrl.split(",")[1],
+  };
+
+  await profile.updateProfileImage(payload);
+
+  await getUserDetails();
+  showSuccessToast(t("user.profile.image_updated"));
+};
+
 const updateImage = async (event) => {
   try {
     const file = event.target?.files[0];
@@ -97,15 +115,24 @@ const updateImage = async (event) => {
 
     const imageBase64 = await readerPromise;
 
-    const payload = {
-      employee_id: userStore.user?.employee_id,
-      image: imageBase64.split(",")[1],
-    };
+    await uploadImage(await resizeDataUrl(imageBase64));
+  } catch (error) {
+    console.error(error);
+    showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
+  }
+};
 
-    await profile.updateProfileImage(payload);
+// On native the label opens the camera/gallery prompt instead of the web file input.
+const onSetImageClick = async (event) => {
+  if (!Capacitor.isNativePlatform()) return;
 
-    await getUserDetails();
-    showSuccessToast(t("user.profile.image_updated"));
+  event.preventDefault();
+
+  const photo = await pickPhoto("profile");
+  if (!photo) return;
+
+  try {
+    await uploadImage(photo.dataUrl);
   } catch (error) {
     console.error(error);
     showErrorToast(error?.data?.message, error?.data?.error, error?.data?.status_code);
@@ -117,9 +144,15 @@ const changeLanguage = (lang) => {
   window.location.reload();
 };
 
-const logout = () => {
+const logout = async () => {
+  // Before logout: the backend call needs the session logout() clears.
+  try {
+    await unregister();
+  } catch (error) {
+    console.warn("Push unregistration failed:", error);
+  }
+
   userStore.logout();
-  unRegisterNotifications();
 
   router.navigate("/", "root");
 };
@@ -148,6 +181,21 @@ const getUserDetails = async () => {
 
 onIonViewWillEnter(async () => {
   await getUserDetails();
+});
+
+// The native shell's version and build; App.getInfo is not available on the web.
+const appVersion = ref(null);
+const { onVersionTap } = useDebugMenu();
+
+onIonViewWillEnter(async () => {
+  if (appVersion.value || !Capacitor.isNativePlatform()) return;
+
+  try {
+    const info = await App.getInfo();
+    appVersion.value = { version: info.version, build: info.build };
+  } catch (error) {
+    console.warn("Could not read the app version:", error);
+  }
 });
 </script>
 
@@ -201,7 +249,7 @@ onIonViewWillEnter(async () => {
                       alt="avatar"
                     />
                   </div>
-                  <label class="label-large" for="file_input">
+                  <label class="label-large" for="file_input" @click="onSetImageClick">
                     <input
                       id="file_input"
                       class="hidden"
@@ -280,14 +328,24 @@ onIonViewWillEnter(async () => {
           </div>
         </div>
 
-        <ion-button
-          class="logout-button title-medium"
-          expand="block"
-          shape="round"
-          @click="logout"
-        >
-          {{ $t("user.profile.logout") }}
-        </ion-button>
+        <div>
+          <ion-button
+            class="logout-button title-medium"
+            expand="block"
+            shape="round"
+            @click="logout"
+          >
+            {{ $t("user.profile.logout") }}
+          </ion-button>
+
+          <p
+            v-if="appVersion"
+            class="app-version"
+            @click="onVersionTap"
+          >
+            {{ $t("user.profile.version") }} {{ appVersion.version }} ({{ appVersion.build }})
+          </p>
+        </div>
       </div>
     </ion-content>
   </ion-page>
@@ -502,6 +560,13 @@ onIonViewWillEnter(async () => {
   margin-top: 24px;
   margin-bottom: 12px;
   font-family: "Readex Pro", sans-serif;
+}
+
+.app-version {
+  margin: 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--ion-color-medium);
 }
 
 .full-profile-modal {

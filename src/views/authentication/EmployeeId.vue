@@ -97,6 +97,7 @@ onIonViewDidLeave(() => {
 
         <ion-row class="ion-justify-content-end">
           <ion-button
+            class="login-wrapper-next"
             fill="clear"
             strong
             :disabled="!validId || isLoading"
@@ -164,6 +165,10 @@ onIonViewDidLeave(() => {
       font-weight: 400;
       margin-bottom: 17px;
       color: var(--ion-color-dark-contrast);
+    }
+
+    &-next {
+      min-height: 44px;
     }
 
     &-next-button {

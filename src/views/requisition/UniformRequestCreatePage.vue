@@ -37,8 +37,11 @@ import useDateHelper from "@/composable/useDateHelper";
 import { useCustomToast } from "@/composable/toast.js";
 import { useLangStore } from "@/store/lang.js";
 import { useUserStore } from "@/store/user.js";
+import { Capacitor } from "@capacitor/core";
+import { useFileAttachment } from "@/composable/useFileAttachment";
 
 const { t } = useI18n();
+const { pickPhoto } = useFileAttachment();
 const router = useIonRouter();
 const langStore = useLangStore();
 const userStore = useUserStore();
@@ -161,6 +164,23 @@ const onPhotoPicked = async (event, index) => {
   } finally {
     event.target.value = null;
   }
+};
+
+/**
+ * On native the photo button opens the camera/gallery prompt instead of the web file
+ * input; on web the label falls through to the input and onPhotoPicked as before.
+ */
+const onPhotoButtonClick = async (event, index) => {
+  if (!Capacitor.isNativePlatform()) return;
+
+  event.preventDefault();
+
+  const photo = await pickPhoto("uniform");
+  if (!photo) return;
+
+  rows[index].photo = photo.dataUrl.split(",")[1];
+  rows[index].photoName = photo.name;
+  clearError(index, "photo");
 };
 
 /**
@@ -304,7 +324,11 @@ onIonViewWillEnter(() => {
             class="photo-input"
             @change="onPhotoPicked($event, index)"
           />
-          <label :for="`uniform-photo-${index}`" class="photo-button">
+          <label
+            :for="`uniform-photo-${index}`"
+            class="photo-button"
+            @click="onPhotoButtonClick($event, index)"
+          >
             {{
               row.photoName
                 ? $t("user.uniform_request.change_photo")
