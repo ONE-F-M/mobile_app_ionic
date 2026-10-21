@@ -40,23 +40,15 @@ jobs:
           P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
           BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.MOBILE_PROVISION }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-          EXPORT_CERTIFICATE_BASE64: ${{ secrets.EXPORT_CERT }}
-          EXPORT_CERTIFICATE_PASSWORD: ${{ secrets.EXPORT_CERT_PASSWORD }}
-          EXPORT_PROVISION_PROFILE_BASE64: ${{ secrets.EXPORT_PROFILE }}
         run: |
           # create variables
           CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
-          EXPORT_CERTIFICATE_PATH=$RUNNER_TEMP/export_certificate.p12
           PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
-          EXPORT_PP_PATH=$RUNNER_TEMP/export_pp.mobileprovision
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
 
           # import certificate and provisioning profile from secrets
           echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
           echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
-
-          echo -n "$EXPORT_CERTIFICATE_BASE64" | base64 --decode -o $EXPORT_CERTIFICATE_PATH
-          echo -n "$EXPORT_PROVISION_PROFILE_BASE64" | base64 --decode -o $EXPORT_PP_PATH
 
           # create temporary keychain
           security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
@@ -65,13 +57,11 @@ jobs:
 
           # import certificate to keychain
           security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-          security import $EXPORT_CERTIFICATE_PATH -P "$EXPORT_CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
 
           # apply provisioning profile
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles 
-          cp $EXPORT_PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles 
+          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
 
           cd ios/App
           pod install
@@ -106,7 +96,7 @@ jobs:
           path: ${{ runner.temp }}/build/App.ipa
 
       - name: Upload app to TestFlight
-        uses: apple-actions/upload-testflight-build@v1
+        uses: apple-actions/upload-testflight-build@v5
         with: 
           app-path: ${{ runner.temp }}/build/App.ipa
           issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
