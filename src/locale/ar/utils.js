@@ -1,4 +1,11 @@
 export default {
+  webview_outdated: {
+    title: "تحديث Android System WebView",
+    message:
+      "إصدار Android System WebView على هاتفك قديم جدًا لتشغيل ONE FM. قم بتحديثه من متجر Play.",
+    update: "تحديث WebView",
+    retry: "إعادة المحاولة",
+  },
   toast: {
     error: "خطأ!",
     success: "نجاح!",
@@ -22,4 +29,19 @@ export default {
   submit: "إرسال",
   submit_success: "تم الإرسال بنجاح",
   submit_error: "خطأ في الإرسال",
+  press_back_again_to_exit: "اضغط رجوع مرة أخرى للخروج",
+  update_required: {
+    title: "التحديث مطلوب",
+    message: "لم يعد هذا الإصدار من التطبيق مدعومًا. يرجى التحديث للمتابعة.",
+  },
+  update_available: {
+    message: "يتوفر إصدار جديد من التطبيق.",
+  },
+  update: "تحديث",
+  later: "لاحقًا",
+  offline: "لا يوجد اتصال بالإنترنت",
+  request_timeout: {
+    title: "انتهت مهلة الطلب",
+    message: "تحقق من اتصالك وحاول مرة أخرى",
+  },
 };

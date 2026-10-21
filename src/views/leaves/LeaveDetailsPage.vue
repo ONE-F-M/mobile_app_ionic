@@ -17,7 +17,8 @@ import leave from "@/api/leave";
 import { useCustomToast } from "@/composable/toast";
 import useDateHelper from "@/composable/useDateHelper";
 import dayjs from "dayjs";
-import { Filesystem, Directory } from "@capacitor/filesystem";
+import { Capacitor } from "@capacitor/core";
+import { mimeTypeFor, openOnDevice } from "@/utils/proofFile";
 import { storeToRefs } from "pinia";
 import IconLeave from "@/components/icon/Leave.vue";
 import { App } from '@capacitor/app'; // for opening files in native apps
@@ -53,29 +54,13 @@ const formatDateToDisplay = (date) => {
 
 const writeProofFile = async () => {
   if (Capacitor.isNativePlatform()) {
-    await Filesystem.writeFile({
-      path: `${proofDocumentName.value}`,
-      data: documentContent.value,
-      directory: Directory.Documents,
-    });
-    const fileUri = await Filesystem.getUri({
-        path: proofDocumentName.value,
-        directory: Directory.Documents,
-      });
-    const fileUrl = fileUri.uri;
-    window.open(fileUrl, '_system');
-    showSuccessToast(
-      "The file has been successfully downloaded to your documents on device"
-    );
+    try {
+      await openOnDevice(proofDocumentName.value, documentContent.value);
+    } catch (error) {
+      showErrorToast(null, error);
+    }
   } else {
-    const fileExtension = proofDocumentName.value.split('.').pop().toLowerCase();
-    const mimeTypes = {
-        pdf: 'application/pdf',
-        txt: 'text/plain',
-        jpeg: 'image/jpeg',
-        png: 'image/png',
-    };
-    const mimeType = mimeTypes[fileExtension] || 'application/octet-stream'; 
+    const mimeType = mimeTypeFor(proofDocumentName.value);
     if (documentContent.value) {
         // Decode the Base64 string
         const decodedData = atob(documentContent.value);

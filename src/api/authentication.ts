@@ -1,4 +1,5 @@
 import { httpService } from "./http.service";
+import { clearServerCookies } from "@/utils/authStorage";
 
 type UserLoginParams = {
   employee_id: string;
@@ -19,10 +20,14 @@ type UpdatePasswordParams = {
 
 type UserNameParams = Omit<UserLoginParams, "password">;
 
-export const userLogin = async (payload: UserLoginParams) =>
-  await httpService.post(`v1.authentication.user_login`, {
+export const userLogin = async (payload: UserLoginParams) => {
+  const res = await httpService.post(`v1.authentication.user_login`, {
     data: payload,
   });
+  // user_login also opens a cookie session; drop it so later calls use only the token.
+  await clearServerCookies();
+  return res;
+};
 
 export const refreshToken = async (payload: { refresh_token: string }) =>
   await httpService.post(`v1.authentication.refresh_token`, {

@@ -1,0 +1,5 @@
+"CFBundleDisplayName" = "ONE FM";
+"NSCameraUsageDescription" = "يسجّل تطبيق ONE FM مقطع فيديو قصيرًا لوجهك للتحقق من هويتك عند تسجيل الحضور والانصراف.";
+"NSLocationWhenInUseUsageDescription" = "يستخدم تطبيق ONE FM موقعك للتأكد من وجودك في موقع عملك المحدد عند تسجيل الحضور.";
+"NSPhotoLibraryUsageDescription" = "يتيح لك تطبيق ONE FM إرفاق صورة لملفك الشخصي ولمستندات الإجازة أو الاستقالة.";
+"NSPhotoLibraryAddUsageDescription" = "يمكن لتطبيق ONE FM حفظ الصور والمستندات التي تختارها في مكتبة الصور.";

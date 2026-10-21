@@ -5,10 +5,10 @@
         <key>provisioningProfiles</key>
         <dict>
             <key>com.onefacilitiesmanagement.ios.apps</key>
-            <string>ONE FM Test Profile</string>
+            <string>ONE FM App Store 2026</string>
         </dict>
         <key>signingCertificate</key>
-        <string>iPhone Distribution: ONE Facilities Management Company WLL (8R3SW4662G)</string>
+        <string>Apple Distribution</string>
         <key>signingStyle</key>
         <string>manual</string>
         <key>teamID</key>
@@ -18,6 +18,6 @@
         <key>uploadSymbols</key>
         <true/>
         <key>method</key>
-        <string>app-store</string>
+        <string>app-store-connect</string>
     </dict>
 </plist>

@@ -20,10 +20,19 @@ const isChrome = navigator.userAgent.toLowerCase().includes("chrome");
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const clickUrl = event.notification.data?.url;
-  
-  if (clickUrl) {
-    // Open the URL in a new window or tab
+  // Chrome carries the url in data; other browsers get it as the action id.
+  const rawUrl = event.notification.data?.url || event.action;
+
+  if (rawUrl) {
+    let clickUrl = null;
+    try {
+      const parsed = new URL(rawUrl, self.location.origin);
+      if (parsed.origin === self.location.origin) clickUrl = parsed.href;
+    } catch (e) {
+      clickUrl = null;
+    }
+    if (!clickUrl) clickUrl = new URL('/notification', self.location.origin).href;
+
     event.waitUntil(
       clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
         // Focus an already open tab with the same URL, or open a new one
@@ -48,19 +57,18 @@ messaging.onBackgroundMessage((payload) => {
     icon: payload?.notification?.icon || "/logo.png",
   };
 
-  if (isChrome) {
-    notificationOptions["data"] = {
-      url: payload?.data?.url,
-    };
-  } else {
-    if (payload?.data?.url) {
-      notificationOptions["actions"] = [
-        {
-          action: payload.data.url,
-          title: "View Details",
-        },
-      ];
-    }
+  // Always set data so a click on the notification body opens the url in every browser.
+  notificationOptions["data"] = {
+    url: payload?.data?.url,
+  };
+
+  if (!isChrome && payload?.data?.url) {
+    notificationOptions["actions"] = [
+      {
+        action: payload.data.url,
+        title: "View Details",
+      },
+    ];
   }
 
   

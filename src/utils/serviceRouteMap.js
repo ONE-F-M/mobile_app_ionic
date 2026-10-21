@@ -13,8 +13,20 @@ export const serviceRouteMap = {
   "Uniform Request": "/uniform-request"
 };
 
+// Paths registered in src/router/index.js; most routes are unnamed, so router.hasRoute cannot be used.
+export const REGISTERED_SERVICE_ROUTES = [
+  "/checkin",
+  "/leaves",
+  "/leaves/add",
+  "/resignation",
+  "/resignation/withdraw",
+  "/resignation/extend",
+  "/uniform-request",
+];
+
 export const getServiceRoute = (service) => {
-  return serviceRouteMap[service] || "/service";
+  const route = serviceRouteMap[service];
+  return route && REGISTERED_SERVICE_ROUTES.includes(route) ? route : null;
 };
 
 // Withdrawal and Extension are actions reached from inside Employee

@@ -11,6 +11,7 @@ jobs:
       VITE_BASE_API_URL: ${{vars.VITE_BASE_ATTENDANCE_API_URL}}
       VITE_API_PREFIX: ${{vars.VITE_API_PREFIX}}
       VITE_BASE_URL: ${{vars.VITE_BASE_URL}}    
+      CAP_NATIVE: "1"
     name: Build APK
     runs-on: ubuntu-latest
     steps:
