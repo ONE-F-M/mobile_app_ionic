@@ -51,7 +51,7 @@ ENGLISH AND ARABIC
 The app is available in English and Arabic.
 
 PRIVACY
-Location is used only to confirm your site at check-in. The camera is used only for the face check. We do not use your data for tracking or advertising. Privacy policy: https://app.one-fm.com/privacy_policy/
+Location is used only to confirm your site at check-in. The camera is used for the face check and for photos you choose to attach. We do not use your data for tracking or advertising. Privacy policy: https://app.one-fm.com/privacy_policy/
 
 If you are not a ONE FM employee, this app is not for you. Need help? Contact your HR team or info@one-fm.com.
 ```
