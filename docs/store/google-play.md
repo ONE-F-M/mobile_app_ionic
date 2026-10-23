@@ -98,7 +98,7 @@ Arabic:
 | Personal info | User IDs (employee ID) | Yes | No | Required | App functionality, Account management |
 | Device or other IDs | Device or other IDs (push token, anonymous app install ID) | Yes | No | Required | App functionality |
 | App info and performance | Crash logs, Diagnostics (Sentry) | Yes | No | Required | App functionality, Analytics |
-| App activity | App interactions | Yes, **only until WI-003899 ships** (see below) | No | Required | Analytics |
+| App activity | App interactions | Yes, **only while Firebase Analytics is in the Android build** (see below) | No | Required | Analytics |
 
 ### Analytics SDK
 
