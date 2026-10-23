@@ -103,8 +103,8 @@ Arabic:
 
 ### Analytics SDK
 
-- Until WI-003899 (Firebase Analytics removal) ships, `firebase-analytics` is still in `android/app/build.gradle`. Declare **App activity > App interactions** for **Analytics** while it is there.
-- Once WI-003899 ships, remove that row and declare no analytics SDK. Crash logs and Diagnostics (Sentry) stay declared for App functionality and Analytics.
+- While `firebase-analytics` is still in `android/app/build.gradle`, declare **App activity > App interactions** for **Analytics**.
+- Once Firebase Analytics is removed from the Android build, remove that row and declare no analytics SDK. Crash logs and Diagnostics (Sentry) stay declared for App functionality and Analytics.
 
 ### Account deletion
 
