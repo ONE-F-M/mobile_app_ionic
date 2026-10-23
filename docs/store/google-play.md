@@ -215,7 +215,7 @@ From `android/app/build.gradle`:
 ### Where the brief and the code differ, or cannot be confirmed from these three files
 
 1. **Firebase Analytics is still in the app.** `firebase-analytics` is in `build.gradle`, so the "App interactions for analytics" row stays until it is removed. The brief already allows for this.
-2. **Approximate location.** The manifest declares both `ACCESS_COARSE_LOCATION` and `ACCESS_FINE_LOCATION`. The brief lists only precise location. Declaring precise location is consistent with the manifest, but whoever pastes this should decide whether to also tick Approximate location in Play Console.
+2. **Approximate location.** The manifest declares both `ACCESS_COARSE_LOCATION` and `ACCESS_FINE_LOCATION`, so Data safety declares both Precise and Approximate location.
 3. **Storage permissions.** `READ_EXTERNAL_STORAGE` and `WRITE_EXTERNAL_STORAGE` (up to Android 12L) are in the manifest but not mentioned in the brief. They fit the document photo and file download features. No separate Data safety row is needed for them, but they should be checked if Play shows a permissions warning.
 4. **Push token.** `@capacitor/push-notifications` is in `package.json` and the manifest sets a Firebase Messaging notification icon. There is no explicit `firebase-messaging` line in `build.gradle`, so the push library comes in through the Capacitor plugin. This agrees with the brief's push token claim, but it was not checked at library level.
 5. **Anonymous app install ID.** `@capacitor/device` and Firebase Analytics are present and can supply an install or device identifier. Which one the app sends to the backend was not checked.
