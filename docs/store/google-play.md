@@ -94,6 +94,7 @@ Arabic:
 | Category | Data type | Collected | Shared | Required or optional | Purposes |
 | --- | --- | --- | --- | --- | --- |
 | Location | Precise location | Yes | No | Required | App functionality |
+| Location | Approximate location | Yes | No | Required | App functionality |
 | Photos and videos | Photos, Videos (face video at check-in and enrolment; document photos) | Yes | No | Required for check-in; document photos only when attached | App functionality |
 | Personal info | User IDs (employee ID) | Yes | No | Required | App functionality, Account management |
 | Device or other IDs | Device or other IDs (push token, anonymous app install ID) | Yes | No | Required | App functionality |
