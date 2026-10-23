@@ -47,6 +47,11 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    path: "/data-use",
+    component: () => import("@/views/consent/DataUsePage.vue"),
+    meta: { requiresAuth: true },
+  },
+  {
     path: "/enroll-success",
     component: () => import("@/views/enrollment/EnrollmentResult.vue"),
     props: { type: "success", action: "/home" },
