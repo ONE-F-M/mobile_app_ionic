@@ -149,7 +149,7 @@ Password: see Play Console
 Check-in and check-out are open daily between 21:15 and 14:59 UTC. Outside this window the check-in action is not available. Please test check-in inside this window. Check-in asks for camera and location permission.
 ```
 
-Do not write the reviewer login in this file. Enter it in Play Console only (the login comes from WI-003898).
+Do not write the reviewer login in this file. Enter it in Play Console only.
 
 ---
 
