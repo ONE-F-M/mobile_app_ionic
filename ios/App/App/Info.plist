@@ -26,6 +26,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>ONE FM records a short video of your face to verify your identity when you check in and out.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>ONE FM uses your location to confirm you are at your assigned site when you check in.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>ONE FM uses your location to confirm you are at your assigned site when you check in.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
