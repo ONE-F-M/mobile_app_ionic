@@ -1,7 +1,7 @@
 # App Store listing: ONE Facilities Management 7.0.0
 
 Ready to paste into App Store Connect. This file is public: it holds no login, password or key.
-Distribution is a public listing (WI-002620), so no Unlisted App request is needed.
+Distribution is a public listing, so no Unlisted App request is needed.
 
 ## 1. App information
 
