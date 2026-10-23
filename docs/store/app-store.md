@@ -180,7 +180,7 @@ Files read: `ios/App/App/Info.plist`, `ios/App/Podfile.lock`, `package.json`.
 - `NSLocationWhenInUseUsageDescription`: "ONE FM uses your location to confirm you are at your assigned site when you check in."
 - `NSPhotoLibraryUsageDescription`: "ONE FM lets you attach a photo for your profile and for leave or resignation documents."
 - `NSPhotoLibraryAddUsageDescription`: "ONE FM can save photos and documents you choose to your photo library."
-- No always-on location key and no `NSUserTrackingUsageDescription`, which fits "when in use only" and "no tracking".
+- `NSLocationAlwaysAndWhenInUseUsageDescription` is present only because the geolocation plugin references it (Apple flags builds without it); it uses the same text as the when-in-use string, and the app never asks for always-on location. No `NSUserTrackingUsageDescription`, which fits "no tracking".
 - `UIBackgroundModes` is `remote-notification` only (push). `UISupportedInterfaceOrientations` is portrait only.
 - `ITSAppUsesNonExemptEncryption` is `false`. `CFBundleDisplayName` is "ONE FM" (home-screen name; the store name stays "ONE Facilities Management").
 
