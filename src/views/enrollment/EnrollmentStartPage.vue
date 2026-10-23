@@ -10,7 +10,9 @@ import {
 } from "@ionic/vue";
 import { arrowBackOutline } from "ionicons/icons";
 import { useUserStore } from "@/store/user";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
+import { useRoute } from "vue-router";
+import { hasDataUseConsent } from "@/composable/useDataUseConsent.js";
 import { enroll } from "@/api/face_recognition";
 
 import EnrollmentPage from "@/views/enrollment/EnrollmentPage.vue";
@@ -19,14 +21,25 @@ import { useAuthStore } from "@/store/auth.js";
 const userStore = useUserStore();
 const authStore = useAuthStore();
 const router = useIonRouter();
+const route = useRoute();
 
 const inProgress = ref(false);
+
+// Send the worker to the data-use notice; true when they were sent away.
+const redirectToDataUse = async () => {
+  if (await hasDataUseConsent()) return false;
+  router.replace({ path: "/data-use", query: { next: route.fullPath } });
+  return true;
+};
+
+onMounted(redirectToDataUse);
 
 const goBack = () => {
   router.back();
 };
 
-const startEnrollment = () => {
+const startEnrollment = async () => {
+  if (await redirectToDataUse()) return;
   inProgress.value = true;
 };
 
