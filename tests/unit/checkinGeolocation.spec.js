@@ -6,6 +6,12 @@ import checkin from "@/api/checkin";
 import { getCurrentPositionSafe } from "@/utils/geolocation.js";
 import { useUserStore } from "@/store/user.js";
 
+const { routerReplace, hasConsent } = vi.hoisted(() => ({
+  routerReplace: vi.fn(),
+  hasConsent: vi.fn(),
+}));
+
+vi.mock("@/composable/useDataUseConsent.js", () => ({ hasDataUseConsent: hasConsent }));
 vi.mock("@ionic/vue", () => {
   const stub = (name) => ({ name, props: ["isOpen"], template: "<div><slot /></div>" });
   return {
@@ -20,11 +26,14 @@ vi.mock("@ionic/vue", () => {
     onIonViewDidEnter: vi.fn(),
     onIonViewWillLeave: vi.fn(),
     onIonViewDidLeave: vi.fn(),
-    useIonRouter: () => ({ back: vi.fn(), push: vi.fn() }),
+    useIonRouter: () => ({ back: vi.fn(), push: vi.fn(), replace: routerReplace }),
   };
 });
 vi.mock("vue-router", () => ({
-  useRoute: () => ({ query: { shift: "HR-SHA-TEST", log_type: "IN" } }),
+  useRoute: () => ({
+    query: { shift: "HR-SHA-TEST", log_type: "IN" },
+    fullPath: "/checkin/geolocation?shift=HR-SHA-TEST&log_type=IN",
+  }),
 }));
 vi.mock("vue-i18n", () => ({ useI18n: () => ({ t: (key) => key }) }));
 vi.mock("@capacitor/core", () => ({ Capacitor: { getPlatform: () => "web" } }));
@@ -90,6 +99,19 @@ describe("CheckinGeolocation.vue", () => {
 
     getCurrentPositionSafe.mockResolvedValue(INSIDE_FIX);
     checkin.getSiteLocation.mockResolvedValue(siteLocationResponse(true));
+    hasConsent.mockResolvedValue(true);
+  });
+
+  test("opens the data-use notice and reads no location without consent", async () => {
+    hasConsent.mockResolvedValue(false);
+
+    await mountPage();
+
+    expect(routerReplace).toHaveBeenCalledWith({
+      path: "/data-use",
+      query: { next: "/checkin/geolocation?shift=HR-SHA-TEST&log_type=IN" },
+    });
+    expect(getCurrentPositionSafe).not.toHaveBeenCalled();
   });
 
   test("decides inside or outside from a fresh fix, not the stored Home answer", async () => {

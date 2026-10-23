@@ -26,6 +26,16 @@ describe("Android release build", () => {
     expect(gradle).not.toContain("ANDROID_VERSION_CODE");
   });
 
+  test("ships no analytics SDK; push brings its own firebase-messaging", () => {
+    expect(gradle).not.toContain("firebase-analytics");
+    expect(gradle).not.toContain("firebase-bom");
+    const pushPlugin = readFileSync(
+      resolve(__dirname, "../../node_modules/@capacitor/push-notifications/android/build.gradle"),
+      "utf8",
+    );
+    expect(pushPlugin).toContain("com.google.firebase:firebase-messaging");
+  });
+
   test("keeps keystores and their passwords out of git", () => {
     for (const pattern of ["*.jks", "*.keystore", "keystore.properties"]) {
       expect(ignored).toContain(pattern);

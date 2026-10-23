@@ -1,5 +1,6 @@
 "CFBundleDisplayName" = "ONE FM";
 "NSCameraUsageDescription" = "ONE FM records a short video of your face to verify your identity when you check in and out.";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "ONE FM uses your location to confirm you are at your assigned site when you check in.";
 "NSLocationWhenInUseUsageDescription" = "ONE FM uses your location to confirm you are at your assigned site when you check in.";
 "NSPhotoLibraryUsageDescription" = "ONE FM lets you attach a photo for your profile and for leave or resignation documents.";
 "NSPhotoLibraryAddUsageDescription" = "ONE FM can save photos and documents you choose to your photo library.";
