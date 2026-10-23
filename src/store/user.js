@@ -6,6 +6,7 @@ import checkin from "@/api/checkin";
 import leave from "@/api/leave";
 import shifts from "@/api/shifts";
 import { useResignationStore } from "@/store/resignation.ts";
+import { hasDataUseConsent } from "@/composable/useDataUseConsent.js";
 
 export const useUserStore = defineStore("user", {
   state: () => {
@@ -166,6 +167,9 @@ export const useUserStore = defineStore("user", {
     // Prefetch Geolocation data and Face Enrollment
     async prefetchGeolocation(employeeId) {
       if (!employeeId) return;
+
+      // No location is read until the worker has accepted the data-use notice.
+      if (!(await hasDataUseConsent())) return;
 
       try {
         // 1. Get GPS coordinates (silently)

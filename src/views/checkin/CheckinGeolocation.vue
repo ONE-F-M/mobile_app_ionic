@@ -39,6 +39,7 @@ import utils from "@/api/utils";
 import { useI18n } from "vue-i18n";
 import auth from "@/api/authentication";
 import { useRoute } from "vue-router";
+import { hasDataUseConsent } from "@/composable/useDataUseConsent.js";
 
 const router = useIonRouter();
 const route = useRoute();
@@ -461,6 +462,12 @@ const enableSwipeBack = () => {
 
 onMounted(async () => {
   disableSwipeBack();
+
+  // Before any camera or location call: show the data-use notice first.
+  if (!(await hasDataUseConsent())) {
+    router.replace({ path: "/data-use", query: { next: route.fullPath } });
+    return;
+  }
 
   // Set logType from query parameter if available
   if (route.query.log_type) {
