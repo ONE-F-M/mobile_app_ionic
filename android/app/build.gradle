@@ -63,9 +63,6 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
-
-    implementation platform('com.google.firebase:firebase-bom:32.8.1')
-    implementation 'com.google.firebase:firebase-analytics'
 }
 
 // The release build uploads its R8 mapping to Sentry only when CI provides the token.
