@@ -3,7 +3,7 @@
 Answers to paste into Play Console (Store listing and App content). Keep this file in step with each release.
 
 - Package: `com.onefacilitiesmanagement.android.app`
-- Version at time of writing: 7.0.0 (versionCode 60)
+- Version: 7.0.0. CI sets the versionCode for each build (81 was the first upload to the Play internal track).
 - Privacy policy URL: https://app.one-fm.com/privacy_policy/
 - This repository is public. Do not put logins, passwords or keys in this file.
 
