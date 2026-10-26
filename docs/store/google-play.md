@@ -99,12 +99,10 @@ Arabic:
 | Personal info | User IDs (employee ID) | Yes | No | Required | App functionality, Account management |
 | Device or other IDs | Device or other IDs (push token, anonymous app install ID) | Yes | No | Required | App functionality |
 | App info and performance | Crash logs, Diagnostics (Sentry) | Yes | No | Required | App functionality, Analytics |
-| App activity | App interactions | Yes, **only while Firebase Analytics is in the Android build** (see below) | No | Required | Analytics |
 
 ### Analytics SDK
 
-- While `firebase-analytics` is still in `android/app/build.gradle`, declare **App activity > App interactions** for **Analytics**.
-- Once Firebase Analytics is removed from the Android build, remove that row and declare no analytics SDK. Crash logs and Diagnostics (Sentry) stay declared for App functionality and Analytics.
+- The Android build has no analytics SDK: Firebase Analytics was removed from `android/app/build.gradle`. Declare no App activity data. Crash logs and Diagnostics (Sentry) stay declared for App functionality and Analytics.
 
 ### Account deletion
 
@@ -207,16 +205,16 @@ From `package.json`:
 
 From `android/app/build.gradle`:
 
-- Firebase BoM 32.8.1 with `com.google.firebase:firebase-analytics`
+- No Firebase dependency in the app module; `@capacitor/push-notifications` brings `com.google.firebase:firebase-messaging` for push
 - Sentry Android Gradle plugin `io.sentry.android.gradle` (org `one-fm`, host `https://de.sentry.io/`)
 - Google services plugin applied only when `google-services.json` is present (needed for push)
 - Release build: minify and shrink enabled; `allowBackup` is false in the manifest
 
 ### Where the brief and the code differ, or cannot be confirmed from these three files
 
-1. **Firebase Analytics is still in the app.** `firebase-analytics` is in `build.gradle`, so the "App interactions for analytics" row stays until it is removed. The brief already allows for this.
+1. **Firebase Analytics removed.** `firebase-analytics` is no longer in `build.gradle`, so Data safety declares no App activity data.
 2. **Approximate location.** The manifest declares both `ACCESS_COARSE_LOCATION` and `ACCESS_FINE_LOCATION`, so Data safety declares both Precise and Approximate location.
 3. **Storage permissions.** `READ_EXTERNAL_STORAGE` and `WRITE_EXTERNAL_STORAGE` (up to Android 12L) are in the manifest but not mentioned in the brief. They fit the document photo and file download features. No separate Data safety row is needed for them, but they should be checked if Play shows a permissions warning.
-4. **Push token.** `@capacitor/push-notifications` is in `package.json` and the manifest sets a Firebase Messaging notification icon. There is no explicit `firebase-messaging` line in `build.gradle`, so the push library comes in through the Capacitor plugin. This agrees with the brief's push token claim, but it was not checked at library level.
-5. **Anonymous app install ID.** `@capacitor/device` and Firebase Analytics are present and can supply an install or device identifier. Which one the app sends to the backend was not checked.
+4. **Push token.** `@capacitor/push-notifications` is in `package.json` and the manifest sets a Firebase Messaging notification icon. There is no explicit `firebase-messaging` line in `build.gradle`; the push library comes in through the Capacitor plugin. This agrees with the brief's push token claim, but it was not checked at library level.
+5. **Anonymous app install ID.** `@capacitor/device` is present and can supply an install or device identifier. Which one the app sends to the backend was not checked.
 6. **Not verifiable from the three files.** These claims come from the brief and were not checked against screens or API code: resignation feature, the face check at check-in and enrolment, the check-in window of 21:15 to 14:59 UTC, encryption in transit (HTTPS host comes from environment settings), and the privacy policy text. Compare them with the privacy policy before publishing.
