@@ -21,6 +21,7 @@ import { useCustomToast } from "@/composable/toast.js";
 import useDateHelper from "@/composable/useDateHelper";
 import { useLangStore } from "@/store/lang.js";
 import { getCurrentPositionSafe, locationErrorKey } from "@/utils/geolocation.js";
+import { hasDataUseConsent } from "@/composable/useDataUseConsent.js";
 import { useI18n } from "vue-i18n";
 import Datepicker from "@/components/base/Datepicker.vue";
 import { App } from '@capacitor/app';
@@ -131,6 +132,11 @@ const fetchCheckinList = async (defaults = {}) => {
 
 const refreshLocationAndShifts = async () => {
   if (isDeterminingLocation.value) return;
+  // The location prompt must not appear before the worker has seen the data-use notice.
+  if (!(await hasDataUseConsent())) {
+    router.replace({ path: "/data-use", query: { next: "/checkin" } });
+    return;
+  }
   isDeterminingLocation.value = true;
   
   try {
