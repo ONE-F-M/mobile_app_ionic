@@ -6,6 +6,7 @@ import auth from "./auth";
 import utils from "./utils";
 import resignation from "./resignation";
 import consent from "./consent";
+import processa from "./processa";
 import penalty from "./penalty";
 
 export default {
@@ -17,5 +18,6 @@ export default {
   utils,
   resignation,
   consent,
+  processa,
   penalty,
 };
