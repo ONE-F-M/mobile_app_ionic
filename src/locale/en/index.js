@@ -6,6 +6,7 @@ import auth from "./auth";
 import utils from "./utils";
 import resignation from "./resignation";
 import consent from "./consent";
+import processa from "./processa";
 
 export default {
   home,
@@ -16,4 +17,5 @@ export default {
   utils,
   resignation,
   consent,
+  processa,
 };
