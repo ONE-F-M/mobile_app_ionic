@@ -115,7 +115,8 @@ watch(
 
   &-pending {
     text-align: center;
-    color: var(--ion-color-medium);
+    // step-600 is only set in the dark theme; #666666 is Ionic's own light default
+    color: var(--ion-color-step-600, #666666);
   }
 }
 </style>
