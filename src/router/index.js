@@ -150,11 +150,6 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
-    path: "/resignation/correct",
-    component: () => import("@/views/resignation/ResignationCorrectionPage.vue"),
-    meta: { requiresAuth: true },
-  },
-  {
     path: '/resignation/extend',
     name: 'resignation_extension',
     component: () => import('@/views/resignation/ExtensionCreatePage.vue'),
