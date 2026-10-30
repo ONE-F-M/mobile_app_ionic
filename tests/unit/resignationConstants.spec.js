@@ -8,8 +8,11 @@ describe("canWithdrawResignation", () => {
     }
   });
 
-  test("does not offer it before the resignation is submitted", () => {
-    expect(canWithdrawResignation({ workflow_state: "Draft" })).toBe(false);
+  test("offers withdrawal in Draft so the employee can discard it", () => {
+    expect(canWithdrawResignation({ workflow_state: "Draft" })).toBe(true);
+  });
+
+  test("does not offer it when there is no resignation", () => {
     expect(canWithdrawResignation(null)).toBe(false);
   });
 });
