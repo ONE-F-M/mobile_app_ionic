@@ -16,6 +16,7 @@ export default {
   "resignation.upload_resignation_letter": "Snap Photo Of Di Resignation Letter",
   "resignation.reason_for_exit": "Why You Dey Leave",
   "resignation.detailed_reason": "Full reason...",
+  "resignation.save_resignation": "Save Resignation",
   "resignation.withdrawal.title": "Resignation Withdrawal",
   "resignation.withdrawal.tracker_description":
     "You dey request make dem withdraw dis resignation wey still dey process:",
@@ -48,6 +49,8 @@ export default {
   "resignation.initiatedDate": "E Don Start:",
   "resignation.supervisor_name": "Supervisor Name",
   "resignation.line_manager_name": "Line Manager Name",
+  "resignation.save_success_title": "Resignation Don Save",
+  "resignation.save_success_msg": "Your resignation don save as draft. Use di button for di next screen to send am for review, then submit di sign resignation letter give Camp Boss.",
   "resignation.acknowledge": "Accept",
   "resignation.withdrawal.success_msg": "Dem don process di resignation withdrawal well well.",
   "resignation.extension_success_title": "Extension Don Submit",

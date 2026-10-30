@@ -16,6 +16,7 @@ export default {
   "resignation.upload_resignation_letter": "इस्तीफा पत्र की फोटो लें",
   "resignation.reason_for_exit": "छोड़ने का कारण",
   "resignation.detailed_reason": "विस्तृत कारण...",
+  "resignation.save_resignation": "इस्तीफा सहेजें",
   "resignation.withdrawal.title": "इस्तीफा वापसी",
   "resignation.withdrawal.tracker_description":
     "आप निम्नलिखित सक्रिय इस्तीफे को वापस लेने का अनुरोध कर रहे हैं:",
@@ -48,6 +49,8 @@ export default {
   "resignation.initiatedDate": "प्रारंभ:",
   "resignation.supervisor_name": "सुपरवाइज़र का नाम",
   "resignation.line_manager_name": "लाइन मैनेजर का नाम",
+  "resignation.save_success_title": "इस्तीफा सहेजा गया",
+  "resignation.save_success_msg": "आपका इस्तीफा ड्राफ्ट के रूप में सहेजा गया है। समीक्षा के लिए भेजने हेतु अगली स्क्रीन पर दिए बटन का उपयोग करें, फिर हस्ताक्षरित इस्तीफा पत्र कैंप बॉस को जमा करें।",
   "resignation.acknowledge": "स्वीकार करें",
   "resignation.withdrawal.success_msg": "इस्तीफा वापसी सफलतापूर्वक संसाधित हो गई।",
   "resignation.extension_success_title": "विस्तार जमा हुआ",

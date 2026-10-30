@@ -16,6 +16,7 @@ export default {
   "resignation.upload_resignation_letter": "राजीनामा पत्रको फोटो खिच्नुहोस्",
   "resignation.reason_for_exit": "छाड्नुको कारण",
   "resignation.detailed_reason": "विस्तृत कारण...",
+  "resignation.save_resignation": "राजीनामा सुरक्षित गर्नुहोस्",
   "resignation.withdrawal.title": "राजीनामा फिर्ता",
   "resignation.withdrawal.tracker_description":
     "तपाईं निम्न सक्रिय राजीनामा फिर्ता लिन अनुरोध गर्दै हुनुहुन्छ:",
@@ -48,6 +49,8 @@ export default {
   "resignation.initiatedDate": "सुरु गरिएको:",
   "resignation.supervisor_name": "सुपरभाइजरको नाम",
   "resignation.line_manager_name": "लाइन म्यानेजरको नाम",
+  "resignation.save_success_title": "राजीनामा सुरक्षित भयो",
+  "resignation.save_success_msg": "तपाईंको राजीनामा ड्राफ्टको रूपमा सुरक्षित भयो। समीक्षाका लागि पठाउन अर्को स्क्रिनको बटन प्रयोग गर्नुहोस्, त्यसपछि हस्ताक्षरित राजीनामा पत्र क्याम्प बसलाई पेश गर्नुहोस्।",
   "resignation.acknowledge": "स्वीकार गर्नुहोस्",
   "resignation.withdrawal.success_msg": "राजीनामा फिर्ता सफलतापूर्वक प्रशोधन गरियो।",
   "resignation.extension_success_title": "विस्तार पेश भयो",

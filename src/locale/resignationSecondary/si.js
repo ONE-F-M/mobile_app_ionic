@@ -16,6 +16,7 @@ export default {
   "resignation.upload_resignation_letter": "ඉල්ලා අස්වීමේ ලිපියේ ඡායාරූපයක් ගන්න",
   "resignation.reason_for_exit": "ඉවත් වීමට හේතුව",
   "resignation.detailed_reason": "සවිස්තර හේතුව...",
+  "resignation.save_resignation": "ඉල්ලා අස්වීම සුරකින්න",
   "resignation.withdrawal.title": "ඉල්ලා අස්වීම ආපසු ගැනීම",
   "resignation.withdrawal.tracker_description":
     "ඔබ පහත ක්‍රියාත්මක ඉල්ලා අස්වීම ආපසු ගැනීමට ඉල්ලා සිටී:",
@@ -48,6 +49,8 @@ export default {
   "resignation.initiatedDate": "ආරම්භ කළ:",
   "resignation.supervisor_name": "අධීක්ෂකගේ නම",
   "resignation.line_manager_name": "රේඛා කළමනාකරුගේ නම",
+  "resignation.save_success_title": "ඉල්ලා අස්වීම සුරකින ලදී",
+  "resignation.save_success_msg": "ඔබගේ ඉල්ලා අස්වීම කෙටුම්පතක් ලෙස සුරකින ලදී. සමාලෝචනය සඳහා යැවීමට ඊළඟ තිරයේ ඇති බොත්තම භාවිතා කරන්න, ඉන්පසු අත්සන් කළ ඉල්ලා අස්වීමේ ලිපිය කඳවුරු භාරකරුට ඉදිරිපත් කරන්න.",
   "resignation.acknowledge": "පිළිගන්න",
   "resignation.withdrawal.success_msg": "ඉල්ලා අස්වීම ආපසු ගැනීම සාර්ථකව සකසන ලදී.",
   "resignation.extension_success_title": "දිගු කිරීම ඉදිරිපත් කරන ලදී",

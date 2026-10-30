@@ -160,7 +160,8 @@ const letterFile = useFileAttachment();
 const { checkNoticePeriod } = useNoticePeriod();
 const { dayjs } = useDateHelper();
 
-const minDate = new Date().toISOString().split("T")[0];
+// Local date, not UTC, so the picker never allows yesterday just after midnight in Kuwait
+const minDate = dayjs().format("YYYY-MM-DD");
 const initiationDate = ref("");
 const relievingDate = ref("");
 

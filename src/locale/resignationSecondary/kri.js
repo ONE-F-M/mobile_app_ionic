@@ -18,6 +18,7 @@ export default {
   "resignation.upload_resignation_letter": "Tek Foto Fo Di Rizignieshon Lɛta",
   "resignation.reason_for_exit": "Rizin We Yu De Lif",
   "resignation.detailed_reason": "Fulful rizin...",
+  "resignation.save_resignation": "Sev Rizignieshon",
   "resignation.withdrawal.title": "Rizignieshon Widrol",
   "resignation.withdrawal.tracker_description":
     "Yu de ask fo widrol dis rizignieshon we dey go:",
@@ -50,6 +51,8 @@ export default {
   "resignation.initiatedDate": "I Don Stat:",
   "resignation.supervisor_name": "Supavaeza In Nem",
   "resignation.line_manager_name": "Lain Manaja In Nem",
+  "resignation.save_success_title": "Rizignieshon Don Sev",
+  "resignation.save_success_msg": "Yu rizignieshon don sev as draft. Yuz di batin na di nekst skrin fɔ sɛn am fɔ rivyu, dɔn sɛn di sain rizignieshon lɛta go to Camp Boss.",
   "resignation.acknowledge": "Agri",
   "resignation.withdrawal.success_msg": "Rizignieshon widrol don prosɛs fain fain.",
   "resignation.extension_success_title": "Ekstɛnshon Don Sɛn",

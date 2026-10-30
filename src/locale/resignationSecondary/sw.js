@@ -16,6 +16,7 @@ export default {
   "resignation.upload_resignation_letter": "Piga Picha ya Barua ya Kujiuzulu",
   "resignation.reason_for_exit": "Sababu ya Kuondoka",
   "resignation.detailed_reason": "Sababu kwa kina...",
+  "resignation.save_resignation": "Hifadhi Kujiuzulu",
   "resignation.withdrawal.title": "Kuondoa Kujiuzulu",
   "resignation.withdrawal.tracker_description":
     "Unaomba kuondoa kujiuzulu kunakoendelea kufuatia:",
@@ -48,6 +49,8 @@ export default {
   "resignation.initiatedDate": "Ilianzishwa:",
   "resignation.supervisor_name": "Jina la Msimamizi",
   "resignation.line_manager_name": "Jina la Msimamizi wa Karibu",
+  "resignation.save_success_title": "Kujiuzulu Kumehifadhiwa",
+  "resignation.save_success_msg": "Kujiuzulu kwako kumehifadhiwa kama rasimu. Tumia kitufe kwenye skrini inayofuata kukutuma kwa ukaguzi, kisha wasilisha barua ya kujiuzulu iliyosainiwa kwa Camp Boss.",
   "resignation.acknowledge": "Kubali",
   "resignation.withdrawal.success_msg": "Kuondoa kujiuzulu kumeshughulikiwa kwa mafanikio.",
   "resignation.extension_success_title": "Ongezeko Limewasilishwa",

@@ -17,6 +17,7 @@ export default {
   "resignation.upload_resignation_letter": "Fa Mfonini Twerɛ Adwuma Gyae Krataa No",
   "resignation.reason_for_exit": "Nea Enti A Wobɛfiri Adi",
   "resignation.detailed_reason": "Nkɔmmɔdie mu nsɛm...",
+  "resignation.save_resignation": "Kora Adwuma Gyae No So",
   "resignation.withdrawal.title": "Adwuma Gyae Ho Ntwe",
   "resignation.withdrawal.tracker_description":
     "Worebisa sɛ wɔntwe adwuma gyae yi a ɛrekɔ so ano:",
@@ -49,6 +50,8 @@ export default {
   "resignation.initiatedDate": "Wɔahyɛ Aseɛ:",
   "resignation.supervisor_name": "Ɔhwɛfoɔ Din",
   "resignation.line_manager_name": "Line Manager Din",
+  "resignation.save_success_title": "Wɔakora Adwuma Gyae No So",
+  "resignation.save_success_msg": "Wɔakora w'adwuma gyae no so sɛ draft. Fa button a ɛwɔ screen a ɛdi hɔ no so de kɔ ma wɔnhwɛ mu, na afei fa krataa a wɔde nsa ahyɛ ase kɔma Camp Boss.",
   "resignation.acknowledge": "Gye Tom",
   "resignation.withdrawal.success_msg": "Wɔadi adwuma gyae ntwe ho dwuma yiye.",
   "resignation.extension_success_title": "Wɔafa Nkɔsoɔ No Akɔ",

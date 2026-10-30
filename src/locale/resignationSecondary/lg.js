@@ -17,6 +17,7 @@ export default {
   "resignation.upload_resignation_letter": "Kuba Ekifaananyi ky'Ebbaluwa y'Okuwummula",
   "resignation.reason_for_exit": "Ensonga y'Okuva",
   "resignation.detailed_reason": "Ensonga mu bujjuvu...",
+  "resignation.save_resignation": "Tereka Okuwummula",
   "resignation.withdrawal.title": "Okuggyawo Okuwummula",
   "resignation.withdrawal.tracker_description":
     "Osaba okuggyawo okusaba kuno okuwummula okugenda mu maaso:",
@@ -49,6 +50,8 @@ export default {
   "resignation.initiatedDate": "Kitandikiddwa:",
   "resignation.supervisor_name": "Erinnya ly'Omukulembeze",
   "resignation.line_manager_name": "Erinnya ly'Omukulembeze Omutuufu",
+  "resignation.save_success_title": "Okuwummula Kuterekeddwa",
+  "resignation.save_success_msg": "Okuwummula kwo kuterekeddwa nga draft. Kozesa eppeesa ku lupapula oluddako okukusindika kwekenneenyezebwe, oluvannyuma sindika ebbaluwa y'okuwummula esaddaaddwako eri Camp Boss.",
   "resignation.acknowledge": "Kkiriza",
   "resignation.withdrawal.success_msg": "Okuggyawo okuwummula kukoleddwa bulungi.",
   "resignation.extension_success_title": "Okwongeza Kutumiddwa",

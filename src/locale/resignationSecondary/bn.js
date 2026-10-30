@@ -16,6 +16,7 @@ export default {
   "resignation.upload_resignation_letter": "পদত্যাগপত্রের ছবি তুলুন",
   "resignation.reason_for_exit": "প্রস্থানের কারণ",
   "resignation.detailed_reason": "বিস্তারিত কারণ...",
+  "resignation.save_resignation": "পদত্যাগ সংরক্ষণ করুন",
   "resignation.withdrawal.title": "পদত্যাগ প্রত্যাহার",
   "resignation.withdrawal.tracker_description":
     "আপনি নিম্নলিখিত সক্রিয় পদত্যাগটি প্রত্যাহারের অনুরোধ করছেন:",
@@ -48,6 +49,8 @@ export default {
   "resignation.initiatedDate": "শুরু হয়েছে:",
   "resignation.supervisor_name": "সুপারভাইজারের নাম",
   "resignation.line_manager_name": "লাইন ম্যানেজারের নাম",
+  "resignation.save_success_title": "পদত্যাগ সংরক্ষিত হয়েছে",
+  "resignation.save_success_msg": "আপনার পদত্যাগ খসড়া হিসেবে সংরক্ষিত হয়েছে। পর্যালোচনার জন্য পাঠাতে পরের স্ক্রিনের বোতামটি ব্যবহার করুন, তারপর স্বাক্ষরিত পদত্যাগপত্র ক্যাম্প বসের কাছে জমা দিন।",
   "resignation.acknowledge": "স্বীকার করুন",
   "resignation.withdrawal.success_msg": "পদত্যাগ প্রত্যাহার সফলভাবে প্রক্রিয়া করা হয়েছে।",
   "resignation.extension_success_title": "সম্প্রসারণ জমা হয়েছে",

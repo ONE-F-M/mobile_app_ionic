@@ -16,6 +16,7 @@ export default {
   "resignation.upload_resignation_letter": "Kumuha ng Larawan ng Sulat ng Pagbibitiw",
   "resignation.reason_for_exit": "Dahilan ng Pag-alis",
   "resignation.detailed_reason": "Detalyadong dahilan...",
+  "resignation.save_resignation": "I-save ang Pagbibitiw",
   "resignation.withdrawal.title": "Pag-withdraw ng Pagbibitiw",
   "resignation.withdrawal.tracker_description":
     "Hinihiling mong i-withdraw ang sumusunod na aktibong pagbibitiw:",
@@ -48,6 +49,8 @@ export default {
   "resignation.initiatedDate": "Sinimulan:",
   "resignation.supervisor_name": "Pangalan ng Supervisor",
   "resignation.line_manager_name": "Pangalan ng Line Manager",
+  "resignation.save_success_title": "Na-save ang Pagbibitiw",
+  "resignation.save_success_msg": "Na-save bilang draft ang iyong pagbibitiw. Gamitin ang button sa susunod na screen para ipadala ito para sa review, pagkatapos ay isumite ang nilagdaang sulat ng pagbibitiw sa Camp Boss.",
   "resignation.acknowledge": "Kilalanin",
   "resignation.withdrawal.success_msg": "Matagumpay na naproseso ang pag-withdraw ng pagbibitiw.",
   "resignation.extension_success_title": "Naisumite ang Extension",

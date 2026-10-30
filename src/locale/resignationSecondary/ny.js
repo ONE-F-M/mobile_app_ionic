@@ -17,6 +17,7 @@ export default {
   "resignation.upload_resignation_letter": "Jambulani Chithunzi cha Kalata Yokusiya Ntchito",
   "resignation.reason_for_exit": "Chifukwa Chochokera",
   "resignation.detailed_reason": "Chifukwa mwatsatanetsatane...",
+  "resignation.save_resignation": "Sungani Kusiya Ntchito",
   "resignation.withdrawal.title": "Kuchotsa Kusiya Ntchito",
   "resignation.withdrawal.tracker_description":
     "Mukupempha kuchotsa kusiya ntchito kotsatirakuku komwe kukupitirirabe:",
@@ -49,6 +50,8 @@ export default {
   "resignation.initiatedDate": "Zoyambitsidwa:",
   "resignation.supervisor_name": "Dzina la Mkulu",
   "resignation.line_manager_name": "Dzina la Mkulu Woyandikana",
+  "resignation.save_success_title": "Kusiya Ntchito Kwasungidwa",
+  "resignation.save_success_msg": "Kusiya ntchito kwanu kwasungidwa ngati draft. Gwiritsani ntchito batani pa sikirini yotsatira kuti mutumize kuti kuwunikidwe, kenako tumizani kalata yokusiya ntchito yosayina kwa Camp Boss.",
   "resignation.acknowledge": "Vomerezani",
   "resignation.withdrawal.success_msg": "Kuchotsa kusiya ntchito kwatha bwino.",
   "resignation.extension_success_title": "Kuwonjezera Kwatumizidwa",
