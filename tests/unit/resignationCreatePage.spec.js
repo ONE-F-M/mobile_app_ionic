@@ -32,6 +32,9 @@ vi.mock("@/composable/useConfirmAlert.ts", () => ({ useConfirmAlert: () => ({ sh
 vi.mock("@/composable/useNoticePeriod.ts", () => ({ useNoticePeriod: () => ({ checkNoticePeriod: vi.fn() }) }));
 vi.mock("@/composable/useFileAttachment.ts", () => ({ useFileAttachment: () => ({}) }));
 vi.mock("@/api/resignation", () => ({ default: { getEmployeeSupervisor: vi.fn() } }));
+vi.mock("@/components/resignation/ResignationRecordForm.vue", () => ({
+  default: { name: "ResignationRecordForm", template: "<div class='record-form-stub' />" },
+}));
 
 const mountWithResignation = (workflowState) => {
   useResignationStore().activeResignation = { name: "HR-RES-TEST", workflow_state: workflowState };
@@ -68,11 +71,13 @@ describe("ResignationCreatePage.vue actions", () => {
     expect(labels).toContain("Extend / Reduce Resignation");
   });
 
-  test("a pending relieving date correction can still be withdrawn", () => {
-    const labels = buttonLabels(mountWithResignation("Pending Relieving Date Correction"));
+  test("a pending relieving date correction shows the record form, not the old correction button", () => {
+    const wrapper = mountWithResignation("Pending Relieving Date Correction");
+    const labels = buttonLabels(wrapper);
 
-    expect(labels).toContain("Submit Date Correction");
+    expect(labels).not.toContain("Submit Date Correction");
     expect(labels).toContain("Withdraw Resignation");
     expect(labels).not.toContain("Extend / Reduce Resignation");
+    expect(wrapper.find(".record-form-stub").exists()).toBe(true);
   });
 });

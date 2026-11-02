@@ -55,23 +55,8 @@ type ExtensionParams = {
   attachment: string;
 };
 
-type CorrectionParams = {
-  employee_id: string;
-  new_date: string;
-  new_initiation_date: string;
-  attachment: string;
-  resignation_id: string;
-};
-
 const extendResignation = async (payload: ExtensionParams) =>
   await http.post(`v1.resignation.extend_resignation`, {
-    data: payload,
-    headers: { "Content-Type": "application/json" },
-  });
-
-
-const correctResignationDate = async (payload: CorrectionParams) =>
-  await http.post(`v1.resignation.correct_resignation_date_app`, {
     data: payload,
     headers: { "Content-Type": "application/json" },
   });
@@ -85,5 +70,4 @@ export default {
   getResignationByName,
   getAllMyResignations,
   extendResignation,
-  correctResignationDate,
 };

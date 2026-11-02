@@ -48,8 +48,6 @@ export const isWithdrawalPending = (resignation) => {
   return !!state && !["Approved", "Rejected"].includes(state);
 };
 
-// A submitted resignation can be withdrawn while it is still under review, not only once approved
-export const canWithdrawResignation = (resignation) => {
-  const state = resignation?.workflow_state;
-  return !!state && state !== "Draft";
-};
+// A resignation can be withdrawn from Draft onwards, so an employee can discard a Draft
+// they no longer want, or pull back one that is still under review or approved
+export const canWithdrawResignation = (resignation) => !!resignation?.workflow_state;

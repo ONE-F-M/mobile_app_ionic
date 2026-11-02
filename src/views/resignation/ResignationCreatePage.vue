@@ -20,12 +20,10 @@
         />
 
         <template v-if="!isTerminalView">
-          <!-- Correction Flow Container -->
-          <div v-if="displayResignation.workflow_state === 'Pending Relieving Date Correction'" class="correction-container">
-            <ion-button expand="block" shape="round" color="warning" @click="router.push('/resignation/correct')" class="action-btn" style="margin-inline: 16px;">
-              <BilingualText tag="span" tKey="resignation.action.correct" fallback="Submit Date Correction" />
-            </ion-button>
-          </div>
+          <ResignationRecordForm
+            :resignation="displayResignation"
+            @applied="refreshResignation"
+          />
 
           <!-- Pending Action Banners -->
           <div v-if="hasPendingWithdrawal" class="ion-padding" style="text-align: center; color: var(--ion-color-danger); font-weight: 500;">
@@ -196,7 +194,7 @@
           :disabled="isLoading || supervisorLoading"
         >
           <ion-spinner v-if="isLoading" name="crescent"></ion-spinner>
-          <BilingualText v-else tag="span" tKey="resignation.submit_resignation" fallback="Submit Resignation" />
+          <BilingualText v-else tag="span" tKey="resignation.save_resignation" fallback="Save Resignation" />
         </ion-button>
       </div>
     </ion-content>
@@ -223,6 +221,7 @@ import { useConfirmAlert } from "@/composable/useConfirmAlert.ts";
 import { calendarOutline, attachOutline } from "ionicons/icons";
 import PageHeader from "@/components/common/PageHeader.vue";
 import ResignationTracker from "@/components/resignation/ResignationTracker.vue";
+import ResignationRecordForm from "@/components/resignation/ResignationRecordForm.vue";
 import BilingualText from "@/components/base/BilingualText.vue";
 import { ref, reactive, computed } from "vue";
 import { useCustomToast } from "@/composable/toast.js";
@@ -289,6 +288,14 @@ const goToWithdrawal = () => {
 
 const goToExtension = () => {
   router.push("/resignation/extend");
+};
+
+const refreshResignation = async () => {
+  if (viewedId.value) {
+    await resignationStore.fetchResignationById(viewedId.value);
+  } else {
+    await resignationStore.fetchActiveResignation();
+  }
 };
 
 const createFile = useFileAttachment();
@@ -382,12 +389,12 @@ const submitData = async () => {
     await resignation.createResignation(data);
 
     await showAcknowledge(
-      bilingual(t('resignation.submit_success_title', 'Resignation Submitted'), 'resignation.submit_success_title'),
-      bilingual(t('resignation.submit_success_msg', 'Employee resignation submitted successfully. Please submit the signed resignation letter to the Camp Boss.'), 'resignation.submit_success_msg'),
+      bilingual(t('resignation.save_success_title', 'Resignation Saved'), 'resignation.save_success_title'),
+      bilingual(t('resignation.save_success_msg', 'Your resignation is saved as a draft. Use the button on the next screen to send it for review, then submit the signed resignation letter to the Camp Boss.'), 'resignation.save_success_msg'),
       bilingualInline(t('resignation.acknowledge', 'Acknowledge'), 'resignation.acknowledge')
     );
     clearForm();
-    triggerBack();
+    await resignationStore.fetchActiveResignation();
     
   } catch (error) {
     console.error(error);
@@ -511,10 +518,6 @@ onIonViewWillEnter(async () => {
 .upload-btn {
   text-transform: none;
   --border-radius: 8px;
-}
-
-.correction-container {
-  margin-block-start: 16px;
 }
 
 .correction-form {
