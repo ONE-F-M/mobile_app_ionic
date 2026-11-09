@@ -13,6 +13,7 @@ export default {
   "resignation.resignation_initiation_date": "Tsiku Loyambira Kusiya Ntchito",
   "resignation.click_to_select": "Dinani kusankha tsiku",
   "resignation.requested_relieving_date": "Tsiku Lopumula Lopemphedwa",
+  "resignation.dates_fixed_note": "Zimakhazikitsidwa zokha: tsiku loyambira ndi tsiku limene mwatumiza, ndipo tsiku lopumula ndi masiku 90 pambuyo pake.",
   "resignation.proof_letter": "Kalata Yokusiya Ntchito (Chithunzi)",
   "resignation.upload_resignation_letter": "Jambulani Chithunzi cha Kalata Yokusiya Ntchito",
   "resignation.reason_for_exit": "Chifukwa Chochokera",
@@ -37,6 +38,9 @@ export default {
   "resignation.extension.legal_notice":
     "Podina tumizani, mukulembetsa mwalamulo cholinga chosintha tsiku lopumula la pempho lililonse la kusiya ntchito lomwe lili pafayilo.",
   "resignation.extension.submit": "Tumizani Kusintha Tsiku",
+  "resignation.extension.request_type": "Mtundu wa Pempho",
+  "resignation.extension.type_extension": "Onjezerani (tsiku lamtsogolo)",
+  "resignation.extension.type_reduction": "Chepetsani (tsiku loyambirira)",
   "resignation.new_signed_letter": "Kalata Yatsopano Yosayina (Chithunzi)",
   "resignation.my_resignations": "Kusiya Ntchito Kwanga",
   "resignation.initiation_date": "Tsiku Loyambira:",

@@ -90,31 +90,21 @@
           <ion-col size="12">
             <BilingualText
               tag="p"
-              class="leaves-create-label leaves-create-label__required"
-              :class="{ 'text-danger': errors.resignationInitiationDate }"
+              class="leaves-create-label"
               tKey="resignation.resignation_initiation_date"
-              fallback="Resignation Initiation Date"
+              fallback="Resignation Effective Date"
             />
-            <div id="open-initiation-modal" class="date-selector">
-              <ion-input
-                fill="outline"
-                readonly
-                :value="formattedInitiationDate || $t('resignation.click_to_select', 'Click to select date')"
-                class="readonly-input"
-              >
-                <ion-icon slot="start" :icon="calendarOutline"></ion-icon>
-              </ion-input>
-            </div>
-
-            <ion-popover trigger="open-initiation-modal" :keep-contents-mounted="true" class="custom-calendar-popover">
-              <ion-datetime
-                presentation="date"
-                v-model="resignationInitiationDate"
-                class="brighter-calendar"
-                color="primary"
-                @ionChange="closeCalendarPopover"
-              ></ion-datetime>
-            </ion-popover>
+            <ion-input
+              fill="outline"
+              readonly
+              :value="formattedInitiationDate"
+              class="readonly-input"
+            >
+              <ion-icon
+                slot="start"
+                :icon="calendarOutline"
+              ></ion-icon>
+            </ion-input>
           </ion-col>
         </ion-row>
 
@@ -122,32 +112,27 @@
           <ion-col size="12">
             <BilingualText
               tag="p"
-              class="leaves-create-label leaves-create-label__required"
-              :class="{ 'text-danger': errors.relievingDate }"
+              class="leaves-create-label"
               tKey="resignation.requested_relieving_date"
-              fallback="Requested Relieving Date"
+              fallback="Relieving Date"
             />
-            <div id="open-relieving-modal" class="date-selector">
-              <ion-input
-                fill="outline"
-                readonly
-                :value="formattedRelievingDate || $t('resignation.click_to_select', 'Click to select date')"
-                class="readonly-input"
-              >
-                <ion-icon slot="start" :icon="calendarOutline"></ion-icon>
-              </ion-input>
-            </div>
-
-            <ion-popover trigger="open-relieving-modal" :keep-contents-mounted="true" class="custom-calendar-popover">
-              <ion-datetime
-                presentation="date"
-                v-model="relievingDate"
-                :min="minDate"
-                class="brighter-calendar"
-                color="primary"
-                @ionChange="closeCalendarPopover"
-              ></ion-datetime>
-            </ion-popover>
+            <ion-input
+              fill="outline"
+              readonly
+              :value="formattedRelievingDate"
+              class="readonly-input"
+            >
+              <ion-icon
+                slot="start"
+                :icon="calendarOutline"
+              ></ion-icon>
+            </ion-input>
+            <BilingualText
+              tag="p"
+              class="dates-fixed-note"
+              tKey="resignation.dates_fixed_note"
+              fallback="Set automatically: the effective date is the day you submit, and the relieving date is 90 days later."
+            />
           </ion-col>
         </ion-row>
 
@@ -212,9 +197,6 @@ import {
   IonSpinner,
   IonRow,
   IonCol,
-  popoverController,
-  IonPopover,
-  IonDatetime,
   IonIcon
 } from "@ionic/vue";
 import { useConfirmAlert } from "@/composable/useConfirmAlert.ts";
@@ -229,7 +211,7 @@ import resignation from "@/api/resignation";
 import { useUserStore } from "@/store/user.js";
 import { useResignationStore } from "@/store/resignation.ts";
 import { useFileAttachment } from "@/composable/useFileAttachment.ts";
-import { useNoticePeriod } from "@/composable/useNoticePeriod.ts";
+import { NOTICE_PERIOD_DAYS } from "@/composable/useNoticePeriod.ts";
 import useDateHelper from "@/composable/useDateHelper.ts";
 import { useI18n } from "vue-i18n";
 import { useSecondaryLanguage } from "@/composable/useSecondaryLanguage";
@@ -243,7 +225,6 @@ const { t } = useI18n();
 const { bilingual, bilingualInline } = useSecondaryLanguage();
 const { showAcknowledge } = useConfirmAlert();
 const { showErrorToast } = useCustomToast();
-const { checkNoticePeriod } = useNoticePeriod();
 const { dayjs } = useDateHelper();
 const router = useIonRouter();
 
@@ -301,29 +282,15 @@ const refreshResignation = async () => {
 const createFile = useFileAttachment();
 
 
-const closeCalendarPopover = async () => {
-  const topPopover = await popoverController.getTop();
-  if (topPopover) {
-    topPopover.dismiss();
-  }
-};
-
-const minDate = new Date().toISOString().split('T')[0];
-const resignationInitiationDate = ref(new Date().toISOString().split('T')[0]);
-const relievingDate = ref(new Date().toISOString().split('T')[0]);
 const reasonForExit = ref("");
 
-
-
-const formattedInitiationDate = computed(() => { if (!resignationInitiationDate.value) return ""; return dayjs(resignationInitiationDate.value.split("T")[0], "YYYY-MM-DD").format("DD-MM-YYYY"); });
-
-const formattedRelievingDate = computed(() => { if (!relievingDate.value) return ""; return dayjs(relievingDate.value.split("T")[0], "YYYY-MM-DD").format("DD-MM-YYYY"); });
+// The server sets both dates on submission; these show what they will be.
+const formattedInitiationDate = computed(() => dayjs().format("DD-MM-YYYY"));
+const formattedRelievingDate = computed(() => dayjs().add(NOTICE_PERIOD_DAYS, "day").format("DD-MM-YYYY"));
 
 const errors = reactive({
   proofDocument: false,
   supervisor: false,
-  resignationInitiationDate: false,
-  relievingDate: false,
 });
 const selectedSupervisor = ref("");
 const supervisorSearch = ref("");
@@ -358,16 +325,11 @@ const fetchSupervisor = async (empId) => {
 const validateForm = () => {
   errors.proofDocument = !createFile.attachment.value.base64;
   errors.supervisor = !selectedSupervisor.value;
-  errors.resignationInitiationDate = !resignationInitiationDate.value;
-  errors.relievingDate = !relievingDate.value;
-  return !errors.proofDocument && !errors.supervisor && !errors.resignationInitiationDate && !errors.relievingDate;
+  return !errors.proofDocument && !errors.supervisor;
 };
 
 const clearForm = () => {
   createFile.clearAttachment();
-    const baseIso = new Date().toISOString().split('T')[0];
-  resignationInitiationDate.value = baseIso;
-  relievingDate.value = baseIso;
   reasonForExit.value = "";
   isLineManager.value = false;
 };
@@ -378,8 +340,6 @@ const submitData = async () => {
     const data = {
       employee_id: userStore.user?.employee_id,
       supervisor: selectedSupervisor.value,
-      resignation_initiation_date: resignationInitiationDate.value ? resignationInitiationDate.value.split('T')[0] : "",
-      relieving_date: relievingDate.value ? relievingDate.value.split('T')[0] : "",
       reason_for_exit: reasonForExit.value,
       attachment: {
         attachment_name: createFile.attachment.value.name,
@@ -408,19 +368,6 @@ const submitData = async () => {
 const onSubmit = async () => {
   const isValidForm = validateForm();
   if (!isValidForm) return;
-
-  const initStr = resignationInitiationDate.value.split('T')[0];
-  const relStr = relievingDate.value.split('T')[0];
-
-  let isPeriodValid;
-  try {
-    isPeriodValid = await checkNoticePeriod(initStr, relStr);
-  } catch (error) {
-    console.error("Notice period check failed:", error);
-    showErrorToast(null, error?.message);
-    return;
-  }
-  if (!isPeriodValid) return;
 
   await submitData();
 };
@@ -490,9 +437,10 @@ onIonViewWillEnter(async () => {
   position: relative;
 }
 
-.date-selector {
-  cursor: pointer;
-  width: 100%;
+.dates-fixed-note {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--ion-color-medium);
 }
 
 .readonly-input {
@@ -542,22 +490,5 @@ onIonViewWillEnter(async () => {
 
 .submit-btn {
   margin-block-start: 16px;
-}
-
-ion-popover.custom-calendar-popover {
-  --background: #2a2d32;
-  --box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-  --border-radius: 12px;
-  --width: min(340px, 92vw);
-}
-
-ion-datetime.brighter-calendar {
-  --background: #2a2d32;
-  --background-rgb: 42, 45, 50;
-  --title-color: #ffffff;
-  --color: #ffffff;
-  --wheel-fade-background-rgb: 42, 45, 50;
-  --wheel-highlight-background: rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
 }
 </style>

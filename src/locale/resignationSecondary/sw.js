@@ -12,6 +12,7 @@ export default {
   "resignation.resignation_initiation_date": "Tarehe ya Kuanzisha Kujiuzulu",
   "resignation.click_to_select": "Bofya kuchagua tarehe",
   "resignation.requested_relieving_date": "Tarehe ya Kuachia Kazi Iliyoombwa",
+  "resignation.dates_fixed_note": "Imewekwa kiotomatiki: tarehe ya kuanza ni siku unayowasilisha, na tarehe ya kuachia kazi ni siku 90 baadaye.",
   "resignation.proof_letter": "Barua ya Kujiuzulu (Picha)",
   "resignation.upload_resignation_letter": "Piga Picha ya Barua ya Kujiuzulu",
   "resignation.reason_for_exit": "Sababu ya Kuondoka",
@@ -36,6 +37,9 @@ export default {
   "resignation.extension.legal_notice":
     "Kwa kubofya wasilisha, unasajili rasmi nia ya kurekebisha tarehe ya kuachia kazi kwa maombi yoyote ya kujiuzulu yanayoendelea yaliyowekwa kwenye faili.",
   "resignation.extension.submit": "Wasilisha Marekebisho ya Tarehe",
+  "resignation.extension.request_type": "Aina ya Ombi",
+  "resignation.extension.type_extension": "Ongeza (tarehe ya baadaye)",
+  "resignation.extension.type_reduction": "Punguza (tarehe ya mapema)",
   "resignation.new_signed_letter": "Barua Mpya Iliyosainiwa (Picha)",
   "resignation.my_resignations": "Kujiuzulu Kwangu",
   "resignation.initiation_date": "Tarehe ya Kuanzisha:",

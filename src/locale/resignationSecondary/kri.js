@@ -14,6 +14,7 @@ export default {
   "resignation.resignation_initiation_date": "Rizignieshon Stat Dɛt",
   "resignation.click_to_select": "Klik fo pik dɛt",
   "resignation.requested_relieving_date": "Dɛt We Yu Ask Fo Lif Wok",
+  "resignation.dates_fixed_note": "Di sistem de sɛt am: di dɛt we i stat na di de we yu sɛn am, ɛn di dɛt fo lif wok na 90 de afta dat.",
   "resignation.proof_letter": "Rizignieshon Lɛta (Foto)",
   "resignation.upload_resignation_letter": "Tek Foto Fo Di Rizignieshon Lɛta",
   "resignation.reason_for_exit": "Rizin We Yu De Lif",
@@ -38,6 +39,9 @@ export default {
   "resignation.extension.legal_notice":
     "We yu klik sɛn, yu de ofishali rejista se yu want jɛst di dɛt we yu go lif wok fo ɛni rizignieshon aplikeshon we dey go we de na fael.",
   "resignation.extension.submit": "Sɛn Dɛt Jɛstment",
+  "resignation.extension.request_type": "Kayn Rikwɛst",
+  "resignation.extension.type_extension": "Ekstɛn (leta dɛt)",
+  "resignation.extension.type_reduction": "Redius (ɔli dɛt)",
   "resignation.new_signed_letter": "Niu Sain Lɛta (Foto)",
   "resignation.my_resignations": "Mi Rizignieshon Dɛm",
   "resignation.initiation_date": "Stat Dɛt:",

@@ -12,6 +12,7 @@ export default {
   "resignation.resignation_initiation_date": "Date Wey You Start Resignation",
   "resignation.click_to_select": "Click to pick date",
   "resignation.requested_relieving_date": "Relieving Date Wey You Request",
+  "resignation.dates_fixed_note": "Na system go set am: di effective date na di day wey you submit, and di relieving date na 90 days after.",
   "resignation.proof_letter": "Resignation Letter (Photo)",
   "resignation.upload_resignation_letter": "Snap Photo Of Di Resignation Letter",
   "resignation.reason_for_exit": "Why You Dey Leave",
@@ -36,6 +37,9 @@ export default {
   "resignation.extension.legal_notice":
     "If you click submit, you dey officially register say you wan adjust di relieving date for any resignation application wey still dey process for file.",
   "resignation.extension.submit": "Submit Date Adjustment",
+  "resignation.extension.request_type": "Request Type",
+  "resignation.extension.type_extension": "Extend (later date)",
+  "resignation.extension.type_reduction": "Reduce (earlier date)",
   "resignation.new_signed_letter": "New Sign Letter (Photo)",
   "resignation.my_resignations": "My Resignations",
   "resignation.initiation_date": "Initiation Date:",

@@ -38,6 +38,37 @@
             ></ion-input>
           </ion-col>
 
+          <ion-col
+            size="12"
+            class="ion-margin-bottom"
+          >
+            <BilingualText
+              tag="p"
+              class="leaves-create-label leaves-create-label__required"
+              tKey="resignation.extension.request_type"
+              fallback="Request Type"
+            />
+            <ion-segment
+              v-model="adjustmentType"
+              class="request-type-segment"
+            >
+              <ion-segment-button value="Extension">
+                <BilingualText
+                  tag="span"
+                  tKey="resignation.extension.type_extension"
+                  fallback="Extension (later date)"
+                />
+              </ion-segment-button>
+              <ion-segment-button value="Reduction">
+                <BilingualText
+                  tag="span"
+                  tKey="resignation.extension.type_reduction"
+                  fallback="Reduction (earlier date)"
+                />
+              </ion-segment-button>
+            </ion-segment>
+          </ion-col>
+
           <ion-col size="12">
             <BilingualText
               tag="p"
@@ -145,6 +176,8 @@ import {
   IonDatetime,
   IonIcon,
   IonCol,
+  IonSegment,
+  IonSegmentButton,
   onIonViewWillEnter,
 } from "@ionic/vue";
 import PageHeader from "@/components/common/PageHeader.vue";
@@ -182,6 +215,7 @@ const triggerBack = () => {
 const extensionFile = useFileAttachment();
 
 const reason = ref("");
+const adjustmentType = ref("Extension");
 
 const { dayjs } = useDateHelper();
 const minDate = new Date().toISOString().split('T')[0];
@@ -232,6 +266,7 @@ const clearForm = () => {
   selectedSupervisor.value = "";
   isLineManager.value = false;
   reason.value = "";
+  adjustmentType.value = "Extension";
   extendedDate.value = new Date().toISOString().split('T')[0];
 };
 
@@ -251,6 +286,7 @@ const submitData = async () => {
       supervisor: selectedSupervisor.value,
       reason: reason.value,
       extended_date: extendedDate.value,
+      adjustment_type: adjustmentType.value,
       resignation_id: resignationStore.activeResignation?.name,
       attachment: {
         attachment_name: extensionFile.attachment.value.name,
@@ -309,6 +345,10 @@ onIonViewWillEnter(async () => {
 </script>
 
 <style scoped lang="scss">
+.request-type-segment {
+  margin-block-start: 4px;
+}
+
 .leaves-page {
   --padding-top: 0;
   --padding-bottom: 24px;

@@ -12,6 +12,7 @@ export default {
   "resignation.resignation_initiation_date": "इस्तीफा प्रारंभ तिथि",
   "resignation.click_to_select": "तिथि चुनने के लिए क्लिक करें",
   "resignation.requested_relieving_date": "अनुरोधित कार्यमुक्ति तिथि",
+  "resignation.dates_fixed_note": "स्वचालित रूप से तय: प्रभावी तिथि वह दिन है जब आप जमा करते हैं, और कार्यमुक्ति तिथि उसके 90 दिन बाद है।",
   "resignation.proof_letter": "इस्तीफा पत्र (फोटो)",
   "resignation.upload_resignation_letter": "इस्तीफा पत्र की फोटो लें",
   "resignation.reason_for_exit": "छोड़ने का कारण",
@@ -36,6 +37,9 @@ export default {
   "resignation.extension.legal_notice":
     "जमा करें पर क्लिक करके, आप आधिकारिक रूप से दर्ज किसी भी सक्रिय इस्तीफा आवेदन की कार्यमुक्ति तिथि समायोजित करने का इरादा दर्ज कर रहे हैं।",
   "resignation.extension.submit": "तिथि समायोजन जमा करें",
+  "resignation.extension.request_type": "अनुरोध का प्रकार",
+  "resignation.extension.type_extension": "बढ़ाना (बाद की तिथि)",
+  "resignation.extension.type_reduction": "घटाना (पहले की तिथि)",
   "resignation.new_signed_letter": "नया हस्ताक्षरित पत्र (फोटो)",
   "resignation.my_resignations": "मेरे इस्तीफे",
   "resignation.initiation_date": "प्रारंभ तिथि:",

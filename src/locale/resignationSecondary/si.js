@@ -12,6 +12,7 @@ export default {
   "resignation.resignation_initiation_date": "ඉල්ලා අස්වීම ආරම්භ කළ දිනය",
   "resignation.click_to_select": "දිනය තෝරා ගැනීමට ක්ලික් කරන්න",
   "resignation.requested_relieving_date": "ඉල්ලූ නිදහස් කිරීමේ දිනය",
+  "resignation.dates_fixed_note": "ස්වයංක්‍රීයව සකසයි: බලපැවැත්වෙන දිනය ඔබ ඉදිරිපත් කරන දිනය වන අතර, නිදහස් කිරීමේ දිනය ඉන් දින 90කට පසුවයි.",
   "resignation.proof_letter": "ඉල්ලා අස්වීමේ ලිපිය (ඡායාරූපය)",
   "resignation.upload_resignation_letter": "ඉල්ලා අස්වීමේ ලිපියේ ඡායාරූපයක් ගන්න",
   "resignation.reason_for_exit": "ඉවත් වීමට හේතුව",
@@ -36,6 +37,9 @@ export default {
   "resignation.extension.legal_notice":
     "ඉදිරිපත් කරන්න ක්ලික් කිරීමෙන්, ඔබ ලේඛනගත ඕනෑම ක්‍රියාත්මක ඉල්ලා අස්වීමේ අයදුම්පතක නිදහස් කිරීමේ දිනය සකස් කිරීමේ අභිප්‍රාය නිල වශයෙන් ලියාපදිංචි කරයි.",
   "resignation.extension.submit": "දින සකස් කිරීම ඉදිරිපත් කරන්න",
+  "resignation.extension.request_type": "ඉල්ලීමේ වර්ගය",
+  "resignation.extension.type_extension": "දිගු කිරීම (පසු දිනයක්)",
+  "resignation.extension.type_reduction": "අඩු කිරීම (පෙර දිනයක්)",
   "resignation.new_signed_letter": "නව අත්සන් කළ ලිපිය (ඡායාරූපය)",
   "resignation.my_resignations": "මගේ ඉල්ලා අස්වීම්",
   "resignation.initiation_date": "ආරම්භක දිනය:",

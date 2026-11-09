@@ -13,6 +13,7 @@ export default {
   "resignation.resignation_initiation_date": "Da A Wɔhyɛɛ Adwuma Gyae Aseɛ",
   "resignation.click_to_select": "Klik na yi da",
   "resignation.requested_relieving_date": "Da A Wɔabisa Sɛ Wɔnnyae Adwuma",
+  "resignation.dates_fixed_note": "Wɔde si hɔ ankasa: da a ɛfiri aseɛ ne da a wode mena, na da a wobɛgyae adwuma no yɛ nnafua 90 akyiri.",
   "resignation.proof_letter": "Adwuma Gyae Krataa (Mfonini)",
   "resignation.upload_resignation_letter": "Fa Mfonini Twerɛ Adwuma Gyae Krataa No",
   "resignation.reason_for_exit": "Nea Enti A Wobɛfiri Adi",
@@ -37,6 +38,9 @@ export default {
   "resignation.extension.legal_notice":
     "Sɛ wode wo nsa ka fa no kɔ so a, wode wo ho ma sɛ wopɛ sɛ wosesa adwuma gyae abisadeɛ biara a ɛrekɔ so a wɔakora so no ho da.",
   "resignation.extension.submit": "Fa Da Nsakraeɛ No Kɔ",
+  "resignation.extension.request_type": "Abisadeɛ Su",
+  "resignation.extension.type_extension": "Tenten Ma (da a ɛwɔ akyiri)",
+  "resignation.extension.type_reduction": "Twa So (da a ɛdi kan)",
   "resignation.new_signed_letter": "Krataa Foforɔ A Wɔde Nsa Ahyɛ Ase (Mfonini)",
   "resignation.my_resignations": "Me Adwuma Gyae Nsɛm",
   "resignation.initiation_date": "Ahyɛaseɛ Da:",
