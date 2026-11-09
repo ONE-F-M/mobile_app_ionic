@@ -35,7 +35,7 @@
 
           <div class="tracker-actions" v-else-if="canWithdraw">
             <ion-button
-              v-if="displayResignation.workflow_state === 'Approved'"
+              v-if="canChangeDate"
               expand="block"
               shape="round"
               color="warning"
@@ -216,7 +216,7 @@ import useDateHelper from "@/composable/useDateHelper.ts";
 import { useI18n } from "vue-i18n";
 import { useSecondaryLanguage } from "@/composable/useSecondaryLanguage";
 import { useRoute } from "vue-router";
-import { canWithdrawResignation, isWithdrawalPending } from "@/utils/resignationConstants";
+import { canRequestDateChange, canWithdrawResignation, isWithdrawalPending } from "@/utils/resignationConstants";
 
 const userStore = useUserStore();
 const resignationStore = useResignationStore();
@@ -254,6 +254,7 @@ const isTerminalView = computed(() =>
 // way to a submit screen that the backend then rejects.
 const hasPendingWithdrawal = computed(() => isWithdrawalPending(displayResignation.value));
 const canWithdraw = computed(() => canWithdrawResignation(displayResignation.value));
+const canChangeDate = computed(() => canRequestDateChange(displayResignation.value));
 const hasPendingExtension = computed(() => {
   const state = displayResignation.value?.extension_state;
   return !!state && state !== "Approved";

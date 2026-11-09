@@ -66,18 +66,22 @@ describe("ResignationCreatePage.vue actions", () => {
     setActivePinia(createPinia());
   });
 
-  test("a resignation at Pending Supervisor can be withdrawn but not extended or reduced", () => {
-    const labels = buttonLabels(mountWithResignation("Pending Supervisor"));
+  test("a resignation waiting for its first approver can be withdrawn, extended or reduced", () => {
+    for (const state of ["Pending Supervisor", "Pending Line Manager", "Pending T4 Admin"]) {
+      const labels = buttonLabels(mountWithResignation(state));
 
-    expect(labels).toContain("Withdraw Resignation");
-    expect(labels).not.toContain("Extend / Reduce Resignation");
+      expect(labels).toContain("Withdraw Resignation");
+      expect(labels).toContain("Extend / Reduce Resignation");
+    }
   });
 
-  test("an Approved resignation can be withdrawn, extended or reduced", () => {
-    const labels = buttonLabels(mountWithResignation("Approved"));
+  test("once the first approver has approved, only HR can change the date", () => {
+    for (const state of ["Pending Project Manager", "Approved"]) {
+      const labels = buttonLabels(mountWithResignation(state));
 
-    expect(labels).toContain("Withdraw Resignation");
-    expect(labels).toContain("Extend / Reduce Resignation");
+      expect(labels).toContain("Withdraw Resignation");
+      expect(labels).not.toContain("Extend / Reduce Resignation");
+    }
   });
 
   test("a pending relieving date correction shows the record form, not the old correction button", () => {
