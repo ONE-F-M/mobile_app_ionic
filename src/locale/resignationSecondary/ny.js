@@ -51,6 +51,7 @@ export default {
   "resignation.trackerTitle": "Kutsatira Kusiya Ntchito Komwe Kukupitirirabe",
   "resignation.status": "Momwe Zilili:",
   "resignation.relievingDate": "Tsiku Lopumula:",
+  "resignation.hrVisitDate": "Pitani ku HR pa:",
   "resignation.initiatedDate": "Zoyambitsidwa:",
   "resignation.supervisor_name": "Dzina la Mkulu",
   "resignation.line_manager_name": "Dzina la Mkulu Woyandikana",

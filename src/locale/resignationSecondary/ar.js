@@ -50,6 +50,7 @@ export default {
   "resignation.trackerTitle": "متابعة الاستقالة النشطة",
   "resignation.status": "الحالة:",
   "resignation.relievingDate": "تاريخ إخلاء الطرف:",
+  "resignation.hrVisitDate": "راجع الموارد البشرية في:",
   "resignation.initiatedDate": "تاريخ البدء:",
   "resignation.supervisor_name": "اسم المشرف",
   "resignation.line_manager_name": "اسم المدير المباشر",

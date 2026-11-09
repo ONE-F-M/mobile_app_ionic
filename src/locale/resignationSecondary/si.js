@@ -50,6 +50,7 @@ export default {
   "resignation.trackerTitle": "ක්‍රියාත්මක ඉල්ලා අස්වීමේ ලුහුබැඳීම",
   "resignation.status": "තත්ත්වය:",
   "resignation.relievingDate": "නිදහස් කිරීමේ දිනය:",
+  "resignation.hrVisitDate": "මානව සම්පත් අංශයට පැමිණෙන්න:",
   "resignation.initiatedDate": "ආරම්භ කළ:",
   "resignation.supervisor_name": "අධීක්ෂකගේ නම",
   "resignation.line_manager_name": "රේඛා කළමනාකරුගේ නම",

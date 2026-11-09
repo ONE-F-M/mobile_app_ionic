@@ -72,6 +72,7 @@ export default {
   trackerTitle: "متابعة الاستقالة النشطة",
   status: "الحالة:",
   relievingDate: "تاريخ إخلاء الطرف:",
+  hrVisitDate: "راجع الموارد البشرية في:",
   initiatedDate: "تاريخ البدء:",
   supervisor_name: "اسم المشرف",
   line_manager_name: "اسم المدير المباشر",

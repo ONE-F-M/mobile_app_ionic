@@ -22,6 +22,18 @@
         <BilingualText tag="span" class="label" tKey="resignation.relievingDate" fallback="Relieving Date:" />
         <span class="value">{{ resignation.relieving_date }}</span>
       </div>
+      <div
+        v-if="resignation.hr_visit_date"
+        class="date-row"
+      >
+        <BilingualText
+          tag="span"
+          class="label"
+          tKey="resignation.hrVisitDate"
+          fallback="Visit HR on:"
+        />
+        <span class="value">{{ resignation.hr_visit_date }}</span>
+      </div>
       <div class="date-row" v-if="resignation.resignation_date && showInitiated">
         <BilingualText tag="span" class="label" tKey="resignation.initiatedDate" fallback="Initiated:" />
         <span class="value">{{ resignation.resignation_date }}</span>

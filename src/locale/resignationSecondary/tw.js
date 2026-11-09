@@ -51,6 +51,7 @@ export default {
   "resignation.trackerTitle": "Adwuma Gyae A Ɛrekɔ So Ho Nhwehwɛmu",
   "resignation.status": "Tebea:",
   "resignation.relievingDate": "Adwuma Gyae Da:",
+  "resignation.hrVisitDate": "Kɔ HR hɔ da:",
   "resignation.initiatedDate": "Wɔahyɛ Aseɛ:",
   "resignation.supervisor_name": "Ɔhwɛfoɔ Din",
   "resignation.line_manager_name": "Line Manager Din",

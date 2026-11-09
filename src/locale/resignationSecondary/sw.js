@@ -50,6 +50,7 @@ export default {
   "resignation.trackerTitle": "Ufuatiliaji wa Kujiuzulu Kunakoendelea",
   "resignation.status": "Hali:",
   "resignation.relievingDate": "Tarehe ya Kuachia Kazi:",
+  "resignation.hrVisitDate": "Tembelea HR tarehe:",
   "resignation.initiatedDate": "Ilianzishwa:",
   "resignation.supervisor_name": "Jina la Msimamizi",
   "resignation.line_manager_name": "Jina la Msimamizi wa Karibu",

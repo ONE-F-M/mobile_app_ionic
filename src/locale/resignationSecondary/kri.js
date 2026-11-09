@@ -52,6 +52,7 @@ export default {
   "resignation.trackerTitle": "Rizignieshon We Dey Go Trak",
   "resignation.status": "Stetos:",
   "resignation.relievingDate": "Lif Wok Dɛt:",
+  "resignation.hrVisitDate": "Go si HR na:",
   "resignation.initiatedDate": "I Don Stat:",
   "resignation.supervisor_name": "Supavaeza In Nem",
   "resignation.line_manager_name": "Lain Manaja In Nem",

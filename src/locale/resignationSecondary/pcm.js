@@ -50,6 +50,7 @@ export default {
   "resignation.trackerTitle": "Resignation Wey Still Dey Process",
   "resignation.status": "Status:",
   "resignation.relievingDate": "Relieving Date:",
+  "resignation.hrVisitDate": "Go see HR on:",
   "resignation.initiatedDate": "E Don Start:",
   "resignation.supervisor_name": "Supervisor Name",
   "resignation.line_manager_name": "Line Manager Name",

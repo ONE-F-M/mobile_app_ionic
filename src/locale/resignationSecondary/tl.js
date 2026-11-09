@@ -50,6 +50,7 @@ export default {
   "resignation.trackerTitle": "Aktibong Track ng Pagbibitiw",
   "resignation.status": "Katayuan:",
   "resignation.relievingDate": "Petsa ng Pag-alis:",
+  "resignation.hrVisitDate": "Pumunta sa HR sa:",
   "resignation.initiatedDate": "Sinimulan:",
   "resignation.supervisor_name": "Pangalan ng Supervisor",
   "resignation.line_manager_name": "Pangalan ng Line Manager",

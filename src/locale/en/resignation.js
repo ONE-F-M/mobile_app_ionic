@@ -72,6 +72,7 @@ export default {
   trackerTitle: "Active Resignation Track",
   status: "Status:",
   relievingDate: "Relieving Date:",
+  hrVisitDate: "Visit HR on:",
   initiatedDate: "Initiated:",
   supervisor_name: "Supervisor Name",
   line_manager_name: "Line Manager Name",

@@ -51,6 +51,7 @@ export default {
   "resignation.trackerTitle": "Okugoberera Okuwummula Okugenda mu Maaso",
   "resignation.status": "Embeera:",
   "resignation.relievingDate": "Olunaku Olw'Okuvaawo:",
+  "resignation.hrVisitDate": "Kyalira HR ku:",
   "resignation.initiatedDate": "Kitandikiddwa:",
   "resignation.supervisor_name": "Erinnya ly'Omukulembeze",
   "resignation.line_manager_name": "Erinnya ly'Omukulembeze Omutuufu",

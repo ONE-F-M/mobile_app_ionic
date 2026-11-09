@@ -50,6 +50,7 @@ export default {
   "resignation.trackerTitle": "सक्रिय राजीनामा ट्र्याक",
   "resignation.status": "स्थिति:",
   "resignation.relievingDate": "कार्यमुक्ति मिति:",
+  "resignation.hrVisitDate": "एचआरमा जानुहोस्:",
   "resignation.initiatedDate": "सुरु गरिएको:",
   "resignation.supervisor_name": "सुपरभाइजरको नाम",
   "resignation.line_manager_name": "लाइन म्यानेजरको नाम",
