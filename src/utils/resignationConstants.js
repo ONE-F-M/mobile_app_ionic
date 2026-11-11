@@ -51,3 +51,8 @@ export const isWithdrawalPending = (resignation) => {
 // A resignation can be withdrawn from Draft onwards, so an employee can discard a Draft
 // they no longer want, or pull back one that is still under review or approved
 export const canWithdrawResignation = (resignation) => !!resignation?.workflow_state;
+
+// The employee can ask to change the relieving date only while the first approver reviews;
+// after that only HR can change it
+export const FIRST_REVIEW_STATES = ["Pending Line Manager", "Pending Supervisor", "Pending T4 Admin"];
+export const canRequestDateChange = (resignation) => FIRST_REVIEW_STATES.includes(resignation?.workflow_state);

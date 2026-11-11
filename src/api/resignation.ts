@@ -6,8 +6,6 @@ type ResignationParams = {
   reason_for_exit?: string;
   attachment?: string; // JSON string with attachment_name and base64
   supervisor?: string;
-  resignation_initiation_date?: string;
-  relieving_date?: string;
 };
 
 const createResignation = async (data: ResignationParams) =>
@@ -51,6 +49,7 @@ type ExtensionParams = {
   supervisor: string;
   reason: string;
   extended_date: string;
+  adjustment_type: "Extension" | "Reduction";
   resignation_id: string;
   attachment: string;
 };

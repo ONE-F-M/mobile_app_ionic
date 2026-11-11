@@ -1,6 +1,6 @@
 import { alertController } from "@ionic/vue";
 
-const NOTICE_PERIOD_DAYS = 90;
+export const NOTICE_PERIOD_DAYS = 90;
 import { useCustomToast } from "@/composable/toast.js";
 import { useI18n } from "vue-i18n";
 import { useConfirmAlert } from "@/composable/useConfirmAlert.ts";
