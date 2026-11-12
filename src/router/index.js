@@ -99,6 +99,13 @@ const routes = [
     meta: { requiresAuth: true },
   },
 
+  {
+    path: "/penalty-issuance",
+    name: "penalty-issuance",
+    component: () => import("@/views/legal/penalty/Create.vue"),
+    meta: { requiresAuth: true },
+  },
+
   // Checkin Flow
   {
     path: "/checkin",
