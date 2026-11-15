@@ -18,6 +18,7 @@ describe("serviceRouteMap", () => {
     expect(getServiceRoute("New Leave Application")).toBe("/leaves/add");
     expect(getServiceRoute("Employee Resignation")).toBe("/resignation");
     expect(getServiceRoute("Uniform Request")).toBe("/uniform-request");
+    expect(getServiceRoute("Penalty Issuance")).toBe("/penalty-issuance");
   });
 
   it("returns null for services whose route is not registered", () => {

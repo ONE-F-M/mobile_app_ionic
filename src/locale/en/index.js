@@ -7,6 +7,7 @@ import utils from "./utils";
 import resignation from "./resignation";
 import consent from "./consent";
 import processa from "./processa";
+import penalty from "./penalty";
 
 export default {
   home,
@@ -18,4 +19,5 @@ export default {
   resignation,
   consent,
   processa,
+  penalty,
 };
