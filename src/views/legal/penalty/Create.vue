@@ -17,6 +17,7 @@ import {
   IonList,
   IonModal,
   IonPage,
+  IonPopover,
   IonSearchbar,
   IonSegment,
   IonSegmentButton,
@@ -367,19 +368,24 @@ onIonViewWillEnter(() => {
           <ion-text v-if="errors.penalty_occurence_time" color="danger" class="error">
             {{ $t(errors.penalty_occurence_time) }}
           </ion-text>
-          <ion-modal :is-open="isDateOpen" @did-dismiss="isDateOpen = false">
-            <ion-content>
-              <ion-datetime
-                presentation="date-time"
-                :value="form.penalty_occurence_time || maxDate"
-                :min="minDate"
-                :max="maxDate"
-                show-default-buttons
-                @ion-change="onDateChange"
-                @ion-cancel="isDateOpen = false"
-              />
-            </ion-content>
-          </ion-modal>
+          <ion-popover
+            :is-open="isDateOpen"
+            :keep-contents-mounted="true"
+            class="calendar-popover"
+            @did-dismiss="isDateOpen = false"
+          >
+            <ion-datetime
+              class="calendar"
+              color="primary"
+              presentation="date-time"
+              :value="form.penalty_occurence_time || maxDate"
+              :min="minDate"
+              :max="maxDate"
+              show-default-buttons
+              @ion-change="onDateChange"
+              @ion-cancel="isDateOpen = false"
+            />
+          </ion-popover>
         </div>
 
         <div class="field" :class="{ 'has-error': errors.penalty_location }">
@@ -641,6 +647,23 @@ onIonViewWillEnter(() => {
 </template>
 
 <style lang="scss" scoped>
+ion-popover.calendar-popover {
+  --background: #2a2d32;
+  --box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --border-radius: 12px;
+  --width: min(340px, 92vw);
+}
+
+ion-datetime.calendar {
+  --background: #2a2d32;
+  --background-rgb: 42, 45, 50;
+  --title-color: #ffffff;
+  --color: #ffffff;
+  --wheel-fade-background-rgb: 42, 45, 50;
+  --wheel-highlight-background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+}
+
 .label {
   display: block;
   font-size: 12px;
