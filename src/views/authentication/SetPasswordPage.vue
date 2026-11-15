@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from "vue";
+import { nextTick, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import {
@@ -32,6 +32,7 @@ const step = ref("password");
 const password = ref("");
 const isIncorrectPassword = ref(false);
 const confirm_password = ref("");
+const confirmInput = ref(null);
 const authStore = useAuthStore();
 const { employeeId, userName, passwordToken, isRegistered } =
   storeToRefs(authStore);
@@ -47,12 +48,26 @@ const { register } = usePushRegistration();
 const prevStep = () => {
   router.back();
 };
-const nextStep = () => {
+const nextStep = async () => {
+  // The Continue button is disabled until a password is typed, but the keyboard
+  // path bypasses the button, so it has to re-check the same condition here.
+  if (!password.value.length) return;
+
   step.value = "confirm";
   confirm_password.value = "";
+
+  // The confirm field only mounts once the step flips, so wait for the render
+  // before focusing it. Without this the user has to tap the field to carry on.
+  await nextTick();
+  const el = confirmInput.value?.$el ?? confirmInput.value;
+  el?.setFocus?.();
 };
 
 const updatePassword = async () => {
+  // Same reasoning as nextStep: the keyboard path has to re-check what the
+  // button's disabled binding checks, including the in-flight guard.
+  if (isLoading.value || !confirm_password.value.length) return;
+
   try {
     if (password.value != confirm_password.value) {
       isIncorrectPassword.value = true;
@@ -146,6 +161,8 @@ watch(
                 fill="outline"
                 :label="$t('auth.placeholder.password')"
                 label-placement="floating"
+                enterkeyhint="next"
+                @keyup.enter="nextStep"
                 v-model="password"
               />
             </InputBox>
@@ -157,10 +174,13 @@ watch(
               :title="$t('auth.field.password')"
             >
               <ion-input
+                ref="confirmInput"
                 type="password"
                 fill="outline"
                 :label="$t('auth.placeholder.password')"
                 label-placement="floating"
+                enterkeyhint="go"
+                @keyup.enter="updatePassword"
                 :class="{
                   'ion-touched ion-invalid': isIncorrectPassword,
                 }"
