@@ -1,9 +1,9 @@
 <script setup>
 /**
- * Issue a penalty against one or more employees.
+ * Issue a penalty to one employee for one penalty type.
  *
- * The issuer, issuing time and routing (HR Enquiry or Legal Investigation) are all set
- * on the server; this screen only collects what happened, where, to whom and what for.
+ * The issuer, issuing time, Performance shift and routing (HR Enquiry or Legal Investigation)
+ * are all set on the server; this screen only collects what happened, where, to whom and what for.
  */
 import {
   IonButton,
@@ -44,12 +44,9 @@ import {
   EMPLOYEE_SEARCH_MIN_CHARS,
   MAX_DAYS_BACK,
   PENALTY_CATEGORIES,
-  PERFORMANCE,
   blankPenaltyForm,
   buildPenaltyPayload,
   employeeKey,
-  hasEmployee,
-  setCategory,
   validatePenaltyForm,
 } from "@/utils/penaltyIssuance";
 
@@ -63,7 +60,6 @@ const { showErrorToast, showSuccessToast } = useCustomToast();
 
 const ALLOWED_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
-const SERVER_TIME_FORMAT = "YYYY-MM-DD HH:mm:ss";
 
 const form = reactive(blankPenaltyForm());
 /** Field -> i18n key of its error. */
@@ -71,7 +67,6 @@ const errors = reactive({});
 const isSubmitting = ref(false);
 
 const clearError = (field) => delete errors[field];
-const isPerformance = computed(() => form.penalty_category === PERFORMANCE);
 
 const triggerBack = () => {
   router.canGoBack() ? router.back() : router.push("/dashboard");
@@ -81,11 +76,6 @@ const triggerBack = () => {
 const showRequestError = (error) => {
   if (!error?.status) return showErrorToast(t("penalty.network_error"));
   showErrorToast(error?.data?.message, error?.data?.error, error?.status);
-};
-
-const onCategoryChange = (event) => {
-  setCategory(form, event.detail.value);
-  clearError("shift");
 };
 
 // Date & Time
@@ -105,74 +95,14 @@ const onDateChange = (event) => {
   clearError("penalty_occurence_time");
 };
 
-// Shift picker
-const isShiftModalOpen = ref(false);
-const shiftResults = ref([]);
-const isShiftLoading = ref(false);
-
-const loadShifts = async (txt = "") => {
-  isShiftLoading.value = true;
-  try {
-    const { data } = await penaltyApi.getShifts(txt);
-    shiftResults.value = data?.data ?? [];
-  } catch (error) {
-    shiftResults.value = [];
-    showRequestError(error);
-  } finally {
-    isShiftLoading.value = false;
-  }
-};
-
-const openShiftPicker = () => {
-  isShiftModalOpen.value = true;
-  loadShifts();
-};
-
-/** Site, project and site_location always follow the shift; they are never typed. */
-const applyShift = (shift) => {
-  form.shift = shift.shift || "";
-  form.site = shift.site || "";
-  form.project = shift.project || "";
-  form.site_location = shift.site_location || "";
-  clearError("shift");
-};
-
-const selectShift = (shift) => {
-  applyShift(shift);
-  isShiftModalOpen.value = false;
-};
-
-// ponytail: uses the first employee's roster when several are listed.
-const isPulling = ref(false);
-const pullAsCurrent = async () => {
-  if (!form.employees.length || !form.penalty_occurence_time) {
-    return showErrorToast(t("penalty.pull_needs_input"));
-  }
-  isPulling.value = true;
-  try {
-    const { data } = await penaltyApi.getCurrentAssignment(
-      employeeKey(form.employees[0]),
-      dayjs(form.penalty_occurence_time).format(SERVER_TIME_FORMAT),
-    );
-    if (data?.data?.shift) applyShift(data.data);
-    else showErrorToast(t("penalty.no_current_assignment"));
-  } catch (error) {
-    showRequestError(error);
-  } finally {
-    isPulling.value = false;
-  }
-};
-
-// Employees
+// Employee
 const employeeQuery = ref("");
 const employeeResults = ref([]);
-const employeeMessage = ref("");
 const isEmployeeLoading = ref(false);
 
 const onEmployeeSearch = async (event) => {
   employeeQuery.value = event.detail.value || "";
   const txt = employeeQuery.value.trim();
-  employeeMessage.value = "";
   if (txt.length < EMPLOYEE_SEARCH_MIN_CHARS) {
     employeeResults.value = [];
     return;
@@ -189,16 +119,11 @@ const onEmployeeSearch = async (event) => {
   }
 };
 
-const addEmployee = (employee) => {
-  if (hasEmployee(form, employee)) {
-    employeeMessage.value = t("penalty.employee_already_added");
-    return;
-  }
-  form.employees.push(employee);
+const selectEmployee = (employee) => {
+  form.employee = employee;
   employeeQuery.value = "";
   employeeResults.value = [];
-  employeeMessage.value = "";
-  clearError("employees");
+  clearError("employee");
 };
 
 const showEmployeeResults = computed(
@@ -206,9 +131,7 @@ const showEmployeeResults = computed(
     employeeQuery.value.trim().length >= EMPLOYEE_SEARCH_MIN_CHARS && !isEmployeeLoading.value,
 );
 
-const removeEmployee = (index) => form.employees.splice(index, 1);
-
-// Violations
+// Penalty Type
 const penaltyTypes = ref([]);
 const isTypeModalOpen = ref(false);
 const typeQuery = ref("");
@@ -222,15 +145,9 @@ const typeResults = computed(() => {
       (type.penalty_code || "").toLowerCase().includes(query),
   );
 });
-
-const blankDraft = () => ({
-  penalty_type: "",
-  penalty_type_arabic: "",
-  exact_notes: "",
-  attachment: null,
-});
-const draft = reactive(blankDraft());
-const draftError = ref("");
+const penaltyTypeArabic = computed(
+  () => penaltyTypes.value.find((type) => type.name === form.penalty_type)?.penalty_name_arabic,
+);
 
 const loadPenaltyTypes = async () => {
   try {
@@ -248,12 +165,12 @@ const openTypePicker = () => {
 };
 
 const selectType = (type) => {
-  draft.penalty_type = type.name;
-  draft.penalty_type_arabic = type.penalty_name_arabic || "";
-  draftError.value = "";
+  form.penalty_type = type.name;
+  clearError("penalty_type");
   isTypeModalOpen.value = false;
 };
 
+// Attachment
 const readAsDataUrl = (file) =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -270,7 +187,7 @@ const onFilePicked = async (event) => {
     return showErrorToast(t("penalty.errors.file_type"));
   }
   if (file.size > MAX_FILE_SIZE) return showErrorToast(t("penalty.errors.file_size"));
-  draft.attachment = { name: file.name, dataUrl: await readAsDataUrl(file) };
+  form.attachment = { name: file.name, dataUrl: await readAsDataUrl(file) };
 };
 
 /** Native opens the camera/gallery prompt; web falls through to the file input. */
@@ -278,21 +195,8 @@ const onAttachClick = async (event) => {
   if (!Capacitor.isNativePlatform()) return;
   event.preventDefault();
   const photo = await pickPhoto("penalty");
-  if (photo) draft.attachment = photo;
+  if (photo) form.attachment = photo;
 };
-
-const addViolation = () => {
-  if (!draft.penalty_type) {
-    draftError.value = t("penalty.errors.penalty_type_required");
-    return;
-  }
-  form.violations.push({ ...draft });
-  Object.assign(draft, blankDraft());
-  draftError.value = "";
-  clearError("violations");
-};
-
-const removeViolation = (index) => form.violations.splice(index, 1);
 
 // Submit
 const scrollToFirstError = async () => {
@@ -330,12 +234,9 @@ const onSubmit = async () => {
 
 onIonViewWillEnter(() => {
   Object.assign(form, blankPenaltyForm());
-  Object.assign(draft, blankDraft());
   Object.keys(errors).forEach(clearError);
   employeeQuery.value = "";
   employeeResults.value = [];
-  employeeMessage.value = "";
-  draftError.value = "";
   loadPenaltyTypes();
 });
 </script>
@@ -346,7 +247,7 @@ onIonViewWillEnter(() => {
       <PageHeader :title="$t('penalty.title')" @click-back="triggerBack" />
 
       <div class="penalty-form">
-        <ion-segment :value="form.penalty_category" @ion-change="onCategoryChange">
+        <ion-segment v-model="form.penalty_category">
           <ion-segment-button
             v-for="category in PENALTY_CATEGORIES"
             :key="category.value"
@@ -401,42 +302,101 @@ onIonViewWillEnter(() => {
           </ion-text>
         </div>
 
-        <div v-if="isPerformance" class="block">
-          <h2 class="section">{{ $t("penalty.site_assignment") }}</h2>
-          <div class="field" :class="{ 'has-error': errors.shift }">
-            <span class="label">{{ $t("penalty.shift") }}</span>
-            <ion-input
-              fill="outline"
-              readonly
-              :placeholder="$t('penalty.select_shift')"
-              :value="form.shift"
-              @ion-focus="openShiftPicker"
+        <div class="field" :class="{ 'has-error': errors.employee }">
+          <span class="label">{{ $t("penalty.employee") }}</span>
+          <div v-if="form.employee" class="row">
+            <div class="row-body">
+              <span class="value">{{ form.employee.employee_name }}</span>
+              <span class="label">
+                {{ form.employee.employee_id }} · {{ form.employee.designation }}
+              </span>
+            </div>
+            <ion-button
+              fill="clear"
+              color="danger"
+              :aria-label="$t('penalty.remove')"
+              @click="form.employee = null"
+            >
+              <ion-icon slot="icon-only" :icon="closeCircleOutline" />
+            </ion-button>
+          </div>
+          <template v-else>
+            <ion-searchbar
+              :value="employeeQuery"
+              :placeholder="$t('penalty.search_employee')"
+              debounce="300"
+              @ion-input="onEmployeeSearch"
             />
-            <ion-text v-if="errors.shift" color="danger" class="error">
-              {{ $t(errors.shift) }}
-            </ion-text>
-          </div>
-          <ion-button
-            expand="block"
+            <ion-spinner v-if="isEmployeeLoading" name="crescent" />
+            <ion-list v-if="showEmployeeResults">
+              <ion-item
+                v-for="employee in employeeResults"
+                :key="employeeKey(employee)"
+                button
+                @click="selectEmployee(employee)"
+              >
+                <ion-label>
+                  <h2>{{ employee.employee_name }}</h2>
+                  <p>{{ employee.employee_id }} · {{ employee.designation }}</p>
+                </ion-label>
+              </ion-item>
+              <ion-item v-if="!employeeResults.length" lines="none">
+                <ion-label class="ion-text-center">{{ $t("penalty.no_employee_match") }}</ion-label>
+              </ion-item>
+            </ion-list>
+          </template>
+          <ion-text v-if="errors.employee" color="danger" class="error">
+            {{ $t(errors.employee) }}
+          </ion-text>
+        </div>
+
+        <div class="field" :class="{ 'has-error': errors.penalty_type }">
+          <span class="label">{{ $t("penalty.penalty_type") }}</span>
+          <ion-input
             fill="outline"
-            size="small"
-            :disabled="isPulling"
-            @click="pullAsCurrent"
+            readonly
+            :placeholder="$t('penalty.select_penalty_type')"
+            :value="form.penalty_type"
+            @ion-focus="openTypePicker"
+          />
+          <span v-if="penaltyTypeArabic" class="label">{{ penaltyTypeArabic }}</span>
+          <ion-text v-if="errors.penalty_type" color="danger" class="error">
+            {{ $t(errors.penalty_type) }}
+          </ion-text>
+        </div>
+
+        <ion-textarea
+          v-model="form.exact_notes"
+          class="field"
+          fill="outline"
+          :label="$t('penalty.remark')"
+          label-placement="stacked"
+          :placeholder="$t('penalty.remark_placeholder')"
+          auto-grow
+        />
+
+        <div class="field">
+          <span class="label">{{ $t("penalty.attachment") }}</span>
+          <input
+            id="penalty-attachment"
+            type="file"
+            accept="image/jpeg,image/png"
+            class="file-input"
+            @change="onFilePicked"
+          />
+          <label
+            v-if="!form.attachment"
+            for="penalty-attachment"
+            class="attach-button"
+            @click="onAttachClick"
           >
-            <ion-spinner v-if="isPulling" name="crescent" />
-            <span v-else>{{ $t("penalty.pull_as_current") }}</span>
-          </ion-button>
-          <div class="field">
-            <span class="label">{{ $t("penalty.site") }}</span>
-            <ion-input fill="outline" readonly :value="form.site" />
-          </div>
-          <div class="field">
-            <span class="label">{{ $t("penalty.project") }}</span>
-            <ion-input fill="outline" readonly :value="form.project" />
-          </div>
-          <div class="field">
-            <span class="label">{{ $t("penalty.site_location") }}</span>
-            <ion-input fill="outline" readonly :value="form.site_location" />
+            {{ $t("penalty.add_attachment") }}
+          </label>
+          <div v-else class="preview">
+            <img :src="form.attachment.dataUrl" :alt="form.attachment.name" />
+            <ion-button fill="clear" color="danger" size="small" @click="form.attachment = null">
+              {{ $t("penalty.remove") }}
+            </ion-button>
           </div>
         </div>
 
@@ -446,176 +406,11 @@ onIonViewWillEnter(() => {
           </ion-toggle>
         </ion-item>
 
-        <div class="block" :class="{ 'has-error': errors.employees }">
-          <h2 class="section">{{ $t("penalty.employees") }}</h2>
-          <ion-searchbar
-            :value="employeeQuery"
-            :placeholder="$t('penalty.search_employee')"
-            debounce="300"
-            @ion-input="onEmployeeSearch"
-          />
-          <ion-spinner v-if="isEmployeeLoading" name="crescent" />
-          <ion-text v-if="employeeMessage" color="danger" class="error">
-            {{ employeeMessage }}
-          </ion-text>
-          <ion-list v-if="showEmployeeResults">
-            <ion-item
-              v-for="employee in employeeResults"
-              :key="employeeKey(employee)"
-              button
-              @click="addEmployee(employee)"
-            >
-              <ion-label>
-                <h2>{{ employee.employee_name }}</h2>
-                <p>{{ employee.employee_id }} · {{ employee.designation }}</p>
-              </ion-label>
-            </ion-item>
-            <ion-item v-if="!employeeResults.length" lines="none">
-              <ion-label class="ion-text-center">{{ $t("penalty.no_employee_match") }}</ion-label>
-            </ion-item>
-          </ion-list>
-
-          <div v-for="(employee, index) in form.employees" :key="employeeKey(employee)" class="row">
-            <div class="row-body">
-              <span class="value">{{ employee.employee_name }}</span>
-              <span class="label">{{ employee.employee_id }} · {{ employee.designation }}</span>
-            </div>
-            <ion-button
-              fill="clear"
-              color="danger"
-              :aria-label="$t('penalty.remove')"
-              @click="removeEmployee(index)"
-            >
-              <ion-icon slot="icon-only" :icon="closeCircleOutline" />
-            </ion-button>
-          </div>
-          <ion-text v-if="errors.employees" color="danger" class="error">
-            {{ $t(errors.employees) }}
-          </ion-text>
-        </div>
-
-        <div class="block" :class="{ 'has-error': errors.violations }">
-          <h2 class="section">{{ $t("penalty.violations") }}</h2>
-
-          <div v-for="(violation, index) in form.violations" :key="index" class="row">
-            <div class="row-body">
-              <span class="value">{{ violation.penalty_type }}</span>
-              <span v-if="violation.penalty_type_arabic" class="label">
-                {{ violation.penalty_type_arabic }}
-              </span>
-              <span v-if="violation.exact_notes" class="notes-preview">
-                {{ violation.exact_notes }}
-              </span>
-              <span v-if="violation.attachment" class="label">
-                {{ $t("penalty.attached") }}: {{ violation.attachment.name }}
-              </span>
-            </div>
-            <ion-button
-              fill="clear"
-              color="danger"
-              :aria-label="$t('penalty.remove')"
-              @click="removeViolation(index)"
-            >
-              <ion-icon slot="icon-only" :icon="closeCircleOutline" />
-            </ion-button>
-          </div>
-
-          <div class="draft">
-            <span class="label">{{ $t("penalty.penalty_type") }}</span>
-            <ion-input
-              fill="outline"
-              readonly
-              :placeholder="$t('penalty.select_penalty_type')"
-              :value="draft.penalty_type"
-              @ion-focus="openTypePicker"
-            />
-            <span v-if="draft.penalty_type_arabic" class="label">
-              {{ draft.penalty_type_arabic }}
-            </span>
-            <ion-text v-if="draftError" color="danger" class="error">{{ draftError }}</ion-text>
-
-            <ion-textarea
-              v-model="draft.exact_notes"
-              :label="$t('penalty.notes')"
-              label-placement="stacked"
-              :placeholder="$t('penalty.notes_placeholder')"
-              auto-grow
-            />
-
-            <div class="attachment">
-              <span class="label">{{ $t("penalty.attachment") }}</span>
-              <input
-                id="penalty-attachment"
-                type="file"
-                accept="image/jpeg,image/png"
-                class="file-input"
-                @change="onFilePicked"
-              />
-              <label
-                v-if="!draft.attachment"
-                for="penalty-attachment"
-                class="attach-button"
-                @click="onAttachClick"
-              >
-                {{ $t("penalty.add_attachment") }}
-              </label>
-              <div v-else class="preview">
-                <img :src="draft.attachment.dataUrl" :alt="draft.attachment.name" />
-                <ion-button fill="clear" color="danger" size="small" @click="draft.attachment = null">
-                  {{ $t("penalty.remove") }}
-                </ion-button>
-              </div>
-            </div>
-
-            <ion-button expand="block" fill="outline" @click="addViolation">
-              {{ $t("penalty.add_violation") }}
-            </ion-button>
-          </div>
-          <ion-text v-if="errors.violations" color="danger" class="error">
-            {{ $t(errors.violations) }}
-          </ion-text>
-        </div>
-
         <ion-button expand="block" :disabled="isSubmitting" @click="onSubmit">
           <ion-spinner v-if="isSubmitting" name="crescent" />
           <span v-else>{{ $t("penalty.submit") }}</span>
         </ion-button>
       </div>
-
-      <ion-modal :is-open="isShiftModalOpen" @did-dismiss="isShiftModalOpen = false">
-        <ion-header>
-          <ion-toolbar>
-            <ion-title>{{ $t("penalty.select_shift") }}</ion-title>
-            <ion-button slot="end" fill="clear" @click="isShiftModalOpen = false">
-              {{ $t("utils.cancel") }}
-            </ion-button>
-          </ion-toolbar>
-        </ion-header>
-        <ion-content>
-          <ion-searchbar
-            :placeholder="$t('penalty.search_shift')"
-            debounce="300"
-            @ion-input="loadShifts($event.detail.value || '')"
-          />
-          <ion-spinner v-if="isShiftLoading" name="crescent" />
-          <ion-list v-else>
-            <ion-item
-              v-for="shift in shiftResults"
-              :key="shift.shift"
-              button
-              @click="selectShift(shift)"
-            >
-              <ion-label>
-                <h2>{{ shift.shift }}</h2>
-                <p>{{ shift.site }} · {{ shift.project }}</p>
-              </ion-label>
-            </ion-item>
-            <ion-item v-if="!shiftResults.length" lines="none">
-              <ion-label class="ion-text-center">{{ $t("penalty.no_shift_match") }}</ion-label>
-            </ion-item>
-          </ion-list>
-        </ion-content>
-      </ion-modal>
 
       <ion-modal :is-open="isTypeModalOpen" @did-dismiss="isTypeModalOpen = false">
         <ion-header>
@@ -680,16 +475,6 @@ ion-datetime.calendar {
   margin: 12px 0;
 }
 
-.section {
-  font-size: 15px;
-  font-weight: 600;
-  margin: 16px 0 8px;
-}
-
-.block {
-  margin-bottom: 12px;
-}
-
 .error {
   display: block;
   font-size: 12px;
@@ -713,24 +498,6 @@ ion-datetime.calendar {
 .row-body {
   flex: 1;
   min-width: 0;
-}
-
-.notes-preview {
-  display: block;
-  font-size: 12px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.draft {
-  border: 1px dashed var(--ion-color-medium);
-  border-radius: 8px;
-  padding: 10px 12px;
-}
-
-.attachment {
-  margin: 8px 0;
 }
 
 .file-input {
