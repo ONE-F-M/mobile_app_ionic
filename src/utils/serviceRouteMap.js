@@ -10,7 +10,9 @@ export const serviceRouteMap = {
   "Letters": "/letter",
   // WI-002301: keyed on the App Service name the backend creates - rename either and
   // the tile silently falls back to /service.
-  "Uniform Request": "/uniform-request"
+  "Uniform Request": "/uniform-request",
+  // Keyed on the App Service name the backend creates.
+  "Penalty Issuance": "/penalty-issuance",
 };
 
 // Paths registered in src/router/index.js; most routes are unnamed, so router.hasRoute cannot be used.
@@ -22,6 +24,7 @@ export const REGISTERED_SERVICE_ROUTES = [
   "/resignation/withdraw",
   "/resignation/extend",
   "/uniform-request",
+  "/penalty-issuance",
 ];
 
 export const getServiceRoute = (service) => {
