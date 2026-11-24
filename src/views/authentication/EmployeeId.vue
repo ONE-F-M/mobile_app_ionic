@@ -35,6 +35,10 @@ const validId = computed(() => {
 });
 
 const nextStep = async () => {
+  // The Next button is disabled until the ID is valid, but the keyboard path
+  // bypasses the button entirely, so it has to re-check both conditions here.
+  if (isLoading.value || !validId.value) return;
+
   try {
     isLoading.value = true;
     const { data } = await auth.getUserEnrollment({
@@ -87,6 +91,8 @@ onIonViewDidLeave(() => {
             fill="outline"
             :label="$t('auth.placeholder.id')"
             label-placement="floating"
+            enterkeyhint="go"
+            @keyup.enter="nextStep"
             :class="{
               'ion-touched': employeeId,
               'ion-invalid': !validId,
