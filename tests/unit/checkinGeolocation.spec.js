@@ -39,7 +39,9 @@ vi.mock("vue-i18n", () => ({ useI18n: () => ({ t: (key) => key }) }));
 vi.mock("@capacitor/core", () => ({ Capacitor: { getPlatform: () => "web" } }));
 vi.mock("@googlemaps/js-api-loader", () => ({ Loader: vi.fn() }));
 vi.mock("@/utils/geolocation.js", () => ({ getCurrentPositionSafe: vi.fn() }));
-vi.mock("@/api/checkin", () => ({ default: { getSiteLocation: vi.fn(), verifyCheckin: vi.fn() } }));
+vi.mock("@/api/checkin", () => ({
+  default: { getSiteLocation: vi.fn(), verifyCheckin: vi.fn(), acknowledgePenalties: vi.fn() },
+}));
 vi.mock("@/api/utils", () => ({
   default: { getGoogleMapApiKey: vi.fn(async () => ({ data: { data: { google_map_api: "test" } } })) },
 }));
@@ -75,6 +77,7 @@ const mountPage = async () => {
         IconScan: true,
         IconClose: true,
         MyLocation: true,
+        MdiIcon: true,
       },
     },
   });
@@ -134,5 +137,25 @@ describe("CheckinGeolocation.vue", () => {
     expect(getCurrentPositionSafe).toHaveBeenCalledTimes(2);
     expect(checkin.getSiteLocation).toHaveBeenCalledTimes(2);
     expect(outsideModalIsOpen(wrapper)).toBe(true);
+  });
+
+  test("pending penalties block check-in until they are dismissed", async () => {
+    const pending = [{ name: "PI-000001-TEST-EMP", penalty_issuance: "PI-000001" }];
+    const response = siteLocationResponse(true);
+    response.data.data.pending_penalties = pending;
+    checkin.getSiteLocation.mockResolvedValue(response);
+    checkin.acknowledgePenalties.mockResolvedValue({ data: { data: { acknowledged: 1 } } });
+
+    const wrapper = await mountPage();
+    const notice = wrapper.findComponent({ name: "PenaltyNoticeModal" });
+
+    expect(notice.props("penalties")).toEqual(pending);
+    expect(wrapper.findComponent({ name: "IonButton" }).attributes("disabled")).toBe("true");
+
+    notice.vm.$emit("acknowledged");
+    await flushPromises();
+
+    expect(notice.props("penalties")).toEqual([]);
+    expect(wrapper.findComponent({ name: "IonButton" }).attributes("disabled")).toBe("false");
   });
 });
