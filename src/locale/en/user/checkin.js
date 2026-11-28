@@ -37,6 +37,17 @@ export default {
     fallback:
       "Check-In Unavailable: Unable to verify check-in requirements due to System Issues.",
   },
+  penalty_notice: {
+    title: "Penalty Issued",
+    description: "The following penalties have been issued against you. An enquiry or investigation will follow and you will be notified of the outcome.",
+    reference: "Reference",
+    issuer: "Issued by",
+    category: "Category",
+    occurred_at: "Date and time",
+    dismiss: "Dismiss",
+    dismiss_failed: "Could not dismiss the notice",
+    try_again: "Check your connection and try again.",
+  },
   in: "IN",
   out: "OUT",
   employee_name: "Employee Name",

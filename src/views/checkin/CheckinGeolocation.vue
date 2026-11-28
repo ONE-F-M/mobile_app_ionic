@@ -19,6 +19,7 @@ import {
 } from "@/utils/geolocation.js";
 import Header from "@/components/Header.vue";
 import CheckinBanner from "@/components/checkin/CheckinBanner.vue";
+import PenaltyNoticeModal from "@/components/checkin/PenaltyNoticeModal.vue";
 import {
   computed,
   onBeforeUnmount,
@@ -65,6 +66,8 @@ const verifyVideoMime = ref("");
 const coordinates = ref("");
 // Why check-in is unavailable, shown for as long as the check-in button is hidden.
 const blockerMessage = ref("");
+// Penalty notices the employee must dismiss before checking in or out.
+const pendingPenalties = ref([]);
 const isOpen = ref(false);
 const isLoading = ref(false);
 const isLoadingLocation = ref(false);
@@ -145,7 +148,7 @@ const startVerifyPerson = async () => {
     return;
   }
   const isSiteLocationResolved = await getSiteLocation();
-  if (!isSiteLocationResolved || !isUserWithinGeofenceRadius.value) {
+  if (!isSiteLocationResolved || !isUserWithinGeofenceRadius.value || pendingPenalties.value.length) {
     isSubmitting.value = false;
     return;
   }
@@ -231,6 +234,7 @@ const getSiteLocation = async () => {
     isUserWithinGeofenceRadius.value = data.data.user_within_geofence_radius;
     faceRecEndpointEnabled.value = data.data.endpoint_status;
     shift.value = data.data.shift;
+    pendingPenalties.value = data.data.pending_penalties || [];
     blockerMessage.value = "";
     return true;
   } catch (error) {
@@ -488,6 +492,7 @@ onIonViewWillLeave(() => {
   logType.value = "";
   shift.value = null;
   blockerMessage.value = "";
+  pendingPenalties.value = [];
 });
 
 onIonViewDidLeave(() => {
@@ -537,7 +542,7 @@ onDeactivated(cleanup);
             <p class="checkin-shift">{{ siteName || shift.shift }}</p>
           </div>
           <ion-button v-if="logType" @click="startVerifyPerson" shape="round" class="checkin-button"
-            :color="logType === 'IN' ? 'success' : 'danger'" :disabled="isSubmitting">
+            :color="logType === 'IN' ? 'success' : 'danger'" :disabled="isSubmitting || pendingPenalties.length > 0">
             {{
               logType === "IN"
                 ? $t("user.checkin.checkin")
@@ -602,6 +607,8 @@ onDeactivated(cleanup);
         </div>
       </ion-row>
     </ion-modal>
+
+    <PenaltyNoticeModal :penalties="pendingPenalties" @acknowledged="pendingPenalties = []" />
 
     <ion-modal :is-open="hasUserRejectedLocation">
       <ion-row class="geolocation-page-outside-location ion-align-items-center ion-justify-content-center">

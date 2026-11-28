@@ -22,8 +22,15 @@ const verifyCheckin = async (payload: LocationPayload) =>
     data: payload,
   });
 
+// Marks the penalty notices the app showed as read; returns data.acknowledged.
+const acknowledgePenalties = async (names: string[]) =>
+  await httpService.post(`v1.face_recognition.acknowledge_penalties`, {
+    data: { names: JSON.stringify(names) },
+  });
+
 export default {
   getSiteLocation,
   getCheckinList,
   verifyCheckin,
+  acknowledgePenalties,
 };
